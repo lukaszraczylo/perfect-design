@@ -82,7 +82,7 @@ let resizeObserver: ResizeObserver | null = null
 let settleTimer: number | undefined
 let settled = 0
 const fill = (template: string, n: number, total: number) => template.replace('{n}', String(n)).replace('{total}', String(total))
-const isRtl = () => !!track.value && getComputedStyle(track.value).direction === 'rtl'
+const isRtl = () => !!track.value && typeof getComputedStyle === 'function' && getComputedStyle(track.value).direction === 'rtl'
 
 const view = computed(() => pickColumns(props.perView, [1, 2, 3] as const, 1))
 const variant = computed(() => resolveTestimonialVariant(props.variant))
