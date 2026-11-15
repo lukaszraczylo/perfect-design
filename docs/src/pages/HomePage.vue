@@ -24,7 +24,7 @@ const tokenTotal = COLOR_GROUPS.reduce((n, g) => n + g.tokens.length, 0)
 </script>
 
 <template>
-  <div class="mx-auto max-w-4xl">
+  <div class="w-full min-w-0">
     <h1 class="text-4xl font-semibold tracking-tight text-balance">Vue components and design tokens for our Tailwind apps</h1>
     <p class="mt-4 max-w-2xl text-md text-muted-foreground text-pretty">
       {{ entries.length }} documented components in {{ tree.length }} groups, one token set, tested in light and dark. Built from patterns that repeat across many Vue apps, so each app can replace its local copies.

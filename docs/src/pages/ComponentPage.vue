@@ -46,7 +46,7 @@ const importLine = computed(() => {
 </script>
 
 <template>
-  <article v-if="doc" class="mx-auto w-full max-w-4xl 2xl:max-w-none">
+  <article v-if="doc" class="w-full min-w-0">
     <nav aria-label="Breadcrumb" class="mb-3 text-sm text-muted-foreground">
       <RouterLink to="/components" class="hover:underline">Components</RouterLink> /
       <RouterLink :to="`/components/${doc.group}`" class="hover:underline">{{ GROUP_META[doc.group]?.title ?? doc.group }}</RouterLink> /

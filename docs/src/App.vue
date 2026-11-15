@@ -44,7 +44,7 @@ const modeLabel = computed(() => `Colour mode: ${shownMode.value}. Click to chan
       <Button variant="ghost" size="icon" :aria-label="modeLabel" @click="theme.cycleMode()"><Icon :icon="modeIcon" /></Button>
     </div>
   </header>
-  <div class="mx-auto flex max-w-[90rem]">
+  <div class="flex w-full min-w-0">
     <aside id="site-nav" class="fixed inset-y-14 start-0 z-30 w-72 max-w-[85vw] shrink-0 overflow-y-auto overscroll-contain border-e bg-sidebar p-4 motion-safe:transition-transform lg:sticky lg:top-14 lg:h-[calc(100dvh-3.5rem)] lg:translate-x-0" :class="menuOpen ? 'translate-x-0' : 'max-lg:invisible -translate-x-full rtl:translate-x-full'">
       <SearchBox class="mb-4 sm:hidden" />
       <SideNav />
