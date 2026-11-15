@@ -10,6 +10,8 @@ on:
 
 permissions:
   contents: write
+  # Trusted publishing: npmjs.com accepts this workflow's OIDC identity as the publish credential.
+  id-token: write
 
 jobs:
   verify:
@@ -35,10 +37,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 10.26.2
+      # No registry-url: it would write an _authToken placeholder into .npmrc, which disables the
+      # OIDC exchange that trusted publishing relies on.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
       - name: Build library
         run: pnpm --filter @perfect-design/ui build
@@ -79,16 +82,13 @@ jobs:
           path: packages/ui/${{ env.TARBALL }}
           if-no-files-found: error
 
-      # Optional mirror. Without the NPM_TOKEN secret this step is skipped, and a registry rejection
-      # never fails the release: GitHub already has the package.
-      - name: Publish to npm (optional mirror)
+      # Optional mirror through trusted publishing: npmjs.com has this workflow registered as the
+      # package's trusted publisher, so the run's OIDC identity is the credential and no secret is
+      # needed. A registry rejection never fails the release: GitHub already has the tarball.
+      - name: Publish to npm (trusted publishing, optional mirror)
         working-directory: packages/ui
         continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::notice::NPM_TOKEN is not set - skipping the npm publish; the GitHub Release has the tarball."
-            exit 0
-          fi
-          npm publish
+          # OIDC publishing needs npm 11.5 or newer; the Node 22 toolchain ships npm 10.
+          npm install -g npm@latest
+          npm publish --provenance --access public
