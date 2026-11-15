@@ -128,7 +128,8 @@ function currentIndex(el: HTMLElement): number {
 
 /** Runs once scrolling has stopped (`scrollend`, or a short debounce): announce only when the slide actually changed. */
 function settle() {
-  window.clearTimeout(settleTimer)
+  const w = typeof window === 'undefined' ? undefined : window
+  w?.clearTimeout(settleTimer)
   const el = track.value
   if (!el) return
   const count = el.children.length
