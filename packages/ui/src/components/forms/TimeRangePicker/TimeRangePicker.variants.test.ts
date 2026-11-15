@@ -167,6 +167,9 @@ describe('TimeRangePicker variations: variant', () => {
       ;(radio(w, 'custom').element as HTMLElement).focus()
       await flushPromises()
       await radio(w, 'custom').trigger('keydown', { key: 'ArrowLeft' })
+      // reka-ui checks the newly focused radio in a `setTimeout(0)` (RadioGroupItem's handleFocus), so the selection is
+      // not there after a microtask flush. Wait for the condition instead of a fixed tick.
+      await vi.waitFor(() => expect(radio(w, 'today').attributes('aria-checked')).toBe('true'))
       await flushPromises()
       expect(radio(w, 'today').attributes('aria-checked')).toBe('true')
       expect(last(w)).toEqual({ from: utc(2024, 5, 15), to: NOW })
