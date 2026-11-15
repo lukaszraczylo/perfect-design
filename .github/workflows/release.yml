@@ -91,4 +91,19 @@ jobs:
         run: |
           # OIDC publishing needs npm 11.5 or newer; the Node 22 toolchain ships npm 10.
           npm install -g npm@latest
-          npm publish --provenance --access public
+          VERSION=$(node -p "require('./package.json').version")
+          # The Sigstore transparency log occasionally resets the connection, which fails the
+          # publish after the tarball upload; retry, and treat an already-present version as done.
+          for attempt in 1 2 3; do
+            if npm publish --provenance --access public; then
+              echo "::notice::published @perfect-design/ui@$VERSION to npm"
+              exit 0
+            fi
+            if npm view "@perfect-design/ui@$VERSION" version >/dev/null 2>&1; then
+              echo "::notice::@perfect-design/ui@$VERSION is already on the registry"
+              exit 0
+            fi
+            echo "::warning::npm publish attempt $attempt failed; retrying in 15s"
+            sleep 15
+          done
+          exit 1
