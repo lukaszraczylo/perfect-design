@@ -149,6 +149,7 @@
 - [NavLink](/components/navigation/nav-link): Navigation link with an active state (aria-current), optional icon and badge. Router-agnostic. (Links)
 - [Menubar](/components/navigation/menubar): Desktop-style horizontal menu bar (File, Edit, View) whose menus open from triggers with full keyboard roving. (Menus)
 - [NavigationMenu](/components/navigation/navigation-menu): Site navigation bar with hover/click mega-menu panels, an optional shared viewport and an optional indicator. (Menus)
+- [Toolbar](/components/navigation/toolbar): A row or column of related controls that is one tab stop and moves focus with the arrow keys (WAI-ARIA toolbar). (Menus)
 - [Pagination](/components/navigation/pagination): Page navigation with first/prev/next/last, sibling window and ellipses. Compact "Page X of Y" on small screens. (Paging)
 - [Stepper](/components/navigation/stepper): Shows progress through a multi-step flow, horizontal or vertical, optionally clickable. (Progress)
 - [Accordion](/components/navigation/accordion): Vertically stacked sections that expand and collapse. Single or multiple open items. Built on reka-ui. (Tabs & disclosure)

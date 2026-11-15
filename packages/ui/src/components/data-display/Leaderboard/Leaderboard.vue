@@ -132,6 +132,7 @@ const rest = computed(() => (variant.value === 'podium' ? rows.value.slice(3) : 
 const hasDelta = computed(() => rows.value.some((r) => r.delta !== null))
 
 const labels = computed(() => ({ rank: 'Rank', name: 'Name', value: 'Value', delta: 'Change', ...props.columnLabels }))
+const rankPrefix = computed(() => `${labels.value.rank} `)
 const numberProps = computed(() => ({ ...props.valueFormat, locale: props.locale }))
 const deltaProps = computed(() => ({ ...numberProps.value, signDisplay: 'exceptZero' as const }))
 const formatted = (r: LeaderboardRow) => formatNumber(r.entry.value, toFormatOptions(props.valueFormat, props.locale))
@@ -154,14 +155,12 @@ const avatarOf = (r: LeaderboardRow) => avatarParts(r.entry.avatar)
 </script>
 
 <template>
-  <!-- Empty -->
   <div v-if="rows.length === 0" v-bind="rootAttrs" data-slot="leaderboard" data-empty="" role="group" :data-variant="variant" :class="cn('min-w-0 max-w-full text-foreground', size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-base' : 'text-sm', props.class)">
     <slot name="empty">
       <p data-slot="leaderboard-empty" class="py-6 text-center text-muted-foreground">{{ emptyText }}</p>
     </slot>
   </div>
 
-  <!-- Table -->
   <div v-else-if="variant === 'table'" v-bind="rootAttrs" data-slot="leaderboard" data-variant="table" :data-size="dataSize" :data-density="dataDensity" role="region" tabindex="0" :class="regionClasses">
     <table data-slot="leaderboard-table" class="w-full border-collapse text-start" :aria-label="hasText(label) ? undefined : (attrs['aria-label'] as string | undefined)" :aria-labelledby="hasText(label) ? undefined : (attrs['aria-labelledby'] as string | undefined)">
       <caption v-if="hasText(label)" class="sr-only">{{ label }}</caption>
@@ -199,11 +198,10 @@ const avatarOf = (r: LeaderboardRow) => avatarParts(r.entry.avatar)
     </table>
   </div>
 
-  <!-- Podium: top three as 2-1-3, the rest below -->
   <div v-else-if="variant === 'podium'" v-bind="rootAttrs" data-slot="leaderboard" data-variant="podium" :data-size="dataSize" :data-density="dataDensity" role="group" :class="rootClasses">
     <ol data-slot="leaderboard-podium" role="list" class="flex min-w-0 items-end gap-2">
       <li v-for="(r, i) in top" :key="r.key" data-slot="leaderboard-item" :data-place="PLACES[i]" :data-rank="r.rank ?? undefined" :data-tied="r.tied ? '' : undefined" :aria-current="isHighlighted(r) ? 'true' : undefined" :class="leaderboardPodiumVariants({ place: PLACES[i], highlighted: isHighlighted(r) })">
-        <span v-if="showRank" data-slot="leaderboard-rank" class="text-lg font-semibold tabular-nums text-muted-foreground"><span class="sr-only">{{ labels.rank }} </span>{{ r.rank ?? '-' }}</span>
+        <span v-if="showRank" data-slot="leaderboard-rank" class="text-lg font-semibold tabular-nums text-muted-foreground"><span class="sr-only">{{ rankPrefix }}</span>{{ r.rank ?? '-' }}</span>
         <span v-if="avatarOf(r)" aria-hidden="true" class="shrink-0"><Avatar alt="" :src="avatarOf(r)!.src" :fallback="avatarOf(r)!.fallback || getInitials(r.entry.label)" :size="PODIUM_AVATAR[size]" /></span>
         <slot name="entry" :entry="r.entry" :rank="r.rank" :index="r.index" :highlighted="isHighlighted(r)">
           <span data-slot="leaderboard-label" class="w-full min-w-0 truncate font-medium" :title="r.entry.label">{{ r.entry.label }}</span>
@@ -218,7 +216,7 @@ const avatarOf = (r: LeaderboardRow) => avatarParts(r.entry.avatar)
     </ol>
     <ol v-if="rest.length > 0" data-slot="leaderboard-rest" role="list" class="flex min-w-0 flex-col">
       <li v-for="r in rest" :key="r.key" data-slot="leaderboard-item" :data-rank="r.rank ?? undefined" :data-tied="r.tied ? '' : undefined" :aria-current="isHighlighted(r) ? 'true' : undefined" :class="rowClasses(r)">
-        <span v-if="showRank" data-slot="leaderboard-rank" :class="rankClasses"><span class="sr-only">{{ labels.rank }} </span>{{ r.rank ?? '-' }}</span>
+        <span v-if="showRank" data-slot="leaderboard-rank" :class="rankClasses"><span class="sr-only">{{ rankPrefix }}</span>{{ r.rank ?? '-' }}</span>
         <span v-if="avatarOf(r)" aria-hidden="true" class="shrink-0"><Avatar alt="" :src="avatarOf(r)!.src" :fallback="avatarOf(r)!.fallback || getInitials(r.entry.label)" :size="LIST_AVATAR[size]" /></span>
         <span class="flex min-w-0 flex-1 flex-col gap-1">
           <span class="flex min-w-0 items-center gap-2">
@@ -239,10 +237,9 @@ const avatarOf = (r: LeaderboardRow) => avatarParts(r.entry.avatar)
     </ol>
   </div>
 
-  <!-- List -->
   <ol v-else v-bind="rootAttrs" data-slot="leaderboard" data-variant="list" :data-size="dataSize" :data-density="dataDensity" role="list" :class="rootClasses">
     <li v-for="r in rows" :key="r.key" data-slot="leaderboard-item" :data-rank="r.rank ?? undefined" :data-tied="r.tied ? '' : undefined" :aria-current="isHighlighted(r) ? 'true' : undefined" :class="rowClasses(r)">
-      <span v-if="showRank" data-slot="leaderboard-rank" :class="rankClasses"><span class="sr-only">{{ labels.rank }} </span>{{ r.rank ?? '-' }}</span>
+      <span v-if="showRank" data-slot="leaderboard-rank" :class="rankClasses"><span class="sr-only">{{ rankPrefix }}</span>{{ r.rank ?? '-' }}</span>
       <span v-if="avatarOf(r)" aria-hidden="true" class="shrink-0"><Avatar alt="" :src="avatarOf(r)!.src" :fallback="avatarOf(r)!.fallback || getInitials(r.entry.label)" :size="LIST_AVATAR[size]" /></span>
       <span class="flex min-w-0 flex-1 flex-col gap-1">
         <span class="flex min-w-0 items-center gap-2">

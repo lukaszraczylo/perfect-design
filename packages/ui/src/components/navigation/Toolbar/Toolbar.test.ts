@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { defineComponent, h, ref } from 'vue'
+import { ToolbarRoot } from 'reka-ui'
 import { Toolbar, ToolbarButton, ToolbarLink, ToolbarSeparator, ToolbarToggleGroup, ToolbarToggleItem, toolbarVariants } from './index'
 import { faCopy } from '../../../lib/icons'
 import Icon from '../../primitives/Icon/Icon.vue'
@@ -28,7 +29,8 @@ function build(rootProps: Record<string, unknown> = {}, children?: () => unknown
 const root = () => document.body.querySelector('[data-slot="toolbar"]') as HTMLElement
 const buttons = () => [...document.body.querySelectorAll<HTMLElement>('[data-slot="toolbar-button"]')]
 const press = (el: Element, key: string) => el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
-const tabbable = () => [...document.body.querySelectorAll<HTMLElement>('[data-slot="toolbar"] [tabindex]')].filter((e) => e.tabIndex === 0)
+// One tab stop for the whole bar: the bar itself until an item has focus (it hands focus to an item), then that item.
+const tabbable = () => [...document.body.querySelectorAll<HTMLElement>('[data-slot="toolbar"], [data-slot="toolbar"] [tabindex]')].filter((e) => e.tabIndex === 0)
 
 describe('Toolbar', () => {
   describe('good path', () => {
@@ -76,8 +78,8 @@ describe('Toolbar', () => {
 
     it('a part can override the size of the bar', () => {
       build({ size: 'lg' }, () => [h(ToolbarButton, { size: 'sm' }, () => 'Small')])
-      expect(buttons()[0].className).toContain('h-8')
-      expect(buttons()[0].className).not.toContain('h-11')
+      expect(buttons()[0].className).toContain(' h-8 ')
+      expect(buttons()[0].className).not.toContain(' h-11 ')
     })
 
     it('a primary button has the solid fill', () => {
@@ -102,9 +104,9 @@ describe('Toolbar', () => {
         h(ToolbarLink, { href: '/sample', class: 'h-14' }, () => 'Link'),
       ])
       expect(root().className).toContain('p-6')
-      expect(root().className).not.toContain('p-1 ')
+      expect(root().className).not.toMatch(/\bp-1\b/)
       expect(buttons()[0].className).toContain('h-20')
-      expect(buttons()[0].className).not.toContain('h-9')
+      expect(buttons()[0].className).not.toMatch(/\bh-9\b/)
       expect(document.querySelector('[data-slot="toolbar-toggle-group"]')!.className).toContain('gap-9')
       expect(document.querySelector('[data-slot="toolbar-toggle-item"]')!.className).toContain('h-16')
       expect(document.querySelector('[data-slot="toolbar-separator"]')!.className).toContain('my-9')
@@ -158,12 +160,24 @@ describe('Toolbar', () => {
       expect(root().children).toHaveLength(0)
     })
 
-    it('parts render alone without a toolbar (no context)', () => {
+    it('parts inside a bare reka-ui ToolbarRoot (no design-system context) use the defaults', () => {
       wrapper = mount(
-        defineComponent({ setup: () => () => h('div', null, [h(ToolbarSeparator)]) }),
+        defineComponent({
+          setup: () => () =>
+            h(ToolbarRoot, { 'aria-label': 'Sample' }, () => [
+              h(ToolbarButton, null, () => 'A'),
+              h(ToolbarToggleGroup, { type: 'multiple' }, () => h(ToolbarToggleItem, { value: 'b' }, () => 'B')),
+              h(ToolbarSeparator),
+              h(ToolbarLink, { href: '/sample' }, () => 'Docs'),
+            ]),
+        }),
         { attachTo: document.body },
       )
-      expect(document.querySelector('[data-slot="toolbar-separator"]')).toBeNull()
+      expect(buttons()[0].className).toContain(' h-9 ')
+      expect(document.querySelector('[data-slot="toolbar-toggle-item"]')!.className).toContain(' h-9 ')
+      expect(document.querySelector('[data-slot="toolbar-link"]')!.className).toContain(' h-9 ')
+      expect(document.querySelector('[data-slot="toolbar-separator"]')!.getAttribute('aria-orientation')).toBe('vertical')
+      expect(document.querySelector('[data-slot="toolbar-toggle-group"]')!.className).toContain('flex-row')
     })
 
     it('handles 200 buttons and keeps exactly one tab stop', async () => {
@@ -190,12 +204,22 @@ describe('Toolbar', () => {
   })
 
   describe('keyboard (roving focus)', () => {
-    it('only the first item is tabbable and Tab leaves the toolbar', async () => {
+    it('the bar is one tab stop that hands focus to an item; items are not tabbable until one has focus', async () => {
       build()
       await flushPromises()
-      expect(tabbable()).toHaveLength(1)
-      expect(tabbable()[0]).toBe(buttons()[0])
-      expect(buttons().slice(1).every((b) => b.tabIndex === -1)).toBe(true)
+      expect(tabbable()).toEqual([root()])
+      expect(buttons().every((b) => b.tabIndex === -1)).toBe(true)
+      root().focus()
+      await flushPromises()
+      expect(document.activeElement).toBe(buttons()[0])
+    })
+
+    it('after focus moves the tab stop follows it, so Tab leaves from the item that was last used', async () => {
+      build()
+      await flushPromises()
+      buttons()[1].focus()
+      await flushPromises()
+      expect(buttons().map((b) => b.tabIndex)).toEqual([-1, 0, -1])
     })
 
     it('ArrowRight and ArrowLeft move focus and the tab stop', async () => {
@@ -205,7 +229,7 @@ describe('Toolbar', () => {
       press(buttons()[0], 'ArrowRight')
       await flushPromises()
       expect(document.activeElement).toBe(buttons()[1])
-      expect(tabbable()).toEqual([buttons()[1]])
+      expect(buttons().map((b) => b.tabIndex)).toEqual([-1, 0, -1])
       press(buttons()[1], 'ArrowLeft')
       await flushPromises()
       expect(document.activeElement).toBe(buttons()[0])
@@ -404,13 +428,14 @@ describe('Toolbar', () => {
       expect(root().className).not.toContain('overflow-x-auto')
     })
 
-    it('scroll keeps one line and scrolls inside the bar without adding a tab stop', async () => {
+    it('scroll keeps one line and scrolls inside the bar with a single tab stop', async () => {
       build({ overflow: 'scroll' })
       await flushPromises()
       expect(root().className).toContain('flex-nowrap')
       expect(root().className).toContain('overflow-x-auto')
-      expect(root().hasAttribute('tabindex')).toBe(false)
-      expect(tabbable()).toHaveLength(1)
+      // The bar is itself the (single) tab stop, so a keyboard user can always reach a scrollable bar without an extra tabindex.
+      expect(root().getAttribute('tabindex')).toBe('0')
+      expect(tabbable()).toEqual([root()])
       expect(buttons()[0].className).toContain('focus-visible:ring-inset')
       expect(buttons()[0].className).toContain('shrink-0')
     })

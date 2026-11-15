@@ -60,9 +60,12 @@ const SAMPLE: Record<string, Record<string, unknown>> = {
   ActivityFeed: { label: 'Sample activity', events: [{ id: 'a', actor: 'Deploy bot', action: 'deployed', target: 'Sample app', time: '2026-03-04T11:42:00Z', tone: 'success' }, { id: 'b', actor: 'Reviewer 1', action: 'approved', time: '2026-03-03T10:00:00Z' }], now: '2026-03-04T12:00:00Z', timeZone: 'UTC', locale: 'en' },
   ModelPicker: { options: [{ id: 'draft', label: 'Draft - fast', description: 'Quick first pass.', badges: ['Fast'] }, { id: 'review', label: 'Review - careful' }], modelValue: 'draft' },
   CountBadge: { count: 5, label: '5 sample items' },
+  // Without entries the empty state renders, which ignores density (and most other look props).
+  Leaderboard: { label: 'Sample leaderboard', entries: [{ id: 'a', label: 'Alpha', value: 10 }, { id: 'b', label: 'Beta', value: 5 }, { id: 'c', label: 'Gamma', value: 2 }] },
   // jsdom has no layout, so the toggle only renders when it starts expanded; its look props (appearance, size, align) need it.
   ShowMore: { expanded: true },
   DiffViewer: { label: 'Sample diff', oldText: 'a\nb\nc', newText: 'a\nB\nc\nd' },
+  LogViewer: { label: 'Sample log', lines: ['INFO started', { level: 'error', message: 'failed', time: '10:00:01' }, 'plain line'] },
 }
 // Documented looks that currently render identically to the default: real findings, to be fixed (make the prop work or
 // correct the docs). This is a ratchet: when one is fixed its entry here must be removed (the test below fails otherwise).

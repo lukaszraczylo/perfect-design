@@ -149,6 +149,7 @@
 - [NavLink](/components/navigation/nav-link): Navigation link with an active state (aria-current), optional icon and badge. Router-agnostic. (Links)
 - [Menubar](/components/navigation/menubar): Desktop-style horizontal menu bar (File, Edit, View) whose menus open from triggers with full keyboard roving. (Menus)
 - [NavigationMenu](/components/navigation/navigation-menu): Site navigation bar with hover/click mega-menu panels, an optional shared viewport and an optional indicator. (Menus)
+- [Toolbar](/components/navigation/toolbar): A row or column of related controls that is one tab stop and moves focus with the arrow keys (WAI-ARIA toolbar). (Menus)
 - [Pagination](/components/navigation/pagination): Page navigation with first/prev/next/last, sibling window and ellipses. Compact "Page X of Y" on small screens. (Paging)
 - [Stepper](/components/navigation/stepper): Shows progress through a multi-step flow, horizontal or vertical, optionally clickable. (Progress)
 - [Accordion](/components/navigation/accordion): Vertically stacked sections that expand and collapse. Single or multiple open items. Built on reka-ui. (Tabs & disclosure)
@@ -9293,7 +9294,7 @@ import { Input } from '@perfect-design/ui'
 Props:
 - modelValue: string | number | null - v-model value. `null`/`undefined` render as empty. Uncontrolled when omitted.
 - type: string = 'text' - Native input type (`text`, `email`, `url`, `tel`, `number`, ...).
-- variant: 'outline' | 'filled' | 'underline' | 'ghost' = 'outline' - Surface. `filled` uses a muted fill, `underline` keeps only a bottom border (thicker on focus), `ghost` shows the border on hover and fills on focus. Unknown values fall back to `outline`.
+- variant: 'outline' | 'filled' | 'underline' | 'ghost' = 'outline' - Surface. `filled` uses a muted fill (the card colour in dark mode, at least 1.15:1 away from the outline fill there, 1.25:1 measured in Chrome on the page background), `underline` keeps only a bottom border (thicker on focus), `ghost` shows the border on hover and fills on focus. Unknown values fall back to `outline`.
 - size: 'xs' | 'sm' | 'md' | 'lg' = 'md' - Height: 28, 32, 36 and 44px. Text stays 16px below `md` and touch pointers get a 44px target (except `lg`, already 44px). Unknown values fall back to `md`.
 - shape: 'rounded' | 'pill' | 'square' = 'rounded' - Corners. `pill` is fully rounded, `square` has no radius. `underline` has no corners and ignores it. Unknown values fall back to `rounded`.
 - status: 'default' | 'success' | 'warning' | 'error' = 'default' - Status colour with an icon at the end. `success` and `warning` add visually hidden text linked through `aria-describedby`; `error` also sets `aria-invalid="true"`. Anything but `default` wraps the input in a `span`. Unknown values fall back to `default`.
@@ -14773,6 +14774,212 @@ Example: Vertical orientation
     </NavigationMenuList>
   </NavigationMenu>
 </div>
+```
+
+---
+
+# Toolbar
+group: navigation / Menus
+A row or column of related controls that is one tab stop and moves focus with the arrow keys (WAI-ARIA toolbar).
+
+Compose `Toolbar` with `ToolbarButton`, `ToolbarToggleGroup` + `ToolbarToggleItem`, `ToolbarLink` and `ToolbarSeparator`. Use it when three or more controls act on the same thing (text formatting, zoom, view options) so keyboard users cross them with one Tab stop instead of one per control. Do not use it for site navigation (use `NavigationMenu` or `SidebarNav`), for a menu of commands that open sub menus (use `Menubar`), or for two buttons in a form footer (use plain `Button`s). `variant` is the look of the bar: `plain` (no chrome), `outline` (border), `filled` (muted fill) and `floating` (border, popover surface and the shared medium shadow, for a bar that sits over content). `size` (`sm` 32px, `md` 36px, `lg` 44px) and `density` (`compact`, `default`, `spacious`) are set on the bar and reach every part through context; a part can override `size`. `orientation="vertical"` runs the bar as a column and switches the arrow keys to Up and Down. `overflow` decides what happens when the items do not fit: `wrap` flows onto more lines (default, no hidden controls), `scroll` keeps one line and scrolls inside the bar; use `scroll` only when a single line matters, because items past the edge are out of sight until focus or a swipe brings them in. The bar needs an accessible name (`aria-label` or `aria-labelledby`); icon-only buttons and toggle items need their own. `toolbarVariants`, `toolbarButtonVariants`, `toolbarToggleItemVariants`, `toolbarLinkVariants`, `toolbarToggleGroupVariants` and `toolbarSeparatorVariants` are exported for reuse (wrap them in `cn()` when you add classes).
+
+import { Toolbar, ToolbarButton, ToolbarToggleGroup, ToolbarToggleItem, ToolbarLink, ToolbarSeparator } from '@perfect-design/ui'
+
+Props:
+- variant: 'plain' | 'outline' | 'filled' | 'floating' = 'plain' - Look of the bar. Unknown values fall back to `plain`.
+- size: 'sm' | 'md' | 'lg' = 'md' - Item height: 32px, 36px or 44px (all 44px on coarse pointers). Unknown values fall back to `md`.
+- density: 'compact' | 'default' | 'spacious' = 'default' - Padding of the bar and inline padding of the items. Targets stay at least 24px in every density. Unknown values fall back to `default`.
+- orientation: 'horizontal' | 'vertical' = 'horizontal' - Direction of the items and of the arrow keys. Sets `aria-orientation`.
+- gap: 'none' | 'sm' | 'md' = 'sm' - Space between items (0, 4px, 8px). Unknown values fall back to `sm`.
+- overflow: 'wrap' | 'scroll' = 'wrap' - `wrap` flows items onto more lines; `scroll` keeps one line and scrolls inside the bar. Unknown values fall back to `wrap`.
+- dir: 'ltr' | 'rtl' - Reading direction. In `rtl` the horizontal arrow keys swap and the bar mirrors.
+- loop: boolean = true - Wrap keyboard focus from the last item to the first and back.
+- as: string | Component = 'div' - Element to render.
+- asChild: boolean = false - Render the single slot child instead of a wrapper element (reka-ui).
+- class: string | object | array - Merged last (tailwind-merge); wins over internal classes.
+
+Parts:
+- ToolbarButton - An action button (type=button). Part of the roving focus sequence. Disabled buttons stay in the DOM and are skipped by the arrow keys.
+    - size: 'sm' | 'md' | 'lg' - Overrides the size of the bar for this button.
+    - tone: 'neutral' | 'primary' = 'neutral' - `primary` is a solid fill for the one main action of the bar. Unknown values fall back to `neutral`.
+    - disabled: boolean = false - Disables the button.
+    - as: string | Component - Element to render instead of the default.
+    - asChild: boolean = false - Render the single slot child instead of a wrapper element (reka-ui).
+    - class: string | object | array - Merged last (tailwind-merge); wins over internal classes.
+- ToolbarToggleGroup - Related toggle items (role=group). `single` behaves like radio buttons (role=radio, aria-checked), `multiple` like pressed buttons (aria-pressed). Name it with `aria-label` when its purpose is not clear from the items.
+    - type: 'single' | 'multiple' = 'single' - One pressed item at a time (string value) or any number (string[] value).
+    - modelValue: string | string[] - Pressed value(s) (v-model). Leave undefined for uncontrolled use.
+    - defaultValue: string | string[] - Initial value(s) when uncontrolled.
+    - disabled: boolean = false - Disables every item.
+    - as: string | Component - Element to render instead of the default.
+    - asChild: boolean = false - Render the single slot child instead of a wrapper element (reka-ui).
+    - class: string | object | array - Merged last (tailwind-merge); wins over internal classes.
+- ToolbarToggleItem - A toggle button inside `ToolbarToggleGroup`. A pressed item shows a foreground border (2px and underlined in forced-colors mode) as well as a fill, so the state is never colour alone.
+    - value: string - Value reported to the group. Must be non-empty and unique in the group.
+    - size: 'sm' | 'md' | 'lg' - Overrides the size of the bar for this item.
+    - disabled: boolean = false - Disables the item.
+    - as: string | Component - Element to render instead of the default.
+    - asChild: boolean = false - Render the single slot child instead of a wrapper element (reka-ui).
+    - class: string | object | array - Merged last (tailwind-merge); wins over internal classes.
+- ToolbarLink - A link in the bar (an `a` by default, underlined so it is told apart from buttons without colour). Space activates it, as on a button.
+    - size: 'sm' | 'md' | 'lg' - Overrides the size of the bar for this link.
+    - as: string | Component - Element to render instead of the default.
+    - asChild: boolean = false - Render the single slot child instead of a wrapper element (reka-ui).
+    - class: string | object | array - Merged last (tailwind-merge); wins over internal classes.
+- ToolbarSeparator - Divider between groups of controls (role=separator). It runs across the bar: a vertical line in a horizontal bar, a horizontal line in a vertical one. Drawn as a border so it survives forced-colors mode. Not focusable.
+    - as: string | Component - Element to render instead of the default.
+    - asChild: boolean = false - Render the single slot child instead of a wrapper element (reka-ui).
+    - class: string | object | array - Merged last (tailwind-merge); wins over internal classes.
+
+Slots:
+- default - ToolbarButton, ToolbarToggleGroup, ToolbarLink and ToolbarSeparator.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when `Toolbar` has no accessible name (`aria-label` or `aria-labelledby`).
+- Throws a ContractError when an icon-only `ToolbarButton` has no accessible name (text or `aria-label`).
+- Throws a ContractError when an icon-only `ToolbarToggleItem` has no accessible name (text or `aria-label`).
+- Throws a ContractError when a `ToolbarToggleItem` has a blank `value`.
+- Throws a ContractError when a `ToolbarLink` has no accessible name (text or `aria-label`).
+
+Rules:
+- Always give Toolbar an aria-label (or aria-labelledby). Always give an icon-only ToolbarButton or ToolbarToggleItem an aria-label.
+- Use ToolbarToggleGroup with v-model for on/off or one-of-many controls; type="multiple" holds a string[], type="single" a string.
+- Give every ToolbarToggleItem a unique non-empty value.
+- Put related controls next to each other and divide groups with ToolbarSeparator; do not put form fields, long text or menus that need Tab inside a toolbar.
+- Do not add tabindex to parts and do not nest a Toolbar in a Toolbar: roving focus is handled for you.
+- Prefer overflow="wrap" (default). Use overflow="scroll" only when the bar must stay on one line, and keep the most important controls first.
+- Use orientation="vertical" for a column of tools; the separator and arrow keys follow it.
+- Parts must be rendered inside Toolbar; outside it reka-ui throws a missing-context error.
+- Use Menubar for application menus with sub menus, ToggleGroup for a standalone group of toggles outside a toolbar.
+
+Accessibility:
+- Root has role=toolbar and aria-orientation; it needs `aria-label` or `aria-labelledby`. Use one toolbar per related set of controls; a page with several toolbars needs distinct names.
+- The bar is a single tab stop (roving tabindex, from reka-ui): Tab moves focus into the bar, to the item that last had focus (the first one at first), and Tab again leaves it. Shift+Tab leaves backwards.
+- Keyboard: ArrowRight/ArrowLeft move between items in a horizontal bar (swapped in `rtl`), ArrowDown/ArrowUp in a vertical bar, Home and End jump to the first and last item, and `loop` (on by default) wraps. Enter and Space press a button, toggle an item or follow a link. Disabled items are skipped.
+- `ToolbarToggleGroup type="multiple"` items expose aria-pressed; `type="single"` items expose role=radio with aria-checked. A pressed item has a fill and a foreground border; in forced-colors mode the border is 2px and the label is underlined.
+- Targets are at least 32px tall (24px floor in the dense style packs) and 44px on coarse pointers. Focus uses the shared ring, which stays an outline in forced-colors mode.
+- Scroll overflow: the scrolling bar is itself focusable (it is the tab stop and hands focus to an item), so keyboard users can reach it, and the browser scrolls a focused item into view. No extra `tabindex` is added, so the roving sequence is unchanged. Wrap mode keeps every control visible and is the safer default on a 320px screen.
+- Transitions are removed under prefers-reduced-motion. Separators are borders, so they stay visible in forced-colors mode; they are not focusable and are not announced as controls.
+
+Example: Minimal
+```vue
+<Toolbar aria-label="Document actions">
+  <ToolbarButton>New</ToolbarButton>
+  <ToolbarButton>Open</ToolbarButton>
+  <ToolbarButton>Save</ToolbarButton>
+</Toolbar>
+```
+
+Example: Formatting with toggle groups
+```vue
+<script setup lang="ts">
+const marks = ref(['bold'])
+const align = ref('left')
+</script>
+
+<div class="space-y-3">
+  <Toolbar aria-label="Text formatting" variant="outline">
+    <ToolbarToggleGroup v-model="marks" type="multiple" aria-label="Character style">
+      <ToolbarToggleItem value="bold" class="font-bold">Bold</ToolbarToggleItem>
+      <ToolbarToggleItem value="italic" class="italic">Italic</ToolbarToggleItem>
+      <ToolbarToggleItem value="underline" class="underline">Underline</ToolbarToggleItem>
+    </ToolbarToggleGroup>
+    <ToolbarSeparator />
+    <ToolbarToggleGroup v-model="align" type="single" aria-label="Alignment">
+      <ToolbarToggleItem value="left">Left</ToolbarToggleItem>
+      <ToolbarToggleItem value="center">Center</ToolbarToggleItem>
+      <ToolbarToggleItem value="right">Right</ToolbarToggleItem>
+    </ToolbarToggleGroup>
+  </Toolbar>
+  <p class="text-sm text-muted-foreground">Style: {{ marks.join(', ') || 'none' }}. Alignment: {{ align || 'none' }}.</p>
+</div>
+```
+
+Example: Vertical with icon-only buttons
+```vue
+<script setup lang="ts">
+import { faPlus, faMinus, faRotateRight, faEye } from '@perfect-design/ui'
+</script>
+
+<Toolbar aria-label="Canvas controls" orientation="vertical" variant="floating">
+  <ToolbarButton aria-label="Zoom in"><Icon :icon="faPlus" /></ToolbarButton>
+  <ToolbarButton aria-label="Zoom out"><Icon :icon="faMinus" /></ToolbarButton>
+  <ToolbarSeparator />
+  <ToolbarButton aria-label="Reset view"><Icon :icon="faRotateRight" /></ToolbarButton>
+  <ToolbarButton aria-label="Preview" disabled><Icon :icon="faEye" /></ToolbarButton>
+</Toolbar>
+```
+
+Example: Variants
+```vue
+<div class="flex flex-col items-start gap-4">
+  <Toolbar v-for="variant in ['plain', 'outline', 'filled', 'floating']" :key="variant" :variant="variant" :aria-label="'Variant ' + variant">
+    <ToolbarButton>{{ variant }}</ToolbarButton>
+    <ToolbarToggleGroup type="multiple" :default-value="['on']" aria-label="Sample toggles">
+      <ToolbarToggleItem value="on">On</ToolbarToggleItem>
+      <ToolbarToggleItem value="off">Off</ToolbarToggleItem>
+    </ToolbarToggleGroup>
+    <ToolbarSeparator />
+    <ToolbarButton tone="primary">Save</ToolbarButton>
+  </Toolbar>
+</div>
+```
+
+Example: Sizes and density
+```vue
+<div class="flex flex-col items-start gap-4">
+  <Toolbar v-for="size in ['sm', 'md', 'lg']" :key="size" :size="size" variant="outline" :aria-label="'Size ' + size">
+    <ToolbarButton>Size {{ size }}</ToolbarButton>
+    <ToolbarButton>Cut</ToolbarButton>
+    <ToolbarButton>Paste</ToolbarButton>
+  </Toolbar>
+  <Toolbar v-for="density in ['compact', 'default', 'spacious']" :key="density" :density="density" variant="filled" :aria-label="'Density ' + density">
+    <ToolbarButton>{{ density }}</ToolbarButton>
+    <ToolbarButton>Cut</ToolbarButton>
+    <ToolbarButton>Paste</ToolbarButton>
+  </Toolbar>
+</div>
+```
+
+Example: Overflow: wrap and scroll
+```vue
+<div class="flex max-w-xs flex-col gap-4">
+  <Toolbar overflow="wrap" variant="outline" aria-label="Wrapping toolbar">
+    <ToolbarButton v-for="n in 8" :key="n">Tool {{ n }}</ToolbarButton>
+  </Toolbar>
+  <Toolbar overflow="scroll" variant="outline" aria-label="Scrolling toolbar">
+    <ToolbarButton v-for="n in 8" :key="n">Tool {{ n }}</ToolbarButton>
+  </Toolbar>
+</div>
+```
+
+Example: Right to left
+```vue
+<div dir="rtl" lang="ar">
+  <Toolbar dir="rtl" variant="outline" aria-label="إجراءات المستند">
+    <ToolbarButton>جديد</ToolbarButton>
+    <ToolbarButton>فتح</ToolbarButton>
+    <ToolbarSeparator />
+    <ToolbarButton tone="primary">حفظ</ToolbarButton>
+  </Toolbar>
+</div>
+```
+
+Example: Links, icons and an action menu button
+```vue
+<script setup lang="ts">
+import { faCopy, faArrowUp, faArrowDown, faEllipsis } from '@perfect-design/ui'
+</script>
+
+<Toolbar aria-label="Row actions" variant="filled" size="sm">
+  <ToolbarButton aria-label="Move up"><Icon :icon="faArrowUp" /></ToolbarButton>
+  <ToolbarButton aria-label="Move down"><Icon :icon="faArrowDown" /></ToolbarButton>
+  <ToolbarButton><Icon :icon="faCopy" />Duplicate</ToolbarButton>
+  <ToolbarSeparator />
+  <ToolbarLink href="/components/navigation/toolbar">Toolbar docs</ToolbarLink>
+  <ToolbarButton aria-label="More actions"><Icon :icon="faEllipsis" /></ToolbarButton>
+</Toolbar>
 ```
 
 ---
