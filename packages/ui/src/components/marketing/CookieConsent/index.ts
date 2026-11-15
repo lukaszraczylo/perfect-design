@@ -1,0 +1,8 @@
+export { default as CookieConsent } from './CookieConsent.vue'
+export type { CookieConsentProps } from './CookieConsent.vue'
+export { cookieConsentVariants, cookieConsentActionsVariants, COOKIE_CONSENT_VARIANTS } from './variants'
+export type { CookieConsentVariants, CookieConsentVariant } from './variants'
+export { cleanCategories, resolveChoices, buildChoice } from './categories'
+export type { ConsentCategory, ConsentChoice, ConsentAction } from './categories'
+export { readConsent, writeConsent, clearConsent } from './storage'
+export type { ConsentStorage } from './storage'

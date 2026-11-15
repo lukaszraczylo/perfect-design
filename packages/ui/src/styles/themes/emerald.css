@@ -1,0 +1,17 @@
+/* Accent preset "emerald": apply with <html data-theme="emerald"> (see useThemeStore). Overrides primary/accent/ring/chart-1 only. */
+:root[data-theme="emerald"] {
+  --primary: oklch(0.485 0.13 160);
+  --primary-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.955 0.014 160);
+  --accent-foreground: oklch(0.32 0.08 160);
+  --ring: oklch(0.485 0.13 160);
+  --chart-1: oklch(0.485 0.13 160);
+}
+:root[data-theme="emerald"].dark {
+  --primary: oklch(0.75 0.14 160);
+  --primary-foreground: oklch(0.18 0.02 160);
+  --accent: oklch(0.29 0.035 160);
+  --accent-foreground: oklch(0.94 0.012 160);
+  --ring: oklch(0.75 0.14 160);
+  --chart-1: oklch(0.75 0.14 160);
+}

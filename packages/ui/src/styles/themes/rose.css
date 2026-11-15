@@ -1,0 +1,17 @@
+/* Accent preset "rose": apply with <html data-theme="rose"> (see useThemeStore). Overrides primary/accent/ring/chart-1 only. */
+:root[data-theme="rose"] {
+  --primary: oklch(0.525 0.19 10);
+  --primary-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.955 0.014 10);
+  --accent-foreground: oklch(0.32 0.08 10);
+  --ring: oklch(0.525 0.19 10);
+  --chart-1: oklch(0.525 0.19 10);
+}
+:root[data-theme="rose"].dark {
+  --primary: oklch(0.72 0.14 10);
+  --primary-foreground: oklch(0.18 0.02 10);
+  --accent: oklch(0.29 0.035 10);
+  --accent-foreground: oklch(0.94 0.012 10);
+  --ring: oklch(0.72 0.14 10);
+  --chart-1: oklch(0.72 0.14 10);
+}

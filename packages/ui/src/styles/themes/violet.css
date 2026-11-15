@@ -1,0 +1,17 @@
+/* "violet" preset: an opt-in brand accent for products whose own colour is violet. It is not the default and not an option to try out. A deliberate exception, see DESIGN.md section 7. Apply with <html data-theme="violet">. */
+:root[data-theme="violet"] {
+  --primary: oklch(0.5 0.16 300);
+  --primary-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.955 0.014 300);
+  --accent-foreground: oklch(0.32 0.08 300);
+  --ring: oklch(0.5 0.16 300);
+  --chart-1: oklch(0.5 0.16 300);
+}
+:root[data-theme="violet"].dark {
+  --primary: oklch(0.72 0.13 300);
+  --primary-foreground: oklch(0.18 0.02 300);
+  --accent: oklch(0.29 0.035 300);
+  --accent-foreground: oklch(0.94 0.012 300);
+  --ring: oklch(0.72 0.13 300);
+  --chart-1: oklch(0.72 0.13 300);
+}

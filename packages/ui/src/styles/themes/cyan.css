@@ -1,0 +1,17 @@
+/* "cyan" preset: an opt-in sky-blue accent, distinct from the petrol default (hue 205, low chroma) by its hue and chroma. Apply with <html data-theme="cyan">. */
+:root[data-theme="cyan"] {
+  --primary: oklch(0.48 0.12 235);
+  --primary-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.955 0.014 235);
+  --accent-foreground: oklch(0.32 0.07 235);
+  --ring: oklch(0.48 0.12 235);
+  --chart-1: oklch(0.48 0.12 235);
+}
+:root[data-theme="cyan"].dark {
+  --primary: oklch(0.74 0.11 235);
+  --primary-foreground: oklch(0.18 0.02 235);
+  --accent: oklch(0.29 0.035 235);
+  --accent-foreground: oklch(0.94 0.012 235);
+  --ring: oklch(0.74 0.11 235);
+  --chart-1: oklch(0.74 0.11 235);
+}

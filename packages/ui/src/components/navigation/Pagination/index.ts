@@ -1,0 +1,6 @@
+export { default as Pagination } from './Pagination.vue'
+export type { PaginationProps, PaginationLabels } from './Pagination.vue'
+export { getPaginationRange, clampInt } from './range'
+export type { PaginationItem } from './range'
+export { paginationSummaryVariants, paginationEllipsisVariants, PAGINATION_VARIANTS, PAGINATION_SIZES, PAGINATION_SHAPES } from './variants'
+export type { PaginationSize, PaginationVariant, PaginationShape, PaginationSummaryVariants } from './variants'

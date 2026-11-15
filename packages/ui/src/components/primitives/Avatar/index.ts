@@ -1,0 +1,6 @@
+export { default as Avatar } from './Avatar.vue'
+export type { AvatarProps } from './Avatar.vue'
+export { avatarVariants, avatarStatusVariants } from './variants'
+export type { AvatarVariants, AvatarSize, AvatarShape, AvatarStatus, AvatarRing, AvatarStatusPosition } from './variants'
+export { avatarGroupKey, getInitials } from './context'
+export type { AvatarGroupContext } from './context'

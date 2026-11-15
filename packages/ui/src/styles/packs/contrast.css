@@ -1,0 +1,32 @@
+/*
+ * Style pack "contrast": a stronger-by-default look for products that must work for low vision, glare and small screens
+ * (public services, medical, field tools). Higher-contrast neutrals (text pairs at 7:1 or better, borders at 4.5:1),
+ * a thicker focus indicator, larger base text. Everything else stays as designed.
+ */
+[data-style="contrast"] {
+  --foreground: oklch(0.12 0.01 95);
+  --card-foreground: oklch(0.12 0.01 95);
+  --popover-foreground: oklch(0.12 0.01 95);
+  --muted-foreground: oklch(0.34 0.01 95);
+  --secondary-foreground: oklch(0.15 0.01 95);
+  --border: oklch(0.52 0.01 95);
+  --input: oklch(0.45 0.01 95);
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.5rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.375rem;
+}
+.dark[data-style="contrast"],
+.dark [data-style="contrast"] {
+  --foreground: oklch(0.98 0.005 95);
+  --card-foreground: oklch(0.98 0.005 95);
+  --popover-foreground: oklch(0.98 0.005 95);
+  --muted-foreground: oklch(0.86 0.008 95);
+  --secondary-foreground: oklch(0.97 0.005 95);
+  --border: oklch(0.62 0.01 95);
+  --input: oklch(0.68 0.01 95);
+}
+[data-style="contrast"] :focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}

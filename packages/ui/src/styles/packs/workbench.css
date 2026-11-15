@@ -1,0 +1,42 @@
+/*
+ * Style pack "workbench": dense, monochrome-leaning, hairline borders, keyboard-first. For tools people use all day
+ * (consoles, dashboards, admin). Apply with data-style="workbench" on <html> or on any container.
+ * Density comes from Tailwind's spacing base (--spacing), so every h-*, p-*, gap-* utility tightens together; text steps
+ * down one notch; shadows become hairlines. Touch devices get the normal spacing back so targets stay 44px.
+ */
+[data-style="workbench"] {
+  --spacing: 0.2rem;
+  --radius: 0.25rem;
+  --text-base: 0.8125rem;
+  --text-base--line-height: 1.25rem;
+  --text-sm: 0.75rem;
+  --text-sm--line-height: 1.125rem;
+  --text-md: 0.875rem;
+  --text-md--line-height: 1.375rem;
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: 0 0 0 1px var(--border), 0 4px 12px -4px var(--shadow-color);
+  --shadow-lg: 0 0 0 1px var(--border), 0 8px 20px -6px var(--shadow-color);
+}
+@media (pointer: coarse) {
+  [data-style="workbench"] {
+    --spacing: 0.25rem;
+    --text-base: 0.875rem;
+    --text-base--line-height: 1.375rem;
+    --text-sm: 0.8125rem;
+    --text-sm--line-height: 1.25rem;
+  }
+}
+/* Tabular figures everywhere: columns of numbers line up in dense tables. */
+[data-style="workbench"] {
+  font-variant-numeric: tabular-nums;
+}
+/* Dense spacing must not shrink targets below the WCAG 2.2 minimum of 24px (small button sizes and icon cells are spacing based). */
+[data-style="workbench"] :is(button, [role="button"]) {
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+}
+[data-style="workbench"] [data-slot="code-viewer-fold-cell"] {
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+}

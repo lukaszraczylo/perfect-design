@@ -1,0 +1,24 @@
+/*
+ * Style pack "editorial": reading-first. A serif display face for headings and prose, square corners, hairline rules
+ * instead of shadows, a wider measure. For documentation, long-form pages, publications and content-led marketing sites.
+ * Uses the platform serif stack, so it ships no font file; apps may point --font-display at a loaded family.
+ */
+[data-style="editorial"] {
+  --font-display: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --radius: 0.125rem;
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: 0 0 0 1px var(--border);
+  --shadow-lg: 0 0 0 1px var(--border);
+}
+[data-style="editorial"] :is(h1, h2, h3, [data-slot="heading"], [data-slot="markdown"] h1, [data-slot="markdown"] h2, [data-slot="markdown"] h3) {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+[data-style="editorial"] :is([data-slot="prose"], [data-slot="markdown"]) {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}

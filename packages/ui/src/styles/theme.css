@@ -1,0 +1,327 @@
+/*
+ * Perfect Design — core theme.
+ *
+ * Usage in an app's main CSS (Tailwind v4):
+ *   @import "tailwindcss";
+ *   @import "@perfect-design/ui/theme.css";
+ *   @source "../node_modules/@perfect-design/ui/src";   (adjust the relative path)
+ *
+ * Token names intentionally match the shadcn/ui contract (--background, --foreground,
+ * --primary, --border, ...) so existing apps migrate without renaming anything.
+ * Additions: --success, --warning, --info, --scrim, --chart-1..5, --sidebar-*.
+ * Dark mode: add class "dark" on <html> (see useThemeStore). Accent presets: data-theme="<name>".
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.5rem;
+
+  --background: oklch(0.985 0.004 95);
+  --foreground: oklch(0.2 0.01 95);
+  --card: oklch(0.99 0.003 95);
+  --card-foreground: oklch(0.2 0.01 95);
+  --popover: oklch(0.99 0.003 95);
+  --popover-foreground: oklch(0.2 0.01 95);
+  --primary: oklch(0.46 0.09 205);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.962 0.004 95);
+  --secondary-foreground: oklch(0.27 0.008 95);
+  --muted: oklch(0.962 0.004 95);
+  --muted-foreground: oklch(0.48 0.01 95);
+  --accent: oklch(0.95 0.02 205);
+  --accent-foreground: oklch(0.3 0.06 205);
+  --destructive: oklch(0.5 0.17 28);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.47 0.13 150);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.75 0.15 75);
+  --warning-foreground: oklch(0.25 0.06 65);
+  --info: oklch(0.49 0.13 255);
+  --info-foreground: oklch(0.99 0 0);
+  --border: oklch(0.915 0.005 95);
+  --input: oklch(0.65 0.005 95);
+  --ring: oklch(0.46 0.09 205);
+  --scrim: oklch(0.21 0.008 95 / 0.55);
+
+  --sidebar: oklch(0.966 0.004 95);
+  --sidebar-foreground: oklch(0.4 0.01 95);
+  --sidebar-accent: oklch(0.93 0.006 95);
+  --sidebar-accent-foreground: oklch(0.21 0.008 95);
+  --sidebar-border: oklch(0.915 0.005 95);
+
+  --chart-1: oklch(0.46 0.09 205);
+  --chart-2: oklch(0.62 0.13 180);
+  --chart-3: oklch(0.7 0.15 75);
+  --chart-4: oklch(0.6 0.18 330);
+  --chart-5: oklch(0.58 0.15 150);
+
+  --shadow-color: oklch(0.21 0.008 95 / 0.1);
+}
+
+.dark {
+  --background: oklch(0.19 0.005 95);
+  --foreground: oklch(0.94 0.005 95);
+  --card: oklch(0.225 0.006 95);
+  --card-foreground: oklch(0.94 0.005 95);
+  --popover: oklch(0.245 0.006 95);
+  --popover-foreground: oklch(0.94 0.005 95);
+  --primary: oklch(0.72 0.09 205);
+  --primary-foreground: oklch(0.18 0.02 205);
+  --secondary: oklch(0.27 0.006 95);
+  --secondary-foreground: oklch(0.94 0.005 95);
+  --muted: oklch(0.27 0.006 95);
+  --muted-foreground: oklch(0.7 0.008 95);
+  --accent: oklch(0.29 0.03 205);
+  --accent-foreground: oklch(0.94 0.012 205);
+  --destructive: oklch(0.7 0.17 25);
+  --destructive-foreground: oklch(0.18 0.02 25);
+  --success: oklch(0.75 0.14 150);
+  --success-foreground: oklch(0.18 0.03 150);
+  --warning: oklch(0.8 0.14 80);
+  --warning-foreground: oklch(0.22 0.05 70);
+  --info: oklch(0.74 0.12 255);
+  --info-foreground: oklch(0.18 0.03 255);
+  --border: oklch(0.31 0.006 95);
+  --input: oklch(0.52 0.006 95);
+  --ring: oklch(0.72 0.09 205);
+  --scrim: oklch(0.05 0.005 95 / 0.75);
+
+  --sidebar: oklch(0.155 0.005 95);
+  --sidebar-foreground: oklch(0.76 0.008 95);
+  --sidebar-accent: oklch(0.235 0.006 95);
+  --sidebar-accent-foreground: oklch(0.94 0.005 95);
+  --sidebar-border: oklch(0.27 0.006 95);
+
+  --chart-1: oklch(0.72 0.09 205);
+  --chart-2: oklch(0.75 0.12 180);
+  --chart-3: oklch(0.8 0.14 80);
+  --chart-4: oklch(0.72 0.16 330);
+  --chart-5: oklch(0.75 0.14 150);
+
+  --shadow-color: oklch(0 0 0 / 0.4);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-scrim: var(--scrim);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-xs: calc(var(--radius) - 6px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+@theme {
+  --font-sans: "IBM Plex Sans Variable", "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-display: var(--font-sans);
+
+  /* Type scale: compact, UI-first. text-base is 14px (dense app UI); use text-md for 16px prose. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.375rem;
+  --text-md: 1rem;
+  --text-md--line-height: 1.625rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-lg--letter-spacing: -0.011em;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-xl--letter-spacing: -0.014em;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-2xl--letter-spacing: -0.017em;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-3xl--letter-spacing: -0.02em;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-4xl--letter-spacing: -0.022em;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1.1;
+  --text-5xl--letter-spacing: -0.025em;
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 1.05;
+  --text-6xl--letter-spacing: -0.03em;
+
+  /* Shadows (colour follows --shadow-color so dark mode deepens automatically) */
+  --shadow-xs: 0 1px 1px 0 var(--shadow-color);
+  --shadow-sm: 0 1px 2px 0 var(--shadow-color), 0 1px 3px 0 var(--shadow-color);
+  --shadow-md: 0 4px 8px -2px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
+  --shadow-lg: 0 12px 24px -6px var(--shadow-color), 0 4px 8px -4px var(--shadow-color);
+  --shadow-xl: 0 24px 48px -12px var(--shadow-color);
+
+  /* Motion */
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Stacking */
+  --z-dropdown: 50;
+  --z-sticky: 40;
+  --z-overlay: 60;
+  --z-modal: 70;
+  --z-toast: 80;
+
+  /* Animations used by overlay primitives (data-[state=open]:animate-ds-*) */
+  --animate-ds-fade-in: ds-fade-in 150ms var(--ease-snap);
+  --animate-ds-fade-out: ds-fade-out 120ms var(--ease-smooth) forwards;
+  --animate-ds-pop-in: ds-pop-in 150ms var(--ease-snap);
+  --animate-ds-pop-out: ds-pop-out 120ms var(--ease-smooth) forwards;
+  --animate-ds-slide-in-right: ds-slide-in-right 220ms var(--ease-snap);
+  --animate-ds-slide-out-right: ds-slide-out-right 180ms var(--ease-smooth) forwards;
+  --animate-ds-slide-in-left: ds-slide-in-left 220ms var(--ease-snap);
+  --animate-ds-slide-out-left: ds-slide-out-left 180ms var(--ease-smooth) forwards;
+  --animate-ds-slide-in-top: ds-slide-in-top 220ms var(--ease-snap);
+  --animate-ds-slide-out-top: ds-slide-out-top 180ms var(--ease-smooth) forwards;
+  --animate-ds-slide-in-bottom: ds-slide-in-bottom 220ms var(--ease-snap);
+  --animate-ds-slide-out-bottom: ds-slide-out-bottom 180ms var(--ease-smooth) forwards;
+  --animate-ds-collapse-down: ds-collapse-down 200ms var(--ease-snap);
+  --animate-ds-collapse-up: ds-collapse-up 200ms var(--ease-snap);
+  --animate-ds-shimmer: ds-shimmer 1.6s linear infinite;
+  --animate-ds-indeterminate: ds-indeterminate 1.4s var(--ease-smooth) infinite;
+
+  @keyframes ds-fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ds-fade-out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes ds-pop-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+  @keyframes ds-pop-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.96); } }
+  @keyframes ds-slide-in-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  @keyframes ds-slide-out-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
+  @keyframes ds-slide-in-left { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+  @keyframes ds-slide-out-left { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+  @keyframes ds-slide-in-top { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+  @keyframes ds-slide-out-top { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+  @keyframes ds-slide-in-bottom { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes ds-slide-out-bottom { from { transform: translateY(0); } to { transform: translateY(100%); } }
+  @keyframes ds-collapse-down { from { height: 0; } to { height: var(--reka-collapsible-content-height, auto); } }
+  @keyframes ds-collapse-up { from { height: var(--reka-collapsible-content-height, auto); } to { height: 0; } }
+  @keyframes ds-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  @keyframes ds-indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+}
+
+@layer base {
+  * { border-color: var(--border); }
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection { background: color-mix(in oklch, var(--primary) 25%, transparent); }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Component-owned keyframes/rules that Tailwind utilities cannot express (kept here so SFCs have no <style> blocks). */
+@keyframes ds-progress-stripes {
+  from { background-position: 1rem 0; }
+  to { background-position: 0 0; }
+}
+@keyframes pd-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes pd-marquee-scroll-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+.pd-marquee-track {
+  animation: pd-marquee-scroll var(--pd-marquee-duration, 30s) linear infinite;
+}
+.pd-marquee[data-vertical] .pd-marquee-track {
+  animation-name: pd-marquee-scroll-y;
+}
+.pd-marquee[data-reverse] .pd-marquee-track {
+  animation-direction: reverse;
+}
+.pd-marquee[data-pause-on-hover]:hover .pd-marquee-track,
+.pd-marquee[data-pause-on-hover]:focus-within .pd-marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pd-marquee {
+    overflow-x: auto;
+  }
+  .pd-marquee[data-vertical] {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .pd-marquee-track {
+    animation: none;
+  }
+  .pd-marquee-clone {
+    display: none;
+  }
+}
+
+/* Right-to-left: the track starts at the right edge, so it must travel the other way. */
+@keyframes pd-marquee-scroll-rtl {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+}
+.pd-marquee:dir(rtl) .pd-marquee-track {
+  animation-name: pd-marquee-scroll-rtl;
+}
+.pd-marquee:dir(rtl)[data-vertical] .pd-marquee-track {
+  animation-name: pd-marquee-scroll-y;
+}

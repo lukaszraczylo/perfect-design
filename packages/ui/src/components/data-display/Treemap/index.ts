@@ -1,0 +1,6 @@
+export { default as Treemap } from './Treemap.vue'
+export type { TreemapProps, TreemapDatum } from './Treemap.vue'
+export { treemapVariants, treemapCellVariants, TREEMAP_VARIANTS, TREEMAP_SIZES, TREEMAP_GAPS, TREEMAP_COLOR_BY, TREEMAP_LABELS } from './variants'
+export type { TreemapVariant, TreemapSize, TreemapGap, TreemapColorBy, TreemapLabels } from './variants'
+export { squarify, normalizeTree } from './treemapLayout'
+export type { Box as TreemapBox, TreeNode as TreemapNode } from './treemapLayout'

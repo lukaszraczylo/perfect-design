@@ -1,0 +1,35 @@
+/*
+ * Style pack "terminal": monospace UI for developer tools. The interface font becomes the mono stack, spacing is dense,
+ * corners nearly square, shadows are hairlines. Pairs well with dark mode and the code viewers.
+ */
+[data-style="terminal"] {
+  font-family: var(--font-sans);
+  --font-sans: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-display: var(--font-sans);
+  --spacing: 0.21rem;
+  --radius: 0.1875rem;
+  --text-base: 0.8125rem;
+  --text-base--line-height: 1.25rem;
+  --text-sm: 0.75rem;
+  --text-sm--line-height: 1.125rem;
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: 0 0 0 1px var(--border);
+  --shadow-lg: 0 0 0 1px var(--border);
+}
+@media (pointer: coarse) {
+  [data-style="terminal"] {
+    --spacing: 0.25rem;
+    --text-base: 0.875rem;
+    --text-sm: 0.8125rem;
+  }
+}
+/* Dense spacing must not shrink targets below the WCAG 2.2 minimum of 24px (small button sizes and icon cells are spacing based). */
+[data-style="terminal"] :is(button, [role="button"]) {
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+}
+[data-style="terminal"] [data-slot="code-viewer-fold-cell"] {
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+}

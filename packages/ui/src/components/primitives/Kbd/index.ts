@@ -1,0 +1,6 @@
+export { default as Kbd } from './Kbd.vue'
+export type { KbdProps } from './Kbd.vue'
+export { default as KbdGroup } from './KbdGroup.vue'
+export type { KbdGroupProps } from './KbdGroup.vue'
+export { kbdVariants, kbdGroupVariants, kbdSeparatorVariants } from './variants'
+export type { KbdVariants, KbdVariant, KbdSize, KbdGroupVariants, KbdGroupGap } from './variants'

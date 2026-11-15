@@ -1,0 +1,26 @@
+{
+  "name": "perfect-design",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Perfect Design — design system, universal Vue 3 component library and documentation site.",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter docs dev",
+    "build": "pnpm --filter @perfect-design/ui build:check && pnpm generate:llms && pnpm --filter docs build",
+    "test": "pnpm --filter @perfect-design/ui test",
+    "test:coverage": "pnpm --filter @perfect-design/ui test:coverage",
+    "typecheck": "pnpm --filter @perfect-design/ui typecheck && pnpm --filter docs typecheck",
+    "generate:llms": "tsx scripts/generate-llms.ts",
+    "test:browser": "node scripts/browser-tests.mjs",
+    "test:all": "pnpm test && pnpm test:browser"
+  },
+  "devDependencies": {
+    "axe-core": "^4.14.0",
+    "chrome-launcher": "^1.2.3",
+    "lighthouse": "13.6.0-dev.20261112",
+    "puppeteer-core": "^25.17.0",
+    "tsx": "^4.20.0",
+    "typescript": "~5.9.3"
+  },
+  "packageManager": "pnpm@10.26.2"
+}

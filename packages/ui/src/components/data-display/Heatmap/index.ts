@@ -1,0 +1,5 @@
+export { default as Heatmap } from './Heatmap.vue'
+export type { HeatmapProps } from './Heatmap.vue'
+export { heatLevel, heatClass, HEAT_CLASSES } from './heatLevel'
+export { heatmapCellVariants, heatmapTableVariants } from './variants'
+export type { HeatmapCellVariants, HeatmapGap, HeatmapShape, HeatmapSize } from './variants'

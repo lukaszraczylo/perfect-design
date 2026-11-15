@@ -1,0 +1,55 @@
+# Accessibility/responsive findings: navigation
+(source: reports/a11y-sweep.json, old build; contrast tokens were since fixed — re-run to confirm)
+
+- `/components/navigation/accent-picker` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/accordion` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/app-header` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['phone-320', 'tablet-768'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/navigation/app-header` **landmark-unique** [moderate] Landmarks should have a unique role or role/label/title (i.e. accessible name) combination — viewports ['desktop-1280', 'tablet-768'], schemes ['dark', 'light']
+    - target `.p-6.bg-background[data-testid="example-preview"] > div > .z-\(--z-sticky\).bg-background\/90.supports-\[backdrop-filter` — The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable html: <nav data-slot="app-header-nav" aria-label="Main" class="hidden min-w-0 flex-1 items-center gap-1 md:flex">
+- `/components/navigation/app-header` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { AppHeader } from '@perfect-design/ui'</code
+    - target `.overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/navigation/back-to-top` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['phone-320', 'tablet-768'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/navigation/back-to-top` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { BackToTop } from '@perfect-design/ui'</code
+    - target `.overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/navigation/breadcrumb` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/collapsible` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/docs-sidebar` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/menubar` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/mobile-nav` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/navigation/mobile-nav` **landmark-unique** [moderate] Landmarks should have a unique role or role/label/title (i.e. accessible name) combination — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `nav[data-testid="side-nav"]` — The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable html: <nav class="space-y-6 text-sm" data-testid="side-nav">
+- `/components/navigation/mobile-nav` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { MobileNav } from '@perfect-design/ui'</code
+    - target `.overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/navigation/nav-link` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/navigation-menu` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/pagination` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/sidebar-nav` **CONSOLE** [minor] Failed to load resource: the server responded with a status of 404 () — viewports ['phone-320'], schemes ['light']
+- `/components/navigation/sidebar-nav` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/sidebar-nav` **landmark-one-main** [moderate] Document should have one main landmark — viewports ['phone-320'], schemes ['light']
+    - target `html` — Document does not have a main landmark html: <html dir="ltr" lang="en">
+- `/components/navigation/sidebar-nav` **meta-viewport** [moderate] Zooming and scaling must not be disabled — viewports ['phone-320'], schemes ['light']
+    - target `meta[name="viewport"]` — user-scalable=no on <meta> tag disables zooming on mobile devices html: <meta name="viewport" content="width=device-width, initial-scale=1.0,
+                                 maximum-scale=1.0, user-scalable=no">
+- `/components/navigation/sidebar-nav` **region** [moderate] All page content should be contained by landmarks — viewports ['phone-320'], schemes ['light']
+    - target `#main-content` — Some page content is not contained by landmarks html: <div id="main-content">
+- `/components/navigation/skip-link` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/navigation/skip-link` **landmark-main-is-top-level** [moderate] Main landmark should not be contained in another landmark — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `#skip-demo-target` — The main landmark is contained in another landmark. html: <main id="skip-demo-target" class="mt-3 text-sm">Main content</main>
+- `/components/navigation/skip-link` **landmark-no-duplicate-main** [moderate] Document should not have more than one main landmark — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `#main` — Document has more than one main landmark html: <main id="main" class="min-w-0 flex-1 px-5 py-10 sm:px-10">
+- `/components/navigation/skip-link` **landmark-unique** [moderate] Landmarks should have a unique role or role/label/title (i.e. accessible name) combination — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `#main` — The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable html: <main id="main" class="min-w-0 flex-1 px-5 py-10 sm:px-10">
+- `/components/navigation/skip-link` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { SkipLink } from '@perfect-design/ui'</code>
+    - target `.overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/navigation/stepper` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/table-of-contents` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/tabs` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/navigation/theme-toggle` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']

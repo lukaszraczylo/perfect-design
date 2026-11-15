@@ -1,0 +1,6 @@
+export { default as ScrollArea } from './ScrollArea.vue'
+export type { ScrollAreaProps } from './ScrollArea.vue'
+export { default as ScrollBar } from './ScrollBar.vue'
+export type { ScrollBarProps } from './ScrollBar.vue'
+export { scrollBarVariants, scrollThumbVariants } from './variants'
+export type { ScrollBarVariants, ScrollBarSize, ScrollBarVariant } from './variants'

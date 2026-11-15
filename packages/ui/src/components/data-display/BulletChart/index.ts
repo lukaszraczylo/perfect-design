@@ -1,0 +1,6 @@
+export { default as BulletChart } from './BulletChart.vue'
+export type { BulletChartProps } from './BulletChart.vue'
+export { bulletChartVariants, BULLET_SIZES, BULLET_VARIANTS, BULLET_METRICS } from './variants'
+export type { BulletChartSize, BulletChartVariant, BulletChartVariants } from './variants'
+export { normalizeBullets, bulletDomain, bandFill, bandHatch, MAX_BULLETS } from './bulletData'
+export type { Bullet, BulletDomain, BulletInput } from './bulletData'

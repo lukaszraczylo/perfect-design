@@ -1,0 +1,43 @@
+/*
+ * Shell stylesheet: everything the docs chrome and the first paint need. The utilities used only inside live component
+ * demos come from demo.css, which loads together with the demo chunk (see ExampleLive.vue).
+ */
+@import "tailwindcss";
+@import "../../packages/ui/src/styles/theme.css";
+@import "../../packages/ui/src/styles/themes/indigo.css";
+@import "../../packages/ui/src/styles/themes/emerald.css";
+@import "../../packages/ui/src/styles/themes/amber.css";
+@import "../../packages/ui/src/styles/themes/rose.css";
+@import "../../packages/ui/src/styles/themes/lime.css";
+@import "../../packages/ui/src/styles/themes/violet.css";
+@import "../../packages/ui/src/styles/themes/cyan.css";
+@import "../../packages/ui/src/styles/packs.css";
+
+/* Latin subsets only: the full fontsource files declare every script and cost render-blocking CSS bytes. */
+@font-face {
+  font-family: 'IBM Plex Sans Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 700;
+  src: url(../node_modules/@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@source "./";
+/* Library components the docs chrome renders itself. */
+@source "../../packages/ui/src/components/primitives/Button";
+@source "../../packages/ui/src/components/primitives/Icon";
+@source "../../packages/ui/src/components/primitives/Badge";
+@source "../../packages/ui/src/components/primitives/Spinner";
+@source "../../packages/ui/src/components/forms/Input";
+@source "../../packages/ui/src/lib";
+
+html { scroll-behavior: smooth; scroll-padding-top: 5rem; }

@@ -1,0 +1,6 @@
+export { default as InputGroup } from './InputGroup.vue'
+export type { InputGroupProps } from './InputGroup.vue'
+export { default as InputGroupAddon } from './InputGroupAddon.vue'
+export type { InputGroupAddonProps } from './InputGroupAddon.vue'
+export { inputGroupVariants, inputGroupAddonVariants } from './variants'
+export type { InputGroupVariants, InputGroupLayout } from './variants'

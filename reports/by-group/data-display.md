@@ -1,0 +1,80 @@
+# Accessibility/responsive findings: data-display
+(source: reports/a11y-sweep.json, old build; contrast tokens were since fixed — re-run to confirm)
+
+- `/components/data-display/bar-chart` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/board-card` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/data-display/board-column` **CONSOLE** [minor] Failed to load resource: the server responded with a status of 404 (Not Found) — viewports ['tablet-768'], schemes ['dark']
+- `/components/data-display/board-column` **NAV-ERROR** [serious] TimeoutError: Waiting for selector `h1` failed — viewports ['phone-320', 'tablet-768'], schemes ['dark', 'light']
+- `/components/data-display/card` **aria-prohibited-attr** [serious] Elements must only use permitted ARIA attributes — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `.h-36` — aria-label attribute cannot be used on "div" elements with no valid role attribute. html: <div data-slot="card-media" class="relative overflow-hidden bg-muted [&amp;_img]:size-full [&amp;_img]:object-cover h-36" aria-label="Cover"
+- `/components/data-display/card` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `#props > .rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+    - target `.space-y-2:nth-child(3) > .rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/carousel` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+    - target `.space-y-2:nth-child(3) > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/carousel` **target-size** [serious] All touch targets must be 24px large, or leave sufficient space — viewports ['desktop-1280', 'tablet-768'], schemes ['dark', 'light']
+    - target `div[aria-label="Highlights"] > .pt-3[data-slot="carousel-dots"][aria-label="Choose slide"] > button[aria-label="Go to sl` — Target has insufficient size (10px by 10px, should be at least 24px by 24px) html: <button type="button" data-slot="carousel-dot" aria-label="Go to slide 1" aria-current="true" data-active="" class="size-2.5 rounded-ful..."
+    - target `div[aria-label="Highlights"] > .pt-3[data-slot="carousel-dots"][aria-label="Choose slide"] > .size-2\.5.bg-muted-foregro` — Target has insufficient size (10px by 10px, should be at least 24px by 24px) html: <button type="button" data-slot="carousel-dot" aria-label="Go to slide 2" class="size-2.5 rounded-full bg-muted-foreground/40 transition-col
+- `/components/data-display/code-block` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `.ml-1` — Element has insufficient color contrast of 3.12 (foreground color: #8d8b86, background color: #f6f5f2, font size: 7.8pt (10.4px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="code-block-language" class="font-mono uppercase tracking-wide ml-1 text-[0.65rem] opacity-70">ts</span>
+- `/components/data-display/code-block` **landmark-unique** [moderate] Landmarks should have a unique role or role/label/title (i.e. accessible name) combination — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `figure[aria-labelledby="v-0-title"] > .min-h-24.sm\:p-6[data-testid="example-preview"] > div > .flex-col[data-language="` — The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable html: <pre data-slot="code-block-pre" tabindex="0" role="region" aria-label="bash code" class="min-h-0 flex-1 overflow-auto p-3 font-mono leading-
+    - target `figure[aria-labelledby="v-1-title"] > .min-h-24.sm\:p-6[data-testid="example-preview"] > div > .flex-col[data-language="` — The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable html: <pre data-slot="code-block-pre" tabindex="0" role="region" aria-label="ts code" class="min-h-0 flex-1 overflow-auto p-3 font-mono leading-re
+- `/components/data-display/code-block` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/data-table` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `#props > .rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+    - target `.space-y-2 > .rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/description-list` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `#props > .rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+    - target `.space-y-2:nth-child(3) > .rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/donut-chart` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/gauge` **aria-required-attr** [critical] Required ARIA attributes must be provided — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `div[aria-label="Throughput"]` — Required ARIA attribute not present: aria-valuenow html: <div data-slot="gauge" role="meter" aria-label="Throughput" aria-valuemin="0" aria-valuemax="100" aria-valuetext="No data" data-tone="neutra
+- `/components/data-display/gauge` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/heatmap` **OVERFLOW-X** [serious] horizontal overflow 140px — viewports ['phone-320'], schemes ['dark', 'light']
+    - target ``  
+- `/components/data-display/heatmap` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `figure[aria-labelledby="v-1-title"] > .sm\:p-6.min-h-24[data-testid="example-preview"] > div > .max-w-full.flex-col[data` — Element should have focusable content html: <div data-slot="heatmap" class="inline-flex max-w-full flex-col gap-2 overflow-x-auto">
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/json-viewer` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['light']
+    - target `.text-chart-4` — Element has insufficient color contrast of 4.32 (foreground color: #b950b2, background color: #ffffff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="json-viewer-value" data-type="function" class="min-w-0 break-words italic text-chart-4">ƒ run()</span>
+- `/components/data-display/json-viewer` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/kpi-tile` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `.bg-foreground.border-transparent[data-tile-variant="inverted"]:nth-child(1) > .gap-x-2.gap-y-0\.5.flex-wrap > .text-suc` — Element has insufficient color contrast of 3.05 (foreground color: #107537, background color: #1a1814, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="kpi-tile-delta" data-trend="up" data-sentiment="good" class="inline-flex items-center gap-1 font-medium text-success">
+    - target `.bg-foreground.border-transparent[data-tile-variant="inverted"]:nth-child(2) > .gap-x-2.gap-y-0\.5.flex-wrap > .text-suc` — Element has insufficient color contrast of 3.05 (foreground color: #107537, background color: #1a1814, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="kpi-tile-delta" data-trend="down" data-sentiment="good" class="inline-flex items-center gap-1 font-medium text-success">
+- `/components/data-display/kpi-tile` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/line-chart` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/list` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `.dark\:border-input` — Element has insufficient color contrast of 4.07 (foreground color: #a19e99, background color: #383d49, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <button data-slot="button" type="button" class="inline-flex shrink-0...">
+- `/components/data-display/list` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+    - target `.space-y-2 > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/sparkline` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `figure[aria-labelledby="v-0-title"] > .min-h-24.sm\:p-6[data-testid="example-preview"]` — Element should have focusable content html: <div class="min-h-24 overflow-x-auto bg-background p-4 sm:p-6" data-testid="example-preview" aria-busy="false">
+    - target `figure[aria-labelledby="v-2-title"] > .min-h-24.sm\:p-6[data-testid="example-preview"]` — Element should have focusable content html: <div class="min-h-24 overflow-x-auto bg-background p-4 sm:p-6" data-testid="example-preview" aria-busy="false">
+- `/components/data-display/stat-bar` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/stat-group` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/table` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `figure[aria-labelledby="v-1-title"] > .min-h-24.sm\:p-6[data-testid="example-preview"] > div > .max-h-40.relative[data-s` — Element should have focusable content html: <div data-slot="table-container" class="relative w-full overflow-x-auto max-h-40 rounded-md border border-border">
+    - target `figure[aria-labelledby="v-5-title"] > .min-h-24.sm\:p-6[data-testid="example-preview"] > div > .max-h-40.relative[data-s` — Element should have focusable content html: <div data-slot="table-container" class="relative w-full overflow-x-auto max-h-40">
+- `/components/data-display/timeline` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.flex-row` — Element should have focusable content html: <ol data-slot="timeline" role="list" data-layout="horizontal" class="flex flex-row items-start overflow-x-auto">
+    - target `#props > .rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/tree` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/trend-badge` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/data-display/virtual-list` **aria-required-children** [critical] Certain ARIA roles must contain particular children — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `div[data-count="0"]` — Required ARIA child role not present: listitem html: <div data-slot="virtual-list" role="list" tabindex="0" data-count="0" class="relative overflow-auto focus-visible:outline-none focus-visible
+- `/components/data-display/virtual-list` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `.rounded-lg.overflow-x-auto.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">

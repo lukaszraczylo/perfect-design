@@ -1,0 +1,9 @@
+/*
+ * Utilities for the live component demos only (every library component). Imported by ExampleLive.vue, so the browser
+ * downloads it with the demo chunk instead of blocking the first paint of every docs page.
+ */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "../../packages/ui/src/styles/theme.css";
+@import "../../packages/ui/src/styles/packs.css";
+@source "../../packages/ui/src";

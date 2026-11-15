@@ -1,0 +1,21 @@
+/*
+ * Style pack "raw": utilitarian and blunt on purpose. Square corners, ink borders, hard offset shadows, no softening.
+ * For products that want to look like a tool or a poster and are chosen deliberately, never as an escape from another
+ * look. Shadows are solid ink offsets (no blur); borders thicken on the structural parts through their data-slot hooks.
+ */
+[data-style="raw"] {
+  --radius: 0px;
+  --border: var(--foreground);
+  --shadow-xs: 2px 2px 0 0 var(--foreground);
+  --shadow-sm: 2px 2px 0 0 var(--foreground);
+  --shadow-md: 4px 4px 0 0 var(--foreground);
+  --shadow-lg: 6px 6px 0 0 var(--foreground);
+  --shadow-xl: 8px 8px 0 0 var(--foreground);
+}
+[data-style="raw"] :is([data-slot="card"], [data-slot="dialog-content"], [data-slot="sheet-content"], [data-slot="popover-content"], [data-slot="alert"]) {
+  border-width: 2px;
+}
+[data-style="raw"] :is([data-slot="button"], [data-slot="input"], [data-slot="textarea"], [data-slot="badge"], [data-slot="chip"]) {
+  border-width: 2px;
+  border-color: var(--foreground);
+}

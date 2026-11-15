@@ -1,0 +1,6 @@
+export { default as StaleNotice } from './StaleNotice.vue'
+export type { StaleNoticeProps } from './StaleNotice.vue'
+export { formatRelativeTime, toTimestamp, JUST_NOW_MS } from './formatRelativeTime'
+export type { RelativeTimeInput } from './formatRelativeTime'
+export { staleNoticeVariants, staleNoticeIconVariants, STALE_NOTICE_VARIANTS, STALE_NOTICE_TONES } from './variants'
+export type { StaleNoticeVariants, StaleNoticeVariant, StaleNoticeTone } from './variants'

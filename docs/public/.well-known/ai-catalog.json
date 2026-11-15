@@ -1,0 +1,82 @@
+{
+  "entries": [
+    {
+      "identifier": "urn:air:perfect-design:docs:design-system",
+      "displayName": "Perfect Design documentation",
+      "type": "application/vnd.perfect-design.docs+json",
+      "description": "Documentation of the Perfect Design system: design tokens, 206 Vue 3 components in 9 groups, guides, and rules for generating UI with them.",
+      "representativeQueries": [
+        "How do I install the Perfect Design component library?",
+        "Which design tokens does Perfect Design define?",
+        "How do I customise a Perfect Design component?"
+      ],
+      "tags": [
+        "design-system",
+        "vue",
+        "tailwindcss",
+        "components",
+        "documentation"
+      ],
+      "capabilities": [
+        "DesignTokens",
+        "ComponentCatalogue"
+      ],
+      "data": {
+        "name": "@perfect-design/ui",
+        "components": 206,
+        "groups": [
+          "primitives",
+          "typography",
+          "layout",
+          "forms",
+          "feedback",
+          "overlays",
+          "navigation",
+          "data-display",
+          "marketing"
+        ],
+        "entryPoints": {
+          "llmsTxt": "/llms.txt",
+          "llmsFull": "/llms-full.txt",
+          "componentManifest": "/components.manifest.json",
+          "guides": "/guides/getting-started",
+          "tokens": "/foundations/colors"
+        }
+      }
+    },
+    {
+      "identifier": "urn:air:perfect-design:docs:component-catalogue",
+      "displayName": "Perfect Design component catalogue",
+      "type": "application/vnd.perfect-design.components+json",
+      "description": "Every component with its props, slots, events, accessibility notes and rules for LLM authors, as one JSON document.",
+      "representativeQueries": [
+        "What props does the Perfect Design Button accept?",
+        "Which Perfect Design component shows a date picker?",
+        "List the Perfect Design form components"
+      ],
+      "tags": [
+        "components",
+        "props",
+        "api-reference"
+      ],
+      "capabilities": [
+        "ComponentLookup"
+      ],
+      "data": {
+        "manifest": "/components.manifest.json",
+        "count": 206,
+        "groups": [
+          "primitives",
+          "typography",
+          "layout",
+          "forms",
+          "feedback",
+          "overlays",
+          "navigation",
+          "data-display",
+          "marketing"
+        ]
+      }
+    }
+  ]
+}

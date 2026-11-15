@@ -1,0 +1,7 @@
+export { default as Collapsible } from './Collapsible.vue'
+export type { CollapsibleProps } from './Collapsible.vue'
+export { default as CollapsibleTrigger } from './CollapsibleTrigger.vue'
+export { default as CollapsibleContent } from './CollapsibleContent.vue'
+export { collapsibleVariants, collapsibleContentVariants, COLLAPSIBLE_VARIANTS, COLLAPSIBLE_SIZES } from './variants'
+export type { CollapsibleVariant, CollapsibleSize, CollapsibleVariants } from './variants'
+export { COLLAPSIBLE_SIZE_KEY } from './context'

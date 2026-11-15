@@ -1,0 +1,6 @@
+export { default as NavLink } from './NavLink.vue'
+export type { NavLinkProps } from './NavLink.vue'
+export { navLinkVariants, NAV_LINK_VARIANTS, NAV_LINK_SIZES, NAV_LINK_SHAPES } from './variants'
+export type { NavLinkVariants, NavLinkVariant, NavLinkSize, NavLinkShape } from './variants'
+export { NAV_IS_ACTIVE_KEY } from './context'
+export type { NavIsActive } from './context'

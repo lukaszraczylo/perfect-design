@@ -1,0 +1,27 @@
+/* "lime" preset: ink and acid lime, an example of a dark-signal brand. Apply with <html data-theme="lime">. A deliberate brand exception, see DESIGN.md section 7. */
+:root[data-theme="lime"] {
+  --background: oklch(0.97 0.006 110);
+  --foreground: oklch(0.15 0.005 85);
+  --primary: oklch(0.45 0.11 125);
+  --primary-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.94 0.04 125);
+  --accent-foreground: oklch(0.3 0.08 125);
+  --ring: oklch(0.45 0.11 125);
+  --input: oklch(0.6 0.006 110);
+  --success: oklch(0.46 0.13 150);
+  --info: oklch(0.46 0.13 235);
+  --radius: 0.125rem;
+}
+:root[data-theme="lime"].dark {
+  --background: oklch(0.14 0.003 285);
+  --foreground: oklch(0.96 0.005 110);
+  --card: oklch(0.18 0.003 285);
+  --popover: oklch(0.2 0.003 285);
+  --primary: oklch(0.92 0.22 125);
+  --primary-foreground: oklch(0.15 0.03 125);
+  --accent: oklch(0.26 0.05 125);
+  --accent-foreground: oklch(0.95 0.08 125);
+  --ring: oklch(0.92 0.22 125);
+  --border: oklch(0.3 0.004 285);
+  --input: oklch(0.55 0.004 285);
+}

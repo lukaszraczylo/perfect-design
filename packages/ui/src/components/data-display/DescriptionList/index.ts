@@ -1,0 +1,8 @@
+export { default as DescriptionList } from './DescriptionList.vue'
+export type { DescriptionListProps } from './DescriptionList.vue'
+export { default as DescriptionItem } from './DescriptionItem.vue'
+export type { DescriptionItemProps } from './DescriptionItem.vue'
+export { default as DetailField } from './DetailField.vue'
+export type { DetailFieldProps } from './DetailField.vue'
+export { descriptionListVariants, descriptionItemVariants, descriptionDetailsVariants, descriptionGridColumns, DESCRIPTION_LIST_SIZES, DESCRIPTION_LIST_DENSITIES } from './variants'
+export type { DescriptionListVariant, DescriptionListSize, DescriptionListDensity, DescriptionListColumns, DescriptionListVariants } from './variants'

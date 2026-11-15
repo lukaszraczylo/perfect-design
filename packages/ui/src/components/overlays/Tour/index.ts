@@ -1,0 +1,6 @@
+export { default as Tour } from './Tour.vue'
+export type { TourProps, TourStep } from './Tour.vue'
+export { tourCardVariants, tourSizes, tourVariantNames } from './variants'
+export type { TourCardVariants, TourSize, TourVariant } from './variants'
+export { computeTourPosition, resolveTourTarget, TOUR_PLACEMENTS } from './position'
+export type { TourPlacement, TourPosition, TourRect } from './position'

@@ -1,0 +1,17 @@
+/* Accent preset "amber": apply with <html data-theme="amber"> (see useThemeStore). Overrides primary/accent/ring/chart-1 only. */
+:root[data-theme="amber"] {
+  --primary: oklch(0.51 0.15 70);
+  --primary-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.955 0.014 70);
+  --accent-foreground: oklch(0.32 0.08 70);
+  --ring: oklch(0.51 0.15 70);
+  --chart-1: oklch(0.51 0.15 70);
+}
+:root[data-theme="amber"].dark {
+  --primary: oklch(0.8 0.14 70);
+  --primary-foreground: oklch(0.18 0.02 70);
+  --accent: oklch(0.29 0.035 70);
+  --accent-foreground: oklch(0.94 0.012 70);
+  --ring: oklch(0.8 0.14 70);
+  --chart-1: oklch(0.8 0.14 70);
+}

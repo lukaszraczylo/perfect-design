@@ -1,0 +1,64 @@
+# Accessibility/responsive findings: overlays
+(source: reports/a11y-sweep.json, old build; contrast tokens were since fixed — re-run to confirm)
+
+- `/components/overlays/alert-dialog` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['light']
+    - target `.bg-success\/15` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/overlays/alert-dialog` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed">
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/overlays/command` **aria-input-field-name** [serious] ARIA input fields must have an accessible name — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `.max-h-80` — aria-label attribute does not exist or is empty html: <div data-slot="command-list" class="max-h-80 scroll-py-1 overflow-x-hidden overflow-y-auto p-1" role="listbox" tabindex="-1" aria-orientati
+- `/components/overlays/command` **aria-required-children** [critical] Certain ARIA roles must contain particular children — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `.max-h-80` — Element has children which are not allowed: [role=separator] html: <div data-slot="command-list" class="max-h-80 scroll-py-1 overflow-x-hidden overflow-y-auto p-1" role="listbox" tabindex="-1" aria-orientati
+- `/components/overlays/command` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+    - target `#reka-listbox-item-v-6` — Element has insufficient color contrast of 3.36 (foreground color: #8c8c8a, background color: #ffffff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1 html: <div data-slot="command-item" class="relative flex cursor..." data-reka-collection...="" id="reka-listbox-item-v-..." role="option" tabindex
+- `/components/overlays/command` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { Command, CommandInput, CommandList, Command
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/overlays/context-menu` **OVERFLOW-X** [serious] horizontal overflow 93px — viewports ['phone-320'], schemes ['dark', 'light']
+    - target ``  
+- `/components/overlays/context-menu` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/overlays/context-menu` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed">
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/overlays/dialog` **OVERFLOW-X** [serious] horizontal overflow 291px — viewports ['phone-320'], schemes ['dark', 'light']
+    - target ``  
+- `/components/overlays/dialog` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/overlays/dialog` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { Dialog, DialogTrigger, DialogContent, Dialo
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/overlays/dropdown-menu` **OVERFLOW-X** [serious] horizontal overflow 129px — viewports ['phone-320'], schemes ['dark', 'light']
+    - target ``  
+- `/components/overlays/dropdown-menu` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/overlays/dropdown-menu` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed">
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/overlays/hover-card` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/overlays/hover-card` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { HoverCard, HoverCardTrigger, HoverCardConte
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/overlays/popover` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/overlays/popover` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { Popover, PopoverTrigger, PopoverContent, Po
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/overlays/sheet` **OVERFLOW-X** [serious] horizontal overflow 271px — viewports ['phone-320'], schemes ['dark', 'light']
+    - target ``  
+- `/components/overlays/sheet` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/overlays/sheet` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { Sheet, SheetTrigger, SheetContent, SheetHea
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/overlays/tooltip` **color-contrast** [serious] Elements must meet minimum color contrast ratio thresholds — viewports ['desktop-1280', 'phone-320', 'tablet-768'], schemes ['light']
+    - target `.w-fit` — Element has insufficient color contrast of 4.45 (foreground color: #137738, background color: #dae8de, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1 html: <span data-slot="badge" class="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap border font-medium [&amp;&gt;s
+- `/components/overlays/tooltip` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320', 'tablet-768'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { Tooltip, TooltipProvider, TooltipTrigger, T
+    - target `#props > .overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
+- `/components/overlays/tour` **scrollable-region-focusable** [serious] Scrollable region must have keyboard access — viewports ['phone-320'], schemes ['dark', 'light']
+    - target `pre` — Element should have focusable content html: <pre class="overflow-x-auto p-4 pr-12 font-mono text-[0.8125rem] leading-relaxed"><code>import { Tour } from '@perfect-design/ui'</code></pr
+    - target `.overflow-x-auto.rounded-lg.border` — Element should have focusable content html: <div class="overflow-x-auto rounded-lg border">
