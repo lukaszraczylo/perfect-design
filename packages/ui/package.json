@@ -42,7 +42,7 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "vue-tsc --noEmit",
     "build:check": "vue-tsc --noEmit",
-    "build": "vite build"
+    "build": "vite build && vue-tsc -p tsconfig.build.json"
   },
   "peerDependencies": {
     "pinia": "^3.0.0 || ^4.0.0",
