@@ -1,7 +1,24 @@
 # Perfect Design
 
 One design system and one universal Vue 3 component library for every website and web UI we build.
-Stack: **Vue 3.5 · Vite · TypeScript · Pinia · Tailwind CSS 4 · FontAwesome icons · Vitest**. Library runtime dependencies: **reka-ui + tailwind-merge only** (pinia optional).
+Stack: **Vue 3.5 · Vite · TypeScript · Pinia · Tailwind CSS 4 · FontAwesome icons · Vitest**. Library runtime dependencies: **reka-ui + tailwind-merge**; peers: **vue, pinia, tailwindcss**.
+
+## Install
+
+GitHub is the primary distribution channel. Every tag produces a GitHub Release with the packed npm tarball attached:
+
+```
+npm install https://github.com/lukaszraczylo/perfect-design/releases/download/v0.1.3/perfect-design-ui-0.1.3.tgz
+npm install pinia tailwindcss vue      # peers the tarball does not bundle
+```
+
+The npm registry is a mirror, used only when that release has been published there too:
+
+```
+npm install @perfect-design/ui
+```
+
+Then import `@perfect-design/ui/theme.css` and add `@source "../node_modules/@perfect-design/ui/src"` so Tailwind scans the component classes. Full steps: the *Getting started* guide on the docs site.
 
 ```
 packages/ui     @perfect-design/ui: tokens (theme.css + 5 accent presets), components, Pinia stores, tests

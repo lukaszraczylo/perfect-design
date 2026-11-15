@@ -4,7 +4,7 @@
  * the Pinia requirement. `lib/contract.ts` provides the primitives (`violation`, required parts, accessible names).
  */
 import { getCurrentInstance, inject, nextTick, onBeforeUnmount, onMounted, provide, type InjectionKey } from 'vue'
-import { piniaSymbol } from 'pinia'
+import { getActivePinia } from 'pinia'
 import { violation } from '../../lib/contract'
 
 export interface RegistryEntry {
@@ -96,7 +96,8 @@ export function withPinia<T>(component: string, useStore: () => T): T {
   try {
     return useStore()
   } catch (error) {
-    if (!inject(piniaSymbol, null)) {
+    // `piniaSymbol` is internal to Pinia and is not exported by its runtime entry; `getActivePinia` is public.
+    if (!getActivePinia()) {
       violation(component, 'requires-pinia', 'requires an active Pinia instance. Install it before mounting (`app.use(createPinia())`), or call `setActivePinia(createPinia())` in tests.')
     }
     throw error

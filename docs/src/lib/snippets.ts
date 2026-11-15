@@ -2,9 +2,11 @@
 // Built from parts so the SFC compiler / dependency scanner never sees a literal script tag inside a string.
 const OPEN = '<'
 export const SNIPPETS = {
-  install: `pnpm add @perfect-design/ui                       # brings reka-ui + tailwind-merge (the only runtime deps)
-pnpm add pinia                                  # optional: only for useThemeStore / Toaster / ConfirmHost
+  // GitHub is the primary channel: each tag publishes a GitHub Release with the packed tarball attached.
+  install: `pnpm add https://github.com/lukaszraczylo/perfect-design/releases/download/v0.1.3/perfect-design-ui-0.1.3.tgz
+pnpm add pinia tailwindcss vue                  # peers the tarball does not bundle
 pnpm add @fortawesome/free-solid-svg-icons      # optional: icon data you pass to <Icon>; no FontAwesome runtime needed`,
+  installNpm: `pnpm add @perfect-design/ui                     # same build, from the npm registry (a mirror, when published)`,
   css: `/* src/style.css */
 @import "tailwindcss";
 @import "@perfect-design/ui/theme.css";

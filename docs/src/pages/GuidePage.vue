@@ -29,11 +29,15 @@ const lead: Record<string, string> = {
 <template>
   <PageShell v-if="meta" :title="meta.title" :lead="lead[topic]" :key="topic">
     <template v-if="topic === 'getting-started'">
-      <DocSection title="1. Install"><CodeSnippet :code="SNIPPETS.install" /></DocSection>
+      <DocSection title="1. Install" description="GitHub is the primary channel: every tag publishes a GitHub Release with the packed tarball attached. The npm registry is a mirror, used when a release has been published there too.">
+        <CodeSnippet :code="SNIPPETS.install" />
+        <p class="text-sm text-muted-foreground">Or, from the npm registry, when that release exists there:</p>
+        <CodeSnippet :code="SNIPPETS.installNpm" />
+      </DocSection>
       <DocSection title="2. Wire the CSS"><CodeSnippet :code="SNIPPETS.css" label="style.css" /></DocSection>
       <DocSection title="3. Bootstrap"><CodeSnippet :code="SNIPPETS.main" label="main.ts" /></DocSection>
       <DocSection title="4. Use components"><CodeSnippet :code="SNIPPETS.use" label="Login.vue" /></DocSection>
-      <DocSection title="Requirements"><p class="text-sm">Vue ≥ 3.5 and Tailwind CSS ≥ 4.1 (Vite plugin). Runtime dependencies are deliberately minimal: reka-ui (accessible primitives) and tailwind-merge (class conflict resolution). Pinia ≥ 3 is an optional peer used only by the theme store, Toaster and confirm host. Icons are plain FontAwesome-shaped data rendered as inline SVG. FontAwesome itself is optional. Variants, class joining, clipboard/debounce helpers and a date engine are in-house.</p></DocSection>
+      <DocSection title="Requirements"><p class="text-sm">Vue ≥ 3.5 and Tailwind CSS ≥ 4.1 (Vite plugin). Runtime dependencies are deliberately minimal: reka-ui (accessible primitives) and tailwind-merge (class conflict resolution). Pinia ≥ 3 is a peer: the entry point re-exports the theme store, so it must be installed even if you do not use it directly. Icons are plain FontAwesome-shaped data rendered as inline SVG. FontAwesome itself is optional. Variants, class joining, clipboard/debounce helpers and a date engine are in-house.</p></DocSection>
     </template>
     <template v-else-if="topic === 'customisation'">
       <DocSection title="The contract"><ol class="list-decimal space-y-2 pl-5 text-sm"><li><b>class wins:</b> consumer classes are merged last with tailwind-merge.</li><li><b>variant / size</b> through CVA; the variant functions are exported for reuse on non-component elements.</li><li><b>as / asChild</b> to change the rendered element (links, RouterLink).</li><li><b>data-slot</b> on every root and part for stable CSS hooks.</li><li><b>Attributes fall through</b>: aria-*, data-*, id and listeners.</li><li><b>Compound parts</b> (<code>Card</code>, <code>CardHeader</code>…) instead of config props for composite UI.</li><li><b>Tokens only</b>: change the theme, not the components.</li></ol></DocSection>

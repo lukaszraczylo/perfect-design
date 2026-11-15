@@ -6,3 +6,6 @@ coverage
 dist-ssr
 .vitest
 reports/a11y-sweep.json
+
+# npm pack output from release dry runs
+*.tgz
