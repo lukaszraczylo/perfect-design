@@ -94,6 +94,16 @@ async function worker() {
         await page.waitForFunction((want) => document.documentElement.classList.contains('dark') === want, { timeout: 25000 }, scheme === 'dark').catch(() => {})
         dark = await page.evaluate(() => document.documentElement.classList.contains('dark'))
       }
+      if (dark !== (scheme === 'dark') && (await page.evaluate((want) => !localStorage.getItem('pd-theme')?.includes(`"mode":"${want}"`), scheme))) {
+        // The seeded mode was overwritten by another document of this context after the init script ran (the unload race
+        // above), so the page never saw the scheme under test. Seed it again and reload once before judging.
+        await page.evaluate((want) => localStorage.setItem('pd-theme', JSON.stringify({ mode: want, accent: 'default' })), scheme)
+        await page.reload({ waitUntil: 'networkidle0', timeout: 30000 })
+        await page.waitForFunction((want) => document.documentElement.classList.contains('dark') === want, { timeout: 25000 }, scheme === 'dark').catch(() => {})
+        await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; }' + inject })
+        await page.evaluate(`window.__snap = (${snapshotFn.toString()})(); window.__state = ${stateOf.toString()}`)
+        dark = await page.evaluate(() => document.documentElement.classList.contains('dark'))
+      }
       if (dark !== (scheme === 'dark')) failures.push(`${route} [${scheme}] theme did not apply (html.dark=${dark}, stored=${await page.evaluate(() => localStorage.getItem('pd-theme'))}, scheme=${await page.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches)})`)
 
       // 1. toggles
