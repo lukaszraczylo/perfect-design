@@ -8,5 +8,5 @@
     "rootDir": "src"
   },
   "include": ["src/**/*.ts", "src/**/*.vue"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.docs.ts", "src/testing.ts", "src/**/__tests__/**"]
+  "exclude": ["src/**/*.test.ts", "src/**/*.docs.ts", "src/**/testing.ts", "src/**/__tests__/**", "src/registry.ts", "src/lib/console-filter.ts"]
 }

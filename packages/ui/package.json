@@ -30,33 +30,7 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "publishConfig": {
-    "access": "public",
-    "main": "./dist/index.js",
-    "module": "./dist/index.js",
-    "types": "./dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js"
-      },
-      "./components/*": {
-        "types": "./dist/components/*.d.ts",
-        "import": "./dist/components/*.js"
-      },
-      "./lib/*": {
-        "types": "./dist/lib/*.d.ts",
-        "import": "./dist/lib/*.js"
-      },
-      "./stores/*": {
-        "types": "./dist/stores/*.d.ts",
-        "import": "./dist/stores/*.js"
-      },
-      "./composables/*": {
-        "types": "./dist/composables/*.d.ts",
-        "import": "./dist/composables/*.js"
-      },
-      "./dist/*": "./dist/*"
-    }
+    "access": "public"
   },
   "files": [
     "dist",
@@ -67,10 +41,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./components/*": {
-      "types": "./dist/components/*.d.ts",
-      "import": "./dist/components/*.js"
-    },
     "./lib/*": {
       "types": "./dist/lib/*.d.ts",
       "import": "./dist/lib/*.js"
@@ -79,14 +49,11 @@
       "types": "./dist/stores/*.d.ts",
       "import": "./dist/stores/*.js"
     },
-    "./composables/*": {
-      "types": "./dist/composables/*.d.ts",
-      "import": "./dist/composables/*.js"
-    },
     "./theme.css": "./src/styles/theme.css",
     "./themes/*.css": "./src/styles/themes/*.css",
     "./packs.css": "./src/styles/packs.css",
     "./packs/*.css": "./src/styles/packs/*.css",
+    "./package.json": "./package.json",
     "./dist/*": "./dist/*"
   },
   "scripts": {
