@@ -40,3 +40,15 @@ describe('docs match runtime props', () => {
     })
   })
 })
+
+// Parts wrap reka-ui primitives that accept dozens of positioning props, so an undocumented part prop is allowed; a
+// documented part prop that does not exist is not (it once told readers ContextMenuContent took `side` and `align`).
+const parts = docs.flatMap((d) => (d.parts ?? []).filter((p) => p.props?.length).map((p) => [`${d.name} > ${p.name}`, p] as const))
+describe('part docs match runtime props', () => {
+  it.each(parts)('%s', (_label, part) => {
+    const real = runtimeProps((UI as Record<string, unknown>)[part.name])
+    if (real === null) return
+    const missingInCode = part.props!.map((p) => camel(p.name)).filter((p) => p !== 'class' && !real.includes(p))
+    expect({ documentedButNotImplemented: missingInCode }).toEqual({ documentedButNotImplemented: [] })
+  })
+})
