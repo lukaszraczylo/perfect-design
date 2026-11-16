@@ -45,15 +45,21 @@ export function renderIndex(docs: ComponentDoc[]): string {
     '- [Component manifest](/components.manifest.json): the same data as JSON',
     '',
   ]
-  for (const g of GROUP_ORDER) {
+  // Groups outside GROUP_ORDER still get a section, after the known ones, so a new group never drops out of the index.
+  const groups = [...GROUP_ORDER, ...[...new Set(docs.map((d) => d.group))].filter((g) => !GROUP_ORDER.includes(g)).sort()]
+  for (const g of groups) {
     const items = docs.filter((d) => d.group === g)
     if (!items.length) continue
     lines.push(`## ${g}`)
-    for (const d of items) lines.push(`- [${d.name}](/components/${d.group}/${slug(d.name)}): ${d.summary} (${d.subgroup})`)
+    for (const d of items) lines.push(`- [${d.name}](/components/${d.group}/${slug(d.name)}): ${oneLine(d.summary)} (${d.subgroup})`)
     lines.push('')
   }
   return lines.join('\n')
 }
+
+const oneLine = (text: string) => text.replace(/\s*\n\s*/g, ' ').trim()
+/** A code fence longer than any backtick run inside the content, so an example that contains ``` cannot close it early. */
+const fenceFor = (content: string) => '`'.repeat(Math.max(3, ...[...content.matchAll(/`+/g)].map((m) => m[0].length + 1)))
 
 export function renderFull(docs: ComponentDoc[]): string {
   const out: string[] = [renderIndex(docs), '---', '']
@@ -80,9 +86,10 @@ export function renderFull(docs: ComponentDoc[]): string {
     if (d.llmNotes?.length) out.push('Rules:', ...d.llmNotes.map((n) => `- ${n}`), '')
     if (d.a11y?.length) out.push('Accessibility:', ...d.a11y.map((n) => `- ${n}`), '')
     for (const ex of d.examples) {
-      out.push(`Example: ${ex.title}`, '```vue')
+      const fence = fenceFor(`${ex.script ?? ''}\n${ex.code}`)
+      out.push(`Example: ${ex.title}`, `${fence}vue`)
       if (ex.script) out.push(`<script setup lang="ts">`, ex.script, `</script>`, '')
-      out.push(ex.code, '```', '')
+      out.push(ex.code, fence, '')
     }
     out.push('---', '')
   }
@@ -114,7 +121,8 @@ async function main() {
   }
   // Lean navigation index for the docs site (avoids bundling every docs file + component into the first page load).
   const nav = sorted.map((d) => {
-    const file = files.find((f) => f.endsWith(`/${d.name}.docs.ts`))!
+    const file = files.find((f) => f.endsWith(`/${d.name}.docs.ts`))
+    if (!file) throw new Error(`${d.name}: no ${d.name}.docs.ts found; the docs file name must equal the doc name`)
     return {
       name: d.name, slug: slug(d.name), group: d.group, subgroup: d.subgroup, summary: d.summary, status: d.status ?? 'stable',
       examples: d.examples.length, parts: d.parts?.length ?? 0, replaces: d.replaces ?? [],

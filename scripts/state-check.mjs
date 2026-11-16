@@ -131,7 +131,7 @@ async function worker() {
       for (let i = 0; i < n; i += step) {
         const res = await page.evaluate((sel, idx) => {
           const el = [...document.querySelectorAll(`[data-testid=example-preview] :is(${sel})`)][idx]
-          if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || !(el.offsetWidth || el.offsetHeight)) return null
+          if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[aria-hidden="true"]') || !(el.offsetWidth || el.offsetHeight)) return null
           const target = el.matches('input') && el.getBoundingClientRect().width <= 2 ? el.closest('label') ?? el.parentElement : el
           const read = (n) => { const cs = getComputedStyle(n); return { out: cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0 && !/rgba\(0, 0, 0, 0\)|transparent/.test(cs.outlineColor), shadow: cs.boxShadow, bg: cs.backgroundColor, border: cs.borderTopColor, td: cs.textDecorationLine } }
           // The indicator may sit on the control or, for wrapped fields (`focus-within` ring), on one of its three nearest ancestors.
