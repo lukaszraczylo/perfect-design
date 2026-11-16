@@ -20,7 +20,7 @@ pnpm add @fortawesome/free-solid-svg-icons          # optional: icon data for <I
 Prefer a GitHub Release tarball? Every tag attaches one:
 
 ```
-pnpm add https://github.com/lukaszraczylo/perfect-design/releases/download/v0.1.5/perfect-design-ui-0.1.5.tgz
+pnpm add https://github.com/lukaszraczylo/perfect-design/releases/download/v<version>/perfect-design-ui-<version>.tgz   # <version>: the latest release tag
 ```
 
 ## Setup

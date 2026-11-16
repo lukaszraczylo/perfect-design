@@ -8,8 +8,8 @@ Stack: **Vue 3.5 · Vite · TypeScript · Pinia · Tailwind CSS 4 · FontAwesome
 GitHub is the primary distribution channel. Every tag produces a GitHub Release with the packed npm tarball attached:
 
 ```
-npm install https://github.com/lukaszraczylo/perfect-design/releases/download/v0.1.3/perfect-design-ui-0.1.3.tgz
-npm install pinia tailwindcss vue      # peers the tarball does not bundle
+pnpm add https://github.com/lukaszraczylo/perfect-design/releases/download/v<version>/perfect-design-ui-<version>.tgz   # <version>: the latest release tag
+pnpm add pinia tailwindcss vue         # peers the tarball does not bundle
 ```
 
 The npm registry is a mirror, used only when that release has been published there too:
