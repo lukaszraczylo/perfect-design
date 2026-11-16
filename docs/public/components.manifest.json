@@ -2946,7 +2946,7 @@
         {
           "title": "README-style document",
           "description": "Headings start at h4 here (headingOffset 3) so the page keeps its own outline.",
-          "script": "const readme = [\n  '# Using the library in an app',\n  '',\n  'Perfect Design is a Vue 3 component library for Tailwind CSS v4. Its runtime dependencies are `reka-ui` and `tailwind-merge`.',\n  '',\n  '## Install the package',\n  '',\n  'Add the package, then load the theme in your main stylesheet:',\n  '',\n  '```css',\n  '@import \"tailwindcss\";',\n  '@import \"@perfect-design/ui/theme.css\";',\n  '@source \"../node_modules/@perfect-design/ui/src\";',\n  '```',\n  '',\n  'The `@source` line is required so Tailwind can see the component classes.',\n  '',\n  '## Everyday commands',\n  '',\n  '1. `pnpm test` runs the test suite',\n  '2. `pnpm generate:llms` rebuilds `llms.txt` from the docs files',\n  '3. `pnpm dev` starts the docs site',\n  '',\n  '> Use semantic tokens only. Never hard-code colours.',\n  '',\n  '---',\n  '',\n  'Rendering text for typography? See [Prose](/components/typography/prose) for styling HTML you already have.',\n].join('\\n')",
+          "script": "const readme = [\n  '# Using the library in an app',\n  '',\n  'Perfect Design is a Vue 3 component library for Tailwind CSS v4. Its runtime dependencies are `reka-ui` and `tailwind-merge`.',\n  '',\n  '## Install the package',\n  '',\n  'Add the package, then load the theme in your main stylesheet:',\n  '',\n  '```css',\n  '@import \"tailwindcss\";',\n  '@import \"@perfect-design/ui/theme.css\";',\n  '@source \"../node_modules/@perfect-design/ui/dist\";',\n  '```',\n  '',\n  'The `@source` line is required so Tailwind can see the component classes.',\n  '',\n  '## Everyday commands',\n  '',\n  '1. `pnpm test` runs the test suite',\n  '2. `pnpm generate:llms` rebuilds `llms.txt` from the docs files',\n  '3. `pnpm dev` starts the docs site',\n  '',\n  '> Use semantic tokens only. Never hard-code colours.',\n  '',\n  '---',\n  '',\n  'Rendering text for typography? See [Prose](/components/typography/prose) for styling HTML you already have.',\n].join('\\n')",
           "code": "<Markdown :source=\"readme\" :heading-offset=\"3\" />"
         },
         {
@@ -16951,26 +16951,8 @@
         },
         {
           "name": "ContextMenuContent",
-          "description": "Portalled menu surface (role=menu). Attributes fall through.",
+          "description": "Portalled menu surface (role=menu), placed to the right of the pointer and aligned to its start (fixed by reka-ui). Attributes fall through.",
           "props": [
-            {
-              "name": "side",
-              "type": "'top' | 'right' | 'bottom' | 'left'",
-              "default": "'right'",
-              "description": "Preferred side of the pointer."
-            },
-            {
-              "name": "align",
-              "type": "'start' | 'center' | 'end'",
-              "default": "'start'",
-              "description": "Alignment along the side axis."
-            },
-            {
-              "name": "sideOffset",
-              "type": "number",
-              "default": "2",
-              "description": "Gap in px between pointer and menu."
-            },
             {
               "name": "loop",
               "type": "boolean",

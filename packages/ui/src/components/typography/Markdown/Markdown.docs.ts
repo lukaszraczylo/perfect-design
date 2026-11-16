@@ -20,7 +20,7 @@ const readme = [
   `${FENCE}css`,
   '@import "tailwindcss";',
   '@import "@perfect-design/ui/theme.css";',
-  '@source "../node_modules/@perfect-design/ui/src";',
+  '@source "../node_modules/@perfect-design/ui/dist";',
   FENCE,
   '',
   'The `@source` line is required so Tailwind can see the component classes.',

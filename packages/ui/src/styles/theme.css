@@ -4,7 +4,7 @@
  * Usage in an app's main CSS (Tailwind v4):
  *   @import "tailwindcss";
  *   @import "@perfect-design/ui/theme.css";
- *   @source "../node_modules/@perfect-design/ui/src";   (adjust the relative path)
+ *   @source "../node_modules/@perfect-design/ui/dist";   (adjust the relative path)
  *
  * Token names intentionally match the shadcn/ui contract (--background, --foreground,
  * --primary, --border, ...) so existing apps migrate without renaming anything.

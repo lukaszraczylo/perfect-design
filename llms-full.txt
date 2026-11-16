@@ -2749,7 +2749,7 @@ const readme = [
   '```css',
   '@import "tailwindcss";',
   '@import "@perfect-design/ui/theme.css";',
-  '@source "../node_modules/@perfect-design/ui/src";',
+  '@source "../node_modules/@perfect-design/ui/dist";',
   '```',
   '',
   'The `@source` line is required so Tailwind can see the component classes.',
@@ -12793,10 +12793,7 @@ Props:
 Parts:
 - ContextMenuTrigger - Region that opens the menu on right-click / long-press. Renders a span by default; use as-child or `as="div"` for blocks.
     - disabled: boolean = false - Use the native browser menu instead.
-- ContextMenuContent - Portalled menu surface (role=menu). Attributes fall through.
-    - side: 'top' | 'right' | 'bottom' | 'left' = 'right' - Preferred side of the pointer.
-    - align: 'start' | 'center' | 'end' = 'start' - Alignment along the side axis.
-    - sideOffset: number = 2 - Gap in px between pointer and menu.
+- ContextMenuContent - Portalled menu surface (role=menu), placed to the right of the pointer and aligned to its start (fixed by reka-ui). Attributes fall through.
     - loop: boolean = false - Wrap keyboard focus from last to first item.
     - density: 'default' | 'compact' | 'comfortable' - Overrides the density set on ContextMenu for this menu (and its sub menus). Adds data-density when not default.
     - size: 'sm' | 'md' | 'lg' - Overrides the size set on ContextMenu for this menu (and its sub menus). Adds data-size when not md.

@@ -22,11 +22,8 @@ const doc: ComponentDoc = {
     { name: 'ContextMenuTrigger', description: 'Region that opens the menu on right-click / long-press. Renders a span by default; use as-child or `as="div"` for blocks.', props: [{ name: 'disabled', type: 'boolean', default: 'false', description: 'Use the native browser menu instead.' }] },
     {
       name: 'ContextMenuContent',
-      description: 'Portalled menu surface (role=menu). Attributes fall through.',
+      description: 'Portalled menu surface (role=menu), placed to the right of the pointer and aligned to its start (fixed by reka-ui). Attributes fall through.',
       props: [
-        { name: 'side', type: "'top' | 'right' | 'bottom' | 'left'", default: "'right'", description: 'Preferred side of the pointer.' },
-        { name: 'align', type: "'start' | 'center' | 'end'", default: "'start'", description: 'Alignment along the side axis.' },
-        { name: 'sideOffset', type: 'number', default: '2', description: 'Gap in px between pointer and menu.' },
         { name: 'loop', type: 'boolean', default: 'false', description: 'Wrap keyboard focus from last to first item.' },
         { name: 'density', type: "'default' | 'compact' | 'comfortable'", description: 'Overrides the density set on ContextMenu for this menu (and its sub menus). Adds data-density when not default.' },
         { name: 'size', type: "'sm' | 'md' | 'lg'", description: 'Overrides the size set on ContextMenu for this menu (and its sub menus). Adds data-size when not md.' },

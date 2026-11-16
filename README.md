@@ -18,7 +18,7 @@ The npm registry is a mirror, used only when that release has been published the
 npm install @perfect-design/ui
 ```
 
-Then import `@perfect-design/ui/theme.css` and add `@source "../node_modules/@perfect-design/ui/src"` so Tailwind scans the component classes. Full steps: the *Getting started* guide on the docs site.
+Then import `@perfect-design/ui/theme.css` and add `@source "../node_modules/@perfect-design/ui/dist"` so Tailwind scans the component classes. Full steps: the *Getting started* guide on the docs site.
 
 ```
 packages/ui     @perfect-design/ui: tokens (theme.css + 5 accent presets), components, Pinia stores, tests

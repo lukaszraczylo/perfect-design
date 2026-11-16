@@ -17,7 +17,7 @@ Library: `packages/ui` (`@perfect-design/ui`). Docs website: `docs/`. Machine-re
 @import "tailwindcss";
 @import "@perfect-design/ui/theme.css";
 @import "@perfect-design/ui/themes/emerald.css"; /* optional accent presets */
-@source "../node_modules/@perfect-design/ui/src"; /* REQUIRED so Tailwind sees the component classes */
+@source "../node_modules/@perfect-design/ui/dist"; /* REQUIRED so Tailwind sees the component classes */
 ```
 ```ts
 import { createPinia } from 'pinia'   // only needed for useThemeStore / Toaster / ConfirmHost

@@ -11,17 +11,24 @@ pnpm add @fortawesome/free-solid-svg-icons      # optional: icon data you pass t
 @import "tailwindcss";
 @import "@perfect-design/ui/theme.css";
 @import "@perfect-design/ui/themes/emerald.css"; /* optional accents */
-@source "../node_modules/@perfect-design/ui/src";  /* so Tailwind scans component classes */`,
+@source "../node_modules/@perfect-design/ui/dist";  /* so Tailwind scans component classes */`,
   main: `import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { useThemeStore } from '@perfect-design/ui'
+import { configureStrictMode, useThemeStore } from '@perfect-design/ui'
 import App from './App.vue'
 import './style.css'
+
+// Missing required parts throw while you develop and only log for your users (see Required parts and strict mode).
+configureStrictMode(import.meta.env.DEV ? 'throw' : 'warn')
 
 const app = createApp(App)
 app.use(createPinia())
 useThemeStore().init()   // applies dark class + accent, persists choice
 app.mount('#app')`,
+  boot: `// Server render or a build step that writes index.html: apply the saved theme before first paint.
+import { themeBootScript } from '@perfect-design/ui'
+
+html = html.replace('</head>', \`${OPEN}script>\${themeBootScript}${OPEN}/script></head>\`)`,
   use: `${OPEN}script setup lang="ts">
 import { Button, Card, CardHeader, CardTitle, CardContent, Input, Field } from '@perfect-design/ui'
 ${OPEN}/script>

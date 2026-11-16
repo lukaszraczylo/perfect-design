@@ -37,6 +37,8 @@ const lead: Record<string, string> = {
       <DocSection title="2. Wire the CSS"><CodeSnippet :code="SNIPPETS.css" label="style.css" /></DocSection>
       <DocSection title="3. Bootstrap"><CodeSnippet :code="SNIPPETS.main" label="main.ts" /></DocSection>
       <DocSection title="4. Use components"><CodeSnippet :code="SNIPPETS.use" label="Login.vue" /></DocSection>
+      <DocSection title="5. Avoid a theme flash" description="useThemeStore().init() runs after your bundle loads, so a visitor who saved dark mode sees light first. Inline themeBootScript in the head to apply the saved mode, accent and style pack before first paint."><CodeSnippet :code="SNIPPETS.boot" label="server.ts" /></DocSection>
+      <DocSection title="6. Required parts" description="Components throw a ContractError when a documented part is missing, for example a DialogTitle. Step 3 throws in development and logs in production."><p class="text-sm"><RouterLink to="/guides/contracts" class="text-primary underline underline-offset-4">Required parts and strict mode</RouterLink> lists what is enforced and how to route the errors.</p></DocSection>
       <DocSection title="Requirements"><p class="text-sm">Vue ≥ 3.5 and Tailwind CSS ≥ 4.1 (Vite plugin). Runtime dependencies are deliberately minimal: reka-ui (accessible primitives) and tailwind-merge (class conflict resolution). Pinia ≥ 3 is a peer: the entry point re-exports the theme store, so it must be installed even if you do not use it directly. Icons are plain FontAwesome-shaped data rendered as inline SVG. FontAwesome itself is optional. Variants, class joining, clipboard/debounce helpers and a date engine are in-house.</p></DocSection>
     </template>
     <template v-else-if="topic === 'customisation'">
@@ -70,7 +72,7 @@ const lead: Record<string, string> = {
     </template>
     <template v-else-if="topic === 'testing'">
       <DocSection title="What every component ships with"><ul class="list-disc space-y-1 pl-5 text-sm"><li><b>Good path:</b> renders, variants, v-model, emits, slots.</li><li><b>Customisation</b>: class merge/override, attribute passthrough, as / asChild.</li><li><b>Bad path</b>: invalid props fall back, disabled/readonly/loading block interaction, empty or null input.</li><li><b>Edge cases</b>: empty slots, long or unicode text, boundaries, rapid interaction, cleanup on unmount.</li></ul></DocSection>
-      <DocSection title="Quality gates"><ul class="list-disc space-y-1 pl-5 text-sm"><li><code>pnpm test:coverage</code> enforces 95/90/95/95 (statements/branches/functions/lines).</li><li>A structure test fails if any component lacks an index, tests or docs, or if a docs example does not mount warning-free.</li></ul></DocSection>
+      <DocSection title="Quality gates"><ul class="list-disc space-y-1 pl-5 text-sm"><li><code>pnpm test:coverage</code> enforces 95/90/95/95 (statements/branches/functions/lines).</li><li>A structure test fails if any component folder lacks an index, tests or docs (three known gaps are listed in a ratchet), or if a docs example does not mount warning-free.</li></ul></DocSection>
       <DocSection title="Testing your own UI"><CodeSnippet :code="SNIPPETS.test" /></DocSection>
     </template>
     <template v-else-if="topic === 'llm'">
