@@ -802,7 +802,7 @@ describe('TimeRangePicker: right to left', () => {
 describe('TimeRangePicker: lifecycle', () => {
   it('works under a parent that re-renders with v-model', async () => {
     const model = ref<TimeRangeValue | null>(null)
-    const Parent = defineComponent({ setup: () => () => h(TimeRangePicker, { modelValue: model.value, now: NOW, 'aria-label': 'Range', 'onUpdate:modelValue': (v: TimeRangeValue | null) => (model.value = v) }) })
+    const Parent = defineComponent({ setup: () => () => h(TimeRangePicker, { modelValue: model.value, now: NOW, locale: 'en-US', 'aria-label': 'Range', 'onUpdate:modelValue': (v: TimeRangeValue | null) => (model.value = v) }) })
     const w = mount(Parent, { attachTo: document.body })
     wrappers.push(w)
     await w.find('[data-slot="time-range-picker-trigger"]').trigger('click')

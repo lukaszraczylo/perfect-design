@@ -291,7 +291,7 @@ describe('zoneFormat', () => {
   })
   it('a bad locale falls back and keeps the zone', () => {
     expect(zoneFormat('not a locale!!', 'Asia/Tokyo').format(t)).toMatch(/2024/)
-    expect(zoneFormat('not a locale!!', 'Asia/Tokyo', { hour: '2-digit', hourCycle: 'h23' }).format(t)).toBe('08')
+    expect(zoneFormat('not a locale!!', 'Asia/Tokyo', { hour: '2-digit', hourCycle: 'h23' }).format(t)).toMatch(/^08\b/) // the fallback is the host locale; only the hour proves the zone
   })
   it('bad options fall back to the default format and keep the zone', () => {
     const f = zoneFormat('en-US', 'Asia/Tokyo', { dateStyle: 'nope' } as unknown as Intl.DateTimeFormatOptions)
