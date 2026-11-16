@@ -24,9 +24,11 @@
 - [ShowMore](/components/primitives/show-more): Collapses long content to a number of lines or a height and shows a Show more toggle only when it overflows. (Disclosure)
 - [Avatar](/components/primitives/avatar): Shows a user or entity as an image with an initials fallback and an optional status dot. (Display)
 - [AvatarGroup](/components/primitives/avatar-group): Overlapping stack of avatars with a +N overflow bubble. (Display)
+- [Icon](/components/primitives/icon): Inline SVG renderer for FontAwesome-shaped icon data, decorative by default. (Display)
 - [Kbd](/components/primitives/kbd): Keyboard key chip (`<kbd>`) and a group that joins keys with a separator. (Display)
 - [Separator](/components/primitives/separator): Thin horizontal or vertical divider line, solid, dashed or dotted, optionally with a label ("or", "Today") on the line. (Display)
 - [Skeleton](/components/primitives/skeleton): Placeholder block shown while content loads: text, circle, avatar, pill, rounded, rect and paragraph shapes with a pulse or no animation. (Display)
+- [Spinner](/components/primitives/spinner): Small rotating SVG that shows work in progress, with an accessible label or as a purely visual mark. (Display)
 - [AspectRatio](/components/primitives/aspect-ratio): Keeps its content at a fixed width-to-height ratio (images, video, maps, placeholders). (Layout helpers)
 - [ScrollArea](/components/primitives/scroll-area): Scrollable region with consistent, themed scrollbars across browsers. (Layout helpers)
 - [VisuallyHidden](/components/primitives/visually-hidden): Hides content visually while keeping it available to screen readers. (Layout helpers)
@@ -183,6 +185,7 @@
 - [CodeViewer](/components/data-display/code-viewer): Read-only code viewer with built-in tokenizers for JSON, YAML, Go, TOML and shell, foldable regions, line numbers, line highlighting and a copy button. (Code)
 - [DiffViewer](/components/data-display/diff-viewer): Read-only diff of two texts or a unified diff string, in unified, split or inline layout, with word highlights, folded unchanged lines and change-to-change navigation. (Code)
 - [GoViewer](/components/data-display/go-viewer): Read-only Go viewer: show Go source with highlighting and folds, or render a JS value as a Go composite literal. (Code)
+- [LogViewer](/components/data-display/log-viewer): Searchable, filterable log pane with level badges, ANSI colours, line selection, copy and a tail mode. (Code)
 - [YamlViewer](/components/data-display/yaml-viewer): Read-only YAML viewer: show raw YAML text or serialise a JS value to YAML, with highlighting, indentation folds, line numbers and copy. (Code)
 - [JsonViewer](/components/data-display/json-viewer): Collapsible, keyboard-navigable tree for inspecting any JS/JSON value with type-coloured leaves and copy-path. (Code and data)
 - [Card](/components/data-display/card): Surface that groups related content, with header, content and footer parts. (Containers)
@@ -271,7 +274,7 @@ Props:
 - asChild: boolean = false - Render the single slot child instead of a wrapper (reka-ui).
 - type: 'button' | 'submit' | 'reset' = 'button' - Native button type. Defaults to button so it never submits forms by accident.
 - disabled: boolean = false - Disables interaction.
-- loading: boolean = false - Shows a spinner, sets aria-busy, blocks clicks, keeps width.
+- loading: boolean = false - Shows a decorative spinner, sets aria-busy, blocks clicks, keeps width. The label stays in the accessible name.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
 Slots:
@@ -508,7 +511,7 @@ Accessibility:
 - A removable, non-selectable chip is a focusable `group` named by `label`: Backspace or Delete removes it (`aria-keyshortcuts`). The remove button has aria-label "Remove <label>" and stays out of the tab order, but screen-reader and touch users can still activate it.
 - The remove button is at least 24x24px (WCAG 2.5.8) even on the small chip: it extends past the chip with negative margins instead of growing it.
 - A selected chip adds a primary ring; the ring is also drawn in forced-colors mode through the focus outline, and `aria-pressed` carries the state so colour is not the only signal.
-- Disabled chips set aria-disabled and disable inner buttons.
+- Disabled chips set `data-disabled` and disable inner buttons (a role-less span takes no aria-disabled).
 
 Example: Variants
 ```vue
@@ -985,6 +988,60 @@ Example: Density
 
 ---
 
+# Icon
+group: primitives / Display
+Inline SVG renderer for FontAwesome-shaped icon data, decorative by default.
+
+Use `Icon` to draw any `IconDefinition` (`{ icon: [width, height, , , path] }`) as inline SVG. No FontAwesome runtime is loaded. Library code imports icons from `lib/icons`; an app can pass icons from `@fortawesome/free-solid-svg-icons`. The icon takes the text colour (`fill-current`) and a size from the scale.
+
+An icon is decorative unless it has a `label`. Put meaning in visible text; use `label` only for an icon that stands alone. For a clickable icon use `IconButton`, not an `Icon` with a handler.
+
+import { Icon } from '@perfect-design/ui'
+
+Props:
+- icon: IconDefinition - Required. FontAwesome-shaped icon data. An invalid definition renders nothing and raises a ContractError in strict mode.
+- size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md' - Size: 12, 14, 16, 20 or 24px. Unknown values fall back to md.
+- spin: boolean = false - Rotate continuously. Slows to a pulse under reduced motion.
+- label: string - Accessible name. When set the SVG is `role="img"` with this `aria-label`; without it the SVG is `aria-hidden`.
+- class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
+
+Rules:
+- Import icon data and pass it as `:icon`; never inline SVG paths in a template.
+- Leave `label` off when text sits next to the icon. Set it only when the icon is the whole message.
+- Use `IconButton` with a `label` for an icon you can click.
+
+Accessibility:
+- Without `label` the SVG is `aria-hidden="true"` and `focusable="false"`: it is invisible to assistive tech, so the text next to it must carry the meaning.
+- With `label` the SVG is `role="img"` with `aria-label`.
+- Never rely on an icon alone to show state: pair it with text.
+- `spin` respects `prefers-reduced-motion`.
+
+Example: Sizes and colour
+```vue
+<div class="flex items-center gap-4 text-foreground">
+  <Icon :icon="faGear" size="xs" />
+  <Icon :icon="faGear" size="sm" />
+  <Icon :icon="faGear" />
+  <Icon :icon="faGear" size="lg" class="text-primary" />
+  <Icon :icon="faGear" size="xl" class="text-muted-foreground" />
+</div>
+```
+
+Example: Decorative and labelled
+```vue
+<div class="flex flex-col gap-3 text-sm">
+  <span class="inline-flex items-center gap-2"><Icon :icon="faCircleCheck" class="text-success" /> Backup finished</span>
+  <Icon :icon="faBell" label="Notifications are on" />
+</div>
+```
+
+Example: Spinning
+```vue
+<Icon :icon="faGear" spin size="lg" class="text-muted-foreground" />
+```
+
+---
+
 # Kbd
 group: primitives / Display
 Keyboard key chip (`<kbd>`) and a group that joins keys with a separator.
@@ -1313,6 +1370,53 @@ Example: Loading card
 
 ---
 
+# Spinner
+group: primitives / Display
+Small rotating SVG that shows work in progress, with an accessible label or as a purely visual mark.
+
+Use `Spinner` for an indeterminate wait of unknown length inside a control or next to a label. By default it is a `progressbar` named by `label`. Set `decorative` when the surrounding element already announces the busy state (a loading button, a status region), so the spinner is hidden from assistive tech.
+
+Use `ProgressRing` when the progress is known. Use `LoadingState` for a whole region that is loading. `Button` with `loading` already draws a decorative spinner.
+
+import { Spinner } from '@perfect-design/ui'
+
+Props:
+- label: string = 'Loading' - Accessible name of the spinner. Ignored when `decorative`.
+- decorative: boolean = false - Hide the spinner from assistive tech (`aria-hidden`, no role). Use it when a parent already announces the busy state.
+- size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md' - Diameter: 12, 16, 20, 24 or 32px. Unknown values fall back to md.
+- class: string | object | array - Merged last with tailwind-merge; wins over internal classes. The spinner uses `currentColor`.
+
+Rules:
+- Pass `decorative` when the spinner sits inside a button or a status region that already announces the wait.
+- Give a specific `label` when the spinner stands alone.
+- Use `ProgressRing` or `Progress` when the amount done is known.
+
+Accessibility:
+- Not decorative: `role="progressbar"` with `aria-label` from `label`. Give it a label that says what is loading, not just "Loading".
+- Decorative: `aria-hidden="true"` and no role. The parent must announce the busy state, for example with `role="status"` text.
+- Rotation slows to a pulse under `prefers-reduced-motion`.
+
+Example: Sizes
+```vue
+<div class="flex items-center gap-4 text-primary">
+  <Spinner size="xs" />
+  <Spinner size="sm" />
+  <Spinner size="md" />
+  <Spinner size="lg" />
+  <Spinner size="xl" />
+</div>
+```
+
+Example: Next to a label
+```vue
+<div class="flex flex-col gap-3 text-sm">
+  <span class="inline-flex items-center gap-2"><Spinner label="Saving changes" class="text-primary" /></span>
+  <span role="status" class="inline-flex items-center gap-2 text-muted-foreground"><Spinner decorative size="sm" /> Syncing the sample catalogue</span>
+</div>
+```
+
+---
+
 # AspectRatio
 group: primitives / Layout helpers
 Keeps its content at a fixed width-to-height ratio (images, video, maps, placeholders).
@@ -1426,6 +1530,7 @@ Props:
 - horizontal: boolean = false - Render the horizontal scrollbar (for content wider than the area).
 - size: 'sm' | 'md' | 'lg' = 'md' - Scrollbar thickness: 6px, 10px or 16px. Applies to both bars. Unknown values fall back to md.
 - variant: 'default' | 'track' | 'solid' = 'default' - Scrollbar look: default (faint thumb), track (visible muted track behind a solid thumb) or solid (solid thumb). Unknown values fall back to default.
+- dir: 'ltr' | 'rtl' - Text direction of the scrollbars. Defaults to the `ConfigProvider` direction.
 - label: string - Accessible name of the viewport. With a label the viewport is exposed as a `region` with that name; it is a tab stop either way.
 - viewportClass: string | object | array - Classes for the inner viewport (padding, max-height).
 - as: string | Component - Root element (default div).
@@ -2085,6 +2190,7 @@ import { ProgressRing } from '@perfect-design/ui'
 
 Props:
 - label: string - Accessible name of the ring. Required: `label`, `aria-label` or `aria-labelledby` must say what is measured.
+- valueText: string - Text for `aria-valuetext`, e.g. `42 of 100 GB`. Defaults to the rounded percent.
 - value: number = 0 - Current value, clamped to 0..max.
 - max: number = 100 - Upper bound. Non-finite or <= 0 falls back to 100.
 - size: number | 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 64 - Outer diameter in px, or a preset: xs 40, sm 48, md 64, lg 96, xl 128. Invalid numbers and unknown presets fall back to 64.
@@ -2735,7 +2841,7 @@ Accessibility:
 - While streaming the root has aria-busy="true"; there is no live region, so screen readers read the finished text. Reflows at 320px: text wraps and only tables and code scroll, inside their own regions.
 
 Example: README-style document
-```vue
+````vue
 <script setup lang="ts">
 const readme = [
   '# Using the library in an app',
@@ -2769,7 +2875,7 @@ const readme = [
 </script>
 
 <Markdown :source="readme" :heading-offset="3" />
-```
+````
 
 Example: Table and task list
 ```vue
@@ -2798,7 +2904,7 @@ const doc = [
 ```
 
 Example: Code fences
-```vue
+````vue
 <script setup lang="ts">
 const doc = [
   '# Highlighted fences',
@@ -2842,7 +2948,7 @@ const doc = [
 </script>
 
 <Markdown :source="doc" :heading-offset="3" />
-```
+````
 
 Example: Heading anchors and table of contents
 ```vue
@@ -3096,7 +3202,8 @@ Props:
 - align: 'start' | 'center' = 'start' - Centres the quote and the author row.
 - citation: string - Attribution text shown in a muted footer. Overridden by the `citation` slot; ignored when an author row is rendered.
 - author: string - Author name; renders the author row. Overridden by the `author` slot.
-- role: string - Role or company under the author name. Overridden by the `role` slot.
+- authorRole: string - The author's job title or company, under the author name. Overridden by the `role` slot.
+- role: string - Deprecated: use `authorRole`. Still shown when `authorRole` is not set, and logs one development warning per instance.
 - avatar: string - Avatar image URL (decorative, `alt=""`). Use the `avatar` slot for an `Avatar` component.
 - cite: string - Source URL, rendered as the native `cite` attribute.
 - as: string | Component = 'blockquote' - Element to render.
@@ -3113,7 +3220,7 @@ Slots:
 Rules:
 - Put the quote in the default slot and the author in `citation`.
 - Use `cite` only for a real URL.
-- Use `author` (+ `role`, `avatar`) for attributed quotes, `citation` for plain sources; do not pass both.
+- Use `author` (+ `authorRole`, `avatar`; `role` is a deprecated alias) for attributed quotes, `citation` for plain sources; do not pass both.
 - Only use real quotes with a real source. Never invent a quote, person or company.
 - Use `variant="pull"` for at most one highlighted quote per section.
 
@@ -3146,14 +3253,14 @@ Example: Variant: tinted
 
 Example: Variant: card with author row
 ```vue
-<Blockquote variant="card" author="Sample author" role="Sample role" avatar="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+<Blockquote variant="card" author="Sample author" author-role="Sample role" avatar="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
   Sample quotation text inside a card.
 </Blockquote>
 ```
 
 Example: Variant: pull-quote
 ```vue
-<Blockquote variant="pull" align="center" author="Sample author" role="Sample role">
+<Blockquote variant="pull" align="center" author="Sample author" author-role="Sample role">
   Sample pull-quote text in display size.
 </Blockquote>
 ```
@@ -3903,7 +4010,7 @@ Example: Larger sizes
 group: layout / Configuration
 Sets text direction, locale, time zone, motion override, default size and density, and translated built-in strings for everything inside it.
 
-Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`. Pagination, DatePicker and ConfirmDialog read them today. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. Use `asChild` to render no extra element, or `class="contents"` to keep layout unchanged.
+Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`. Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox and ModelPicker read them today. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. Use `asChild` to render no extra element, or `class="contents"` to keep layout unchanged.
 
 import { ConfigProvider } from '@perfect-design/ui'
 
@@ -5086,8 +5193,8 @@ Props:
 - gapLg: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 - Gap from the `lg` breakpoint up (lg:gap-*). Invalid values are ignored.
 - minItemWidth: string | number - Auto-fit mode: columns are at least this wide and as many as fit. Number = px, string = CSS length (`16rem`, `240px`, `20ch`, `30%`). Set through the `--grid-min` CSS variable; replaces base `cols`; breakpoint props (`sm`/`md`/...) still override it. Invalid values are ignored.
 - autoFill: boolean = false - With `minItemWidth`: use `auto-fill` (keeps empty tracks) instead of `auto-fit` (collapses empty tracks so items stretch).
-- gapX: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 - Column gap, overrides `gap` horizontally.
-- gapY: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 - Row gap, overrides `gap` vertically.
+- gapX: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 - Column gap. Wins over `gap` and over `gapSm`/`gapMd`/`gapLg` horizontally at every breakpoint.
+- gapY: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 - Row gap. Wins over `gap` and over `gapSm`/`gapMd`/`gapLg` vertically at every breakpoint.
 - variant: 'plain' | 'bordered' | 'card' = 'plain' - Cell look for every direct child. `plain`: none. `bordered`: rounded-lg, border, p-4. `card`: bordered bg-card cell with text-card-foreground. Cells get min-w-0. Applied with child selectors, so override with `class` on the grid (e.g. `[&>*]:p-6`). Unknown values fall back to `plain`.
 - layout: 'uniform' | 'lead' | 'feature' = 'uniform' - `uniform`: equal cells. `lead`: the first item spans the full row at every width. `feature`: from `md` up the first item spans 2 columns and 2 rows (needs 3 or more columns from `md`); below `md` it is a normal cell. Unknown values fall back to `uniform`.
 - as: string | Component = 'div' - Element to render, e.g. `ul`.
@@ -6647,7 +6754,7 @@ Props:
 - size: 'sm' | 'md' | 'lg' = 'md' - Swatch and input size (24 / 32 / 40 px swatches). Unknown values fall back to `md`.
 - shape: 'rounded' | 'square' | 'circle' = 'rounded' - Outline of every swatch and of the preview chip. The checked ring and the forced-colors outline follow the shape. Unknown values fall back to `rounded`.
 - layout: 'stacked' | 'inline' | 'compact' = 'stacked' - `stacked` puts the hex field under the swatches. `inline` puts both on one wrapping row (up to `max-w-lg`). `compact` is the same row with a tighter swatch gap, a fixed narrow field and `max-w-md`. The DOM and tab order never change. Unknown values fall back to `stacked`.
-- name: string - Form field name of the hex input.
+- name: string - Form field name. The committed value is submitted through a hidden input, never the half-typed text.
 - placeholder: string = '#000000' - Hex input placeholder.
 - swatchesLabel: string = 'Colour swatches' - Accessible name of the swatch radiogroup.
 - inputLabel: string = 'Hex colour' - Accessible name of the hex input. Dropped when a surrounding Field label names the input, so the visible label stays the name.
@@ -6918,7 +7025,7 @@ Props:
 - max: Date - Latest selectable day (inclusive).
 - isDateDisabled: (date: Date) => boolean - Predicate; return true to disable a day (weekends, holidays, booked days). Receives a Date at local midnight.
 - weekStart: number - First weekday, 0 = Sunday .. 6 = Saturday. Default comes from the locale (Intl.Locale week info), else Sunday. Invalid values use the default.
-- locale: string - BCP 47 tag used for month, weekday and day names/numerals. Unknown tags fall back to the runtime default.
+- locale: string - BCP 47 tag used for month, weekday and day names/numerals. Default: the ConfigProvider locale, else `en`. Unknown tags fall back to the runtime default.
 - numberOfMonths: 1 | 2 | 3 = 1 - Months shown at once (side by side, or stacked with `orientation="vertical"`). Any value other than 2 or 3 renders one month.
 - orientation: 'horizontal' | 'vertical' = 'horizontal' - Layout of several months: `horizontal` wraps them side by side, `vertical` stacks them. Unknown values fall back to `horizontal`.
 - shape: 'rounded' | 'pill' | 'square' = 'rounded' - Corner shape of the day buttons. Range ends keep a flat inner edge. Unknown values fall back to `rounded`.
@@ -6932,6 +7039,7 @@ Props:
 - size: 'xs' | 'sm' | 'md' | 'lg' = 'md' - Cell size and text size (sets `--calendar-cell`): `xs` 24px, `sm` 28px, `md` 36px, `lg` 44px (36px below the `sm` breakpoint). Unknown values fall back to `md`.
 - prevLabel: string = 'Previous month' - aria-label of the previous-month button (translate it).
 - nextLabel: string = 'Next month' - aria-label of the next-month button (translate it).
+- rangeBlockedMessage: string = 'The range cannot include unavailable dates. Choose another end date.' - Announced in a polite live region when the second click of a range is refused because a day in between is disabled or outside `min`/`max`. The anchor stays. Overridable with the `calendar.rangeBlocked` ConfigProvider label (translate it).
 - rangeStartMessage: string = 'Range start {date}. Choose the end date.' - Announced in a polite live region after the first click of a range. `{date}` is replaced with the full date (translate it).
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
@@ -7084,6 +7192,7 @@ Props:
 - placeholder: string = 'Pick a date' - Text shown while empty.
 - locale: string - BCP 47 locale for calendar names and the displayed value. Unknown tags fall back to the runtime default.
 - format: Intl.DateTimeFormatOptions = { dateStyle: 'medium' } - How the value is displayed. Invalid option combinations fall back to a default format.
+- name: string - Form field name. Adds a hidden input that submits the day as an ISO date (`2024-05-01`) with a native form. A required, empty picker blocks the submit.
 - min: Date - Earliest selectable day.
 - max: Date - Latest selectable day.
 - isDateDisabled: (date: Date) => boolean - Return true to disable a day.
@@ -7208,8 +7317,9 @@ import { DateRangePicker } from '@perfect-design/ui'
 Props:
 - modelValue: { start: Date; end: Date } | null - v-model. Wrong shapes and invalid dates count as empty. Uncontrolled when omitted.
 - placeholder: string = 'Pick a date range' - Text shown while empty.
-- locale: string - BCP 47 locale for calendar names and the displayed value.
+- locale: string - BCP 47 locale for calendar names and the displayed value. Default: the ConfigProvider locale, else `en`.
 - format: Intl.DateTimeFormatOptions = { dateStyle: 'medium' } - How each end is displayed. Invalid option combinations fall back to a default format.
+- name: string - Form field name. Adds hidden inputs `name[from]` and `name[to]` that submit ISO dates (`2024-05-01`) with a native form. A required, empty picker blocks the submit.
 - min: Date - Earliest selectable day.
 - max: Date - Latest selectable day.
 - isDateDisabled: (date: Date) => boolean - Return true to disable a day.
@@ -7493,12 +7603,13 @@ import { TimeRangePicker } from '@perfect-design/ui'
 Props:
 - modelValue: { from: string; to: string } | null - v-model. ISO 8601 strings, emitted as UTC. Strings without an offset are UTC. Wrong shapes and invalid dates count as empty. Uncontrolled when omitted.
 - now: Date | string | number - The current time used to resolve relative presets and to bound them by `min`/`max`. A `Date`, milliseconds or an ISO string. Defaults to the clock at the moment of selection; an invalid value falls back to the clock.
-- timeZone: string = 'UTC' - IANA zone for display, typed times and the day boundaries of `today` and `yesterday`. Unknown names show UTC.
+- timeZone: string = ConfigProvider time zone, else 'UTC' - IANA zone for display, typed times and the day boundaries of `today` and `yesterday`. Unknown names show UTC.
+- name: string - Form field name. Adds hidden inputs `name[from]` and `name[to]` that submit UTC ISO instants with a native form. A required, empty picker blocks the submit.
 - min: Date | string | number - Earliest allowed instant (inclusive). A preset or a custom range that starts earlier is disabled or rejected. Swapped with `max` when reversed.
 - max: Date | string | number - Latest allowed instant (inclusive).
 - presets: TimeRangePresetId[] - Ids to show, in order: `last-15-minutes`, `last-30-minutes`, `last-1-hour`, `last-6-hours`, `last-24-hours`, `last-7-days`, `last-30-days`, `today`, `yesterday`, `custom`. Default: all. Without `custom` there are no from/to fields. Unknown ids are ignored (and throw in strict mode).
 - presetLabels: Partial<Record<TimeRangePresetId, string>> - Visible text per preset id, to translate or reword. A blank text keeps the default.
-- locale: string - BCP 47 locale for the displayed value and the calendar.
+- locale: string - BCP 47 locale for the displayed value and the calendar. Default: the ConfigProvider locale, else `en`.
 - format: Intl.DateTimeFormatOptions - How each end is displayed (the zone is always `timeZone`). The default is the medium date with hours and minutes, and a short zone name after the end. Invalid combinations fall back to the default.
 - variant: 'popover' | 'inline' | 'segmented' = 'popover' - Layout. `popover` is a trigger with a dropdown, `inline` a bordered panel that is always open, `segmented` a row of presets with the custom fields below. Unknown values fall back to `popover`.
 - size: 'xs' | 'sm' | 'md' | 'lg' = 'md' - Height of the trigger and the fields: `xs` 28px, `sm` 32px, `md` 36px, `lg` 44px. The segmented row maps `xs` to `sm`. Unknown values fall back to `md`.
@@ -9433,6 +9544,7 @@ Props:
 Parts:
 - InputGroupAddon - A prefix, suffix or action next to the control. Text is muted; in a `joined` group it gets its own border and fill. A Button inside an inset addon is pulled toward the edge.
     - as: string | Component = 'div' - Element to render. Use `span` or `label` when the addon should be associated with the control.
+    - asChild: boolean = false - Render the single child element (for example a `label`) with the addon attributes and classes merged into it, instead of a wrapper.
     - class: string | object | array - Merged last; wins over internal classes.
 
 Slots:
@@ -9447,7 +9559,7 @@ Rules:
 Accessibility:
 - The group is a plain container: it adds no role and no name. The control inside keeps its own label (use `Field`, `aria-label` or `aria-labelledby`), and addon text is read in document order with it.
 - An addon that holds only an icon must keep the icon decorative (`aria-hidden`, the default of `Icon`); a Button inside an addon needs its own name like any Button.
-- Focus shows once, as a border and ring on the whole group (`:has(:focus-visible)`), so keyboard users see which field is active; an invalid control inside turns the group border destructive. The group border stays visible in forced-colors mode, and an invalid group gets a dashed one.
+- Focus shows once, as a border and ring on the whole group (`:has(:focus-visible)`), so keyboard users see which field is active (a `class` on the group can override the inner focus border); an invalid control inside turns the group border destructive. The group border stays visible in forced-colors mode, and an invalid group gets a dashed one.
 - `status` is never colour only: an icon sits at the inline end, and `success` and `warning` add visually hidden text.
 - Responsive: the group is `w-full min-w-0`, text is 16px below `md` and the minimum height is 44px on touch pointers.
 
@@ -9682,7 +9794,7 @@ Rules:
 - Use PasswordInput, never `<Input type="password">`, so users can reveal what they typed.
 - Set `autocomplete="new-password"` on registration/change forms.
 - Use `status` for validation feedback (it adds the icon) and still show the message through `Field error` or `hint`.
-- Localise by overriding `showLabel` / `hideLabel`.
+- Localise by overriding `showLabel` and `revealWarning`, or once for the app with `passwordInput.show` and `passwordInput.revealWarning` in a ConfigProvider. `hideLabel` has no effect: the toggle name must not change with the state.
 
 Accessibility:
 - Status is never colour alone: an icon appears for `success`, `warning` and `error`; `success` and `warning` add screen reader text referenced by `aria-describedby`, and `error` sets `aria-invalid="true"` (pair it with a visible message in `Field`). The icon is not focusable and does not cover the toggle.
@@ -10249,7 +10361,7 @@ Example: Disabled
 group: forms / Text fields
 Multi-line text field with v-model, variants, sizes, shapes, status, optional autosize and character counter.
 
-Use for free-form text longer than one line. `autosize` grows the field with its content (optionally capped by `maxRows`). `maxlength` + `showCount` renders a `n / max` counter (counts unicode code points); the counter is linked by `aria-describedby` and a polite status announces only when the limit is reached. Inside a `Field` it receives id, aria-describedby and aria-invalid automatically. `variant`, `size`, `shape` and `status` change the look; a `pill` shape is `rounded-xl` because a full pill would clip several lines, and `status` adds an icon at the top end (plus screen reader text for `success` and `warning`). `textareaVariants` gives a plain `<textarea>` the same look. Attributes (`placeholder`, `name`, `aria-*`) go to the `<textarea>`; `class` is merged onto it.
+Use for free-form text longer than one line. `autosize` grows the field with its content (optionally capped by `maxRows`). `maxlength` + `showCount` renders a `n / max` counter (counts UTF-16 code units, the unit `maxlength` enforces, so an emoji is 2); the counter is linked by `aria-describedby` and a polite status announces only when the limit is reached. Inside a `Field` it receives id, aria-describedby and aria-invalid automatically. `variant`, `size`, `shape` and `status` change the look; a `pill` shape is `rounded-xl` because a full pill would clip several lines, and `status` adds an icon at the top end (plus screen reader text for `success` and `warning`). `textareaVariants` gives a plain `<textarea>` the same look. Attributes (`placeholder`, `name`, `aria-*`) go to the `<textarea>`; `class` is merged onto it.
 
 import { Textarea } from '@perfect-design/ui'
 
@@ -10265,7 +10377,7 @@ Props:
 - maxRows: number - Cap for autosize; further content scrolls.
 - maxlength: number - Native maxlength; drives the counter.
 - showCount: boolean = false - Show `count / maxlength` (needs maxlength).
-- limitLabel: string = 'Character limit reached' - Message announced once when the limit is reached (localise here).
+- limitLabel: string = 'Character limit reached' - Message announced once when the limit is reached (localise here, or with `textarea.limit` in a ConfigProvider; the counter text is `textarea.count`, `{count} / {max}`).
 - disabled: boolean = false - Disables the field (also from Field).
 - readonly: boolean = false - Prevents editing.
 - required: boolean = false - Native required (also from Field).
@@ -10603,7 +10715,7 @@ Props:
 - size: 'sm' | 'md' | 'lg' = 'md' - Padding, gap and type scale. Unknown values fall back to `md`. Non-default values add a `data-size` attribute.
 - layout: 'default' | 'inline' = 'default' - Body layout. `default` stacks title, description and actions; `inline` puts title, description and the `actions` slot in one wrapping row with the actions pushed to the end. Unknown values fall back to `default`. Non-default values add `data-layout`.
 - icon: IconDefinition - Optional FontAwesome icon. Nothing is rendered when omitted.
-- dismissible: boolean = false - Shows a dismiss (X) button. Dismissing hides the alert and emits `dismiss` once.
+- dismissible: boolean = false - Shows a dismiss (X) button. Dismissing hides the alert, moves focus to the next focusable sibling (else the parent region) and emits `dismiss` once. To show it again, change its `:key`.
 - dismissLabel: string = 'Dismiss' - Accessible label of the dismiss button.
 - role: 'alert' | 'status' | 'note' - Overrides the computed role: `alert` for warning/destructive, `status` otherwise.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
@@ -10625,6 +10737,7 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when an `Alert` is empty (no title or text) or is `dismissible` with a blank `dismissLabel`.
 
 Rules:
+- A dismissed Alert stays gone until its `:key` changes; bind `:key` to the message id to show a new message.
 - Always give an Alert a title or text; do not render empty alerts.
 - Use variant="destructive" for errors and "warning" for recoverable problems.
 - Use Alert for in-page messages only; use Toaster for transient feedback.
@@ -10788,7 +10901,7 @@ Props:
 - icon: IconDefinition - Optional leading FontAwesome icon.
 - dismissible: boolean = false - Shows a dismiss button.
 - dismissLabel: string = 'Dismiss' - Accessible label of the dismiss button.
-- storageKey: string - Remember dismissal in localStorage under `pd-banner:<storageKey>`; the banner is not rendered next time. Storage errors are ignored.
+- storageKey: string - Remember dismissal in localStorage under `pd-banner:<storageKey>`; the banner is hidden after mount next time (the first render always shows it, so server and client markup match). Storage errors are ignored.
 - role: 'alert' | 'status' | 'note' - Overrides the computed role: `alert` for warning/destructive, `status` otherwise.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
@@ -11045,6 +11158,7 @@ Props:
 - size: 'sm' | 'md' | 'lg' = 'md' - Text and icon size (text-xs, text-sm, text-base). Unknown values fall back to `md`. Non-default values add `data-size`.
 - variant: 'plain' | 'soft' | 'outline' = 'plain' - `plain` is coloured text with an icon; `soft` adds a tinted box; `outline` adds a bordered box. Use the boxed forms for a message that stands alone (above a form, beside a toolbar). Unknown values fall back to `plain`. Non-default values add `data-variant`.
 - icon: IconDefinition - Replaces the tone icon.
+- live: 'polite' | 'assertive' | 'off' = 'assertive' for danger, else 'polite' - Live-region behaviour: `polite` is role=status, `assertive` is role=alert, `off` renders no live role. Use `off` for field hints and messages present on first render.
 - hideIcon: boolean = false - Hides the icon.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
@@ -11053,6 +11167,7 @@ Slots:
 
 Rules:
 - Use `variant="soft"` or `"outline"` only for a message that stands alone; under a field use the plain default.
+- Set `live="off"` on a field hint or a message that is already there at first render; live roles are for messages that appear after an action.
 - Always give the message an id and link it with aria-describedby.
 - Keep it to a single short sentence.
 
@@ -11117,8 +11232,8 @@ Props:
 - dismissible: boolean = false - Show a dismiss (X) button on each row.
 - markReadOnSelect: boolean = true - Clicking an unread row marks it read.
 - showMarkAll: boolean = true - Show Mark all as read while something is unread.
-- now: number | Date - Reference time for relative text; defaults to the current time. Set it for deterministic output (tests, SSR).
-- locale: string - BCP 47 locale for relative times; invalid locales fall back to the default.
+- now: number | Date - Reference time for relative text. Without it the first render shows absolute UTC times (server and client match), then relative text appears after mount and refreshes every 30 s. Set it for fixed output (tests, docs).
+- locale: string - BCP 47 locale for relative times; defaults to the `ConfigProvider` locale, then the browser default. Invalid locales fall back to the default.
 - markAllLabel: string = 'Mark all as read' - Header button label.
 - showMoreLabel: string = 'Show more' - Label before the hidden count, e.g. "Show more (5)".
 - showLessLabel: string = 'Show less' - Label when expanded.
@@ -11570,7 +11685,7 @@ Props:
 - details: string - Technical detail in a collapsible <details> block (closed by default). Hidden when blank.
 - retryable: boolean = true - Show the retry button. When omitted it follows the `status` preset (false for 403/404), otherwise true.
 - retryLabel: string = 'Try again' - Retry button text.
-- retrying: boolean = false - Spinner + disabled retry button, aria-busy on the root.
+- retrying: boolean = false - Spinner + disabled retry button with aria-busy (the alert root is not marked busy).
 - detailsLabel: string = 'Technical details' - Summary text of the details block.
 - icon: IconDefinition = faTriangleExclamation - Icon in the destructive-tinted circle. Hidden when a `code` is shown.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
@@ -11701,9 +11816,9 @@ Rules:
 - Always render exactly one of LoadingState / ErrorState / EmptyState / content for a data region.
 
 Accessibility:
-- role="status" with aria-busy="true" and aria-live="polite".
+- role="status" (a polite live region). It has no aria-busy: the region exists only while loading.
 - Skeleton blocks are aria-hidden. The label is announced through an sr-only element.
-- Size, layout and shape only change geometry: every combination keeps the same status region, `aria-busy` and the announced label. The inline layout keeps the label visible next to the spinner.
+- Size, layout and shape only change geometry: every combination keeps the same status region and the announced label. The inline layout keeps the label visible next to the spinner.
 - The pulse animation is disabled under prefers-reduced-motion.
 
 Example: Spinner
@@ -11834,7 +11949,7 @@ Props:
 - refreshable: boolean = false - Show a refresh button.
 - refreshLabel: string = 'Refresh' - Refresh button text.
 - refreshing: boolean = false - Spinner + disabled refresh button.
-- locale: string = 'en' - BCP 47 tag for Intl.RelativeTimeFormat. Invalid tags fall back to `en`.
+- locale: string = ConfigProvider locale, then `en` - BCP 47 tag for Intl.RelativeTimeFormat. Invalid tags fall back to `en`.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
 Events:
@@ -13611,7 +13726,7 @@ Help dialog that lists the keyboard shortcuts of a page, grouped, with keys draw
 
 Use it once per page or app shell. Shortcuts come from two places: everything registered with the `useHotkeys` composable (listed automatically, grouped by `group`, with its `description`), and an optional `shortcuts` array for display-only entries such as combos the browser owns. Entries without a description are not listed.
 
-`useHotkeys(map | array | getter, options?)` registers combos for the life of a component: `"mod+k"` (`mod` is Cmd on macOS and Ctrl elsewhere), plain keys (`"?"`, `"esc"`, `"f5"`), and sequences joined with `then` (`"g then d"`, up to 5 steps, `timeout` ms between steps, default 1000). It listens on the document, or on one element with `target`. Events that come from inputs, textareas, selects and contenteditable elements are ignored unless `allowInInputs` is set. `preventDefault` defaults to true. Invalid combos (empty, modifier-only, unknown key names, longer than 5 steps) are ignored and warned about in development. Two shortcuts that collide (same combo, or one sequence starting another) warn in development and are silent in production. Write punctuation as the character it produces (`"?"`, not `"shift+/"`). The registry is filled on mount in the browser only, so server rendering is safe. `listHotkeys()`, `useRegisteredHotkeys()`, `parseHotkey()` and `formatHotkey()` are exported for custom help screens.
+`useHotkeys(map | array | getter, options?)` registers combos for the life of a component: `"mod+k"` (`mod` is Cmd on macOS and Ctrl elsewhere), plain keys (`"?"`, `"esc"`, `"f5"`), and sequences joined with `then` (`"g then d"`, up to 5 steps, `timeout` ms between steps, default 1000). It listens on the document, or on one element with `target`. Events that come from inputs, textareas, selects and contenteditable elements are ignored unless `allowInInputs` is set. Events that are already `defaultPrevented`, and (unless `allowInModal` is set) key presses outside an open `aria-modal="true"` dialog, are ignored too. `shift+1` matches the physical digit key; Alt+letter matches the character the layout produces. `preventDefault` defaults to true. Invalid combos (empty, modifier-only, unknown key names, longer than 5 steps) are ignored and warned about in development. Two shortcuts that collide (same combo, or one sequence starting another) warn in development and are silent in production. Write punctuation as the character it produces (`"?"`, not `"shift+/"`). The registry is filled on mount in the browser only, so server rendering is safe. `listHotkeys()`, `useRegisteredHotkeys()`, `parseHotkey()` and `formatHotkey()` are exported for custom help screens.
 
 Variations: `size` (`sm` | `md` | `lg` | `xl`) is the max width from the `sm` breakpoint up; `layout` is `list` (one column) or `columns` (two columns from `sm` up, pair with `size="lg"`); `density` is `comfortable` or `compact`; `headingLevel` sets the level of the group names (the dialog title is an h2). Open it with the `hotkey`, with a `trigger` slot, or with `v-model:open`. While it is open, other registered shortcuts still run: disable them with their `enabled` option if they would act on the page behind the dialog. Use `Command` for a searchable palette and `Dialog` for anything that is not a shortcut list.
 
@@ -15642,7 +15757,7 @@ Example: Subset
 group: navigation / Theme
 Button that cycles the colour mode light → dark → system and shows the matching icon.
 
-Reads and writes `useThemeStore()` (Pinia). Each click calls `cycleMode()`; the icon shows the CURRENT mode (sun, moon, desktop) and the accessible name starts with the current mode and then names the NEXT one ("Theme: Light. Switch to dark."). `variant="button"` additionally shows the current mode name. The store must be initialised once (`useThemeStore().init()` at app start or via a ThemeProvider) so the choice is applied to `<html>` and persisted; the toggle itself only changes state. Pair with `AccentPicker` to choose the accent preset.
+Reads and writes `useThemeStore()` (Pinia). Each click calls `cycleMode()`; the icon shows the CURRENT mode (sun, moon, desktop) and the accessible name starts with the current mode and then names the NEXT one ("Theme: Light. Switch to dark."). `variant="button"` additionally shows the current mode name. The store starts from defaults and reads the saved choice in `init()` (so server and first client render agree). It must be initialised once (`useThemeStore().init()` at app start or via a ThemeProvider) so the choice is applied to `<html>` and persisted; the toggle itself only changes state. Pair with `AccentPicker` to choose the accent preset.
 
 import { ThemeToggle } from '@perfect-design/ui'
 
@@ -15917,6 +16032,7 @@ Props:
 - acceptFrom: string[] - Only accept cards coming from these column ids. Cards already in this column (reordering) are always accepted; cards of unknown origin are rejected when this is set. Empty/undefined accepts everything.
 - disabled: boolean = false - Reject every drop, never highlight, dim the column.
 - variant: 'default' | 'muted' | 'outline' = 'default' - Column surface.
+- headingLevel: number = 3 - Heading level of the column title, 2 to 6. Other values fall back to 3.
 - size: 'sm' | 'md' | 'lg' = 'md' - Padding, gap and text size.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes (set the column width here, e.g. `w-72`).
 
@@ -15945,7 +16061,7 @@ Accessibility:
 - Root is `role="group"` labelled by the title; the card area is `role="list"` (cards are `listitem`s) once it has cards.
 - Native drag and drop is pointer-only. The keyboard alternative lives on `BoardCard`: Alt + Arrow keys emit a `move` request that you apply to your data (see the board example).
 - The count badge is followed by visually hidden text ("cards"), so it reads "3 cards"; a disabled column sets `aria-disabled`.
-- Drops are announced: every column holds a polite `role="status"` region that says "Moved <card title> to <column>, position n". Call the exposed `announce(message)` from your keyboard `move` handler to announce keyboard moves the same way.
+- Drops are announced after the move is applied: every column holds a polite `role="status"` region that says "Moved <card title> to <column>, position n" once the card renders at the dropped position in this column. A drop your `move` handler ignores is not announced (the request expires after 10 s). Call the exposed `announce(message)` from your keyboard `move` handler to announce keyboard moves the same way.
 - Columns are fluid and wrap in a grid on a phone; set a fixed width only on wide layouts.
 - The highlight uses `data-over` plus a ring and background change, not colour alone, and transitions are disabled under `prefers-reduced-motion`.
 
@@ -18272,8 +18388,8 @@ Props:
 - name: string - Participant or tool name shown in the header.
 - datetime: string | number | Date - When the message was sent. A valid value renders `<time datetime>` with the ISO string; an invalid value is ignored.
 - timeLabel: string - Visible time text that replaces the formatted time ("Just now"). Shown as plain text when `datetime` is missing or invalid.
-- locale: string - BCP 47 locale for the formatted time. A bad value falls back to the runtime default.
-- timeZone: string - IANA time zone for the formatted time, for example `UTC`. Set it when the page is server-rendered so both renders print the same text. A bad value falls back to local time.
+- locale: string - BCP 47 locale for the formatted time. Falls back to `ConfigProvider`, then `en` (not the runtime locale), so server and client print the same text. A bad value falls back to the runtime default.
+- timeZone: string - IANA time zone for the formatted time, for example `UTC`. Set it when the page is server-rendered so both renders print the same text. Falls back to `ConfigProvider`, then `UTC` (not the runtime zone). A bad value falls back to local time.
 - roleLabel: string - Visually hidden speaker phrase read before the content ("Ada said"). A trailing colon is added for you. Defaults to a phrase for the role.
 - status: 'sending' | 'sent' | 'error' | 'streaming' - Delivery or generation state, written as text ("Sending", "Sent", "Failed to send", "Responding"). `sending` and `streaming` set `aria-busy` on the message. Unknown values show nothing.
 - statusLabel: string - Status text that replaces the default, for translation or a more specific message ("Could not reach the server").
@@ -18437,8 +18553,8 @@ Props:
 - canLoadOlder: boolean = false - More history exists: shows the load-older control above the first message.
 - loadingOlder: boolean = false - A load is running: disables the control and blocks repeated requests.
 - autoLoadOlder: boolean = false - Also emit `load-older` once when the reader scrolls to the top. It fires again only after `loadingOlder` ends or `canLoadOlder` changes, so it cannot loop.
-- locale: string - BCP 47 locale for day labels. A bad value falls back to the runtime default.
-- timeZone: string - IANA time zone that decides which day a message belongs to (local when omitted or invalid).
+- locale: string - BCP 47 locale for day labels. Falls back to `ConfigProvider`, then `en` (not the runtime locale), so server and client print the same text.
+- timeZone: string - IANA time zone that decides which day a message belongs to (Falls back to `ConfigProvider`, then `UTC` (not the runtime zone).).
 - now: string | number | Date - The current time, for "Today" and "Yesterday". Defaults to the clock after mount (so a server render prints plain dates); pass it for tests or server rendering.
 - announcement: string - Text to announce politely (collected for one second) instead of the automatic "N new messages". Use it with the default slot, which cannot be counted.
 - labels: Partial<ChatThreadLabels> - Replace any built-in text: `jump`, `unread(count)`, `loadOlder`, `loadingOlder`, `typing`, `empty`, `newMessages(count)`. Use it to translate.
@@ -19507,6 +19623,125 @@ const line = 'x := 1'
 
 ---
 
+# LogViewer
+group: data-display / Code
+Searchable, filterable log pane with level badges, ANSI colours, line selection, copy and a tail mode.
+
+Use for build output, job logs and service logs that grow while the page is open. Lines are plain strings (a leading level word such as `ERROR` becomes the badge, ANSI colour codes are rendered) or `{ time, level, message, source }` objects. Only the rows near the viewport are in the DOM, so thousands of lines stay quick. The toolbar searches (`filter` hides other lines, `highlight` marks matches and Enter / Shift+Enter jump between them), filters by level and copies the selected lines. `follow` sticks to the newest line; scrolling up pauses it and shows "Jump to latest". Times given as numbers or Dates are formatted with `locale` and `timeZone`, which fall back to `ConfigProvider`, then `en` and `UTC`, so server and client print the same text. For source code with folding use `CodeViewer`; for a chat transcript use `ChatThread`.
+
+import { LogViewer } from '@perfect-design/ui'
+
+Props:
+- lines*: (string | LogLine)[] - The lines: strings or `{ time?, level?, message, source? }`. An empty array is fine.
+- label: string - Accessible name of the log. Required unless `aria-label` or `aria-labelledby` is set.
+- follow: boolean = false - Tail mode: stick to the newest line. Scrolling up pauses it (`pause` event); "Jump to latest" or reaching the end resumes (`resume`).
+- wrap: boolean = false - Wrap long lines instead of scrolling sideways.
+- lineNumbers: boolean = true - Show line numbers. They are also the buttons that select a line for copying.
+- timestamps: boolean = true - Show the time of lines that have one.
+- query: string = '' - Search text, case-insensitive. Supports `v-model:query`.
+- queryMode: 'filter' | 'highlight' = 'filter' - `filter` hides lines without a match; `highlight` keeps every line and only marks matches.
+- levelFilter: LogLevel[] - Levels to show (default all). Lines without a level always show. Supports `v-model:levelFilter`.
+- maxLines: number - Keep only the newest N lines; older ones are dropped and the line numbers keep counting from the dropped ones.
+- variant: 'plain' | 'panel' | 'terminal' = 'panel' - `plain` has no frame, `panel` a bordered card, `terminal` a heavier ink frame. Unknown values fall back to `panel`.
+- size: 'sm' | 'md' | 'lg' = 'md' - Text and row size. Unknown values fall back to `md`.
+- density: 'compact' | 'default' | 'comfortable' = 'comfortable' - Row spacing. Unknown values fall back to `comfortable`.
+- toolbar: boolean = true - Show the search, level and copy controls.
+- announce: boolean = true - While following, announce new lines to screen readers as one throttled polite summary, never the lines themselves.
+- announceInterval: number = 2000 - Minimum milliseconds between announcements.
+- height: number | string = '20rem' - Height of the whole viewer: a number (px) or any CSS length. `class` can set another.
+- locale: string - BCP 47 locale for numbers and times. Falls back to `ConfigProvider`, then `en` (not the runtime locale).
+- timeZone: string - IANA time zone for times given as Date or epoch milliseconds. Falls back to `ConfigProvider`, then `UTC`.
+- class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
+
+Slots:
+- empty - Shown when there are no lines, or none match the search and level filter.
+
+Events:
+- update:query [query: string] - The search text changed.
+- update:levelFilter [levels: LogLevel[]] - The shown levels changed.
+- copy [text: string] - Lines were copied.
+- pause [] - Following paused because the reader scrolled up.
+- resume [] - Following resumed (scrolled to the end, or "Jump to latest").
+
+Rules:
+- Always give `label` (or `aria-label`): the log is a named region.
+- Pass `lines` as an array and replace or append to it; cap growth with `maxLines`.
+- Set `time-zone` and `locale` (or a `ConfigProvider`) when giving numeric or Date times and the page is server-rendered.
+- Use `follow` only for logs that grow while open; never auto-scroll a static log.
+- Use `v-model:query` and `v-model:levelFilter` only when the page needs to own the filters; the toolbar works without them.
+
+Accessibility:
+- The line area is `role="log"` with `aria-live="off"` and is focusable (`tabindex="0"`) so keyboard users can scroll it; it is named by `label`, `aria-label` or `aria-labelledby`.
+- New lines are announced through a separate polite `role="status"` region as a throttled summary while following, never as a stream of lines. A second status region reports search results and copying.
+- Press `n` and `p` with the line area focused to move between matches. In the search box, Enter and Shift+Enter move to the next and previous match and Escape clears the search.
+- Level buttons use `aria-pressed`; line numbers are buttons named "Select line N" with `aria-pressed`. Level and match state also show as text or a badge, not colour alone.
+- Targets are at least 24px (44px on coarse pointers). The focus ring survives forced-colors mode.
+
+Example: Build output with levels and sources
+```vue
+<script setup lang="ts">
+const lines = [
+  { time: '2026-03-04T10:00:00Z', level: 'info', source: 'build', message: 'Resolving 42 packages' },
+  { time: '2026-03-04T10:00:03Z', level: 'debug', source: 'build', message: 'Cache hit for 38 packages' },
+  { time: '2026-03-04T10:00:05Z', level: 'warn', source: 'build', message: 'Package sample-lib is deprecated' },
+  { time: '2026-03-04T10:00:09Z', level: 'error', source: 'test', message: 'Case "parses empty input" failed: expected 0, received 1' },
+  { time: '2026-03-04T10:00:10Z', level: 'info', source: 'test', message: '41 passed, 1 failed' },
+]
+</script>
+
+<LogViewer label="Sample build output" :lines="lines" :height="260" locale="en" time-zone="UTC" />
+```
+
+Example: Plain strings with ANSI colour, wrapped
+```vue
+<script setup lang="ts">
+const lines = [
+  'INFO Starting sample worker',
+  'WARN Queue depth above 80%',
+  '\u001b[31mERROR\u001b[0m Job 17 failed',
+  'Job 18 finished',
+]
+</script>
+
+<LogViewer label="Sample worker output" variant="terminal" wrap :line-numbers="false" :timestamps="false" :lines="lines" :height="200" />
+```
+
+Example: Controlled search that highlights matches
+```vue
+<script setup lang="ts">
+const lines = [
+  { time: '2026-03-04T10:00:00Z', level: 'info', source: 'build', message: 'Resolving 42 packages' },
+  { time: '2026-03-04T10:00:03Z', level: 'debug', source: 'build', message: 'Cache hit for 38 packages' },
+  { time: '2026-03-04T10:00:05Z', level: 'warn', source: 'build', message: 'Package sample-lib is deprecated' },
+  { time: '2026-03-04T10:00:09Z', level: 'error', source: 'test', message: 'Case "parses empty input" failed: expected 0, received 1' },
+  { time: '2026-03-04T10:00:10Z', level: 'info', source: 'test', message: '41 passed, 1 failed' },
+]
+const query = ref('test')
+</script>
+
+<LogViewer v-model:query="query" query-mode="highlight" label="Sample build output, searchable" :lines="lines" :height="260" locale="en" time-zone="UTC" />
+```
+
+Example: Tail mode and an empty state
+```vue
+<script setup lang="ts">
+const lines = [
+  { time: '2026-03-04T10:00:00Z', level: 'info', source: 'build', message: 'Resolving 42 packages' },
+  { time: '2026-03-04T10:00:03Z', level: 'debug', source: 'build', message: 'Cache hit for 38 packages' },
+  { time: '2026-03-04T10:00:05Z', level: 'warn', source: 'build', message: 'Package sample-lib is deprecated' },
+  { time: '2026-03-04T10:00:09Z', level: 'error', source: 'test', message: 'Case "parses empty input" failed: expected 0, received 1' },
+  { time: '2026-03-04T10:00:10Z', level: 'info', source: 'test', message: '41 passed, 1 failed' },
+]
+</script>
+
+<div class="flex flex-col gap-4">
+  <LogViewer follow label="Sample live output" :lines="lines" :height="160" locale="en" time-zone="UTC" />
+  <LogViewer label="Sample empty log" :lines="[]" :height="100"><template #empty>No output yet. Start the sample job.</template></LogViewer>
+</div>
+```
+
+---
+
 # YamlViewer
 group: data-display / Code
 Read-only YAML viewer: show raw YAML text or serialise a JS value to YAML, with highlighting, indentation folds, line numbers and copy.
@@ -20078,6 +20313,7 @@ Enforced requirements (a ContractError is thrown when missing):
 Rules:
 - Always pass `label`, give every node a unique `id` and numeric `x` and `y`, and every connection a unique `id` with `from` and `to` node ids.
 - Use `v-model:nodes` and `v-model:edges`; handle `connect` or `change` only to react (save, validate), not to re-add what the model already holds.
+- Text drawn in the `node` slot is the node's visible text, and the accessible name is `node.label`: draw the label itself (WCAG 2.5.3 label in name) and show extra state with shapes, not a second text.
 - Do not put HTML or components inside nodes: use the `node` slot with SVG elements, in the node's own coordinates.
 - Use `readonly` for display. Use `grid` (or `grid="20"`) when tidy alignment matters; use `autoLayout()` on a template ref to arrange imported data with no positions.
 - Pick `edge-style="orthogonal"` for flowcharts, `curved` for graphs, `straight` for dense maps. Pick `direction` for auto layout, not for display.
@@ -20290,8 +20526,8 @@ const edges = ref([
 
 <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample workflow with custom nodes" size="sm">
   <template #node="{ node, selected, width }">
-    <text :x="width / 2" y="20" text-anchor="middle" font-size="13" class="pointer-events-none fill-foreground">{{ node.label }}</text>
-    <text :x="width / 2" y="38" text-anchor="middle" font-size="11" class="pointer-events-none fill-muted-foreground">{{ selected ? 'selected' : node.id }}</text>
+    <circle :cx="14" cy="26" r="4" :class="selected ? 'fill-primary' : 'fill-muted-foreground'" />
+    <text :x="width / 2" y="26" dominant-baseline="central" text-anchor="middle" font-size="13" class="pointer-events-none fill-foreground">{{ node.label }}</text>
   </template>
   <template #toolbar="{ zoomIn, zoomOut, fit, canUndo, undo }">
     <Button size="sm" variant="outline" @click="zoomOut">Smaller</Button>
@@ -20398,6 +20634,8 @@ Props:
 - description: string - Longer accessible description. Wins over `accDescr`. Without either, an automatic summary such as "Flowchart with 6 nodes and 7 connections, top to bottom" describes the image.
 - maxNodes: number = 300 - Largest diagram that is drawn, counted in nodes (states, classes, entities, tasks, participants, slices...). Above it an inline error is shown instead of laying out the graph.
 - maxEdges: number = 600 - Largest number of connections (edges, messages, relations) that is drawn.
+- maxSourceLength: number = 100000 - Longest source, in characters, that is parsed. Longer text shows a size error before any parsing.
+- maxLineLength: number = 2000 - Longest single source line, in characters, that is parsed. A longer line shows a size error naming the line.
 - as: string = 'figure' - Root element. With `figure` the title is a `figcaption`.
 - class: string | object | array - Merged last with tailwind-merge onto the root element.
 
@@ -21028,8 +21266,8 @@ Props:
 - showAvatars: boolean = true - Initials avatar for events with an `actor` in `list` and `grouped`. Other variants always use the marker.
 - now: Date | string | number - Reference time for relative text. Set it for server-safe output; without it the current time is read after mount and refreshed every minute.
 - relative: boolean = true - Show relative text for events up to a week from `now`. Off: always the absolute date and time.
-- locale: string - BCP 47 locale for dates and relative text. Unknown values fall back to the runtime default.
-- timeZone: string - IANA time zone for dates and day groups, for example `UTC`. Unknown values fall back to the runtime zone.
+- locale: string - BCP 47 locale for dates and relative text. Unknown values fall back to the runtime default. Falls back to `ConfigProvider`, then `en` (not the runtime locale), so server and client print the same text.
+- timeZone: string - IANA time zone for dates and day groups, for example `UTC`. Unknown values fall back to the runtime zone. Falls back to `ConfigProvider`, then `UTC` (not the runtime zone).
 - headingLevel: 2 | 3 | 4 | 5 | 6 = 3 - Heading level of the group headings in `grouped`.
 - hasMore: boolean = false - More events exist: shows the load more button or the `load-more` slot.
 - loading: boolean = false - The next page is loading: the button is disabled, the feed is `aria-busy` and a polite status says so.
@@ -22477,7 +22715,7 @@ Props:
 - inverse: boolean = false - Shorthand for `goodWhen="down"` (cost, latency, error rate).
 - format: 'number' | 'percent' | 'compact' | 'currency' = 'number' - `percent` appends % to the value as-is (12 becomes 12%).
 - currency: string - ISO 4217 code for `format="currency"`; invalid codes fall back to a plain number.
-- locale: string - BCP 47 locale; invalid values fall back to the runtime default.
+- locale: string - BCP 47 locale. Unset uses the ConfigProvider locale, then `en`; invalid values fall back to `en`.
 - fractionDigits: number = 1 - Maximum fraction digits (clamped to 0-20).
 - variant: 'soft' | 'solid' | 'ghost' | 'outline' = 'soft' - Tinted background, solid fill, text only, or bordered text. Unknown values fall back to `soft`.
 - shape: 'rounded' | 'pill' | 'square' = 'rounded' - Corner radius: 6px, fully round, or none. Unknown values fall back to `rounded`.
@@ -22826,7 +23064,9 @@ Props:
 - loading: boolean = false - Shows skeleton rows, sets aria-busy and hides data rows and the pager.
 - loadingRows: number - Number of skeleton rows. Defaults to the page size, else 5.
 - emptyText: string = 'No results' - Message when there are no rows (use the `empty` slot for rich content).
-- nullText: string = '–' - Shown for null/undefined (and Invalid Date) cells.
+- locale: string - BCP 47 locale for Date cells. Falls back to `ConfigProvider`, then `en`, never the browser locale, so server and client agree.
+- timeZone: string - IANA time zone for Date cells. Falls back to `ConfigProvider`, then `UTC`.
+- nullText: string = '–' - Shown for null/undefined (and Invalid Date, function and unserialisable) cells. Plain objects and arrays render as JSON truncated to 80 characters; use the `cell` slot for anything richer.
 - rowClickable: boolean = false - Rows get tabindex=0, a pointer cursor and emit `row-click` on click / Enter / Space. Clicks from links, buttons, inputs, selects, textareas, labels and `[data-no-row-click]` are ignored.
 - density: 'default' | 'compact' | 'comfortable' = 'default' - Cell padding scale: `compact` (8px cells), `default` (12px) or `comfortable` (16px). Unknown values fall back to default.
 - size: 'sm' | 'md' | 'lg' = 'md' - Text size of headers and cells: `sm` 12px, `md` 14px, `lg` 16px. Independent of `density`.
@@ -23320,7 +23560,7 @@ function toggle(id) {
     <TableBody>
       <TableRow v-for="r in rows" :key="r.id" :selected="picked.includes(r.id)">
         <TableCell>{{ r.name }}</TableCell>
-        <TableCell align="right"><input type="checkbox" class="relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary disabled:cursor-not-allowed disabled:opacity-50 after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0" :aria-label="'Select ' + r.name" :checked="picked.includes(r.id)" @change="toggle(r.id)" /></TableCell>
+        <TableCell align="right"><input type="checkbox" class="relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary disabled:cursor-not-allowed disabled:opacity-50 after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0 outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40" :aria-label="'Select ' + r.name" :checked="picked.includes(r.id)" @change="toggle(r.id)" /></TableCell>
       </TableRow>
     </TableBody>
   </Table>
@@ -23416,7 +23656,7 @@ const options = [{ key: 'name', label: 'Item' }, { key: 'seats', label: 'Seats' 
 const rows = computed(() => {
   const s = sort.value
   if (!s) return data
-  return [...data].sort((x, y) => (x[s.key] > y[s.key] ? 1 : -1) * (s.direction === 'asc' ? 1 : -1))
+  return data.toSorted((x, y) => (x[s.key] > y[s.key] ? 1 : -1) * (s.direction === 'asc' ? 1 : -1))
 })
 const ariaSort = (key) => (sort.value?.key === key ? (sort.value.direction === 'asc' ? 'ascending' : 'descending') : undefined)
 function toggleAll() {
@@ -23439,7 +23679,7 @@ function toggle(id) {
     </TableHeader>
     <TableBody>
       <TableRow v-for="r in rows" :key="r.id" :selected="picked.includes(r.id)">
-        <TableCell label="Select"><input type="checkbox" class="size-5 accent-primary" :aria-label="'Select ' + r.name" :checked="picked.includes(r.id)" @change="toggle(r.id)" /></TableCell>
+        <TableCell label="Select"><input type="checkbox" class="relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary disabled:cursor-not-allowed disabled:opacity-50 after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0 outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40" :aria-label="'Select ' + r.name" :checked="picked.includes(r.id)" @change="toggle(r.id)" /></TableCell>
         <TableCell label="Item">{{ r.name }}</TableCell>
         <TableCell label="Seats" numeric>{{ r.seats }}</TableCell>
       </TableRow>
@@ -24169,10 +24409,11 @@ import { FaqList } from '@perfect-design/ui'
 Props:
 - items: FaqItem[] = [] - Questions and answers: `{ q: string, a: string, category?: string }`.
 - variant: 'bordered' | 'separated' | 'plain' | 'two-column' | 'with-categories' | 'numbered' = 'bordered' - Layout. Unknown values fall back to `bordered` (the original look).
-- categoryMode: 'headings' | 'tabs' = 'headings' - `with-categories` only: category headings (h3) or a tab per category. Unknown values fall back to `headings`.
+- categoryMode: 'headings' | 'tabs' = 'headings' - `with-categories` only: category headings (`h3` by default, see `headingLevel`) or a tab per category. Unknown values fall back to `headings`.
 - categoriesLabel: string = 'Question categories' - `with-categories` + `tabs`: accessible name of the tab list.
 - defaultCategory: string - `with-categories` + `tabs`: category selected first. Unknown values select the first category.
 - uncategorizedLabel: string = 'Other' - `with-categories`: heading/tab for items without a `category` when other items have one.
+- headingLevel: number = 3 - `with-categories` + `headings`: heading level of the category titles, 2 to 6. Other values fall back to 3.
 - single: boolean = false - Only one answer open at a time (across categories too).
 - defaultOpen: number[] = [] - Item indexes (position in `items`) open initially. Invalid indexes are ignored.
 - class: string | object | array - Merged last; wins over internal classes.

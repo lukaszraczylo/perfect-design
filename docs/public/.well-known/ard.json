@@ -4,7 +4,7 @@
       "identifier": "urn:air:perfect-design:docs:design-system",
       "displayName": "Perfect Design documentation",
       "type": "application/vnd.perfect-design.docs+json",
-      "description": "Documentation of the Perfect Design system: design tokens, 207 Vue 3 components in 9 groups, guides, and rules for generating UI with them.",
+      "description": "Documentation of the Perfect Design system: design tokens, 210 Vue 3 components in 9 groups, guides, and rules for generating UI with them.",
       "representativeQueries": [
         "How do I install the Perfect Design component library?",
         "Which design tokens does Perfect Design define?",
@@ -23,7 +23,7 @@
       ],
       "data": {
         "name": "@perfect-design/ui",
-        "components": 207,
+        "components": 210,
         "groups": [
           "primitives",
           "typography",
@@ -64,7 +64,7 @@
       ],
       "data": {
         "manifest": "/components.manifest.json",
-        "count": 207,
+        "count": 210,
         "groups": [
           "primitives",
           "typography",

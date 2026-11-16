@@ -1,7 +1,7 @@
 {
   "name": "@perfect-design/ui",
   "generatedFrom": "packages/ui/src/components/**/*.docs.ts",
-  "count": 207,
+  "count": 210,
   "components": [
     {
       "name": "Button",
@@ -73,7 +73,7 @@
           "name": "loading",
           "type": "boolean",
           "default": "false",
-          "description": "Shows a spinner, sets aria-busy, blocks clicks, keeps width."
+          "description": "Shows a decorative spinner, sets aria-busy, blocks clicks, keeps width. The label stays in the accessible name."
         },
         {
           "name": "class",
@@ -420,7 +420,7 @@
         "A removable, non-selectable chip is a focusable `group` named by `label`: Backspace or Delete removes it (`aria-keyshortcuts`). The remove button has aria-label \"Remove <label>\" and stays out of the tab order, but screen-reader and touch users can still activate it.",
         "The remove button is at least 24x24px (WCAG 2.5.8) even on the small chip: it extends past the chip with negative margins instead of growing it.",
         "A selected chip adds a primary ring; the ring is also drawn in forced-colors mode through the focus outline, and `aria-pressed` carries the state so colour is not the only signal.",
-        "Disabled chips set aria-disabled and disable inner buttons."
+        "Disabled chips set `data-disabled` and disable inner buttons (a role-less span takes no aria-disabled)."
       ],
       "related": [
         "Badge",
@@ -868,6 +868,79 @@
       ]
     },
     {
+      "name": "Icon",
+      "group": "primitives",
+      "subgroup": "Display",
+      "summary": "Inline SVG renderer for FontAwesome-shaped icon data, decorative by default.",
+      "description": "Use `Icon` to draw any `IconDefinition` (`{ icon: [width, height, , , path] }`) as inline SVG. No FontAwesome runtime is loaded. Library code imports icons from `lib/icons`; an app can pass icons from `@fortawesome/free-solid-svg-icons`. The icon takes the text colour (`fill-current`) and a size from the scale.\n\nAn icon is decorative unless it has a `label`. Put meaning in visible text; use `label` only for an icon that stands alone. For a clickable icon use `IconButton`, not an `Icon` with a handler.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "icon",
+          "type": "IconDefinition",
+          "description": "Required. FontAwesome-shaped icon data. An invalid definition renders nothing and raises a ContractError in strict mode."
+        },
+        {
+          "name": "size",
+          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+          "default": "'md'",
+          "description": "Size: 12, 14, 16, 20 or 24px. Unknown values fall back to md."
+        },
+        {
+          "name": "spin",
+          "type": "boolean",
+          "default": "false",
+          "description": "Rotate continuously. Slows to a pulse under reduced motion."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Accessible name. When set the SVG is `role=\"img\"` with this `aria-label`; without it the SVG is `aria-hidden`."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last with tailwind-merge; wins over internal classes."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Sizes and colour",
+          "description": "The icon follows the current text colour.",
+          "code": "<div class=\"flex items-center gap-4 text-foreground\">\n  <Icon :icon=\"faGear\" size=\"xs\" />\n  <Icon :icon=\"faGear\" size=\"sm\" />\n  <Icon :icon=\"faGear\" />\n  <Icon :icon=\"faGear\" size=\"lg\" class=\"text-primary\" />\n  <Icon :icon=\"faGear\" size=\"xl\" class=\"text-muted-foreground\" />\n</div>"
+        },
+        {
+          "title": "Decorative and labelled",
+          "description": "Beside text the icon stays decorative. Alone it needs a label.",
+          "code": "<div class=\"flex flex-col gap-3 text-sm\">\n  <span class=\"inline-flex items-center gap-2\"><Icon :icon=\"faCircleCheck\" class=\"text-success\" /> Backup finished</span>\n  <Icon :icon=\"faBell\" label=\"Notifications are on\" />\n</div>"
+        },
+        {
+          "title": "Spinning",
+          "code": "<Icon :icon=\"faGear\" spin size=\"lg\" class=\"text-muted-foreground\" />"
+        }
+      ],
+      "a11y": [
+        "Without `label` the SVG is `aria-hidden=\"true\"` and `focusable=\"false\"`: it is invisible to assistive tech, so the text next to it must carry the meaning.",
+        "With `label` the SVG is `role=\"img\"` with `aria-label`.",
+        "Never rely on an icon alone to show state: pair it with text.",
+        "`spin` respects `prefers-reduced-motion`."
+      ],
+      "related": [
+        "IconButton",
+        "Button",
+        "Spinner"
+      ],
+      "llmNotes": [
+        "Import icon data and pass it as `:icon`; never inline SVG paths in a template.",
+        "Leave `label` off when text sits next to the icon. Set it only when the icon is the whole message.",
+        "Use `IconButton` with a `label` for an icon you can click."
+      ],
+      "replaces": [
+        "FontAwesome <i> markup",
+        "hand-rolled inline SVG icons"
+      ]
+    },
+    {
       "name": "Kbd",
       "group": "primitives",
       "subgroup": "Display",
@@ -1236,6 +1309,71 @@
       ]
     },
     {
+      "name": "Spinner",
+      "group": "primitives",
+      "subgroup": "Display",
+      "summary": "Small rotating SVG that shows work in progress, with an accessible label or as a purely visual mark.",
+      "description": "Use `Spinner` for an indeterminate wait of unknown length inside a control or next to a label. By default it is a `progressbar` named by `label`. Set `decorative` when the surrounding element already announces the busy state (a loading button, a status region), so the spinner is hidden from assistive tech.\n\nUse `ProgressRing` when the progress is known. Use `LoadingState` for a whole region that is loading. `Button` with `loading` already draws a decorative spinner.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "'Loading'",
+          "description": "Accessible name of the spinner. Ignored when `decorative`."
+        },
+        {
+          "name": "decorative",
+          "type": "boolean",
+          "default": "false",
+          "description": "Hide the spinner from assistive tech (`aria-hidden`, no role). Use it when a parent already announces the busy state."
+        },
+        {
+          "name": "size",
+          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+          "default": "'md'",
+          "description": "Diameter: 12, 16, 20, 24 or 32px. Unknown values fall back to md."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last with tailwind-merge; wins over internal classes. The spinner uses `currentColor`."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Sizes",
+          "description": "The spinner takes the text colour of its parent.",
+          "code": "<div class=\"flex items-center gap-4 text-primary\">\n  <Spinner size=\"xs\" />\n  <Spinner size=\"sm\" />\n  <Spinner size=\"md\" />\n  <Spinner size=\"lg\" />\n  <Spinner size=\"xl\" />\n</div>"
+        },
+        {
+          "title": "Next to a label",
+          "description": "A labelled spinner and a decorative one beside text that already says what is happening.",
+          "code": "<div class=\"flex flex-col gap-3 text-sm\">\n  <span class=\"inline-flex items-center gap-2\"><Spinner label=\"Saving changes\" class=\"text-primary\" /></span>\n  <span role=\"status\" class=\"inline-flex items-center gap-2 text-muted-foreground\"><Spinner decorative size=\"sm\" /> Syncing the sample catalogue</span>\n</div>"
+        }
+      ],
+      "a11y": [
+        "Not decorative: `role=\"progressbar\"` with `aria-label` from `label`. Give it a label that says what is loading, not just \"Loading\".",
+        "Decorative: `aria-hidden=\"true\"` and no role. The parent must announce the busy state, for example with `role=\"status\"` text.",
+        "Rotation slows to a pulse under `prefers-reduced-motion`."
+      ],
+      "related": [
+        "ProgressRing",
+        "LoadingState",
+        "Button",
+        "Skeleton"
+      ],
+      "llmNotes": [
+        "Pass `decorative` when the spinner sits inside a button or a status region that already announces the wait.",
+        "Give a specific `label` when the spinner stands alone.",
+        "Use `ProgressRing` or `Progress` when the amount done is known."
+      ],
+      "replaces": [
+        "hand-rolled animate-spin SVG",
+        "shadcn-vue Spinner"
+      ]
+    },
+    {
       "name": "AspectRatio",
       "group": "primitives",
       "subgroup": "Layout helpers",
@@ -1415,6 +1553,11 @@
           "type": "'default' | 'track' | 'solid'",
           "default": "'default'",
           "description": "Scrollbar look: default (faint thumb), track (visible muted track behind a solid thumb) or solid (solid thumb). Unknown values fall back to default."
+        },
+        {
+          "name": "dir",
+          "type": "'ltr' | 'rtl'",
+          "description": "Text direction of the scrollbars. Defaults to the `ConfigProvider` direction."
         },
         {
           "name": "label",
@@ -2118,6 +2261,11 @@
           "name": "label",
           "type": "string",
           "description": "Accessible name of the ring. Required: `label`, `aria-label` or `aria-labelledby` must say what is measured."
+        },
+        {
+          "name": "valueText",
+          "type": "string",
+          "description": "Text for `aria-valuetext`, e.g. `42 of 100 GB`. Defaults to the rounded percent."
         },
         {
           "name": "value",
@@ -3180,9 +3328,14 @@
           "description": "Author name; renders the author row. Overridden by the `author` slot."
         },
         {
+          "name": "authorRole",
+          "type": "string",
+          "description": "The author's job title or company, under the author name. Overridden by the `role` slot."
+        },
+        {
           "name": "role",
           "type": "string",
-          "description": "Role or company under the author name. Overridden by the `role` slot."
+          "description": "Deprecated: use `authorRole`. Still shown when `authorRole` is not set, and logs one development warning per instance."
         },
         {
           "name": "avatar",
@@ -3251,12 +3404,12 @@
         {
           "title": "Variant: card with author row",
           "description": "Author, role and avatar render an author row.",
-          "code": "<Blockquote variant=\"card\" author=\"Sample author\" role=\"Sample role\" avatar=\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\">\n  Sample quotation text inside a card.\n</Blockquote>"
+          "code": "<Blockquote variant=\"card\" author=\"Sample author\" author-role=\"Sample role\" avatar=\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\">\n  Sample quotation text inside a card.\n</Blockquote>"
         },
         {
           "title": "Variant: pull-quote",
           "description": "Large display type; centre it for a single highlighted quote.",
-          "code": "<Blockquote variant=\"pull\" align=\"center\" author=\"Sample author\" role=\"Sample role\">\n  Sample pull-quote text in display size.\n</Blockquote>"
+          "code": "<Blockquote variant=\"pull\" align=\"center\" author=\"Sample author\" author-role=\"Sample role\">\n  Sample pull-quote text in display size.\n</Blockquote>"
         },
         {
           "title": "Size",
@@ -3282,7 +3435,7 @@
       "llmNotes": [
         "Put the quote in the default slot and the author in `citation`.",
         "Use `cite` only for a real URL.",
-        "Use `author` (+ `role`, `avatar`) for attributed quotes, `citation` for plain sources; do not pass both.",
+        "Use `author` (+ `authorRole`, `avatar`; `role` is a deprecated alias) for attributed quotes, `citation` for plain sources; do not pass both.",
         "Only use real quotes with a real source. Never invent a quote, person or company.",
         "Use `variant=\"pull\"` for at most one highlighted quote per section."
       ],
@@ -4242,7 +4395,7 @@
       "group": "layout",
       "subgroup": "Configuration",
       "summary": "Sets text direction, locale, time zone, motion override, default size and density, and translated built-in strings for everything inside it.",
-      "description": "Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`. Pagination, DatePicker and ConfirmDialog read them today. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. Use `asChild` to render no extra element, or `class=\"contents\"` to keep layout unchanged.",
+      "description": "Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`. Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox and ModelPicker read them today. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. Use `asChild` to render no extra element, or `class=\"contents\"` to keep layout unchanged.",
       "status": "stable",
       "props": [
         {
@@ -5791,12 +5944,12 @@
         {
           "name": "gapX",
           "type": "0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12",
-          "description": "Column gap, overrides `gap` horizontally."
+          "description": "Column gap. Wins over `gap` and over `gapSm`/`gapMd`/`gapLg` horizontally at every breakpoint."
         },
         {
           "name": "gapY",
           "type": "0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12",
-          "description": "Row gap, overrides `gap` vertically."
+          "description": "Row gap. Wins over `gap` and over `gapSm`/`gapMd`/`gapLg` vertically at every breakpoint."
         },
         {
           "name": "variant",
@@ -7939,7 +8092,7 @@
         {
           "name": "name",
           "type": "string",
-          "description": "Form field name of the hex input."
+          "description": "Form field name. The committed value is submitted through a hidden input, never the half-typed text."
         },
         {
           "name": "placeholder",
@@ -8261,7 +8414,7 @@
         {
           "name": "locale",
           "type": "string",
-          "description": "BCP 47 tag used for month, weekday and day names/numerals. Unknown tags fall back to the runtime default."
+          "description": "BCP 47 tag used for month, weekday and day names/numerals. Default: the ConfigProvider locale, else `en`. Unknown tags fall back to the runtime default."
         },
         {
           "name": "numberOfMonths",
@@ -8340,6 +8493,12 @@
           "type": "string",
           "default": "'Next month'",
           "description": "aria-label of the next-month button (translate it)."
+        },
+        {
+          "name": "rangeBlockedMessage",
+          "type": "string",
+          "default": "'The range cannot include unavailable dates. Choose another end date.'",
+          "description": "Announced in a polite live region when the second click of a range is refused because a day in between is disabled or outside `min`/`max`. The anchor stays. Overridable with the `calendar.rangeBlocked` ConfigProvider label (translate it)."
         },
         {
           "name": "rangeStartMessage",
@@ -8479,6 +8638,11 @@
           "type": "Intl.DateTimeFormatOptions",
           "default": "{ dateStyle: 'medium' }",
           "description": "How the value is displayed. Invalid option combinations fall back to a default format."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Form field name. Adds a hidden input that submits the day as an ISO date (`2024-05-01`) with a native form. A required, empty picker blocks the submit."
         },
         {
           "name": "min",
@@ -8684,13 +8848,18 @@
         {
           "name": "locale",
           "type": "string",
-          "description": "BCP 47 locale for calendar names and the displayed value."
+          "description": "BCP 47 locale for calendar names and the displayed value. Default: the ConfigProvider locale, else `en`."
         },
         {
           "name": "format",
           "type": "Intl.DateTimeFormatOptions",
           "default": "{ dateStyle: 'medium' }",
           "description": "How each end is displayed. Invalid option combinations fall back to a default format."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Form field name. Adds hidden inputs `name[from]` and `name[to]` that submit ISO dates (`2024-05-01`) with a native form. A required, empty picker blocks the submit."
         },
         {
           "name": "min",
@@ -9122,8 +9291,13 @@
         {
           "name": "timeZone",
           "type": "string",
-          "default": "'UTC'",
+          "default": "ConfigProvider time zone, else 'UTC'",
           "description": "IANA zone for display, typed times and the day boundaries of `today` and `yesterday`. Unknown names show UTC."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Form field name. Adds hidden inputs `name[from]` and `name[to]` that submit UTC ISO instants with a native form. A required, empty picker blocks the submit."
         },
         {
           "name": "min",
@@ -9148,7 +9322,7 @@
         {
           "name": "locale",
           "type": "string",
-          "description": "BCP 47 locale for the displayed value and the calendar."
+          "description": "BCP 47 locale for the displayed value and the calendar. Default: the ConfigProvider locale, else `en`."
         },
         {
           "name": "format",
@@ -11994,6 +12168,12 @@
               "description": "Element to render. Use `span` or `label` when the addon should be associated with the control."
             },
             {
+              "name": "asChild",
+              "type": "boolean",
+              "default": "false",
+              "description": "Render the single child element (for example a `label`) with the addon attributes and classes merged into it, instead of a wrapper."
+            },
+            {
               "name": "class",
               "type": "string | object | array",
               "description": "Merged last; wins over internal classes."
@@ -12066,14 +12246,14 @@
         },
         {
           "title": "Status",
-          "description": "Colour plus an icon; success and warning also add hidden text, error sets `aria-invalid` through the Input inside.",
+          "description": "Colour plus an icon; success and warning add hidden text referenced by the control inside, and error sets `aria-invalid` on it (Input, Textarea and NativeSelect read the group status).",
           "code": "<div class=\"grid max-w-sm gap-3\">\n  <InputGroup status=\"success\"><InputGroupAddon>https://</InputGroupAddon><Input aria-label=\"Success\" model-value=\"example\" /></InputGroup>\n  <InputGroup status=\"warning\"><InputGroupAddon>https://</InputGroupAddon><Input aria-label=\"Warning\" model-value=\"example\" /></InputGroup>\n  <InputGroup status=\"error\"><InputGroupAddon>https://</InputGroupAddon><Input aria-label=\"Error\" invalid model-value=\"example\" /></InputGroup>\n</div>"
         }
       ],
       "a11y": [
         "The group is a plain container: it adds no role and no name. The control inside keeps its own label (use `Field`, `aria-label` or `aria-labelledby`), and addon text is read in document order with it.",
         "An addon that holds only an icon must keep the icon decorative (`aria-hidden`, the default of `Icon`); a Button inside an addon needs its own name like any Button.",
-        "Focus shows once, as a border and ring on the whole group (`:has(:focus-visible)`), so keyboard users see which field is active; an invalid control inside turns the group border destructive. The group border stays visible in forced-colors mode, and an invalid group gets a dashed one.",
+        "Focus shows once, as a border and ring on the whole group (`:has(:focus-visible)`), so keyboard users see which field is active (a `class` on the group can override the inner focus border); an invalid control inside turns the group border destructive. The group border stays visible in forced-colors mode, and an invalid group gets a dashed one.",
         "`status` is never colour only: an icon sits at the inline end, and `success` and `warning` add visually hidden text.",
         "Responsive: the group is `w-full min-w-0`, text is 16px below `md` and the minimum height is 44px on touch pointers."
       ],
@@ -12453,7 +12633,7 @@
         "Use PasswordInput, never `<Input type=\"password\">`, so users can reveal what they typed.",
         "Set `autocomplete=\"new-password\"` on registration/change forms.",
         "Use `status` for validation feedback (it adds the icon) and still show the message through `Field error` or `hint`.",
-        "Localise by overriding `showLabel` / `hideLabel`."
+        "Localise by overriding `showLabel` and `revealWarning`, or once for the app with `passwordInput.show` and `passwordInput.revealWarning` in a ConfigProvider. `hideLabel` has no effect: the toggle name must not change with the state."
       ],
       "replaces": [
         "custom password inputs with eye icon toggles in login forms"
@@ -13271,7 +13451,7 @@
       "group": "forms",
       "subgroup": "Text fields",
       "summary": "Multi-line text field with v-model, variants, sizes, shapes, status, optional autosize and character counter.",
-      "description": "Use for free-form text longer than one line. `autosize` grows the field with its content (optionally capped by `maxRows`). `maxlength` + `showCount` renders a `n / max` counter (counts unicode code points); the counter is linked by `aria-describedby` and a polite status announces only when the limit is reached. Inside a `Field` it receives id, aria-describedby and aria-invalid automatically. `variant`, `size`, `shape` and `status` change the look; a `pill` shape is `rounded-xl` because a full pill would clip several lines, and `status` adds an icon at the top end (plus screen reader text for `success` and `warning`). `textareaVariants` gives a plain `<textarea>` the same look. Attributes (`placeholder`, `name`, `aria-*`) go to the `<textarea>`; `class` is merged onto it.",
+      "description": "Use for free-form text longer than one line. `autosize` grows the field with its content (optionally capped by `maxRows`). `maxlength` + `showCount` renders a `n / max` counter (counts UTF-16 code units, the unit `maxlength` enforces, so an emoji is 2); the counter is linked by `aria-describedby` and a polite status announces only when the limit is reached. Inside a `Field` it receives id, aria-describedby and aria-invalid automatically. `variant`, `size`, `shape` and `status` change the look; a `pill` shape is `rounded-xl` because a full pill would clip several lines, and `status` adds an icon at the top end (plus screen reader text for `success` and `warning`). `textareaVariants` gives a plain `<textarea>` the same look. Attributes (`placeholder`, `name`, `aria-*`) go to the `<textarea>`; `class` is merged onto it.",
       "status": "stable",
       "props": [
         {
@@ -13341,7 +13521,7 @@
           "name": "limitLabel",
           "type": "string",
           "default": "'Character limit reached'",
-          "description": "Message announced once when the limit is reached (localise here)."
+          "description": "Message announced once when the limit is reached (localise here, or with `textarea.limit` in a ConfigProvider; the counter text is `textarea.count`, `{count} / {max}`)."
         },
         {
           "name": "disabled",
@@ -13837,7 +14017,7 @@
           "name": "dismissible",
           "type": "boolean",
           "default": "false",
-          "description": "Shows a dismiss (X) button. Dismissing hides the alert and emits `dismiss` once."
+          "description": "Shows a dismiss (X) button. Dismissing hides the alert, moves focus to the next focusable sibling (else the parent region) and emits `dismiss` once. To show it again, change its `:key`."
         },
         {
           "name": "dismissLabel",
@@ -13938,6 +14118,7 @@
         "Throws a ContractError when an `Alert` is empty (no title or text) or is `dismissible` with a blank `dismissLabel`."
       ],
       "llmNotes": [
+        "A dismissed Alert stays gone until its `:key` changes; bind `:key` to the message id to show a new message.",
         "Always give an Alert a title or text; do not render empty alerts.",
         "Use variant=\"destructive\" for errors and \"warning\" for recoverable problems.",
         "Use Alert for in-page messages only; use Toaster for transient feedback.",
@@ -14023,7 +14204,7 @@
         {
           "name": "storageKey",
           "type": "string",
-          "description": "Remember dismissal in localStorage under `pd-banner:<storageKey>`; the banner is not rendered next time. Storage errors are ignored."
+          "description": "Remember dismissal in localStorage under `pd-banner:<storageKey>`; the banner is hidden after mount next time (the first render always shows it, so server and client markup match). Storage errors are ignored."
         },
         {
           "name": "role",
@@ -14322,6 +14503,12 @@
           "description": "Replaces the tone icon."
         },
         {
+          "name": "live",
+          "type": "'polite' | 'assertive' | 'off'",
+          "default": "'assertive' for danger, else 'polite'",
+          "description": "Live-region behaviour: `polite` is role=status, `assertive` is role=alert, `off` renders no live role. Use `off` for field hints and messages present on first render."
+        },
+        {
           "name": "hideIcon",
           "type": "boolean",
           "default": "false",
@@ -14367,6 +14554,7 @@
       ],
       "llmNotes": [
         "Use `variant=\"soft\"` or `\"outline\"` only for a message that stands alone; under a field use the plain default.",
+        "Set `live=\"off\"` on a field hint or a message that is already there at first render; live roles are for messages that appear after an action.",
         "Always give the message an id and link it with aria-describedby.",
         "Keep it to a single short sentence."
       ],
@@ -14444,12 +14632,12 @@
         {
           "name": "now",
           "type": "number | Date",
-          "description": "Reference time for relative text; defaults to the current time. Set it for deterministic output (tests, SSR)."
+          "description": "Reference time for relative text. Without it the first render shows absolute UTC times (server and client match), then relative text appears after mount and refreshes every 30 s. Set it for fixed output (tests, docs)."
         },
         {
           "name": "locale",
           "type": "string",
-          "description": "BCP 47 locale for relative times; invalid locales fall back to the default."
+          "description": "BCP 47 locale for relative times; defaults to the `ConfigProvider` locale, then the browser default. Invalid locales fall back to the default."
         },
         {
           "name": "markAllLabel",
@@ -15073,7 +15261,7 @@
           "name": "retrying",
           "type": "boolean",
           "default": "false",
-          "description": "Spinner + disabled retry button, aria-busy on the root."
+          "description": "Spinner + disabled retry button with aria-busy (the alert root is not marked busy)."
         },
         {
           "name": "detailsLabel",
@@ -15289,9 +15477,9 @@
         }
       ],
       "a11y": [
-        "role=\"status\" with aria-busy=\"true\" and aria-live=\"polite\".",
+        "role=\"status\" (a polite live region). It has no aria-busy: the region exists only while loading.",
         "Skeleton blocks are aria-hidden. The label is announced through an sr-only element.",
-        "Size, layout and shape only change geometry: every combination keeps the same status region, `aria-busy` and the announced label. The inline layout keeps the label visible next to the spinner.",
+        "Size, layout and shape only change geometry: every combination keeps the same status region and the announced label. The inline layout keeps the label visible next to the spinner.",
         "The pulse animation is disabled under prefers-reduced-motion."
       ],
       "related": [
@@ -15469,7 +15657,7 @@
         {
           "name": "locale",
           "type": "string",
-          "default": "'en'",
+          "default": "ConfigProvider locale, then `en`",
           "description": "BCP 47 tag for Intl.RelativeTimeFormat. Invalid tags fall back to `en`."
         },
         {
@@ -17957,7 +18145,7 @@
       "group": "overlays",
       "subgroup": "Modals",
       "summary": "Help dialog that lists the keyboard shortcuts of a page, grouped, with keys drawn as Kbd chips. Opens with `?` by default.",
-      "description": "Use it once per page or app shell. Shortcuts come from two places: everything registered with the `useHotkeys` composable (listed automatically, grouped by `group`, with its `description`), and an optional `shortcuts` array for display-only entries such as combos the browser owns. Entries without a description are not listed.\n\n`useHotkeys(map | array | getter, options?)` registers combos for the life of a component: `\"mod+k\"` (`mod` is Cmd on macOS and Ctrl elsewhere), plain keys (`\"?\"`, `\"esc\"`, `\"f5\"`), and sequences joined with `then` (`\"g then d\"`, up to 5 steps, `timeout` ms between steps, default 1000). It listens on the document, or on one element with `target`. Events that come from inputs, textareas, selects and contenteditable elements are ignored unless `allowInInputs` is set. `preventDefault` defaults to true. Invalid combos (empty, modifier-only, unknown key names, longer than 5 steps) are ignored and warned about in development. Two shortcuts that collide (same combo, or one sequence starting another) warn in development and are silent in production. Write punctuation as the character it produces (`\"?\"`, not `\"shift+/\"`). The registry is filled on mount in the browser only, so server rendering is safe. `listHotkeys()`, `useRegisteredHotkeys()`, `parseHotkey()` and `formatHotkey()` are exported for custom help screens.\n\nVariations: `size` (`sm` | `md` | `lg` | `xl`) is the max width from the `sm` breakpoint up; `layout` is `list` (one column) or `columns` (two columns from `sm` up, pair with `size=\"lg\"`); `density` is `comfortable` or `compact`; `headingLevel` sets the level of the group names (the dialog title is an h2). Open it with the `hotkey`, with a `trigger` slot, or with `v-model:open`. While it is open, other registered shortcuts still run: disable them with their `enabled` option if they would act on the page behind the dialog. Use `Command` for a searchable palette and `Dialog` for anything that is not a shortcut list.",
+      "description": "Use it once per page or app shell. Shortcuts come from two places: everything registered with the `useHotkeys` composable (listed automatically, grouped by `group`, with its `description`), and an optional `shortcuts` array for display-only entries such as combos the browser owns. Entries without a description are not listed.\n\n`useHotkeys(map | array | getter, options?)` registers combos for the life of a component: `\"mod+k\"` (`mod` is Cmd on macOS and Ctrl elsewhere), plain keys (`\"?\"`, `\"esc\"`, `\"f5\"`), and sequences joined with `then` (`\"g then d\"`, up to 5 steps, `timeout` ms between steps, default 1000). It listens on the document, or on one element with `target`. Events that come from inputs, textareas, selects and contenteditable elements are ignored unless `allowInInputs` is set. Events that are already `defaultPrevented`, and (unless `allowInModal` is set) key presses outside an open `aria-modal=\"true\"` dialog, are ignored too. `shift+1` matches the physical digit key; Alt+letter matches the character the layout produces. `preventDefault` defaults to true. Invalid combos (empty, modifier-only, unknown key names, longer than 5 steps) are ignored and warned about in development. Two shortcuts that collide (same combo, or one sequence starting another) warn in development and are silent in production. Write punctuation as the character it produces (`\"?\"`, not `\"shift+/\"`). The registry is filled on mount in the browser only, so server rendering is safe. `listHotkeys()`, `useRegisteredHotkeys()`, `parseHotkey()` and `formatHotkey()` are exported for custom help screens.\n\nVariations: `size` (`sm` | `md` | `lg` | `xl`) is the max width from the `sm` breakpoint up; `layout` is `list` (one column) or `columns` (two columns from `sm` up, pair with `size=\"lg\"`); `density` is `comfortable` or `compact`; `headingLevel` sets the level of the group names (the dialog title is an h2). Open it with the `hotkey`, with a `trigger` slot, or with `v-model:open`. While it is open, other registered shortcuts still run: disable them with their `enabled` option if they would act on the page behind the dialog. Use `Command` for a searchable palette and `Dialog` for anything that is not a shortcut list.",
       "status": "beta",
       "props": [
         {
@@ -20978,7 +21166,7 @@
       "group": "navigation",
       "subgroup": "Theme",
       "summary": "Button that cycles the colour mode light → dark → system and shows the matching icon.",
-      "description": "Reads and writes `useThemeStore()` (Pinia). Each click calls `cycleMode()`; the icon shows the CURRENT mode (sun, moon, desktop) and the accessible name starts with the current mode and then names the NEXT one (\"Theme: Light. Switch to dark.\"). `variant=\"button\"` additionally shows the current mode name. The store must be initialised once (`useThemeStore().init()` at app start or via a ThemeProvider) so the choice is applied to `<html>` and persisted; the toggle itself only changes state. Pair with `AccentPicker` to choose the accent preset.",
+      "description": "Reads and writes `useThemeStore()` (Pinia). Each click calls `cycleMode()`; the icon shows the CURRENT mode (sun, moon, desktop) and the accessible name starts with the current mode and then names the NEXT one (\"Theme: Light. Switch to dark.\"). `variant=\"button\"` additionally shows the current mode name. The store starts from defaults and reads the saved choice in `init()` (so server and first client render agree). It must be initialised once (`useThemeStore().init()` at app start or via a ThemeProvider) so the choice is applied to `<html>` and persisted; the toggle itself only changes state. Pair with `AccentPicker` to choose the accent preset.",
       "status": "stable",
       "props": [
         {
@@ -21394,6 +21582,12 @@
           "description": "Column surface."
         },
         {
+          "name": "headingLevel",
+          "type": "number",
+          "default": "3",
+          "description": "Heading level of the column title, 2 to 6. Other values fall back to 3."
+        },
+        {
           "name": "size",
           "type": "'sm' | 'md' | 'lg'",
           "default": "'md'",
@@ -21471,7 +21665,7 @@
         "Root is `role=\"group\"` labelled by the title; the card area is `role=\"list\"` (cards are `listitem`s) once it has cards.",
         "Native drag and drop is pointer-only. The keyboard alternative lives on `BoardCard`: Alt + Arrow keys emit a `move` request that you apply to your data (see the board example).",
         "The count badge is followed by visually hidden text (\"cards\"), so it reads \"3 cards\"; a disabled column sets `aria-disabled`.",
-        "Drops are announced: every column holds a polite `role=\"status\"` region that says \"Moved <card title> to <column>, position n\". Call the exposed `announce(message)` from your keyboard `move` handler to announce keyboard moves the same way.",
+        "Drops are announced after the move is applied: every column holds a polite `role=\"status\"` region that says \"Moved <card title> to <column>, position n\" once the card renders at the dropped position in this column. A drop your `move` handler ignores is not announced (the request expires after 10 s). Call the exposed `announce(message)` from your keyboard `move` handler to announce keyboard moves the same way.",
         "Columns are fluid and wrap in a grid on a phone; set a fixed width only on wide layouts.",
         "The highlight uses `data-over` plus a ring and background change, not colour alone, and transitions are disabled under `prefers-reduced-motion`."
       ],
@@ -24202,12 +24396,12 @@
         {
           "name": "locale",
           "type": "string",
-          "description": "BCP 47 locale for the formatted time. A bad value falls back to the runtime default."
+          "description": "BCP 47 locale for the formatted time. Falls back to `ConfigProvider`, then `en` (not the runtime locale), so server and client print the same text. A bad value falls back to the runtime default."
         },
         {
           "name": "timeZone",
           "type": "string",
-          "description": "IANA time zone for the formatted time, for example `UTC`. Set it when the page is server-rendered so both renders print the same text. A bad value falls back to local time."
+          "description": "IANA time zone for the formatted time, for example `UTC`. Set it when the page is server-rendered so both renders print the same text. Falls back to `ConfigProvider`, then `UTC` (not the runtime zone). A bad value falls back to local time."
         },
         {
           "name": "roleLabel",
@@ -24420,12 +24614,12 @@
         {
           "name": "locale",
           "type": "string",
-          "description": "BCP 47 locale for day labels. A bad value falls back to the runtime default."
+          "description": "BCP 47 locale for day labels. Falls back to `ConfigProvider`, then `en` (not the runtime locale), so server and client print the same text."
         },
         {
           "name": "timeZone",
           "type": "string",
-          "description": "IANA time zone that decides which day a message belongs to (local when omitted or invalid)."
+          "description": "IANA time zone that decides which day a message belongs to (Falls back to `ConfigProvider`, then `UTC` (not the runtime zone).)."
         },
         {
           "name": "now",
@@ -25330,6 +25524,212 @@
       "replaces": []
     },
     {
+      "name": "LogViewer",
+      "group": "data-display",
+      "subgroup": "Code",
+      "summary": "Searchable, filterable log pane with level badges, ANSI colours, line selection, copy and a tail mode.",
+      "description": "Use for build output, job logs and service logs that grow while the page is open. Lines are plain strings (a leading level word such as `ERROR` becomes the badge, ANSI colour codes are rendered) or `{ time, level, message, source }` objects. Only the rows near the viewport are in the DOM, so thousands of lines stay quick. The toolbar searches (`filter` hides other lines, `highlight` marks matches and Enter / Shift+Enter jump between them), filters by level and copies the selected lines. `follow` sticks to the newest line; scrolling up pauses it and shows \"Jump to latest\". Times given as numbers or Dates are formatted with `locale` and `timeZone`, which fall back to `ConfigProvider`, then `en` and `UTC`, so server and client print the same text. For source code with folding use `CodeViewer`; for a chat transcript use `ChatThread`.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "lines",
+          "type": "(string | LogLine)[]",
+          "required": true,
+          "description": "The lines: strings or `{ time?, level?, message, source? }`. An empty array is fine."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Accessible name of the log. Required unless `aria-label` or `aria-labelledby` is set."
+        },
+        {
+          "name": "follow",
+          "type": "boolean",
+          "default": "false",
+          "description": "Tail mode: stick to the newest line. Scrolling up pauses it (`pause` event); \"Jump to latest\" or reaching the end resumes (`resume`)."
+        },
+        {
+          "name": "wrap",
+          "type": "boolean",
+          "default": "false",
+          "description": "Wrap long lines instead of scrolling sideways."
+        },
+        {
+          "name": "lineNumbers",
+          "type": "boolean",
+          "default": "true",
+          "description": "Show line numbers. They are also the buttons that select a line for copying."
+        },
+        {
+          "name": "timestamps",
+          "type": "boolean",
+          "default": "true",
+          "description": "Show the time of lines that have one."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "default": "''",
+          "description": "Search text, case-insensitive. Supports `v-model:query`."
+        },
+        {
+          "name": "queryMode",
+          "type": "'filter' | 'highlight'",
+          "default": "'filter'",
+          "description": "`filter` hides lines without a match; `highlight` keeps every line and only marks matches."
+        },
+        {
+          "name": "levelFilter",
+          "type": "LogLevel[]",
+          "description": "Levels to show (default all). Lines without a level always show. Supports `v-model:levelFilter`."
+        },
+        {
+          "name": "maxLines",
+          "type": "number",
+          "description": "Keep only the newest N lines; older ones are dropped and the line numbers keep counting from the dropped ones."
+        },
+        {
+          "name": "variant",
+          "type": "'plain' | 'panel' | 'terminal'",
+          "default": "'panel'",
+          "description": "`plain` has no frame, `panel` a bordered card, `terminal` a heavier ink frame. Unknown values fall back to `panel`."
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg'",
+          "default": "'md'",
+          "description": "Text and row size. Unknown values fall back to `md`."
+        },
+        {
+          "name": "density",
+          "type": "'compact' | 'default' | 'comfortable'",
+          "default": "'comfortable'",
+          "description": "Row spacing. Unknown values fall back to `comfortable`."
+        },
+        {
+          "name": "toolbar",
+          "type": "boolean",
+          "default": "true",
+          "description": "Show the search, level and copy controls."
+        },
+        {
+          "name": "announce",
+          "type": "boolean",
+          "default": "true",
+          "description": "While following, announce new lines to screen readers as one throttled polite summary, never the lines themselves."
+        },
+        {
+          "name": "announceInterval",
+          "type": "number",
+          "default": "2000",
+          "description": "Minimum milliseconds between announcements."
+        },
+        {
+          "name": "height",
+          "type": "number | string",
+          "default": "'20rem'",
+          "description": "Height of the whole viewer: a number (px) or any CSS length. `class` can set another."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "description": "BCP 47 locale for numbers and times. Falls back to `ConfigProvider`, then `en` (not the runtime locale)."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "description": "IANA time zone for times given as Date or epoch milliseconds. Falls back to `ConfigProvider`, then `UTC`."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last with tailwind-merge; wins over internal classes."
+        }
+      ],
+      "slots": [
+        {
+          "name": "empty",
+          "description": "Shown when there are no lines, or none match the search and level filter."
+        }
+      ],
+      "emits": [
+        {
+          "name": "update:query",
+          "payload": "[query: string]",
+          "description": "The search text changed."
+        },
+        {
+          "name": "update:levelFilter",
+          "payload": "[levels: LogLevel[]]",
+          "description": "The shown levels changed."
+        },
+        {
+          "name": "copy",
+          "payload": "[text: string]",
+          "description": "Lines were copied."
+        },
+        {
+          "name": "pause",
+          "payload": "[]",
+          "description": "Following paused because the reader scrolled up."
+        },
+        {
+          "name": "resume",
+          "payload": "[]",
+          "description": "Following resumed (scrolled to the end, or \"Jump to latest\")."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Build output with levels and sources",
+          "description": "Sample data: `{ time, level, source, message }` lines with the toolbar. Search, level buttons and copy work on the lines.",
+          "script": "const lines = [\n  { time: '2026-03-04T10:00:00Z', level: 'info', source: 'build', message: 'Resolving 42 packages' },\n  { time: '2026-03-04T10:00:03Z', level: 'debug', source: 'build', message: 'Cache hit for 38 packages' },\n  { time: '2026-03-04T10:00:05Z', level: 'warn', source: 'build', message: 'Package sample-lib is deprecated' },\n  { time: '2026-03-04T10:00:09Z', level: 'error', source: 'test', message: 'Case \"parses empty input\" failed: expected 0, received 1' },\n  { time: '2026-03-04T10:00:10Z', level: 'info', source: 'test', message: '41 passed, 1 failed' },\n]",
+          "code": "<LogViewer label=\"Sample build output\" :lines=\"lines\" :height=\"260\" locale=\"en\" time-zone=\"UTC\" />"
+        },
+        {
+          "title": "Plain strings with ANSI colour, wrapped",
+          "description": "A leading `INFO` / `WARN` / `ERROR` becomes the badge, and colour codes are rendered. `variant=\"terminal\"` and `wrap` suit command output.",
+          "script": "const lines = [\n  'INFO Starting sample worker',\n  'WARN Queue depth above 80%',\n  '\\u001b[31mERROR\\u001b[0m Job 17 failed',\n  'Job 18 finished',\n]",
+          "code": "<LogViewer label=\"Sample worker output\" variant=\"terminal\" wrap :line-numbers=\"false\" :timestamps=\"false\" :lines=\"lines\" :height=\"200\" />"
+        },
+        {
+          "title": "Controlled search that highlights matches",
+          "description": "`v-model:query` with `query-mode=\"highlight\"` keeps every line and marks matches; Enter in the search box jumps to the next match.",
+          "script": "const lines = [\n  { time: '2026-03-04T10:00:00Z', level: 'info', source: 'build', message: 'Resolving 42 packages' },\n  { time: '2026-03-04T10:00:03Z', level: 'debug', source: 'build', message: 'Cache hit for 38 packages' },\n  { time: '2026-03-04T10:00:05Z', level: 'warn', source: 'build', message: 'Package sample-lib is deprecated' },\n  { time: '2026-03-04T10:00:09Z', level: 'error', source: 'test', message: 'Case \"parses empty input\" failed: expected 0, received 1' },\n  { time: '2026-03-04T10:00:10Z', level: 'info', source: 'test', message: '41 passed, 1 failed' },\n]\nconst query = ref('test')",
+          "code": "<LogViewer v-model:query=\"query\" query-mode=\"highlight\" label=\"Sample build output, searchable\" :lines=\"lines\" :height=\"260\" locale=\"en\" time-zone=\"UTC\" />"
+        },
+        {
+          "title": "Tail mode and an empty state",
+          "description": "`follow` keeps the newest line in view. With no lines the `empty` slot is shown.",
+          "script": "const lines = [\n  { time: '2026-03-04T10:00:00Z', level: 'info', source: 'build', message: 'Resolving 42 packages' },\n  { time: '2026-03-04T10:00:03Z', level: 'debug', source: 'build', message: 'Cache hit for 38 packages' },\n  { time: '2026-03-04T10:00:05Z', level: 'warn', source: 'build', message: 'Package sample-lib is deprecated' },\n  { time: '2026-03-04T10:00:09Z', level: 'error', source: 'test', message: 'Case \"parses empty input\" failed: expected 0, received 1' },\n  { time: '2026-03-04T10:00:10Z', level: 'info', source: 'test', message: '41 passed, 1 failed' },\n]",
+          "code": "<div class=\"flex flex-col gap-4\">\n  <LogViewer follow label=\"Sample live output\" :lines=\"lines\" :height=\"160\" locale=\"en\" time-zone=\"UTC\" />\n  <LogViewer label=\"Sample empty log\" :lines=\"[]\" :height=\"100\"><template #empty>No output yet. Start the sample job.</template></LogViewer>\n</div>"
+        }
+      ],
+      "a11y": [
+        "The line area is `role=\"log\"` with `aria-live=\"off\"` and is focusable (`tabindex=\"0\"`) so keyboard users can scroll it; it is named by `label`, `aria-label` or `aria-labelledby`.",
+        "New lines are announced through a separate polite `role=\"status\"` region as a throttled summary while following, never as a stream of lines. A second status region reports search results and copying.",
+        "Press `n` and `p` with the line area focused to move between matches. In the search box, Enter and Shift+Enter move to the next and previous match and Escape clears the search.",
+        "Level buttons use `aria-pressed`; line numbers are buttons named \"Select line N\" with `aria-pressed`. Level and match state also show as text or a badge, not colour alone.",
+        "Targets are at least 24px (44px on coarse pointers). The focus ring survives forced-colors mode."
+      ],
+      "related": [
+        "CodeViewer",
+        "ChatThread",
+        "ActivityFeed",
+        "DataGrid"
+      ],
+      "llmNotes": [
+        "Always give `label` (or `aria-label`): the log is a named region.",
+        "Pass `lines` as an array and replace or append to it; cap growth with `maxLines`.",
+        "Set `time-zone` and `locale` (or a `ConfigProvider`) when giving numeric or Date times and the page is server-rendered.",
+        "Use `follow` only for logs that grow while open; never auto-scroll a static log.",
+        "Use `v-model:query` and `v-model:levelFilter` only when the page needs to own the filters; the toolbar works without them."
+      ],
+      "replaces": [
+        "hand-rolled <pre> log panel with scroll and search"
+      ]
+    },
+    {
       "name": "YamlViewer",
       "group": "data-display",
       "subgroup": "Code",
@@ -26189,9 +26589,9 @@
         },
         {
           "title": "Custom node content and toolbar",
-          "description": "The `node` slot draws SVG inside the node; the `toolbar` slot receives the canvas actions.",
+          "description": "The `node` slot draws SVG inside the node (selection is shown by the dot, the text stays the node label); the `toolbar` slot receives the canvas actions.",
           "script": "const nodes = ref([\n  { id: 'booking', label: 'Booking received', x: 20, y: 70, width: 150 },\n  { id: 'check', label: 'Pallets fit the truck?', x: 250, y: 60, width: 170, height: 72, shape: 'rhombus' },\n  { id: 'driver', label: 'Assign driver', x: 500, y: 20, tone: 'primary' },\n  { id: 'split', label: 'Split the load', x: 500, y: 130, tone: 'warning' },\n  { id: 'depart', label: 'Depart depot', x: 720, y: 70, shape: 'stadium', tone: 'success' },\n])\nconst edges = ref([\n  { id: 'e1', from: 'booking', to: 'check' },\n  { id: 'e2', from: 'check', to: 'driver', label: 'Yes' },\n  { id: 'e3', from: 'check', to: 'split', label: 'No' },\n  { id: 'e4', from: 'split', to: 'driver', style: 'dashed' },\n  { id: 'e5', from: 'driver', to: 'depart' },\n])\n// slot props: { node, selected, active, connecting, width, height }",
-          "code": "<FlowCanvas v-model:nodes=\"nodes\" v-model:edges=\"edges\" label=\"Sample workflow with custom nodes\" size=\"sm\">\n  <template #node=\"{ node, selected, width }\">\n    <text :x=\"width / 2\" y=\"20\" text-anchor=\"middle\" font-size=\"13\" class=\"pointer-events-none fill-foreground\">{{ node.label }}</text>\n    <text :x=\"width / 2\" y=\"38\" text-anchor=\"middle\" font-size=\"11\" class=\"pointer-events-none fill-muted-foreground\">{{ selected ? 'selected' : node.id }}</text>\n  </template>\n  <template #toolbar=\"{ zoomIn, zoomOut, fit, canUndo, undo }\">\n    <Button size=\"sm\" variant=\"outline\" @click=\"zoomOut\">Smaller</Button>\n    <Button size=\"sm\" variant=\"outline\" @click=\"zoomIn\">Larger</Button>\n    <Button size=\"sm\" variant=\"outline\" @click=\"fit\">Show all</Button>\n    <Button size=\"sm\" variant=\"outline\" :disabled=\"!canUndo\" @click=\"undo\">Undo last change</Button>\n  </template>\n</FlowCanvas>"
+          "code": "<FlowCanvas v-model:nodes=\"nodes\" v-model:edges=\"edges\" label=\"Sample workflow with custom nodes\" size=\"sm\">\n  <template #node=\"{ node, selected, width }\">\n    <circle :cx=\"14\" cy=\"26\" r=\"4\" :class=\"selected ? 'fill-primary' : 'fill-muted-foreground'\" />\n    <text :x=\"width / 2\" y=\"26\" dominant-baseline=\"central\" text-anchor=\"middle\" font-size=\"13\" class=\"pointer-events-none fill-foreground\">{{ node.label }}</text>\n  </template>\n  <template #toolbar=\"{ zoomIn, zoomOut, fit, canUndo, undo }\">\n    <Button size=\"sm\" variant=\"outline\" @click=\"zoomOut\">Smaller</Button>\n    <Button size=\"sm\" variant=\"outline\" @click=\"zoomIn\">Larger</Button>\n    <Button size=\"sm\" variant=\"outline\" @click=\"fit\">Show all</Button>\n    <Button size=\"sm\" variant=\"outline\" :disabled=\"!canUndo\" @click=\"undo\">Undo last change</Button>\n  </template>\n</FlowCanvas>"
         },
         {
           "title": "300 nodes",
@@ -26237,6 +26637,7 @@
       "llmNotes": [
         "Always pass `label`, give every node a unique `id` and numeric `x` and `y`, and every connection a unique `id` with `from` and `to` node ids.",
         "Use `v-model:nodes` and `v-model:edges`; handle `connect` or `change` only to react (save, validate), not to re-add what the model already holds.",
+        "Text drawn in the `node` slot is the node's visible text, and the accessible name is `node.label`: draw the label itself (WCAG 2.5.3 label in name) and show extra state with shapes, not a second text.",
         "Do not put HTML or components inside nodes: use the `node` slot with SVG elements, in the node's own coordinates.",
         "Use `readonly` for display. Use `grid` (or `grid=\"20\"`) when tidy alignment matters; use `autoLayout()` on a template ref to arrange imported data with no positions.",
         "Pick `edge-style=\"orthogonal\"` for flowcharts, `curved` for graphs, `straight` for dense maps. Pick `direction` for auto layout, not for display.",
@@ -26355,6 +26756,18 @@
           "type": "number",
           "default": "600",
           "description": "Largest number of connections (edges, messages, relations) that is drawn."
+        },
+        {
+          "name": "maxSourceLength",
+          "type": "number",
+          "default": "100000",
+          "description": "Longest source, in characters, that is parsed. Longer text shows a size error before any parsing."
+        },
+        {
+          "name": "maxLineLength",
+          "type": "number",
+          "default": "2000",
+          "description": "Longest single source line, in characters, that is parsed. A longer line shows a size error naming the line."
         },
         {
           "name": "as",
@@ -26810,12 +27223,12 @@
         {
           "name": "locale",
           "type": "string",
-          "description": "BCP 47 locale for dates and relative text. Unknown values fall back to the runtime default."
+          "description": "BCP 47 locale for dates and relative text. Unknown values fall back to the runtime default. Falls back to `ConfigProvider`, then `en` (not the runtime locale), so server and client print the same text."
         },
         {
           "name": "timeZone",
           "type": "string",
-          "description": "IANA time zone for dates and day groups, for example `UTC`. Unknown values fall back to the runtime zone."
+          "description": "IANA time zone for dates and day groups, for example `UTC`. Unknown values fall back to the runtime zone. Falls back to `ConfigProvider`, then `UTC` (not the runtime zone)."
         },
         {
           "name": "headingLevel",
@@ -28653,7 +29066,7 @@
         {
           "name": "locale",
           "type": "string",
-          "description": "BCP 47 locale; invalid values fall back to the runtime default."
+          "description": "BCP 47 locale. Unset uses the ConfigProvider locale, then `en`; invalid values fall back to `en`."
         },
         {
           "name": "fractionDigits",
@@ -29075,10 +29488,20 @@
           "description": "Message when there are no rows (use the `empty` slot for rich content)."
         },
         {
+          "name": "locale",
+          "type": "string",
+          "description": "BCP 47 locale for Date cells. Falls back to `ConfigProvider`, then `en`, never the browser locale, so server and client agree."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "description": "IANA time zone for Date cells. Falls back to `ConfigProvider`, then `UTC`."
+        },
+        {
           "name": "nullText",
           "type": "string",
           "default": "'–'",
-          "description": "Shown for null/undefined (and Invalid Date) cells."
+          "description": "Shown for null/undefined (and Invalid Date, function and unserialisable) cells. Plain objects and arrays render as JSON truncated to 80 characters; use the `cell` slot for anything richer."
         },
         {
           "name": "rowClickable",
@@ -29727,7 +30150,7 @@
           "title": "Row selection",
           "description": "Reactive selection with a checkbox per row; `selectedTone=\"accent\"` tints selected rows with the primary colour. The checkbox, not the tint, exposes the state. Sample data.",
           "script": "const picked = ref(['b'])\nconst rows = [{ id: 'a', name: 'Item A' }, { id: 'b', name: 'Item B' }, { id: 'c', name: 'Item C' }]\nfunction toggle(id) {\n  picked.value = picked.value.includes(id) ? picked.value.filter((x) => x !== id) : [...picked.value, id]\n}",
-          "code": "<div class=\"flex flex-col gap-3\">\n  <Table selected-tone=\"accent\" aria-label=\"Sample data: selectable items\">\n    <TableHeader><TableRow><TableHead>Name</TableHead><TableHead align=\"right\">Selected</TableHead></TableRow></TableHeader>\n    <TableBody>\n      <TableRow v-for=\"r in rows\" :key=\"r.id\" :selected=\"picked.includes(r.id)\">\n        <TableCell>{{ r.name }}</TableCell>\n        <TableCell align=\"right\"><input type=\"checkbox\" class=\"relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary disabled:cursor-not-allowed disabled:opacity-50 after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0\" :aria-label=\"'Select ' + r.name\" :checked=\"picked.includes(r.id)\" @change=\"toggle(r.id)\" /></TableCell>\n      </TableRow>\n    </TableBody>\n  </Table>\n  <p class=\"text-sm text-muted-foreground tabular-nums\">{{ picked.length }} selected</p>\n</div>"
+          "code": "<div class=\"flex flex-col gap-3\">\n  <Table selected-tone=\"accent\" aria-label=\"Sample data: selectable items\">\n    <TableHeader><TableRow><TableHead>Name</TableHead><TableHead align=\"right\">Selected</TableHead></TableRow></TableHeader>\n    <TableBody>\n      <TableRow v-for=\"r in rows\" :key=\"r.id\" :selected=\"picked.includes(r.id)\">\n        <TableCell>{{ r.name }}</TableCell>\n        <TableCell align=\"right\"><input type=\"checkbox\" class=\"relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary disabled:cursor-not-allowed disabled:opacity-50 after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0 outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40\" :aria-label=\"'Select ' + r.name\" :checked=\"picked.includes(r.id)\" @change=\"toggle(r.id)\" /></TableCell>\n      </TableRow>\n    </TableBody>\n  </Table>\n  <p class=\"text-sm text-muted-foreground tabular-nums\">{{ picked.length }} selected</p>\n</div>"
         },
         {
           "title": "Combined: striped, bordered, compact",
@@ -29761,8 +30184,8 @@
         {
           "title": "Cards layout with sort and select-all controls",
           "description": "`TableCardControls` is visible only below 640px, where the header row is hidden. You own the state: it writes `v-model:sort` and emits `select-all`, and the same values drive the rows and `aria-sort`. Narrow the window to see it. Sample data.",
-          "script": "const sort = ref(null)\nconst picked = ref([])\nconst data = [{ id: 'a', name: 'Item A', seats: 12 }, { id: 'b', name: 'Item B', seats: 40 }, { id: 'c', name: 'Item C', seats: 3 }]\nconst options = [{ key: 'name', label: 'Item' }, { key: 'seats', label: 'Seats' }]\nconst rows = computed(() => {\n  const s = sort.value\n  if (!s) return data\n  return [...data].sort((x, y) => (x[s.key] > y[s.key] ? 1 : -1) * (s.direction === 'asc' ? 1 : -1))\n})\nconst ariaSort = (key) => (sort.value?.key === key ? (sort.value.direction === 'asc' ? 'ascending' : 'descending') : undefined)\nfunction toggleAll() {\n  picked.value = picked.value.length === data.length ? [] : data.map((r) => r.id)\n}\nfunction toggle(id) {\n  picked.value = picked.value.includes(id) ? picked.value.filter((x) => x !== id) : [...picked.value, id]\n}",
-          "code": "<div class=\"space-y-3\">\n  <TableCardControls v-model:sort=\"sort\" :options=\"options\" selectable :all-selected=\"picked.length === data.length\" :some-selected=\"picked.length > 0 && picked.length < data.length\" @select-all=\"toggleAll\" />\n  <Table layout=\"cards\" aria-label=\"Sample data: cards layout with controls\">\n    <TableHeader>\n      <TableRow>\n        <TableHead>Select</TableHead>\n        <TableHead :aria-sort=\"ariaSort('name')\">Item</TableHead>\n        <TableHead align=\"right\" :aria-sort=\"ariaSort('seats')\">Seats</TableHead>\n      </TableRow>\n    </TableHeader>\n    <TableBody>\n      <TableRow v-for=\"r in rows\" :key=\"r.id\" :selected=\"picked.includes(r.id)\">\n        <TableCell label=\"Select\"><input type=\"checkbox\" class=\"size-5 accent-primary\" :aria-label=\"'Select ' + r.name\" :checked=\"picked.includes(r.id)\" @change=\"toggle(r.id)\" /></TableCell>\n        <TableCell label=\"Item\">{{ r.name }}</TableCell>\n        <TableCell label=\"Seats\" numeric>{{ r.seats }}</TableCell>\n      </TableRow>\n    </TableBody>\n  </Table>\n</div>"
+          "script": "const sort = ref(null)\nconst picked = ref([])\nconst data = [{ id: 'a', name: 'Item A', seats: 12 }, { id: 'b', name: 'Item B', seats: 40 }, { id: 'c', name: 'Item C', seats: 3 }]\nconst options = [{ key: 'name', label: 'Item' }, { key: 'seats', label: 'Seats' }]\nconst rows = computed(() => {\n  const s = sort.value\n  if (!s) return data\n  return data.toSorted((x, y) => (x[s.key] > y[s.key] ? 1 : -1) * (s.direction === 'asc' ? 1 : -1))\n})\nconst ariaSort = (key) => (sort.value?.key === key ? (sort.value.direction === 'asc' ? 'ascending' : 'descending') : undefined)\nfunction toggleAll() {\n  picked.value = picked.value.length === data.length ? [] : data.map((r) => r.id)\n}\nfunction toggle(id) {\n  picked.value = picked.value.includes(id) ? picked.value.filter((x) => x !== id) : [...picked.value, id]\n}",
+          "code": "<div class=\"space-y-3\">\n  <TableCardControls v-model:sort=\"sort\" :options=\"options\" selectable :all-selected=\"picked.length === data.length\" :some-selected=\"picked.length > 0 && picked.length < data.length\" @select-all=\"toggleAll\" />\n  <Table layout=\"cards\" aria-label=\"Sample data: cards layout with controls\">\n    <TableHeader>\n      <TableRow>\n        <TableHead>Select</TableHead>\n        <TableHead :aria-sort=\"ariaSort('name')\">Item</TableHead>\n        <TableHead align=\"right\" :aria-sort=\"ariaSort('seats')\">Seats</TableHead>\n      </TableRow>\n    </TableHeader>\n    <TableBody>\n      <TableRow v-for=\"r in rows\" :key=\"r.id\" :selected=\"picked.includes(r.id)\">\n        <TableCell label=\"Select\"><input type=\"checkbox\" class=\"relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary disabled:cursor-not-allowed disabled:opacity-50 after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0 outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40\" :aria-label=\"'Select ' + r.name\" :checked=\"picked.includes(r.id)\" @change=\"toggle(r.id)\" /></TableCell>\n        <TableCell label=\"Item\">{{ r.name }}</TableCell>\n        <TableCell label=\"Seats\" numeric>{{ r.seats }}</TableCell>\n      </TableRow>\n    </TableBody>\n  </Table>\n</div>"
         }
       ],
       "a11y": [
@@ -30663,7 +31086,7 @@
           "name": "categoryMode",
           "type": "'headings' | 'tabs'",
           "default": "'headings'",
-          "description": "`with-categories` only: category headings (h3) or a tab per category. Unknown values fall back to `headings`."
+          "description": "`with-categories` only: category headings (`h3` by default, see `headingLevel`) or a tab per category. Unknown values fall back to `headings`."
         },
         {
           "name": "categoriesLabel",
@@ -30681,6 +31104,12 @@
           "type": "string",
           "default": "'Other'",
           "description": "`with-categories`: heading/tab for items without a `category` when other items have one."
+        },
+        {
+          "name": "headingLevel",
+          "type": "number",
+          "default": "3",
+          "description": "`with-categories` + `headings`: heading level of the category titles, 2 to 6. Other values fall back to 3."
         },
         {
           "name": "single",
