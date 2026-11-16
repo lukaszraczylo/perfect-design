@@ -15,13 +15,15 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.26.2
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
+          # No automatic dependency cache in the release workflow: a poisoned cache must not reach the publish job.
+          package-manager-cache: false
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @perfect-design/ui typecheck
       - run: pnpm --filter @perfect-design/ui test
@@ -35,15 +37,17 @@ jobs:
       # Trusted publishing: npmjs.com accepts this workflow's OIDC identity as the publish credential.
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.26.2
       # No registry-url: it would write an _authToken placeholder into .npmrc, which disables the
       # OIDC exchange that trusted publishing relies on.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
+          # No automatic dependency cache in the release workflow: a poisoned cache must not reach the publish job.
+          package-manager-cache: false
       - run: pnpm install --frozen-lockfile
       - name: Build library
         run: pnpm --filter @perfect-design/ui build
@@ -78,7 +82,7 @@ jobs:
           fi
 
       - name: Attach the tarball to the workflow run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: perfect-design-ui-${{ github.ref_name }}
           path: packages/ui/${{ env.TARBALL }}
