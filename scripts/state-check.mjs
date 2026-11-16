@@ -62,7 +62,7 @@ const stateOf = (el) =>
     ds: el.getAttribute('data-state'),
   })
 
-const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: 'new', args: ['--no-sandbox'] })
+const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: 'new', args: ['--no-sandbox'] })
 const failures = []
 let toggled = 0
 let focused = 0

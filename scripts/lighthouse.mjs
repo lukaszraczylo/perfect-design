@@ -4,7 +4,7 @@ import { launch } from 'chrome-launcher'
 
 const base = process.argv[2] ?? 'http://localhost:4311'
 const paths = process.argv.slice(3).length ? process.argv.slice(3) : ['/']
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const chrome = await launch({ chromePath: CHROME, chromeFlags: ['--headless=new', '--no-sandbox'] })
 let failures = 0
 for (const form of ['mobile', 'desktop']) {

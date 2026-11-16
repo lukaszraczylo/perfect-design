@@ -20,21 +20,15 @@ const stylePack = args.includes('--style') ? args[args.indexOf('--style') + 1] :
 const match = args.includes('--match') ? args[args.indexOf('--match') + 1] : ''
 const only = args.includes('--routes') ? args[args.indexOf('--routes') + 1].split(',') : null
 const reportFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : 'reports/a11y-sweep.json'
-const manifest = JSON.parse(readFileSync('components.manifest.json', 'utf8'))
-const slug = (n) => n.replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/([A-Z])([A-Z][a-z])/g, '$1-$2').toLowerCase()
-
-const routes = [
-  '/', '/components',
-  ...['getting-started', 'customisation', 'migration', 'testing', 'llm'].map((t) => `/guides/${t}`),
-  ...['colors', 'typography', 'spacing', 'elevation', 'motion', 'iconography', 'themes', 'styles', 'accessibility'].map((t) => `/foundations/${t}`),
-  ...[...new Set(manifest.components.map((c) => c.group))].map((g) => `/components/${g}`),
-  ...manifest.components.map((c) => `/components/${c.group}/${slug(c.name)}`),
-].filter((r) => (only ? only.includes(r) : r.includes(match))).slice(0, limit)
+// The prerender writes sitemap.xml from the router's own lists, so the sweep audits exactly the pages that ship.
+const sitemap = await fetch(new URL('/sitemap.xml', base)).then((r) => (r.ok ? r.text() : ''))
+const routes = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname)
+  .filter((r) => (only ? only.includes(r) : r.includes(match))).slice(0, limit)
 
 const VIEWPORTS = [{ name: 'phone-320', width: 320, height: 640, isMobile: true, hasTouch: true }, { name: 'tablet-768', width: 768, height: 1024 }, { name: 'desktop-1280', width: 1280, height: 800 }]
 const SCHEMES = ['light', 'dark']
 
-const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: 'new', args: ['--no-sandbox'] })
+const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: 'new', args: ['--no-sandbox'] })
 const results = []
 const queue = []
 for (const route of routes) for (const vp of VIEWPORTS) for (const scheme of SCHEMES) queue.push({ route, vp, scheme })
@@ -104,4 +98,5 @@ console.log(`Navigation errors: ${errors} · horizontal overflow: ${overflow} ·
 for (const [id, e] of [...byRule].sort((a, b) => b[1].combos - a[1].combos)) {
   console.log(`\n✗ ${id} [${e.impact}] ${e.help} — ${e.pages.size} pages, ${e.combos} combos\n    e.g. ${e.sample?.target} :: ${e.sample?.msg?.slice(0, 160)}`)
 }
-process.exit(byRule.size || overflow || errors ? 1 : 0)
+if (!results.length) console.log('\n✗ no route was checked: the sitemap is missing or --match/--routes matched nothing')
+process.exit(!results.length || byRule.size || overflow || errors || consoleIssues ? 1 : 0)

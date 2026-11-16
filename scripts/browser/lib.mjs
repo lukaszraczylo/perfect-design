@@ -4,7 +4,7 @@
  */
 import puppeteer from 'puppeteer-core'
 
-export const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+export const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 /** A failed assertion: carries the selector so the report says where to look. */
