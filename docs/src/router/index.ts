@@ -27,7 +27,7 @@ const routes: RouteRecordRaw[] = [
     { path: '/foundations/:topic', name: 'foundation', component: () => import('@/pages/FoundationPage.vue'), beforeEnter: (to) => FOUNDATION_TOPICS.some((t) => t.id === to.params.topic) || { name: 'not-found', params: { pathMatch: 'foundations' }, replace: true } },
     { path: '/guides/:topic', name: 'guide', component: () => import('@/pages/GuidePage.vue'), beforeEnter: (to) => GUIDE_TOPICS.some((t) => t.id === to.params.topic) || { name: 'not-found', params: { pathMatch: 'guides' }, replace: true } },
     { path: '/components', name: 'components', component: () => import('@/pages/ComponentsIndexPage.vue') },
-    { path: '/components/:group', name: 'group', component: () => import('@/pages/GroupPage.vue') },
+    { path: '/components/:group', name: 'group', component: () => import('@/pages/GroupPage.vue'), beforeEnter: (to) => String(to.params.group) in GROUP_META || { name: 'not-found', params: { pathMatch: 'components' }, replace: true } },
     { path: '/components/:group/:slug', name: 'component', component: () => import('@/pages/ComponentPage.vue'), beforeEnter: (to) => !!findEntry(String(to.params.group), String(to.params.slug)) || { name: 'not-found', params: { pathMatch: 'components' }, replace: true } },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/pages/NotFoundPage.vue') },
 ]

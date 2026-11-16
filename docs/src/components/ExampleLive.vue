@@ -18,9 +18,19 @@ onErrorCaptured((e) => {
   return false
 })
 
+// A template that does not compile throws inside this component's own render, which onErrorCaptured does not see.
+const compiled = computed(() => {
+  try {
+    const { code } = compile(`<div>${props.example.code}</div>`, { mode: 'function', onError: (e) => { throw e } })
+    return { render: new Function('Vue', code)(Vue) as (ctx: object, cache: unknown[]) => unknown, message: null }
+  } catch (e) {
+    return { render: null, message: e instanceof Error ? e.message : String(e) }
+  }
+})
+
 const Demo = computed(() => {
-  const { code } = compile(`<div>${props.example.code}</div>`, { mode: 'function', onError: (e) => { throw e } })
-  const render = new Function('Vue', code)(Vue) as (ctx: object, cache: unknown[]) => unknown
+  const render = compiled.value.render
+  if (!render) return null
   return defineComponent({
     name: 'ExampleDemo',
     components: allComponents,
@@ -37,6 +47,6 @@ const Demo = computed(() => {
 </script>
 
 <template>
-  <p v-if="error" role="alert" class="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">Example failed to render: {{ error }}</p>
+  <p v-if="error || compiled.message" role="alert" class="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">Example failed to render: {{ error ?? compiled.message }}</p>
   <component :is="Demo" v-else />
 </template>

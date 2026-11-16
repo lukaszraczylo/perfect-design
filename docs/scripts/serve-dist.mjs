@@ -3,15 +3,21 @@
 //   node scripts/serve-dist.mjs [port] [dir]
 import { createServer } from 'node:http'
 import { existsSync, readFileSync, statSync } from 'node:fs'
-import { extname, join, normalize } from 'node:path'
+import { extname, join, normalize, sep } from 'node:path'
 
 const port = Number(process.argv[2] ?? 4311)
 const root = normalize(join(process.cwd(), process.argv[3] ?? 'dist'))
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.txt': 'text/plain', '.map': 'application/json', '.woff2': 'font/woff2', '.png': 'image/png', '.xml': 'application/xml' }
 
 function resolveFile(pathname) {
-  const clean = normalize(join(root, decodeURIComponent(pathname)))
-  if (!clean.startsWith(root)) return null
+  let decoded
+  try {
+    decoded = decodeURIComponent(pathname)
+  } catch {
+    return null // malformed escape: answer 404 instead of crashing the server
+  }
+  const clean = normalize(join(root, decoded))
+  if (clean !== root && !clean.startsWith(root + sep)) return null
   for (const candidate of [clean, join(clean, 'index.html'), `${clean}.html`]) {
     if (existsSync(candidate) && statSync(candidate).isFile()) return candidate
   }

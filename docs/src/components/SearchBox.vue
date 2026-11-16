@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, useId } from 'vue'
 import { useRouter } from 'vue-router'
 import { entries } from '@/lib/registry'
 
@@ -7,6 +7,10 @@ const router = useRouter()
 const query = ref('')
 const focused = ref(false)
 const active = ref(0)
+// Two instances are mounted (header and mobile drawer), so ids must be per instance.
+const listId = `${useId()}-results`
+const optionId = (i: number) => `${listId}-${i}`
+const open = computed(() => focused.value && results.value.length > 0)
 
 const results = computed(() => {
   const q = query.value.trim().toLowerCase()
@@ -49,8 +53,9 @@ function onKey(e: KeyboardEvent) {
       role="combobox"
       aria-label="Search components"
       aria-autocomplete="list"
-      :aria-expanded="focused && results.length > 0"
-      aria-controls="doc-search-results"
+      :aria-expanded="open"
+      :aria-controls="open ? listId : undefined"
+      :aria-activedescendant="open ? optionId(active) : undefined"
       placeholder="Search components…"
       class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-3 focus-visible:ring-ring/40"
       @focus="focused = true"
@@ -58,14 +63,12 @@ function onKey(e: KeyboardEvent) {
       @keydown="onKey"
       @input="active = 0"
     />
-    <ul v-if="focused && results.length" id="doc-search-results" role="listbox" class="absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden rounded-md border bg-popover p-1 shadow-md">
-      <li v-for="(r, i) in results" :key="r.group + r.name" role="option" :aria-selected="i === active">
-        <button type="button" class="flex w-full flex-col rounded px-2 py-1.5 text-left text-sm hover:bg-accent" :class="i === active && 'bg-accent'" @mousedown.prevent="go(i)">
-          <span class="font-medium">{{ r.name }}</span>
-          <span class="truncate text-xs text-muted-foreground">{{ r.group }} · {{ r.subgroup }}</span>
-        </button>
+    <ul v-if="open" :id="listId" role="listbox" aria-label="Matching components" class="absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-md border bg-popover p-1 shadow-md">
+      <li v-for="(r, i) in results" :id="optionId(i)" :key="r.group + r.name" role="option" :aria-selected="i === active" class="flex w-full cursor-pointer flex-col rounded px-2 py-1.5 text-start text-sm hover:bg-accent" :class="i === active && 'bg-accent'" @mousedown.prevent="go(i)">
+        <span class="font-medium">{{ r.name }}</span>
+        <span class="truncate text-xs text-muted-foreground">{{ r.group }} · {{ r.subgroup }}</span>
       </li>
     </ul>
-    <p v-else-if="focused && query.trim() && !results.length" class="absolute top-full right-0 left-0 z-50 mt-1 rounded-md border bg-popover p-3 text-sm text-muted-foreground shadow-md">No component matches “{{ query }}”.</p>
+    <p v-else-if="focused && query.trim() && !results.length" class="absolute inset-x-0 top-full z-50 mt-1 rounded-md border bg-popover p-3 text-sm text-muted-foreground shadow-md">No component matches “{{ query }}”.</p>
   </div>
 </template>

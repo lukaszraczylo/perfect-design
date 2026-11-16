@@ -34,6 +34,8 @@ watch(
       failed.value = true
     }
   },
+  // Immediate: when the router guard could not preload the docs, load them here and show the error state on failure.
+  { immediate: true },
 )
 
 const related = computed(() => (full.value?.related ?? []).map((n) => entries.find((e) => e.name === n)).filter((e): e is NonNullable<typeof e> => !!e))
@@ -84,12 +86,12 @@ const importLine = computed(() => {
           <li v-for="e in full.emits" :key="e.name" class="flex flex-wrap gap-x-3 px-3 py-2"><code class="font-mono">{{ e.name }}</code><span v-if="e.payload" class="font-mono text-xs text-muted-foreground">{{ e.payload }}</span><DocText :text="e.description" size="sm" tone="muted" class="min-w-0 flex-1" /></li>
         </ul>
       </DocSection>
-      <DocSection v-if="full.requires?.length" title="Required by the component" description="These are enforced: a ContractError is thrown when one is missing (choose throw, warn or off with configureStrictMode), so the mistake cannot ship unnoticed."><ul class="list-disc space-y-1 pl-5 text-sm"><li v-for="r in full.requires" :key="r"><DocText :text="r" size="sm" /></li></ul></DocSection>
-      <DocSection v-if="full.a11y?.length" title="Accessibility"><ul class="list-disc space-y-1 pl-5 text-sm"><li v-for="a in full.a11y" :key="a"><DocText :text="a" size="sm" /></li></ul></DocSection>
+      <DocSection v-if="full.requires?.length" title="Required by the component" description="These are enforced: a ContractError is thrown when one is missing (choose throw, warn or off with configureStrictMode), so the mistake cannot ship unnoticed."><ul class="list-disc space-y-1 ps-5 text-sm"><li v-for="r in full.requires" :key="r"><DocText :text="r" size="sm" /></li></ul></DocSection>
+      <DocSection v-if="full.a11y?.length" title="Accessibility"><ul class="list-disc space-y-1 ps-5 text-sm"><li v-for="a in full.a11y" :key="a"><DocText :text="a" size="sm" /></li></ul></DocSection>
       <DocSection v-if="full.llmNotes?.length" title="Rules for LLM authors" description="Terse rules to follow when generating UI with this component.">
-        <ul class="list-disc space-y-1 pl-5 text-sm"><li v-for="a in full.llmNotes" :key="a"><DocText :text="a" size="sm" /></li></ul>
+        <ul class="list-disc space-y-1 ps-5 text-sm"><li v-for="a in full.llmNotes" :key="a"><DocText :text="a" size="sm" /></li></ul>
       </DocSection>
-      <DocSection v-if="full.replaces?.length" title="Replaces"><ul class="list-disc space-y-1 pl-5 text-sm"><li v-for="a in full.replaces" :key="a"><DocText :text="a" size="sm" /></li></ul></DocSection>
+      <DocSection v-if="full.replaces?.length" title="Replaces"><ul class="list-disc space-y-1 ps-5 text-sm"><li v-for="a in full.replaces" :key="a"><DocText :text="a" size="sm" /></li></ul></DocSection>
       <DocSection v-if="related.length" title="Related">
         <ul class="flex flex-wrap gap-2"><li v-for="r in related" :key="r.name"><RouterLink :to="`/components/${r.group}/${r.slug}`" class="inline-flex min-h-6 items-center rounded-md border px-2.5 py-1 text-sm hover:bg-accent pointer-coarse:min-h-11">{{ r.name }}</RouterLink></li></ul>
       </DocSection>

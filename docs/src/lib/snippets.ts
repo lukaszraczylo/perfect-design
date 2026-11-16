@@ -3,7 +3,8 @@
 const OPEN = '<'
 export const SNIPPETS = {
   // GitHub is the primary channel: each tag publishes a GitHub Release with the packed tarball attached.
-  install: `pnpm add https://github.com/lukaszraczylo/perfect-design/releases/download/v0.1.3/perfect-design-ui-0.1.3.tgz
+  install: `# <version> is the latest tag on https://github.com/lukaszraczylo/perfect-design/releases (for example 0.1.10)
+pnpm add https://github.com/lukaszraczylo/perfect-design/releases/download/v<version>/perfect-design-ui-<version>.tgz
 pnpm add pinia tailwindcss vue                  # peers the tarball does not bundle
 pnpm add @fortawesome/free-solid-svg-icons      # optional: icon data you pass to <Icon>; no FontAwesome runtime needed`,
   installNpm: `pnpm add @perfect-design/ui                     # same build, from the npm registry (a mirror, when published)`,
@@ -42,10 +43,10 @@ ${OPEN}template>
     </CardContent>
   </Card>
 </template>`,
-  override: `<!-- 1. class always wins (tailwind-merge) -->
-<Button class="rounded-full bg-emerald-600 hover:bg-emerald-600/90">Pill</Button>
+  override: `<!-- 1. class always wins (tailwind-merge); use tokens, never raw colours -->
+<Button class="rounded-full px-6">Pill</Button>
 
-<!-- 2. reuse variants on any element -->
+<!-- 2. reuse variants on any element: import { buttonVariants } from '@perfect-design/ui' -->
 <a :class="buttonVariants({ variant: 'outline', size: 'sm' })" href="/docs">Docs</a>
 
 <!-- 3. swap the element -->

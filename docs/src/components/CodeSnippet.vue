@@ -25,9 +25,9 @@ onBeforeUnmount(() => clearTimeout(timer))
 <template>
   <div class="relative rounded-lg border bg-muted/50">
     <div v-if="label" class="border-b px-3 py-1.5 text-xs text-muted-foreground">{{ label }}</div>
-    <Button variant="ghost" size="icon-sm" class="absolute top-1.5 right-1.5" :aria-label="copied ? 'Copied' : 'Copy code'" @click="copy">
+    <Button variant="ghost" size="icon-sm" class="absolute top-1.5 end-1.5" :aria-label="copied ? 'Copied' : 'Copy code'" @click="copy">
       <Icon :icon="copied ? faCheck : faCopy" size="sm" />
     </Button>
-    <pre tabindex="0" role="region" :aria-label="regionLabel" class="overflow-x-auto p-4 pr-12 font-mono text-sm leading-relaxed focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:outline-none"><code>{{ code }}</code></pre>
+    <pre tabindex="0" role="region" :aria-label="regionLabel" class="overflow-x-auto p-4 pe-12 font-mono text-sm leading-relaxed focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:outline-none"><code>{{ code }}</code></pre>
   </div>
 </template>

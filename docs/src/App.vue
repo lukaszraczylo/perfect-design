@@ -30,7 +30,7 @@ const modeLabel = computed(() => `Colour mode: ${shownMode.value}. Click to chan
 </script>
 
 <template>
-  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">Skip to content</a>
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">Skip to content</a>
   <header class="sticky top-0 z-40 flex h-14 items-center gap-3 border-b bg-background px-4">
     <Button ref="menuButton" variant="ghost" size="icon" class="lg:hidden" aria-controls="site-nav" :aria-label="menuOpen ? 'Close navigation' : 'Open navigation'" :aria-expanded="menuOpen" @click="menuOpen = !menuOpen">
       <Icon :icon="menuOpen ? faXmark : faBars" />
@@ -39,7 +39,7 @@ const modeLabel = computed(() => `Colour mode: ${shownMode.value}. Click to chan
       <span class="grid size-7 place-items-center rounded-md bg-primary text-sm font-bold text-primary-foreground">P</span>
       Perfect Design
     </RouterLink>
-    <div class="ml-auto flex items-center gap-2">
+    <div class="ms-auto flex items-center gap-2">
       <SearchBox class="hidden sm:block" />
       <Button variant="ghost" size="icon" :aria-label="modeLabel" @click="theme.cycleMode()"><Icon :icon="modeIcon" /></Button>
     </div>

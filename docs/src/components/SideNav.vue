@@ -36,7 +36,7 @@ const active = 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
           <span>{{ g.title }} <span class="text-xs font-normal text-muted-foreground">{{ g.count }}</span></span>
           <Icon :icon="faChevronRight" size="xs" :class="openGroups.has(g.id) && 'rotate-90'" class="transition-transform" />
         </button>
-        <div v-if="openGroups.has(g.id)" class="mb-2 ml-2 border-l pl-2">
+        <div v-if="openGroups.has(g.id)" class="mb-2 ms-2 border-s ps-2">
           <RouterLink :to="`/components/${g.id}`" :class="link" exact-active-class="bg-sidebar-accent font-medium">All {{ g.title.toLowerCase() }}</RouterLink>
           <template v-for="sg in g.subgroups" :key="sg.title">
             <h3 class="mt-2 px-2 text-xs text-muted-foreground">{{ sg.title }}</h3>

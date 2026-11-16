@@ -41,7 +41,7 @@ export function buildRegistry(list: DocEntry[]): DocEntry[] {
     const i = (GROUP_ORDER as readonly string[]).indexOf(g)
     return i === -1 ? GROUP_ORDER.length : i
   }
-  return [...list].sort((a, b) => rank(a.group) - rank(b.group) || a.subgroup.localeCompare(b.subgroup) || a.name.localeCompare(b.name))
+  return list.toSorted((a, b) => rank(a.group) - rank(b.group) || a.subgroup.localeCompare(b.subgroup) || a.name.localeCompare(b.name))
 }
 
 export interface SubgroupNode { title: string; items: DocEntry[] }

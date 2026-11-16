@@ -34,16 +34,21 @@ const routes = [
 const SITE_URL = (process.env.SITE_URL ?? 'https://perfect-design.raczylo.com').replace(/\/$/, '')
 const canonical = (route) => `${SITE_URL}${route === '/' ? '/' : route}`
 
+const TITLE = /<title>[^<]*<\/title>/
+const DESCRIPTION = /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 let done = 0
 const failures = []
 for (const route of routes) {
   try {
     const { html, title, description } = await render(route)
+    // A page that ships its loading placeholder has no documentation in its static HTML.
+    if (html.includes('data-doc-loading')) throw new Error('rendered the loading placeholder instead of the docs')
+    if (!TITLE.test(shell) || !DESCRIPTION.test(shell)) throw new Error('index.html has no <title> or <meta name="description"> to replace')
     const page = shell
       .replace('<div id="app"></div>', () => `<div id="app">${html}</div>`)
-      .replace(/<title>[^<]*<\/title>/, () => `<title>${esc(title)}</title>`)
-      .replace(/<meta name="description" content="[^"]*"\s*\/?>/, () => `<meta name="description" content="${esc(description)}" />`)
+      .replace(TITLE, () => `<title>${esc(title)}</title>`)
+      .replace(DESCRIPTION, () => `<meta name="description" content="${esc(description)}" />`)
       .replace('</head>', () => `    <link rel="canonical" href="${canonical(route)}" />\n  </head>`)
     const out = route === '/' ? join(dist, 'index.html') : join(dist, route, 'index.html')
     mkdirSync(dirname(out), { recursive: true })
