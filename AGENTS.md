@@ -17,6 +17,7 @@ Library: `packages/ui` (`@perfect-design/ui`). Docs website: `docs/`. Machine-re
 @import "tailwindcss";
 @import "@perfect-design/ui/theme.css";
 @import "@perfect-design/ui/themes/emerald.css"; /* optional accent presets */
+@import "@perfect-design/ui/code-themes.css"; /* optional editor colours for code: <html data-code-theme="midnight"> */
 @source "../node_modules/@perfect-design/ui/dist"; /* REQUIRED so Tailwind sees the component classes */
 ```
 ```ts

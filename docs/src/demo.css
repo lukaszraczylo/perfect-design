@@ -6,4 +6,5 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "../../packages/ui/src/styles/theme.css";
 @import "../../packages/ui/src/styles/packs.css";
+@import "../../packages/ui/src/styles/code-themes.css";
 @source "../../packages/ui/src";

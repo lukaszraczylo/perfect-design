@@ -53,6 +53,7 @@
     "./themes/*.css": "./src/styles/themes/*.css",
     "./packs.css": "./src/styles/packs.css",
     "./packs/*.css": "./src/styles/packs/*.css",
+    "./code-themes.css": "./src/styles/code-themes.css",
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"
   },

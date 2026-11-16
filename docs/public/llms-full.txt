@@ -18881,7 +18881,8 @@ Rules:
 - Use CodeBlock for short snippets inside prose, tabs, diffs and terminal sessions; use JsonViewer to explore a JS value as a tree.
 - Pass the exact text in `source` (a prop, not slot text) so whitespace survives. For a JS value use YamlViewer or GoViewer.
 - Always set `filename` or `label` so the scroll region has a distinct accessible name when a page shows several viewers.
-- Do not hard-code colours around it: token colours come from semantic tokens. Override layout with `class` only.
+- Do not hard-code colours around it: token colours come from semantic tokens, or from a code theme. Override layout with `class` only.
+- For an editor look, import `@perfect-design/ui/code-themes.css` and set `data-code-theme` to a name from `CODE_THEMES` (pair a light and a dark theme with the colour mode yourself); never restyle tokens with your own colours.
 - Use `default-fold-depth` to open long files collapsed; use `start-line` for excerpts and `highlight-lines` with displayed numbers.
 - Unknown `language` falls back to plain text. Tokenizers are line oriented and approximate: they do not validate the syntax.
 
@@ -18937,6 +18938,28 @@ weight = 1`
 </script>
 
 <CodeViewer :source="toml" language="toml" filename="config.toml" :default-fold-depth="0" />
+```
+
+Example: Code colour themes
+```vue
+<script setup lang="ts">
+const json = `{
+  "name": "sample-service",
+  "version": "1.4.0",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run"
+  },
+  "files": ["dist", "README.md"],
+  "engines": { "node": ">=20" }
+}`
+</script>
+
+<div class="grid gap-4 lg:grid-cols-2">
+  <CodeViewer :source="json" language="json" filename="midnight.json" data-code-theme="midnight" />
+  <CodeViewer :source="json" language="json" filename="daylight.json" data-code-theme="daylight" />
+</div>
 ```
 
 Example: Shell script with highlighted lines

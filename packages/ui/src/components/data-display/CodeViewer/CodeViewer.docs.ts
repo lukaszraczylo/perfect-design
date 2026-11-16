@@ -101,6 +101,13 @@ const doc: ComponentDoc = {
       state: () => ({ toml }),
     },
     {
+      title: 'Code colour themes',
+      description: 'Import `@perfect-design/ui/code-themes.css` and set `data-code-theme` on `<html>`, a region or the viewer itself. Five dark themes (`midnight`, `dusk`, `orchid`, `ember`, `fjord`) and five light ones (`daylight`, `citrus`, `frost`, `dawn`, `mist`) adapt popular MIT-licensed VS Code palettes, adjusted where needed so every colour meets 4.5:1. The themes also apply to CodeBlock and to code blocks in Markdown.',
+      script: show('json', json),
+      code: `<div class="grid gap-4 lg:grid-cols-2">\n  <CodeViewer :source="json" language="json" filename="midnight.json" data-code-theme="midnight" />\n  <CodeViewer :source="json" language="json" filename="daylight.json" data-code-theme="daylight" />\n</div>`,
+      state: () => ({ json }),
+    },
+    {
       title: 'Shell script with highlighted lines',
       description: 'Highlighted lines carry a bar, a tint and hidden text, so the mark is not colour only.',
       script: show('shell', shell),
@@ -159,7 +166,8 @@ const doc: ComponentDoc = {
     'Use CodeBlock for short snippets inside prose, tabs, diffs and terminal sessions; use JsonViewer to explore a JS value as a tree.',
     'Pass the exact text in `source` (a prop, not slot text) so whitespace survives. For a JS value use YamlViewer or GoViewer.',
     'Always set `filename` or `label` so the scroll region has a distinct accessible name when a page shows several viewers.',
-    'Do not hard-code colours around it: token colours come from semantic tokens. Override layout with `class` only.',
+    'Do not hard-code colours around it: token colours come from semantic tokens, or from a code theme. Override layout with `class` only.',
+    'For an editor look, import `@perfect-design/ui/code-themes.css` and set `data-code-theme` to a name from `CODE_THEMES` (pair a light and a dark theme with the colour mode yourself); never restyle tokens with your own colours.',
     'Use `default-fold-depth` to open long files collapsed; use `start-line` for excerpts and `highlight-lines` with displayed numbers.',
     'Unknown `language` falls back to plain text. Tokenizers are line oriented and approximate: they do not validate the syntax.',
   ],

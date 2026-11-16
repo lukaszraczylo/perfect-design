@@ -12,6 +12,7 @@
 @import "../../packages/ui/src/styles/themes/violet.css";
 @import "../../packages/ui/src/styles/themes/cyan.css";
 @import "../../packages/ui/src/styles/packs.css";
+@import "../../packages/ui/src/styles/code-themes.css";
 
 /* Latin subsets only: the full fontsource files declare every script and cost render-blocking CSS bytes. */
 @font-face {

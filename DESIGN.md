@@ -77,6 +77,7 @@ Each row trips a pattern in `LLMSlop.md` on purpose. `packages/ui/src/__tests__/
 | T5 all caps | `typography/Text` `transform="uppercase"` | An explicit per-use option for short codes and units. Never a default; docs discourage it for headings and labels. |
 | M1 fade | `SectionReveal`; `overlays/`, `navigation/`, `feedback/` | Reveal is opt-in and off by default. Overlay, drawer, menu and toast animations mark a state change (open, close, enter, leave), which is what motion is for. |
 | H6 hard-coded colour | `forms/ColorPicker` (swatch values), `navigation/AccentPicker` (preset preview swatches), `data-display/_chart` | These components display colour as data, so the value cannot come from a semantic token. |
+| H6 hard-coded colour | `styles/code-themes.css` | Each code theme reproduces a published editor palette, so its colours are data. The file is generated, opt-in, and scoped to code surfaces. |
 | C2 gradient | `marketing/Marquee` | A `mask-image` fade on the edges hides overflowing items. It is not a visible gradient. |
 | N1, N3 editorial | `styles/packs/editorial.css` | Serif display face, square corners and hairlines are the pack's brief: reading-first content (docs, publications). Cool white background, no cream, no clay accent. Never the default. |
 | N4 faux-brutalist | `styles/packs/raw.css` | Square corners, ink borders and hard offset shadows, only for products whose brief is a blunt, poster-like tool. It is selected on purpose with `look="raw"` or `data-style="raw"`, never applied as a fallback. |
@@ -97,3 +98,24 @@ The core look (`quiet`) is a decision for most products. Some briefs need a diff
 | `terminal` | Developer tools. | Mono interface font, dense spacing, 3px radius, hairline depth. | Normal spacing on coarse pointers; same 24px floor for buttons, icon buttons and toggles. |
 
 Rules for packs: tokens and `data-slot` selectors only; no gradient, blur, glow or glass; no hard-coded hex or rgb (the single translucent white highlight in `tactile` is an `oklch()` with alpha); motion only under `prefers-reduced-motion: no-preference`; every pack works in light and dark and in every accent. `packs.test.ts` enforces these and requires every pack to be documented here. A new pack needs a row in this table, a docs example in `StyleScope`, and the CSS file.
+
+## 9. Code themes
+
+Code is the one place where developers expect editor colours, so code surfaces have their own, opt-in palette axis. Import `@perfect-design/ui/code-themes.css` after `theme.css` and set `data-code-theme` on `<html>`, on a region or on a CodeViewer or CodeBlock. The rest of the interface keeps the semantic tokens: a theme recolours the code surface, its tokens, its line numbers and the labels and focus ring inside it, nothing else.
+
+The themes adapt the most-installed colour themes on the VS Code Marketplace (queried 2026-11-16; icon packs, the deprecated Material Theme and the paid Monokai Pro excluded). All sources are MIT licensed. `node scripts/gen-code-themes.mjs` reads the published extension files, so a refresh is one command.
+
+| Name | Mode | Adapted from | Colours moved to reach 4.5:1 |
+|---|---|---|---|
+| `midnight` | dark | GitHub Dark Default | line numbers |
+| `dusk` | dark | One Dark Pro | line numbers, comments, keys, tags, anchors |
+| `orchid` | dark | Dracula | line numbers, comments |
+| `ember` | dark | Ayu Dark | line numbers, comments |
+| `fjord` | dark | Winter is Coming (Dark Blue) | none |
+| `daylight` | light | GitHub Light Default | line numbers, comments |
+| `citrus` | light | Ayu Light | nearly all: the original is pastel |
+| `frost` | light | Winter is Coming (Light) | line numbers, keywords, keys, anchors |
+| `dawn` | light | Night Owl Light | line numbers and most token colours |
+| `mist` | light | Tokyo Night Light | line numbers, comments |
+
+Rules for code themes: names are neutral (the credit lives here and in the generated CSS header, never in the attribute value); every text colour is at least 4.5:1 on its surface, enforced by `src/__tests__/code-themes.test.ts`; colours that fail move in OKLCH lightness only, so hue and chroma stay recognisable; the file loads nothing and ships no font. A dark code theme in a light page is allowed: the surface redefines its own tokens.
