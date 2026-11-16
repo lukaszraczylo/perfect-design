@@ -14,8 +14,9 @@ const doc: ComponentDoc = {
   props: [
     { name: 'modelValue', type: '{ start: Date; end: Date } | null', description: 'v-model. Wrong shapes and invalid dates count as empty. Uncontrolled when omitted.' },
     { name: 'placeholder', type: 'string', default: "'Pick a date range'", description: 'Text shown while empty.' },
-    { name: 'locale', type: 'string', description: 'BCP 47 locale for calendar names and the displayed value.' },
+    { name: 'locale', type: 'string', description: 'BCP 47 locale for calendar names and the displayed value. Default: the ConfigProvider locale, else `en`.' },
     { name: 'format', type: 'Intl.DateTimeFormatOptions', default: "{ dateStyle: 'medium' }", description: 'How each end is displayed. Invalid option combinations fall back to a default format.' },
+    { name: 'name', type: 'string', description: 'Form field name. Adds hidden inputs `name[from]` and `name[to]` that submit ISO dates (`2024-05-01`) with a native form. A required, empty picker blocks the submit.' },
     { name: 'min', type: 'Date', description: 'Earliest selectable day.' },
     { name: 'max', type: 'Date', description: 'Latest selectable day.' },
     { name: 'isDateDisabled', type: '(date: Date) => boolean', description: 'Return true to disable a day.' },

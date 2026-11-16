@@ -5,12 +5,13 @@ import { faXmark } from '../../../lib/icons'
 import { floatingSurface, focusRing } from '../../../lib/styles'
 import Icon from '../../primitives/Icon/Icon.vue'
 import Calendar from '../Calendar/Calendar.vue'
-import { formatDateIntl, toSingle, type CalendarValue } from '../Calendar/dateMath'
+import { formatDateIntl, formatISODate, toSingle, type CalendarValue } from '../Calendar/dateMath'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
 import { FIELD_STATUS_PAD, normalizeShape, normalizeStatus, normalizeVariant, type FieldShape, type FieldStatus, type FieldVariant } from '../Field/field-variants'
 import { useFieldControl } from '../Field/useFieldContext'
 import { useConfig, useConfigLabels } from '../../layout/ConfigProvider/config'
 import DatePickerIcon from './DatePickerIcon.vue'
+import PickerFormInput from './PickerFormInput.vue'
 import { usePickerDropdown } from './usePickerDropdown'
 import { usePickerTrigger, useRequirePickerName } from './usePickerTrigger'
 import { DATE_PICKER_SIZES, datePickerVariants, type DatePickerSize } from './variants'
@@ -24,6 +25,8 @@ export interface DatePickerProps {
   locale?: string
   /** Intl.DateTimeFormat options for the displayed value. Bad options fall back to the default. */
   format?: Intl.DateTimeFormatOptions
+  /** Form field name. Adds a hidden input that submits the day as an ISO date (`2024-05-01`) with a native form. A required, empty picker blocks the submit. */
+  name?: string
   min?: Date
   max?: Date
   /** Return true to disable a day. */
@@ -183,6 +186,14 @@ const CLEAR =
     >
       <Icon :icon="faXmark" size="sm" />
     </button>
+    <PickerFormInput
+      v-if="name || control.required.value"
+      :name="name"
+      :value="value ? formatISODate(value) : ''"
+      :required="control.required.value"
+      :disabled="control.disabled.value"
+      @invalid="triggerRef?.focus()"
+    />
     <div v-if="isOpen" :id="contentId" role="dialog" data-slot="date-picker-content" :aria-label="dialogText" :class="contentClasses">
       <Calendar
         ref="calendarRef"

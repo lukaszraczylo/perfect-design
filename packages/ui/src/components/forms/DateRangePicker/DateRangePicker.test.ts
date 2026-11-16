@@ -145,9 +145,11 @@ describe('DateRangePicker: selecting', () => {
     await day(w, '2024-02-25').trigger('click')
     expect(w.emitted('update:modelValue')).toBeUndefined()
     await day(w, '2024-02-11').trigger('click')
-    await day(w, '2024-02-19').trigger('click')
+    await day(w, '2024-02-19').trigger('click') // spans the disabled 15th: refused, the anchor stays
+    expect(w.emitted('update:modelValue')).toBeUndefined()
+    await day(w, '2024-02-14').trigger('click')
     await flushPromises()
-    expect(trigger(w).text()).toBe('Feb 11, 2024 – Feb 19, 2024')
+    expect(trigger(w).text()).toBe('Feb 11, 2024 – Feb 14, 2024')
   })
 
   it('Escape during selection cancels the anchor first, then closes', async () => {
@@ -282,7 +284,7 @@ describe('DateRangePicker: disabled, readonly, invalid, clearable', () => {
   })
 
   it('clearable clears to null, closes and focuses the trigger', async () => {
-    const w = mountPicker({ clearable: true, modelValue: { start: d(2024, 2, 1), end: d(2024, 2, 3) } })
+    const w = mountPicker({ clearable: true, modelValue: { start: d(2024, 2, 1), end: d(2024, 2, 3) }, 'onUpdate:modelValue': (v: unknown) => w.setProps({ modelValue: v } as never) })
     const clear = w.find('[data-slot="date-range-picker-clear"]')
     expect(clear.attributes('aria-label')).toBe('Clear date range')
     expect(trigger(w).classes()).toContain('pe-16')
@@ -434,5 +436,71 @@ describe('DateRangePicker: accessible name and responsive regressions', () => {
     await open(w)
     await day(w, '2024-02-10').trigger('click')
     expect(w.find('[data-slot="calendar-status"]').text()).toContain('Range start')
+  })
+})
+
+describe('DateRangePicker: review fixes', () => {
+  const presetBtns = (w: VueWrapper) => w.findAll('[data-slot="date-range-picker-preset"]')
+  const range = (a: [number, number, number], b: [number, number, number]) => ({ start: d(...a), end: d(...b) })
+
+  it('applies the same min/max swap as the calendar to presets', async () => {
+    const w = mountPicker({ min: d(2024, 3, 1), max: d(2024, 2, 1), presets: [{ label: 'Inside', range: range([2024, 2, 10], [2024, 2, 14]) }, { label: 'Outside', range: range([2024, 3, 5], [2024, 3, 9]) }] })
+    await open(w)
+    expect(presetBtns(w).map((b) => (b.element as HTMLButtonElement).disabled)).toEqual([false, true])
+  })
+
+  it('disables a preset that spans a disabled day', async () => {
+    const w = mountPicker({ isDateDisabled: (x: Date) => iso(x) === '2024-02-12', presets: [{ label: 'Spans', range: range([2024, 2, 10], [2024, 2, 14]) }, { label: 'Clear', range: range([2024, 2, 1], [2024, 2, 5]) }] })
+    await open(w)
+    expect(presetBtns(w).map((b) => (b.element as HTMLButtonElement).disabled)).toEqual([true, false])
+  })
+
+  it('accepts presets with the same label without duplicate-key warnings', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const w = mountPicker({ presets: [{ label: 'Week', range: range([2024, 2, 1], [2024, 2, 7]) }, { label: 'Week', range: range([2024, 2, 8], [2024, 2, 14]) }] })
+    await open(w)
+    expect(presetBtns(w)).toHaveLength(2)
+    expect(warn.mock.calls.flat().join(' ')).not.toMatch(/[Dd]uplicate key/)
+  })
+
+  it('reads the locale from a surrounding ConfigProvider, the prop still wins', async () => {
+    const { default: ConfigProvider } = await import('../../layout/ConfigProvider/ConfigProvider.vue')
+    const value = { start: d(2024, 2, 10), end: d(2024, 2, 14) }
+    const host = (props: Props) => defineComponent({ setup: () => () => h(ConfigProvider, { locale: 'de-DE' }, () => h(DateRangePicker, { weekStart: 0, modelValue: value, format: { dateStyle: 'long' }, ...props })) })
+    const a = mount(host({}), { attachTo: document.body }) as unknown as VueWrapper
+    const b = mount(host({ locale: 'en-US' }), { attachTo: document.body }) as unknown as VueWrapper
+    wrappers.push(a, b)
+    expect(trigger(a).text()).toBe('10. Februar 2024 – 14. Februar 2024')
+    expect(trigger(b).text()).toBe('February 10, 2024 – February 14, 2024')
+  })
+
+  it('controlled: shows the prop again when the parent ignores the update', async () => {
+    const value = { start: d(2024, 2, 10), end: d(2024, 2, 14) }
+    const w = mountPicker({ modelValue: value })
+    await open(w)
+    await day(w, '2024-02-20').trigger('click')
+    await day(w, '2024-02-22').trigger('click')
+    expect(w.emitted('update:modelValue')).toHaveLength(1)
+    await flushPromises()
+    expect(trigger(w).text()).toBe('Feb 10, 2024 – Feb 14, 2024')
+  })
+
+  it('submits `name[from]` and `name[to]` as ISO dates', () => {
+    const Host = defineComponent({ setup: () => () => h('form', [h(DateRangePicker, { locale: 'en-US', name: 'stay', modelValue: { start: d(2024, 2, 10), end: d(2024, 2, 14) } })]) })
+    const w = mount(Host, { attachTo: document.body }) as unknown as VueWrapper
+    wrappers.push(w)
+    const data = new FormData(w.find('form').element as HTMLFormElement)
+    expect(data.get('stay[from]')).toBe('2024-02-10')
+    expect(data.get('stay[to]')).toBe('2024-02-14')
+  })
+
+  it('blocks native submit while required and empty', () => {
+    const mountForm = (props: Props) => {
+      const w = mount(defineComponent({ setup: () => () => h('form', [h(DateRangePicker, { locale: 'en-US', name: 'stay', required: true, ...props })]) }), { attachTo: document.body }) as unknown as VueWrapper
+      wrappers.push(w)
+      return w.find('form').element as HTMLFormElement
+    }
+    expect(mountForm({}).checkValidity()).toBe(false)
+    expect(mountForm({ modelValue: { start: d(2024, 2, 10), end: d(2024, 2, 14) } }).checkValidity()).toBe(true)
   })
 })

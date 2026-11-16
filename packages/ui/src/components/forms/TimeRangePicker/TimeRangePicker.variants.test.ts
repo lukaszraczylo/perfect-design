@@ -101,7 +101,7 @@ describe('TimeRangePicker variations: variant', () => {
       expect(w.find('[data-slot="calendar"]').exists()).toBe(true)
     })
     it('a reversed range is shown as visible error text under the fields only, not twice', async () => {
-      const w = mountPicker({ variant: 'inline', modelValue: { from: VALUE.to, to: VALUE.from } })
+      const w = mountPicker({ variant: 'inline', modelValue: { from: VALUE.to, to: VALUE.from }, 'onUpdate:modelValue': (v: unknown) => w.setProps({ modelValue: v } as never) })
       expect(w.find('[data-slot="time-range-picker-draft-message"]').text()).toBe('The start must not be after the end')
       expect(w.find('[data-slot="time-range-picker-message"]').text()).toBe('')
       expect(w.classes()).toContain('border-destructive')
@@ -160,7 +160,7 @@ describe('TimeRangePicker variations: variant', () => {
       expect(w.emitted('select')![0][0]).toEqual({ preset: 'last-1-hour', value: last(w) })
     })
     it('arrow keys move through the segments like any radio group: selection follows focus', async () => {
-      const w = mountPicker({ variant: 'segmented', presets: ['last-1-hour', 'today', 'custom'], modelValue: VALUE })
+      const w = mountPicker({ variant: 'segmented', presets: ['last-1-hour', 'today', 'custom'], modelValue: VALUE, 'onUpdate:modelValue': (v: unknown) => w.setProps({ modelValue: v } as never) })
       await flushPromises()
       expect(radio(w, 'custom').attributes('aria-checked')).toBe('true')
       await radio(w, 'custom').trigger('focus')

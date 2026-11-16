@@ -9,6 +9,7 @@ let wrappers: VueWrapper[] = []
 function mountCal(props: Props = {}) {
   const w = mount(Calendar, { props: { weekStart: 0, locale: 'en-US', ...props }, attachTo: document.body })
   wrappers.push(w)
+  ;(w.vm.$ as unknown as { update(): void }).update() // render the post-mount state (today) synchronously
   return w
 }
 const dayBtn = (w: VueWrapper, iso: string) => w.find(`[data-slot="calendar-day"][data-date="${iso}"]`)

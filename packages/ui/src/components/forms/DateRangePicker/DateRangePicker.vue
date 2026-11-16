@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, shallowRef, useId, watch, type HTMLAttributes } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, shallowRef, useId, watch, type HTMLAttributes } from 'vue'
 import { cn } from '../../../lib/cn'
 import { violation } from '../../../lib/contract'
 import { faXmark } from '../../../lib/icons'
 import { floatingSurface, focusRing } from '../../../lib/styles'
 import Icon from '../../primitives/Icon/Icon.vue'
 import Calendar from '../Calendar/Calendar.vue'
-import { compareDays, formatDateIntl, isSameDay, toRange, type CalendarRange, type CalendarValue } from '../Calendar/dateMath'
+import { addDays, compareDays, formatDateIntl, formatISODate, isDateDisabled as dayDisabled, isSameDay, toRange, type CalendarRange, type CalendarValue } from '../Calendar/dateMath'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
 import { FIELD_STATUS_PAD, normalizeShape, normalizeStatus, normalizeVariant, type FieldShape, type FieldStatus, type FieldVariant } from '../Field/field-variants'
 import { useFieldControl } from '../Field/useFieldContext'
 import DatePickerIcon from '../DatePicker/DatePickerIcon.vue'
+import PickerFormInput from '../DatePicker/PickerFormInput.vue'
+import { useConfig } from '../../layout/ConfigProvider/config'
 import { usePickerDropdown } from '../DatePicker/usePickerDropdown'
 import { usePickerTrigger, useRequirePickerName } from '../DatePicker/usePickerTrigger'
 import { DATE_PICKER_SIZES, datePickerVariants, type DatePickerSize } from '../DatePicker/variants'
@@ -30,6 +32,8 @@ export interface DateRangePickerProps {
   locale?: string
   /** Intl.DateTimeFormat options applied to both ends of the displayed value. */
   format?: Intl.DateTimeFormatOptions
+  /** Form field name. Adds hidden inputs `name[from]` and `name[to]` that submit ISO dates (`2024-05-01`) with a native form. A required, empty picker blocks the submit. */
+  name?: string
   min?: Date
   max?: Date
   /** Return true to disable a day. */
@@ -103,6 +107,9 @@ const { valueId, requiredId, triggerAttrs } = usePickerTrigger({
   required: () => control.required.value,
 })
 
+const config = useConfig()
+const localeTag = computed(() => props.locale ?? config.value.locale ?? 'en')
+const instance = getCurrentInstance()
 const inner = shallowRef<unknown>(props.modelValue)
 watch(
   () => props.modelValue,
@@ -112,8 +119,8 @@ const value = computed(() => toRange(inner.value))
 const text = computed(() => {
   const r = value.value
   if (!r) return ''
-  const start = formatDateIntl(r.start, props.locale, props.format)
-  return isSameDay(r.start, r.end) ? start : `${start} – ${formatDateIntl(r.end, props.locale, props.format)}`
+  const start = formatDateIntl(r.start, localeTag.value, props.format)
+  return isSameDay(r.start, r.end) ? start : `${start} – ${formatDateIntl(r.end, localeTag.value, props.format)}`
 })
 
 const { rootRef, triggerRef, calendarRef, isOpen, setOpen, toggle, onKeydown, onFocusout } = usePickerDropdown({
@@ -126,6 +133,9 @@ useRequirePickerName('DateRangePicker', () => triggerRef.value, valueId, () => p
 function commit(next: CalendarRange | null) {
   inner.value = next
   emit('update:modelValue', next)
+  // A controlled parent that ignores the update keeps the old prop: show that, not our optimistic value.
+  const vnodeProps = instance?.vnode.props ?? {}
+  if ('modelValue' in vnodeProps || 'model-value' in vnodeProps) void nextTick(() => (inner.value = props.modelValue))
 }
 
 /** The calendar only emits once both ends are chosen, so this is the moment to close. */
@@ -137,16 +147,20 @@ function onPick(v: CalendarValue) {
 }
 
 const presetList = computed(() =>
-  (Array.isArray(props.presets) ? props.presets : []).flatMap((p) => {
+  (Array.isArray(props.presets) ? props.presets : []).flatMap((p, index) => {
     const range = toRange(p?.range)
     const label = typeof p?.label === 'string' ? p.label.trim() : ''
-    return range && label ? [{ label, range, disabled: presetOutOfBounds(range), pressed: !!value.value && isSameDay(value.value.start, range.start) && isSameDay(value.value.end, range.end) }] : []
+    return range && label ? [{ key: `${index}-${label}`, label, range, disabled: presetOutOfBounds(range), pressed: !!value.value && isSameDay(value.value.start, range.start) && isSameDay(value.value.end, range.end) }] : []
   }),
 )
+/** Longest preset checked day by day against `isDateDisabled`; longer ones are checked at their ends only. */
+const PRESET_SCAN_DAYS = 3660
+/** True when a preset leaves min/max (swapped when reversed, like the calendar) or contains a disabled day. */
 function presetOutOfBounds(r: CalendarRange): boolean {
-  const lo = props.min instanceof Date ? props.min : null
-  const hi = props.max instanceof Date ? props.max : null
-  return (!!lo && compareDays(r.start, lo) < 0) || (!!hi && compareDays(r.end, hi) > 0)
+  const opts = { min: props.min, max: props.max, isDisabled: props.isDateDisabled }
+  if (compareDays(r.end, addDays(r.start, PRESET_SCAN_DAYS)) > 0) return dayDisabled(r.start, opts) || dayDisabled(r.end, opts)
+  for (let d = r.start; compareDays(d, r.end) <= 0; d = addDays(d, 1)) if (dayDisabled(d, opts)) return true
+  return false
 }
 function pickPreset(r: CalendarRange) {
   commit(r)
@@ -229,6 +243,17 @@ const CLEAR =
     >
       <Icon :icon="faXmark" size="sm" />
     </button>
+    <template v-if="name || control.required.value">
+      <PickerFormInput
+        v-for="end in (['from', 'to'] as const)"
+        :key="end"
+        :name="name ? `${name}[${end}]` : undefined"
+        :value="value ? formatISODate(end === 'from' ? value.start : value.end) : ''"
+        :required="control.required.value"
+        :disabled="control.disabled.value"
+        @invalid="triggerRef?.focus()"
+      />
+    </template>
     <div v-if="isOpen" :id="contentId" role="dialog" data-slot="date-range-picker-content" :aria-label="dialogLabel" :class="contentClasses">
       <div :class="presetList.length ? 'flex flex-col gap-3 sm:flex-row' : undefined">
       <div
@@ -240,7 +265,7 @@ const CLEAR =
       >
         <button
           v-for="p in presetList"
-          :key="p.label"
+          :key="p.key"
           type="button"
           data-slot="date-range-picker-preset"
           :class="PRESET"
@@ -262,7 +287,7 @@ const CLEAR =
         :max="max"
         :is-date-disabled="isDateDisabled"
         :week-start="weekStart"
-        :locale="locale"
+        :locale="localeTag"
         @update:model-value="onPick"
       />
       </div>

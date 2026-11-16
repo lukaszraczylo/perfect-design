@@ -548,3 +548,40 @@ describe('DatePicker: accessible name and responsive regressions', () => {
     expect(w.find('[data-slot="calendar-status"]').text()).toBe('June 2024')
   })
 })
+
+describe('DatePicker: native form participation', () => {
+  function mountInForm(props: Props) {
+    const Host = defineComponent({ setup: () => () => h('form', [h(DatePicker, { locale: 'en-US', ...props })]) })
+    const w = mount(Host, { attachTo: document.body }) as unknown as VueWrapper
+    wrappers.push(w)
+    return w.find('form').element as HTMLFormElement
+  }
+
+  it('submits the day as an ISO date under `name`', () => {
+    const form = mountInForm({ name: 'due', modelValue: d(2024, 2, 9) })
+    expect(new FormData(form).get('due')).toBe('2024-02-09')
+  })
+
+  it('submits an empty value when nothing is picked and the field is optional', () => {
+    const form = mountInForm({ name: 'due' })
+    expect(new FormData(form).get('due')).toBe('')
+    expect(form.checkValidity()).toBe(true)
+  })
+
+  it('blocks native submit while required and empty, allows it once set', () => {
+    expect(mountInForm({ name: 'due', required: true }).checkValidity()).toBe(false)
+    expect(mountInForm({ name: 'due', required: true, modelValue: d(2024, 2, 9) }).checkValidity()).toBe(true)
+  })
+
+  it('renders no input without name or required, and a disabled picker does not submit', () => {
+    expect(mountPicker().find('input').exists()).toBe(false)
+    const form = mountInForm({ name: 'due', modelValue: d(2024, 2, 9), disabled: true })
+    expect(new FormData(form).has('due')).toBe(false)
+  })
+
+  it('focuses the trigger when the hidden input is reported invalid', () => {
+    const w = mountPicker({ name: 'due', required: true })
+    w.find('input[name="due"]').element.dispatchEvent(new Event('invalid'))
+    expect(document.activeElement).toBe(trigger(w).element)
+  })
+})

@@ -638,7 +638,7 @@ describe('TimeRangePicker: states', () => {
     expect(trigger(w).attributes('aria-describedby')).toContain(id)
   })
   it('clearable: the clear button resets the value, closes and focuses the trigger', async () => {
-    const w = mountPicker({ clearable: true, modelValue: VALUE })
+    const w = mountPicker({ clearable: true, modelValue: VALUE, 'onUpdate:modelValue': (v: unknown) => w.setProps({ modelValue: v } as never) })
     const clear = w.find('[data-slot="time-range-picker-clear"]')
     expect(clear.attributes('aria-label')).toBe('Clear time range')
     await clear.trigger('click')
@@ -810,5 +810,116 @@ describe('TimeRangePicker: lifecycle', () => {
     await flushPromises()
     expect(model.value).toEqual({ from: utc(2024, 5, 14, 12, 30, 45, 123), to: NOW })
     expect(w.find('[data-slot="time-range-picker-trigger"]').text()).toContain('May 14, 2024')
+  })
+})
+
+describe('TimeRangePicker: review fixes', () => {
+  const setTime = (w: VueWrapper, end: 'from' | 'to', value: string) => timeField(w, end).vm.$emit('update:modelValue', value)
+  async function customOpen(props: Props = {}) {
+    const w = mountPicker(props)
+    await open(w)
+    await preset(w, 'custom').trigger('click')
+    await flushPromises()
+    return w
+  }
+
+  it('Apply keeps the untouched end exactly (seconds and milliseconds)', async () => {
+    const from = utc(2024, 5, 1, 10, 0, 30, 250)
+    const to = utc(2024, 5, 1, 11, 30, 15, 500)
+    const w = await customOpen({ modelValue: { from, to } })
+    setTime(w, 'from', '09:00')
+    await nextTick()
+    await apply(w).trigger('click')
+    expect(last(w)).toEqual({ from: utc(2024, 5, 1, 9), to })
+  })
+
+  it('Apply keeps the second occurrence of a repeated fall-back hour when that end is untouched', async () => {
+    const to = utc(2024, 11, 3, 6, 30) // 01:30 EST, the second 01:30 of the day in New York
+    const w = await customOpen({ timeZone: 'America/New_York', modelValue: { from: utc(2024, 11, 3, 4), to } })
+    setTime(w, 'from', '00:30')
+    await nextTick()
+    await apply(w).trigger('click')
+    expect(last(w)).toEqual({ from: utc(2024, 11, 3, 4, 30), to })
+  })
+
+  it('a preset that would exceed max is refused at choose time after the clock moved on', async () => {
+    vi.setSystemTime(new Date(Date.UTC(2024, 4, 15, 12, 30)))
+    const w = mountPicker({ now: undefined, max: utc(2024, 5, 15, 12, 40) })
+    await open(w)
+    expect(preset(w, 'last-15-minutes').attributes('disabled')).toBeUndefined()
+    vi.setSystemTime(new Date(Date.UTC(2024, 4, 15, 12, 50)))
+    await preset(w, 'last-15-minutes').trigger('click')
+    expect(w.emitted('update:modelValue')).toBeUndefined()
+    await flushPromises()
+    expect(preset(w, 'last-15-minutes').attributes('disabled')).toBeDefined()
+  })
+
+  it('an inline object literal from the parent does not reset an in-progress draft', async () => {
+    const tick = ref(0)
+    const Parent = defineComponent({
+      setup: () => () => (tick.value, h(TimeRangePicker, { locale: 'en-US', now: NOW, 'aria-label': 'Range', modelValue: { from: VALUE.from, to: VALUE.to } })),
+    })
+    const w = mount(Parent, { attachTo: document.body }) as unknown as VueWrapper
+    wrappers.push(w)
+    await open(w)
+    await dateField(w, 'from').setValue('2024-04-20')
+    tick.value++
+    await flushPromises()
+    expect((dateField(w, 'from').element as HTMLInputElement).value).toBe('2024-04-20')
+  })
+
+  it('a changed value from the parent still replaces the draft', async () => {
+    const w = await customOpen({ modelValue: VALUE })
+    await w.setProps({ modelValue: { from: utc(2024, 6, 1, 8), to: utc(2024, 6, 1, 9) } })
+    expect((dateField(w, 'from').element as HTMLInputElement).value).toBe('2024-06-01')
+  })
+
+  it('controlled: shows the prop again when the parent ignores the update', async () => {
+    const w = mountPicker({ modelValue: VALUE })
+    const before = trigger(w).text()
+    await open(w)
+    await preset(w, 'last-1-hour').trigger('click')
+    expect(w.emitted('update:modelValue')).toHaveLength(1)
+    await flushPromises()
+    expect(trigger(w).text()).toBe(before)
+  })
+
+  it('locale and time zone come from a ConfigProvider; the props win', async () => {
+    const { default: ConfigProvider } = await import('../../layout/ConfigProvider/ConfigProvider.vue')
+    const host = (props: Props) =>
+      defineComponent({ setup: () => () => h(ConfigProvider, { locale: 'de-DE', timeZone: 'Asia/Tokyo' }, () => h(TimeRangePicker, { modelValue: VALUE, 'aria-label': 'Range', ...props })) })
+    const a = mount(host({}), { attachTo: document.body }) as unknown as VueWrapper
+    const b = mount(host({ locale: 'en-US', timeZone: 'UTC' }), { attachTo: document.body }) as unknown as VueWrapper
+    wrappers.push(a, b)
+    expect(trigger(a).text()).toContain('Mai')
+    expect(trigger(a).text()).toContain('19:00')
+    expect(trigger(b).text()).toContain('May')
+    expect(trigger(b).text()).toContain('10:00 AM')
+  })
+
+  it('without a locale prop or provider it formats as English, not the runtime default', () => {
+    const w = mount(TimeRangePicker, { props: { modelValue: VALUE }, attrs: { 'aria-label': 'Range' }, attachTo: document.body })
+    wrappers.push(w)
+    expect(trigger(w).text()).toContain('May 1, 2024')
+  })
+
+  describe('native form participation', () => {
+    const mountForm = (props: Props) => {
+      const w = mount(defineComponent({ setup: () => () => h('form', [h(TimeRangePicker, { locale: 'en-US', now: NOW, 'aria-label': 'Range', ...props })]) }), { attachTo: document.body }) as unknown as VueWrapper
+      wrappers.push(w)
+      return w.find('form').element as HTMLFormElement
+    }
+    it('submits `name[from]` and `name[to]` as ISO instants', () => {
+      const data = new FormData(mountForm({ name: 'window', modelValue: VALUE }))
+      expect(data.get('window[from]')).toBe(VALUE.from)
+      expect(data.get('window[to]')).toBe(VALUE.to)
+    })
+    it('blocks native submit while required and empty', () => {
+      expect(mountForm({ name: 'window', required: true }).checkValidity()).toBe(false)
+      expect(mountForm({ name: 'window', required: true, modelValue: VALUE }).checkValidity()).toBe(true)
+    })
+    it('submits nothing while disabled', () => {
+      expect(new FormData(mountForm({ name: 'window', modelValue: VALUE, disabled: true })).has('window[from]')).toBe(false)
+    })
   })
 })

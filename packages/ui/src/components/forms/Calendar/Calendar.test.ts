@@ -14,6 +14,7 @@ let wrappers: VueWrapper[] = []
 function mountCal(props: Props = {}, attrs: Props = {}) {
   const w = mount(Calendar, { props: { weekStart: 0, locale: 'en-US', ...props }, attrs, attachTo: document.body })
   wrappers.push(w)
+  ;(w.vm.$ as unknown as { update(): void }).update() // render the post-mount state (today) synchronously
   return w
 }
 const day = (w: VueWrapper, date: string) => w.find(`[data-slot="calendar-day"][data-date="${date}"]`)
@@ -726,6 +727,7 @@ describe('Calendar: v-model in a parent, lifecycle', () => {
     })
     const w = mount(Parent, { attachTo: document.body }) as unknown as VueWrapper
     wrappers.push(w)
+    await flushPromises()
     await day(w, '2024-02-03').trigger('click')
     await day(w, '2024-02-07').trigger('click')
     expect(w.findAll('[data-in-range]')).toHaveLength(3)
@@ -871,5 +873,92 @@ describe('Calendar: accessibility regressions', () => {
     const cls = calendarVariants({ size: 'lg' })
     expect(cls).toContain('[--calendar-cell:calc(var(--spacing)*9)]')
     expect(cls).toContain('sm:[--calendar-cell:calc(var(--spacing)*11)]')
+  })
+})
+
+describe('Calendar: review fixes', () => {
+  const click = async (w: VueWrapper, date: string) => {
+    await day(w, date).trigger('click')
+  }
+
+  it('refuses to complete a range across a disabled day and announces why', async () => {
+    const w = mountCal({ mode: 'range', month: d(2024, 6, 1), isDateDisabled: (x: Date) => iso(x) === '2024-06-15' })
+    await click(w, '2024-06-10')
+    await click(w, '2024-06-20')
+    expect(w.emitted('update:modelValue')).toBeUndefined()
+    expect(w.find('[data-slot="calendar-status"]').text()).toContain('unavailable')
+    await click(w, '2024-06-14') // anchor is kept: a valid end still completes
+    expect(iso((lastEmit(w) as { end: Date }).end)).toBe('2024-06-14')
+  })
+
+  it('announces the custom rangeBlockedMessage when the range is refused', async () => {
+    const w = mountCal({ mode: 'range', month: d(2024, 6, 1), isDateDisabled: (x: Date) => iso(x) === '2024-06-15', rangeBlockedMessage: 'Nope' })
+    await click(w, '2024-06-10')
+    await click(w, '2024-06-16')
+    expect(w.find('[data-slot="calendar-status"]').text()).toBe('Nope')
+  })
+
+  it('renders deterministically for the server: no today marker and no clock-based month before mount', async () => {
+    const { renderToString } = await import('vue/server-renderer')
+    const html = await renderToString(h(Calendar, { locale: 'en-US' }))
+    expect(html).not.toContain('data-today')
+    expect(html).not.toContain('aria-current')
+    expect(html).not.toContain('February 2024')
+  })
+
+  it('marks today and shows the current month after mount', async () => {
+    const w = mountCal()
+    await flushPromises()
+    expect(day(w, '2024-02-15').attributes('data-today')).toBe('true')
+    expect(heading(w)).toEqual(['February 2024'])
+  })
+
+  it('moves the today marker at midnight and stops its timer on unmount', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+    vi.setSystemTime(new Date(2024, 1, 15, 23, 59, 0))
+    const w = mountCal()
+    await flushPromises()
+    expect(day(w, '2024-02-15').attributes('data-today')).toBe('true')
+    vi.advanceTimersByTime(61_000)
+    await flushPromises()
+    expect(day(w, '2024-02-15').attributes('data-today')).toBeUndefined()
+    expect(day(w, '2024-02-16').attributes('data-today')).toBe('true')
+    w.unmount()
+    wrappers = []
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('range mode: days between the endpoints are aria-selected', () => {
+    const w = mountCal({ mode: 'range', modelValue: { start: d(2024, 2, 10), end: d(2024, 2, 13) } })
+    const sel = (date: string) => day(w, date).element.closest('td')!.getAttribute('aria-selected')
+    expect(['2024-02-10', '2024-02-11', '2024-02-12', '2024-02-13'].map(sel)).toEqual(['true', 'true', 'true', 'true'])
+    expect(sel('2024-02-14')).toBe('false')
+    expect(sel('2024-02-09')).toBe('false')
+  })
+
+  it('arrow keys follow the computed direction, not only a dir attribute', async () => {
+    const w = mountCal({ modelValue: d(2024, 2, 15) })
+    await flushPromises()
+    const grid = w.find('[role="grid"]')
+    ;(grid.element as HTMLElement).style.direction = 'rtl'
+    await day(w, '2024-02-15').trigger('keydown', { key: 'ArrowLeft' })
+    await flushPromises()
+    expect(focusedIso()).toBe('2024-02-16')
+  })
+
+  it('controlled: reverts the shown selection when the parent ignores the update', async () => {
+    const w = mountCal({ modelValue: d(2024, 2, 10) })
+    await click(w, '2024-02-12')
+    expect(w.emitted('update:modelValue')).toHaveLength(1)
+    await flushPromises()
+    expect(day(w, '2024-02-12').element.closest('td')!.getAttribute('aria-selected')).toBe('false')
+    expect(day(w, '2024-02-10').element.closest('td')!.getAttribute('aria-selected')).toBe('true')
+  })
+
+  it('uncontrolled: keeps its own selection', async () => {
+    const w = mountCal()
+    await click(w, '2024-02-12')
+    await flushPromises()
+    expect(day(w, '2024-02-12').element.closest('td')!.getAttribute('aria-selected')).toBe('true')
   })
 })

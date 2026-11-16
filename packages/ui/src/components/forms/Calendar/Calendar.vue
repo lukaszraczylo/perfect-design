@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, shallowRef, toRaw, useId, watch, type HTMLAttributes } from 'vue'
+import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, toRaw, useId, watch, type HTMLAttributes } from 'vue'
 import { cn } from '../../../lib/cn'
 import { accessibleName, violation } from '../../../lib/contract'
 import { faChevronLeft, faChevronRight } from '../../../lib/icons'
 import { focusRing } from '../../../lib/styles'
 import Icon from '../../primitives/Icon/Icon.vue'
+import { useConfig, useConfigLabels } from '../../layout/ConfigProvider/config'
 import {
   addDays,
   addMonths,
@@ -91,6 +92,8 @@ export interface CalendarProps {
   nextLabel?: string
   /** Announced (polite live region) after the first click of a range. `{date}` is replaced with the full date. */
   rangeStartMessage?: string
+  /** Announced (polite live region) when the second click is refused because a day in between is disabled or out of bounds. Default: the provider's `calendar.rangeBlocked` label, else English. */
+  rangeBlockedMessage?: string
   class?: HTMLAttributes['class']
 }
 
@@ -119,6 +122,10 @@ const emit = defineEmits<{
 
 const uid = useId()
 const root = ref<HTMLElement | null>(null)
+const config = useConfig()
+const labels = useConfigLabels('calendar', { rangeBlocked: 'The range cannot include unavailable dates. Choose another end date.' })
+const localeTag = computed(() => props.locale ?? config.value.locale ?? 'en')
+const instance = getCurrentInstance()
 /** Text of the persistent polite live region: new month(s) after navigation, range anchor prompt. */
 const announcement = ref('')
 
@@ -134,10 +141,30 @@ onMounted(async () => {
 
 const mode = computed<CalendarMode>(() => (props.mode === 'range' || props.mode === 'multiple' ? props.mode : 'single'))
 const count = computed(() => (props.numberOfMonths === 2 || props.numberOfMonths === 3 ? props.numberOfMonths : 1))
-const weekStart = computed(() => normalizeWeekStart(props.weekStart, localeWeekStart(props.locale)))
-const fmt = computed(() => createCalendarFormatters(props.locale))
+const weekStart = computed(() => normalizeWeekStart(props.weekStart, localeWeekStart(localeTag.value)))
+const fmt = computed(() => createCalendarFormatters(localeTag.value))
 const bounds = computed(() => resolveBounds(props.min, props.max))
-const today = startOfDay(new Date())
+// `today` is unknown until mounted so server and client render the same markup.
+const today = ref<Date | null>(null)
+const FALLBACK_DAY = createDate(1970, 0, 1)
+let quietMonth: number | null = null
+let midnightTimer: ReturnType<typeof setTimeout> | undefined
+function refreshToday() {
+  const now = new Date()
+  today.value = startOfDay(now)
+  const next = createDate(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  midnightTimer = setTimeout(refreshToday, Math.max(1000, next.getTime() - now.getTime()))
+}
+onMounted(() => {
+  refreshToday()
+  if (firstSelected() || isValidDate(props.month)) return
+  focused.value = clampDate(today.value!, props.min, props.max)
+  const first = startOfMonth(focused.value)
+  if (monthIndex(first) === monthIndex(visible.value)) return
+  quietMonth = monthIndex(first) // the initial month is not a navigation, so it is not announced
+  visible.value = first
+})
+onBeforeUnmount(() => clearTimeout(midnightTimer))
 
 // --- selection (controlled by modelValue, uncontrolled when it is never provided) ---
 const inner = shallowRef<CalendarValue | undefined>(props.modelValue)
@@ -169,7 +196,7 @@ function firstSelected(): Date | null {
 }
 
 // --- visible month + roving focus ---
-const focused = ref<Date>(clampDate(firstSelected() ?? today, props.min, props.max))
+const focused = ref<Date>(clampDate(firstSelected() ?? FALLBACK_DAY, props.min, props.max))
 const visible = ref<Date>(startOfMonth(isValidDate(props.month) ? props.month : focused.value))
 
 function windowContains(d: Date): boolean {
@@ -257,11 +284,17 @@ function shiftMonth(delta: number) {
   showDate(focused.value)
 }
 
+function isRtl(el: HTMLElement | null): boolean {
+  if (!el) return false
+  const computed = getComputedStyle(el).direction
+  return computed ? computed === 'rtl' : el.closest('[dir]')?.getAttribute('dir')?.toLowerCase() === 'rtl'
+}
+
 function onKeydown(e: KeyboardEvent) {
   if (props.disabled) return
   const f = focused.value
   // In a right-to-left page the day to the left is the later one.
-  const step = (e.currentTarget as HTMLElement | null)?.closest('[dir]')?.getAttribute('dir')?.toLowerCase() === 'rtl' ? -1 : 1
+  const step = isRtl(e.currentTarget as HTMLElement | null) ? -1 : 1
   let next: Date
   switch (e.key) {
     case 'ArrowLeft':
@@ -328,7 +361,7 @@ function makeCell(d: Date) {
     rangeStart: isStart && !isEnd,
     rangeEnd: isEnd && !isStart,
     inRange: !!r && n > r.s && n < r.e,
-    today: isSameDay(d, today),
+    today: !!today.value && isSameDay(d, today.value),
     disabled: dayDisabled(d),
   }
 }
@@ -356,6 +389,9 @@ const weekdays = computed(() => fmt.value.weekdays(weekStart.value))
 // The month elements are re-keyed on navigation, so a live region on the heading would be re-created and stay silent.
 // One persistent region announces the new month(s) instead.
 watch(visible, () => {
+  const quiet = quietMonth
+  quietMonth = null
+  if (quiet === monthIndex(visible.value)) return
   announcement.value = months.value.map((m) => m.label).join(', ')
 })
 
@@ -373,16 +409,30 @@ function onDayClick(d: Date) {
     announcement.value = props.rangeStartMessage.replace('{date}', fmt.value.fullDate(d))
   } else {
     const range = normalizeRange(anchor.value, d) as CalendarRange
+    if (rangeBlocked(range)) {
+      announcement.value = props.rangeBlockedMessage ?? labels.value.rangeBlocked
+      return
+    }
     anchor.value = null
     hovered.value = null
     commit(range)
   }
 }
 
+/** True when a day of the range is disabled or outside min/max. */
+function rangeBlocked(r: CalendarRange): boolean {
+  const opts = { min: bounds.value.min, max: bounds.value.max, isDisabled: props.isDateDisabled }
+  for (let d = r.start; compareDays(d, r.end) <= 0; d = addDays(d, 1)) if (isDateDisabled(d, opts)) return true
+  return false
+}
+
 function commit(value: CalendarValue) {
   lastEmitted = value
   inner.value = value
   emit('update:modelValue', value)
+  // A controlled parent that ignores the update keeps the old prop: show that, not our optimistic value.
+  const vnodeProps = instance?.vnode.props ?? {}
+  if ('modelValue' in vnodeProps || 'model-value' in vnodeProps) void nextTick(() => (inner.value = props.modelValue))
 }
 
 function onHover(d: Date) {
@@ -505,7 +555,7 @@ const DAY =
                 {{ fmt.dayNumber(week.number) }}
               </th>
               <template v-for="(day, di) in week.cells" :key="di">
-                <td v-if="day" role="gridcell" data-slot="calendar-cell" class="p-0 text-center" :aria-selected="day.selected ? 'true' : 'false'">
+                <td v-if="day" role="gridcell" data-slot="calendar-cell" class="p-0 text-center" :aria-selected="day.selected || day.inRange ? 'true' : 'false'">
                   <button
                     type="button"
                     data-slot="calendar-day"

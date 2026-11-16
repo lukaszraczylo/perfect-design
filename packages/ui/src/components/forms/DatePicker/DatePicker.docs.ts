@@ -16,6 +16,7 @@ const doc: ComponentDoc = {
     { name: 'placeholder', type: 'string', default: "'Pick a date'", description: 'Text shown while empty.' },
     { name: 'locale', type: 'string', description: 'BCP 47 locale for calendar names and the displayed value. Unknown tags fall back to the runtime default.' },
     { name: 'format', type: 'Intl.DateTimeFormatOptions', default: "{ dateStyle: 'medium' }", description: 'How the value is displayed. Invalid option combinations fall back to a default format.' },
+    { name: 'name', type: 'string', description: 'Form field name. Adds a hidden input that submits the day as an ISO date (`2024-05-01`) with a native form. A required, empty picker blocks the submit.' },
     { name: 'min', type: 'Date', description: 'Earliest selectable day.' },
     { name: 'max', type: 'Date', description: 'Latest selectable day.' },
     { name: 'isDateDisabled', type: '(date: Date) => boolean', description: 'Return true to disable a day.' },

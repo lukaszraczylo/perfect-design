@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref, shallowRef, useAttrs, useId, watch, type HTMLAttributes } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, reactive, ref, shallowRef, useAttrs, useId, watch, type HTMLAttributes } from 'vue'
 import { cn } from '../../../lib/cn'
 import { requireText, useRequireAccessibleName, violation } from '../../../lib/contract'
 import { faCircleExclamation, faXmark } from '../../../lib/icons'
@@ -9,6 +9,8 @@ import Icon from '../../primitives/Icon/Icon.vue'
 import Calendar from '../Calendar/Calendar.vue'
 import { compareDays, createDate, formatISODate, toRange, type CalendarRange, type CalendarValue } from '../Calendar/dateMath'
 import DateInput from '../DateInput/DateInput.vue'
+import PickerFormInput from '../DatePicker/PickerFormInput.vue'
+import { useConfig } from '../../layout/ConfigProvider/config'
 import { usePickerDropdown } from '../DatePicker/usePickerDropdown'
 import { usePickerTrigger, useRequirePickerName } from '../DatePicker/usePickerTrigger'
 import { DATE_PICKER_SIZES, type DatePickerSize } from '../DatePicker/variants'
@@ -72,7 +74,7 @@ export interface TimeRangePickerProps {
   modelValue?: TimeRangeValue | null
   /** The current time used to resolve relative presets and to bound them by `min`/`max`: a `Date`, a millisecond number or an ISO string. Defaults to the clock at the moment of selection. */
   now?: Date | string | number
-  /** IANA zone the times are shown and typed in (`Europe/Warsaw`). The value itself is always UTC. Unknown names fall back to `UTC`. */
+  /** IANA zone the times are shown and typed in (`Europe/Warsaw`). The value itself is always UTC. Default: the provider's `timeZone`, else `UTC`. Unknown names fall back to `UTC`. */
   timeZone?: string
   /** Earliest allowed instant (inclusive). Swapped with `max` when reversed. */
   min?: Date | string | number
@@ -82,8 +84,10 @@ export interface TimeRangePickerProps {
   presets?: TimeRangePresetId[]
   /** Visible text per preset id, to translate or reword. */
   presetLabels?: Partial<Record<TimeRangePresetId, string>>
-  /** BCP 47 locale for the displayed value and the calendar. */
+  /** BCP 47 locale for the displayed value and the calendar. Default: the provider's `locale`, else `en`. */
   locale?: string
+  /** Form field name. Adds hidden inputs `name[from]` and `name[to]` that submit UTC ISO instants with a native form. A required, empty picker blocks the submit. */
+  name?: string
   /** Intl.DateTimeFormat options of the displayed value (the zone is always `timeZone`). */
   format?: Intl.DateTimeFormatOptions
   /** Layout: `popover` (trigger and dropdown), `inline` (bordered panel), `segmented` (row of presets, custom range below). Unknown values fall back to `popover`. */
@@ -142,7 +146,9 @@ defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TimeRangePickerProps>(), {
   modelValue: undefined,
   now: undefined,
-  timeZone: 'UTC',
+  timeZone: undefined,
+  locale: undefined,
+  name: undefined,
   min: undefined,
   max: undefined,
   presets: undefined,
@@ -182,7 +188,15 @@ const emit = defineEmits<{
 const attrs = useAttrs()
 const variant = computed(() => normalizeTimeRangeVariant(props.variant))
 const isPopover = computed(() => variant.value === 'popover')
-const zone = computed(() => normalizeTimeZone(props.timeZone))
+const config = useConfig()
+const zoneInput = computed(() => props.timeZone ?? config.value.timeZone ?? 'UTC')
+const zone = computed(() => normalizeTimeZone(zoneInput.value))
+const localeTag = computed(() => props.locale ?? config.value.locale ?? 'en')
+const instance = getCurrentInstance()
+const isControlled = () => {
+  const vnodeProps = instance?.vnode.props ?? {}
+  return 'modelValue' in vnodeProps || 'model-value' in vnodeProps
+}
 const fieldSize = computed(() => normalizeFieldSize(props.size))
 const shape = computed(() => normalizeShape(props.shape))
 
@@ -199,9 +213,9 @@ const bounds = computed(() => {
   const hi = toInstant(props.max)
   return lo !== null && hi !== null && lo > hi ? { min: hi, max: lo } : { min: lo, max: hi }
 })
-const fmtStart = computed(() => zoneFormat(props.locale, zone.value, props.format))
+const fmtStart = computed(() => zoneFormat(localeTag.value, zone.value, props.format))
 const END_FORMAT: Intl.DateTimeFormatOptions = { ...DEFAULT_FORMAT, timeZoneName: 'short' }
-const fmtEnd = computed(() => zoneFormat(props.locale, zone.value, props.format ?? END_FORMAT, END_FORMAT))
+const fmtEnd = computed(() => zoneFormat(localeTag.value, zone.value, props.format ?? END_FORMAT, END_FORMAT))
 const text = computed(() => (range.value ? `${fmtStart.value.format(range.value.from)} – ${fmtEnd.value.format(range.value.to)}` : ''))
 
 function messageFor(reason: TimeRangeReason | null): string {
@@ -229,11 +243,12 @@ const customEnabled = computed(() => ids.value.includes('custom'))
 // A range that is already set when the picker mounts shows its custom fields: it may not be a preset.
 const activeId = ref<TimeRangePresetId | null>(range.value && customEnabled.value ? 'custom' : null)
 const nowMs = () => toInstant(props.now) ?? Date.now()
+const outOfBounds = (r: { from: number; to: number }) => (bounds.value.min !== null && r.from < bounds.value.min) || (bounds.value.max !== null && r.to > bounds.value.max)
 const presetItems = computed(() => {
   const now = toInstant(props.now) ?? clock.value
   return ids.value.map((id) => {
     const r = id === 'custom' || now === null ? null : resolvePreset(id, now, zone.value)
-    const out = !!r && ((bounds.value.min !== null && r.from < bounds.value.min) || (bounds.value.max !== null && r.to > bounds.value.max))
+    const out = !!r && outOfBounds(r)
     const own = props.presetLabels?.[id]
     return { id, label: typeof own === 'string' && own.trim() ? own.trim() : TIME_RANGE_PRESET_LABELS[id], disabled: out, pressed: activeId.value === id }
   })
@@ -245,17 +260,23 @@ const attempted = ref(false)
 const calMonth = ref<Date>(createDate(1970, 0, 1))
 const paneVisible = computed(() => customEnabled.value && activeId.value === 'custom' && (!isPopover.value || isOpen.value))
 
+// Instants the draft started from: an end whose date and time were not edited keeps its instant exactly (seconds, milliseconds,
+// and the second occurrence of a repeated fall-back hour are not representable in the HH:mm fields).
+const origin = { from: null as number | null, to: null as number | null, fromKey: '', toKey: '' }
+const draftKey = (date: string, time: string) => `${date}T${time}`
+
 function syncDraft() {
   const r = range.value
   const a = r ? instantToDraft(r.from, zone.value) : { date: '', time: '' }
   const b = r ? instantToDraft(r.to, zone.value) : { date: '', time: '' }
   Object.assign(draft, { fromDate: a.date, fromTime: a.time, toDate: b.date, toTime: b.time })
+  Object.assign(origin, { from: r ? r.from : null, to: r ? r.to : null, fromKey: draftKey(a.date, a.time), toKey: draftKey(b.date, b.time) })
   attempted.value = false
   const p = wallParts(r ? r.from : nowMs(), zone.value)
   calMonth.value = createDate(p.year, p.month - 1, 1)
 }
-const draftFrom = computed(() => draftToInstant(draft.fromDate, draft.fromTime, zone.value))
-const draftTo = computed(() => draftToInstant(draft.toDate, draft.toTime, zone.value))
+const draftFrom = computed(() => (origin.from !== null && draftKey(draft.fromDate, draft.fromTime) === origin.fromKey ? origin.from : draftToInstant(draft.fromDate, draft.fromTime, zone.value)))
+const draftTo = computed(() => (origin.to !== null && draftKey(draft.toDate, draft.toTime) === origin.toKey ? origin.to : draftToInstant(draft.toDate, draft.toTime, zone.value)))
 const draftReason = computed(() => {
   const r = validateRange(draftFrom.value, draftTo.value, bounds.value.min, bounds.value.max)
   return r === 'incomplete' && !attempted.value ? null : r
@@ -303,6 +324,18 @@ function commit(from: number, to: number, preset: TimeRangePresetId) {
   syncDraft()
   emit('update:modelValue', value)
   emit('select', { preset, value })
+  revertIfIgnored()
+}
+
+// A controlled parent that ignores the update keeps the old prop: show that, not our optimistic value.
+function revertIfIgnored() {
+  if (!isControlled()) return
+  void nextTick(() => {
+    if (keyOf(props.modelValue) === keyOf(inner.value)) return
+    inner.value = props.modelValue
+    committed = keyOf(props.modelValue)
+    activeId.value = parseRange(props.modelValue) && customEnabled.value ? 'custom' : null
+  })
 }
 
 function choose(id: TimeRangePresetId) {
@@ -313,9 +346,10 @@ function choose(id: TimeRangePresetId) {
     void nextTick(() => panelRef.value?.querySelector<HTMLElement>('[data-slot=date-input-field]')?.focus())
     return
   }
-  const r = resolvePreset(id, nowMs(), zone.value)
-  const item = presetItems.value.find((p) => p.id === id)
-  if (!r || item?.disabled) return
+  const now = nowMs()
+  clock.value = now
+  const r = resolvePreset(id, now, zone.value)
+  if (!r || outOfBounds(r)) return
   commit(r.from, r.to, id)
   setOpen(false, true)
 }
@@ -345,6 +379,7 @@ function clear() {
   activeId.value = null
   syncDraft()
   emit('update:modelValue', null)
+  revertIfIgnored()
   setOpen(false)
   void nextTick(() => triggerRef.value?.focus())
 }
@@ -353,6 +388,8 @@ const showClear = computed(() => isPopover.value && !!props.clearable && !!range
 watch(
   () => props.modelValue,
   (v) => {
+    // A parent that passes a fresh but equal object on every render must not reset the draft.
+    if (keyOf(v) === keyOf(inner.value) && !!v === !!inner.value) return
     inner.value = v
     if (keyOf(v) !== committed) {
       activeId.value = parseRange(v) && customEnabled.value ? 'custom' : null
@@ -360,7 +397,7 @@ watch(
     }
   },
 )
-watch([range, zone], syncDraft)
+watch([() => keyOf(inner.value), zone], syncDraft)
 syncDraft()
 
 // --- dropdown, names and contract ------------------------------------------------------------------------------------------------
@@ -408,8 +445,8 @@ onMounted(async () => {
   requireText('TimeRangePicker', 'fromLabel', props.fromLabel, hint)
   requireText('TimeRangePicker', 'toLabel', props.toLabel, hint)
   requireText('TimeRangePicker', 'applyLabel', props.applyLabel, hint)
-  if (!isValidTimeZone(props.timeZone)) {
-    violation('TimeRangePicker', 'requires-valid-time-zone', `requires \`timeZone\` to be an IANA zone name such as "UTC" or "Europe/Warsaw", but got ${JSON.stringify(String(props.timeZone).slice(0, 40))}. It shows UTC until fixed.`)
+  if (!isValidTimeZone(zoneInput.value)) {
+    violation('TimeRangePicker', 'requires-valid-time-zone', `requires \`timeZone\` to be an IANA zone name such as "UTC" or "Europe/Warsaw", but got ${JSON.stringify(String(zoneInput.value).slice(0, 40))}. It shows UTC until fixed.`)
   }
   if (Array.isArray(props.presets) && props.presets.some((id) => !known.has(id))) {
     violation('TimeRangePicker', 'requires-preset', `requires every entry of \`presets\` to be one of ${TIME_RANGE_PRESET_IDS.join(', ')}.`)
@@ -491,6 +528,17 @@ const dropdownRole = computed(() => (isPopover.value ? 'dialog' : undefined))
       </button>
     </template>
     <p v-else data-slot="time-range-picker-summary" class="min-w-0 text-sm tabular-nums wrap-anywhere" :data-placeholder="text ? undefined : ''">{{ text || placeholder }}</p>
+    <template v-if="name || control.required.value">
+      <PickerFormInput
+        v-for="end in (['from', 'to'] as const)"
+        :key="end"
+        :name="name ? `${name}[${end}]` : undefined"
+        :value="range ? toIso(range[end]) : ''"
+        :required="control.required.value"
+        :disabled="control.disabled.value"
+        @invalid="triggerRef?.focus()"
+      />
+    </template>
     <span v-if="control.required.value" :id="requiredId" data-slot="time-range-picker-required" class="sr-only">{{ requiredLabel }}</span>
 
     <div
@@ -546,7 +594,7 @@ const dropdownRole = computed(() => (isPopover.value ? 'dialog' : undefined))
             :month="calMonth"
             :min="calBounds.min"
             :max="calBounds.max"
-            :locale="locale"
+            :locale="localeTag"
             :disabled="control.disabled.value"
             :readonly="readonly"
             @update:model-value="onCalendarPick"
