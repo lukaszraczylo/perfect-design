@@ -1,4 +1,4 @@
-import { onScopeDispose, readonly, ref, type Ref } from 'vue'
+import { getCurrentInstance, onMounted, onScopeDispose, readonly, ref, type Ref } from 'vue'
 
 /** Debounce a function; the returned function has `.cancel()`. Timer is cleared when the scope is disposed. */
 export function useDebounceFn<A extends unknown[]>(fn: (...args: A) => void, ms: number | (() => number) = 200) {
@@ -15,8 +15,8 @@ export function useDebounceFn<A extends unknown[]>(fn: (...args: A) => void, ms:
 }
 
 export interface UseClipboardOptions {
-  /** How long `copied` stays true (ms). */
-  copiedDuring?: number
+  /** How long `copied` stays true (ms). A function is read at each copy. */
+  copiedDuring?: number | (() => number)
   /** Fall back to document.execCommand('copy') when the async Clipboard API is unavailable or rejects. */
   legacy?: boolean
 }
@@ -52,21 +52,29 @@ export function useClipboard(options: UseClipboardOptions = {}) {
     }
     clearTimeout(timer)
     copied.value = ok
-    if (ok) timer = setTimeout(() => (copied.value = false), copiedDuring)
+    if (ok) timer = setTimeout(() => (copied.value = false), typeof copiedDuring === 'function' ? copiedDuring() : copiedDuring)
     return ok
   }
   onScopeDispose(() => clearTimeout(timer), true)
   return { copy, copied: readonly(copied) as Readonly<Ref<boolean>> }
 }
 
-/** Reactive navigator.onLine. */
+/**
+ * Reactive navigator.onLine. Inside a component it starts `true` and reads the real value after mount, so the first
+ * client render equals the server render. Outside a component (an effect scope) it reads at once.
+ */
 export function useOnline(): Readonly<Ref<boolean>> {
-  const online = ref(typeof navigator === 'undefined' ? true : navigator.onLine)
+  const online = ref(true)
   if (typeof window !== 'undefined') {
     const on = () => (online.value = true)
     const off = () => (online.value = false)
-    window.addEventListener('online', on)
-    window.addEventListener('offline', off)
+    const attach = () => {
+      online.value = typeof navigator === 'undefined' ? true : navigator.onLine
+      window.addEventListener('online', on)
+      window.addEventListener('offline', off)
+    }
+    if (getCurrentInstance()) onMounted(attach)
+    else attach()
     onScopeDispose(() => {
       window.removeEventListener('online', on)
       window.removeEventListener('offline', off)

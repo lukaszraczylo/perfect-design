@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { effectScope, nextTick } from 'vue'
+import { defineComponent, effectScope, h, nextTick } from 'vue'
+import { mount } from '@vue/test-utils'
 import { useClipboard, useDebounceFn, useOnline, useWindowScroll } from './use-helpers'
 
 afterEach(() => {
@@ -89,6 +90,34 @@ describe('useOnline', () => {
     scope.stop()
     window.dispatchEvent(new Event('offline'))
     expect(online.value).toBe(true)
+  })
+})
+
+describe('useOnline in a component', () => {
+  const setNav = (value: boolean) => Object.defineProperty(window.navigator, 'onLine', { value, configurable: true })
+  afterEach(() => setNav(true))
+
+  it('renders true first, then reads navigator.onLine after mount', async () => {
+    setNav(false)
+    const seen: boolean[] = []
+    const C = defineComponent({
+      setup() {
+        const online = useOnline()
+        return () => (seen.push(online.value), h('i'))
+      },
+    })
+    const w = mount(C)
+    expect(seen[0]).toBe(true)
+    await nextTick()
+    expect(seen[seen.length - 1]).toBe(false)
+    window.dispatchEvent(new Event('online'))
+    await nextTick()
+    expect(seen[seen.length - 1]).toBe(true)
+    w.unmount()
+    const n = seen.length
+    window.dispatchEvent(new Event('offline'))
+    await nextTick()
+    expect(seen.length).toBe(n)
   })
 })
 
