@@ -11,7 +11,7 @@ import { pathToFileURL } from 'node:url'
 const dist = process.argv[2] ?? 'dist'
 const ssrDir = process.argv[3] ?? 'dist-ssr'
 const nav = JSON.parse(readFileSync('src/generated/nav.json', 'utf8'))
-const { render } = await import(pathToFileURL(resolve(ssrDir, 'entry-server.js')).href)
+const { render, topicRoutes } = await import(pathToFileURL(resolve(ssrDir, 'entry-server.js')).href)
 
 let shell = readFileSync(join(dist, 'index.html'), 'utf8')
 // Preload the body font so it is ready before first paint: a late swap re-wraps long text and causes layout shift.
@@ -25,8 +25,7 @@ writeFileSync(join(dist, '404.html'), shell) // the empty shell doubles as the 4
 
 const routes = [
   '/', '/components',
-  ...['getting-started', 'customisation', 'migration', 'testing', 'llm'].map((t) => `/guides/${t}`),
-  ...['colors', 'typography', 'spacing', 'elevation', 'motion', 'iconography', 'themes', 'styles', 'accessibility'].map((t) => `/foundations/${t}`),
+  ...topicRoutes,
   ...[...new Set(nav.map((c) => c.group))].map((g) => `/components/${g}`),
   ...nav.map((c) => `/components/${c.group}/${c.slug}`),
 ]
