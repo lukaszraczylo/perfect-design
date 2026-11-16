@@ -1,0 +1,47 @@
+name: CI
+
+# Runs the checks that pages.yml and release.yml skip, on every pull request and on main, so a broken library build,
+# a coverage drop or stale generated files are caught before a tag.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # en_GB catches tests and components that assume the host formats dates the US way.
+        locale: [en_US.UTF-8, en_GB.UTF-8]
+    env:
+      LANG: ${{ matrix.locale }}
+      LC_ALL: ${{ matrix.locale }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: sudo locale-gen en_GB.UTF-8 en_US.UTF-8
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test:coverage
+      - run: pnpm --filter @perfect-design/ui build
+      - name: Generated files are up to date
+        run: |
+          pnpm generate:llms
+          git diff --exit-code -- llms.txt llms-full.txt components.manifest.json docs/public docs/src/generated
+      - run: pnpm --filter docs test
+      - run: pnpm --filter docs build

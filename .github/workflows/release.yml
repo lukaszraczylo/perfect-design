@@ -9,9 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  # Trusted publishing: npmjs.com accepts this workflow's OIDC identity as the publish credential.
-  id-token: write
+  contents: read
 
 jobs:
   verify:
@@ -32,6 +30,10 @@ jobs:
     needs: verify
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # Trusted publishing: npmjs.com accepts this workflow's OIDC identity as the publish credential.
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -90,7 +92,7 @@ jobs:
         continue-on-error: true
         run: |
           # OIDC publishing needs npm 11.5 or newer; the Node 22 toolchain ships npm 10.
-          npm install -g npm@latest
+          npm install -g npm@11.21.2
           VERSION=$(node -p "require('./package.json').version")
           # The Sigstore transparency log occasionally resets the connection, which fails the
           # publish after the tarball upload; retry, and treat an already-present version as done.
