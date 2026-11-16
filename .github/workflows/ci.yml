@@ -20,11 +20,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # en_GB catches tests and components that assume the host formats dates the US way.
-        locale: [en_US.UTF-8, en_GB.UTF-8]
+        # The second leg catches code and tests that assume US date order, a dot decimal separator or a UTC host.
+        include:
+          - locale: en_US.UTF-8
+            tz: UTC
+          - locale: de_DE.UTF-8
+            tz: Asia/Tokyo
     env:
       LANG: ${{ matrix.locale }}
       LC_ALL: ${{ matrix.locale }}
+      TZ: ${{ matrix.tz }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -34,7 +39,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: sudo locale-gen en_GB.UTF-8 en_US.UTF-8
+      - run: sudo locale-gen de_DE.UTF-8 en_US.UTF-8
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test:coverage
