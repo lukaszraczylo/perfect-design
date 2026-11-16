@@ -4,6 +4,7 @@ import { defineComponent, h, nextTick, ref } from 'vue'
 import Combobox from './Combobox.vue'
 import { Combobox as Exported } from './index'
 import Field from '../Field/Field.vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 
 let wrapper: VueWrapper | undefined
 afterEach(() => {
@@ -465,5 +466,17 @@ describe('Combobox', () => {
       expect(input().getAttribute('aria-controls')).toBe(listbox.id)
       expect(input().getAttribute('autocomplete')).toBe('off')
     })
+  })
+})
+
+describe('Combobox labels', () => {
+  it('built-in strings come from the ConfigProvider', async () => {
+    const labels = { 'combobox.clearSelection': 'Auswahl löschen', 'combobox.toggleOptions': 'Optionen umschalten', 'combobox.empty': 'Keine Treffer' }
+    wrapper = mount(
+      defineComponent({ render: () => h(ConfigProvider, { labels }, () => h(Combobox, { options: OPTIONS, defaultValue: 'a', clearable: true, 'aria-label': 'x' })) }),
+      { attachTo: document.body },
+    )
+    expect(document.querySelector('[data-slot="combobox-clear"]')?.getAttribute('aria-label')).toBe('Auswahl löschen')
+    expect(document.querySelector('[data-slot="combobox-trigger"]')?.getAttribute('aria-label')).toBe('Optionen umschalten')
   })
 })

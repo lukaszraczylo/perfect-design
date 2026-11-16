@@ -4,6 +4,8 @@ import { h } from 'vue'
 import Button from '../../primitives/Button/Button.vue'
 import Field from '../Field/Field.vue'
 import Input from '../Input/Input.vue'
+import Textarea from '../Textarea/Textarea.vue'
+import NativeSelect from '../NativeSelect/NativeSelect.vue'
 import InputGroup from './InputGroup.vue'
 import InputGroupAddon from './InputGroupAddon.vue'
 import { inputGroupAddonVariants, inputGroupVariants } from './variants'
@@ -208,5 +210,39 @@ describe('InputGroupAddon', () => {
     const b = w.find('[data-slot="input-group-addon"] button')
     expect(b.text()).toBe('Apply')
     expect(b.attributes('type')).toBe('button')
+  })
+})
+
+describe('InputGroup: status reaches the inner control', () => {
+  const inner = (tag: 'input' | 'textarea' | 'select') => (document.body.querySelector(`[data-slot=input-group] ${tag}`) as HTMLElement)
+  const slotOf = (control: ReturnType<typeof h>) => () => [h(InputGroupAddon, null, () => '@'), control]
+
+  it.each([
+    ['input', () => h(Input, { 'aria-label': 'x' })],
+    ['textarea', () => h(Textarea, { 'aria-label': 'x' })],
+    ['select', () => h(NativeSelect, { 'aria-label': 'x', options: [{ value: 'a', label: 'A' }] })],
+  ] as const)('status="error" sets aria-invalid on the inner %s', (tag, make) => {
+    group({ status: 'error' }, slotOf(make()))
+    expect(inner(tag).getAttribute('aria-invalid')).toBe('true')
+  })
+
+  it('success text id is in the inner control aria-describedby', () => {
+    const w = group({ status: 'success' }, slotOf(h(Input, { 'aria-label': 'x' })))
+    const id = w.find('[data-slot=field-status] .sr-only').attributes('id')!
+    expect(inner('input').getAttribute('aria-describedby')).toContain(id)
+  })
+
+  it('a consumer class overrides the inner focus classes', () => {
+    const w = group({ class: '[&_input:focus-visible]:border-foreground!' })
+    const cls = w.attributes('class')!
+    expect(cls).toContain('[&_input:focus-visible]:border-foreground!')
+    expect(cls).not.toContain('[&_input:focus-visible]:border-ring!')
+  })
+
+  it('InputGroupAddon supports asChild', () => {
+    const w = mount(InputGroupAddon, { props: { asChild: true }, slots: { default: () => h('label', { id: 'l' }, 'Site') }, attachTo: document.body })
+    wrappers.push(w)
+    expect(w.element.tagName).toBe('LABEL')
+    expect(w.attributes('data-slot')).toBe('input-group-addon')
   })
 })

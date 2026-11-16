@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 import PasswordInput from './PasswordInput.vue'
 import Field from '../Field/Field.vue'
 
@@ -58,6 +59,13 @@ describe('PasswordInput', () => {
       const w = mount(PasswordInput)
       expect(input(w).attributes('id')).toBeTruthy()
       expect(toggle(w).attributes('aria-controls')).toBe(input(w).attributes('id'))
+    })
+
+    it('built-in strings come from the ConfigProvider', () => {
+      const labels = { 'passwordInput.show': 'Passwort anzeigen', 'passwordInput.revealWarning': 'Zeigt das Passwort im Klartext.' }
+      const w = mount(defineComponent({ render: () => h(ConfigProvider, { labels }, () => h(PasswordInput)) }))
+      expect(toggle(w).attributes('aria-label')).toBe('Passwort anzeigen')
+      expect(w.find('[data-slot=password-input-warning]').text()).toBe('Zeigt das Passwort im Klartext.')
     })
 
     it('label is overridable and does not change with the state', async () => {
@@ -191,5 +199,26 @@ describe('PasswordInput', () => {
       await input(w).setValue('')
       expect(w.emitted('update:modelValue')?.[0]).toEqual([''])
     })
+  })
+})
+
+describe('PasswordInput controlled rejection', () => {
+  it('shows the prop value again when the parent does not accept the emitted value', async () => {
+    const w = mount(PasswordInput, { props: { modelValue: 'abc', 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('input')
+    await el.setValue('abcd')
+    await nextTick()
+    await nextTick()
+    expect((el.element as HTMLInputElement).value).toBe('abc')
+    w.unmount()
+  })
+  it('stays uncontrolled when modelValue is omitted', async () => {
+    const w = mount(PasswordInput, { props: { 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('input')
+    await el.setValue('free')
+    await nextTick()
+    await nextTick()
+    expect((el.element as HTMLInputElement).value).toBe('free')
+    w.unmount()
   })
 })

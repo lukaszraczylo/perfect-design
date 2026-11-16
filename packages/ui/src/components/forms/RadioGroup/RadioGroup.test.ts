@@ -144,6 +144,13 @@ describe('RadioGroup', () => {
   })
 
   describe('bad path', () => {
+    it('disabled group dims every item label', () => {
+      const w = make({ disabled: true })
+      const labels = w.findAll('[data-slot="radio-group-item-label"]')
+      expect(labels).toHaveLength(3)
+      expect(labels.every((l) => l.classes().some((c) => c.includes('opacity')))).toBe(true)
+    })
+
     it('disabled group blocks selection', async () => {
       const w = make({ disabled: true })
       expect(radios(w).every((r) => r.attributes('disabled') !== undefined)).toBe(true)

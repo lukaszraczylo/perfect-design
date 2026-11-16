@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted, ref, type Ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 import { useFieldContext } from './useFieldContext'
 
 const EVENTS = ['blur', 'change', 'input', 'invalid'] as const
@@ -27,9 +27,22 @@ export function useNativeValidation(el: Ref<HTMLElement | null | undefined>) {
     field.setNativeError(bad ? node.validationMessage : '')
   }
 
-  onMounted(() => EVENTS.forEach((name) => el.value?.addEventListener(name, sync)))
+  // Re-bind when the framework replaces the element (a root swap remounts the control).
+  let bound: HTMLElement | null = null
+  const unbind = () => {
+    if (bound) EVENTS.forEach((name) => bound!.removeEventListener(name, sync))
+    bound = null
+  }
+  const bind = (node: HTMLElement | null | undefined) => {
+    if (node === bound) return
+    unbind()
+    if (node) EVENTS.forEach((name) => node.addEventListener(name, sync))
+    bound = node ?? null
+  }
+  onMounted(() => bind(el.value))
+  watch(el, bind, { flush: 'post' })
   onBeforeUnmount(() => {
-    EVENTS.forEach((name) => el.value?.removeEventListener(name, sync))
+    unbind()
     field?.setNativeError?.('')
   })
   return { failing }

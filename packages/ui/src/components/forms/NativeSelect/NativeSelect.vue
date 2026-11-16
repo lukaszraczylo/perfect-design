@@ -5,6 +5,8 @@ import { cn } from '../../../lib/cn'
 import { useRequireAccessibleName } from '../../../lib/contract'
 import Icon from '../../primitives/Icon/Icon.vue'
 import { useFieldControl } from '../Field/useFieldContext'
+import { useInputGroupStatus } from '../InputGroup/context'
+import { useRejectableModel } from '../Field/useControlledValue'
 import { useNativeValidation } from '../Field/useNativeValidation'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
 import { normalizeFieldSize, normalizeShape, normalizeStatus, normalizeVariant, type FieldShape, type FieldSize, type FieldStatus, type FieldVariant } from '../Field/field-variants'
@@ -50,6 +52,8 @@ const statusId = `native-select-${useId()}-status`
 const control = useFieldControl({ invalid: () => props.invalid || status.value === 'error', disabled: () => props.disabled, required: () => props.required })
 
 const selectEl = ref<HTMLSelectElement | null>(null)
+const group = useInputGroupStatus()
+const ariaInvalid = computed(() => (group.invalid.value ? ('true' as const) : control.ariaInvalid.value))
 useNativeValidation(selectEl)
 useRequireAccessibleName('NativeSelect', () => selectEl.value, 'Wrap it in `Field` with a `label`, wrap it in a `<label>`, or set `aria-label` / `aria-labelledby`. A placeholder option is not a name.')
 
@@ -60,6 +64,7 @@ watch(
     model.value = v ?? ''
   },
 )
+const settle = useRejectableModel(() => props.modelValue, model, '')
 
 const showingPlaceholder = computed(() => !!props.placeholder && model.value === '')
 const wrapperClasses = computed(() => cn('relative w-full', props.class))
@@ -79,7 +84,7 @@ const statusClass = computed(() => (variant.value === 'underline' ? 'end-6' : sh
 /** The caller's attributes win, except that the status id is appended to `aria-describedby`. */
 function selectAttrs() {
   const base = (attrs['aria-describedby'] as string | undefined) ?? control.describedBy.value
-  const describedBy = [base, status.value === 'success' || status.value === 'warning' ? statusId : ''].filter(Boolean).join(' ') || undefined
+  const describedBy = [base, status.value === 'success' || status.value === 'warning' ? statusId : '', group.describedBy.value].filter(Boolean).join(' ') || undefined
   return { ...attrs, 'aria-describedby': describedBy }
 }
 
@@ -87,6 +92,7 @@ function onChange(e: Event) {
   const v = (e.target as HTMLSelectElement).value
   model.value = v
   emit('update:modelValue', v)
+  settle()
 }
 </script>
 
@@ -99,7 +105,7 @@ function onChange(e: Event) {
       :value="model"
       :disabled="control.disabled.value"
       :required="control.required.value || undefined"
-      :aria-invalid="control.ariaInvalid.value"
+      :aria-invalid="ariaInvalid"
       :data-placeholder="showingPlaceholder ? '' : undefined"
       v-bind="selectAttrs()"
       :class="classes"

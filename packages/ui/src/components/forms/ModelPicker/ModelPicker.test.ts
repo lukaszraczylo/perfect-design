@@ -5,6 +5,7 @@ import ModelPicker from './ModelPicker.vue'
 import { ModelPicker as Exported } from './index'
 import { resolveGroups, searchText, usableOptions } from './options'
 import Field from '../Field/Field.vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 
 let wrapper: VueWrapper | undefined
 afterEach(() => {
@@ -347,5 +348,17 @@ describe('ModelPicker option helpers', () => {
     expect(usableOptions('x')).toEqual([])
     expect(searchText({ id: 'a', label: 'A', description: 'B' })).toBe('A B')
     expect(searchText({ id: 'a', label: 'A' })).toBe('A')
+  })
+})
+
+describe('ModelPicker labels', () => {
+  it('built-in strings come from the ConfigProvider', async () => {
+    const labels = { 'modelPicker.clearSelection': 'Auswahl löschen', 'modelPicker.toggleOptions': 'Optionen umschalten', 'modelPicker.empty': 'Keine Treffer' }
+    wrapper = mount(
+      defineComponent({ render: () => h(ConfigProvider, { labels }, () => h(ModelPicker, { options: OPTIONS, defaultValue: 'draft', clearable: true, 'aria-label': 'x' })) }),
+      { attachTo: document.body },
+    )
+    expect(document.querySelector('[data-slot="model-picker-clear"]')?.getAttribute('aria-label')).toBe('Auswahl löschen')
+    expect(document.querySelector('[data-slot="model-picker-trigger"]')?.getAttribute('aria-label')).toBe('Optionen umschalten')
   })
 })

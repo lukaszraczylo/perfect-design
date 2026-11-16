@@ -53,7 +53,8 @@ const classes = computed(() => cn(radioGroupItemVariants({ tone: tone.value, siz
 const dotClasses = computed(() => radioGroupDotVariants({ tone: tone.value, size: size.value }))
 const wrapperClasses = computed(() => cn('inline-flex max-w-full items-start gap-2', labelPosition.value === 'start' && 'flex-row-reverse'))
 const labelClasses = computed(() => cn('font-normal leading-snug', size.value === 'lg' && 'text-base'))
-const hintClasses = computed(() => cn('leading-snug text-muted-foreground', size.value === 'sm' ? 'text-xs' : 'text-sm', props.disabled && 'opacity-50'))
+const itemDisabled = computed(() => !!props.disabled || !!group?.disabled.value)
+const hintClasses = computed(() => cn('leading-snug text-muted-foreground', size.value === 'sm' ? 'text-xs' : 'text-sm', itemDisabled.value && 'opacity-50'))
 </script>
 
 <template>
@@ -64,14 +65,14 @@ const hintClasses = computed(() => cn('leading-snug text-muted-foreground', size
       </RadioGroupIndicator>
     </RadioGroupItem>
     <div v-if="hasDescription" data-slot="radio-group-item-text" class="grid min-w-0 gap-0.5">
-      <Label data-slot="radio-group-item-label" :for="itemId" :disabled="disabled" :class="labelClasses">
+      <Label data-slot="radio-group-item-label" :for="itemId" :disabled="itemDisabled" :class="labelClasses">
         <slot>{{ label }}</slot>
       </Label>
       <p :id="descriptionId" data-slot="radio-group-item-description" :class="hintClasses">
         <slot name="description">{{ description }}</slot>
       </p>
     </div>
-    <Label v-else data-slot="radio-group-item-label" :for="itemId" :disabled="disabled" :class="labelClasses">
+    <Label v-else data-slot="radio-group-item-label" :for="itemId" :disabled="itemDisabled" :class="labelClasses">
       <slot>{{ label }}</slot>
     </Label>
   </div>

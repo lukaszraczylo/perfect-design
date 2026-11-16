@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { SelectRoot } from 'reka-ui'
+import { computed } from 'vue'
 import { RequiredPartsProbe, useRequiredParts } from '../../../lib/contract'
+import { useFieldControl } from '../Field/useFieldContext'
 
 export interface SelectProps {
   /** Selected value. Omit for uncontrolled use. Item values must be non-empty strings. */
@@ -17,13 +19,16 @@ export interface SelectProps {
   name?: string
 }
 
-withDefaults(defineProps<SelectProps>(), {
+const props = withDefaults(defineProps<SelectProps>(), {
   modelValue: undefined,
   defaultValue: undefined,
   open: undefined,
   defaultOpen: undefined,
 })
 const emit = defineEmits<{ 'update:modelValue': [value: string]; 'update:open': [value: boolean] }>()
+
+const control = useFieldControl({ required: () => props.required })
+const required = computed(() => control.required.value)
 
 useRequiredParts('Select', [
   { part: 'SelectTrigger', hint: 'Compose Select > SelectTrigger (with SelectValue) + SelectContent (with SelectItem).' },

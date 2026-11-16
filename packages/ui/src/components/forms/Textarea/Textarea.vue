@@ -2,7 +2,11 @@
 import { computed, nextTick, onMounted, ref, useAttrs, useId, watch, type HTMLAttributes } from 'vue'
 import { cn } from '../../../lib/cn'
 import { useRequireAccessibleName } from '../../../lib/contract'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
+import { formatLabel } from '../Field/format-label'
 import { useFieldControl } from '../Field/useFieldContext'
+import { useInputGroupStatus } from '../InputGroup/context'
+import { useRejectableModel } from '../Field/useControlledValue'
 import { useNativeValidation } from '../Field/useNativeValidation'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
 import { FIELD_STATUS_PAD, normalizeFieldSize, normalizeShape, normalizeStatus, normalizeVariant, type FieldShape, type FieldSize, type FieldStatus, type FieldVariant } from '../Field/field-variants'
@@ -41,7 +45,7 @@ export interface TextareaProps {
 }
 
 defineOptions({ inheritAttrs: false })
-const props = withDefaults(defineProps<TextareaProps>(), { rows: 3, limitLabel: 'Character limit reached', variant: 'outline', size: 'md', shape: 'rounded', status: 'default' })
+const props = withDefaults(defineProps<TextareaProps>(), { rows: 3, variant: 'outline', size: 'md', shape: 'rounded', status: 'default' })
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
 const status = computed(() => normalizeStatus(props.status))
@@ -54,10 +58,13 @@ watch(
     model.value = v ?? ''
   },
 )
+const settle = useRejectableModel(() => props.modelValue, model, '')
 
 const attrs = useAttrs()
 const uid = useId()
 const countId = `textarea-${uid}-count`
+const group = useInputGroupStatus()
+const ariaInvalid = computed(() => (group.invalid.value ? ('true' as const) : control.ariaInvalid.value))
 const el = ref<HTMLTextAreaElement | null>(null)
 useNativeValidation(el)
 useRequireAccessibleName('Textarea', () => el.value, 'Wrap it in `Field` with a `label`, wrap it in a `<label>`, or set `aria-label` / `aria-labelledby`.')
@@ -82,9 +89,13 @@ function onInput(e: Event) {
   const v = (e.target as HTMLTextAreaElement).value
   model.value = v
   emit('update:modelValue', v)
+  settle()
 }
 
-const count = computed(() => Array.from(model.value).length)
+const labels = useConfigLabels('textarea', { count: '{count} / {max}', limit: 'Character limit reached' })
+const limitText = computed(() => props.limitLabel ?? labels.value.limit)
+// maxlength counts UTF-16 code units, so the counter must too.
+const count = computed(() => model.value.length)
 const counting = computed(() => props.showCount && !!props.maxlength)
 const atLimit = computed(() => counting.value && count.value >= props.maxlength!)
 const statusId = `textarea-${uid}-status`
@@ -99,7 +110,7 @@ const classes = computed(() =>
 /** Field hint/error, the counter (read once on focus, never live) and any `aria-describedby` passed by the consumer. */
 function describedBy(): string | undefined {
   const statusText = status.value === 'success' || status.value === 'warning' ? statusId : undefined
-  const ids = [control.describedBy.value, counting.value ? countId : undefined, statusText, attrs['aria-describedby'] as string | undefined].filter(Boolean)
+  const ids = [control.describedBy.value, counting.value ? countId : undefined, statusText, attrs['aria-describedby'] as string | undefined, group.describedBy.value].filter(Boolean)
   return ids.length ? ids.join(' ') : undefined
 }
 
@@ -119,7 +130,7 @@ defineExpose({ el, resize })
       :disabled="control.disabled.value"
       :readonly="readonly"
       :required="control.required.value || undefined"
-      :aria-invalid="control.ariaInvalid.value"
+      :aria-invalid="ariaInvalid"
       :aria-describedby="describedBy()"
       :class="classes"
       @input="onInput"
@@ -131,8 +142,8 @@ defineExpose({ el, resize })
       data-slot="textarea-count"
       :class="cn('mt-1 block text-end text-xs text-muted-foreground tabular-nums', atLimit && 'font-medium text-destructive')"
     >
-      {{ count }} / {{ maxlength }}
+      {{ formatLabel(labels.count, { count, max: maxlength! }) }}
     </span>
-    <span v-if="counting" data-slot="textarea-limit-status" role="status" class="sr-only">{{ atLimit ? limitLabel : '' }}</span>
+    <span v-if="counting" data-slot="textarea-limit-status" role="status" class="sr-only">{{ atLimit ? limitText : '' }}</span>
   </div>
 </template>

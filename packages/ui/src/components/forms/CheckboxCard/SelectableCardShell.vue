@@ -26,6 +26,8 @@ export interface SelectableCardShellProps {
   disabled?: boolean
   invalid?: boolean
   required?: boolean
+  /** Ids of a surrounding Field's hint and error; added to the card's own description id. */
+  describedBy?: string
   class?: HTMLAttributes['class']
 }
 
@@ -83,7 +85,7 @@ defineExpose({ input })
       :required="required || undefined"
       :aria-invalid="invalid ? 'true' : undefined"
       :aria-labelledby="hasTitle ? titleId : undefined"
-      :aria-describedby="hasDescription ? descId : undefined"
+      :aria-describedby="describedBy ? [hasDescription ? descId : '', describedBy].filter(Boolean).join(' ') : hasDescription ? descId : undefined"
       v-bind="$attrs"
       @change="onChange"
     />

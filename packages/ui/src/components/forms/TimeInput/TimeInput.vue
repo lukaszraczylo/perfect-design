@@ -157,7 +157,7 @@ function stepMinute(dir: 1 | -1) {
     return
   }
   const m = minute.value
-  const next = dir > 0 ? opts.find((o) => o > m) : [...opts].reverse().find((o) => o < m)
+  const next = dir > 0 ? opts.find((o) => o > m) : opts.findLast((o) => o < m)
   minute.value = next ?? (dir > 0 ? opts[0] : opts[opts.length - 1])
 }
 

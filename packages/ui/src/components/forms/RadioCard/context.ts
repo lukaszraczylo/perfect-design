@@ -4,7 +4,10 @@ import type { CardLayout, CardSize, CardTone, CardVariant } from '../CheckboxCar
 
 export interface RadioCardGroupContext {
   value: ComputedRef<string | undefined>
-  name: string
+  /** Name shared by the radios (native grouping); generated when the group has none. */
+  name: ComputedRef<string>
+  /** False when the name is generated: the radios are then kept out of the form submission. */
+  submits: ComputedRef<boolean>
   disabled: ComputedRef<boolean>
   invalid: ComputedRef<boolean>
   required: ComputedRef<boolean>

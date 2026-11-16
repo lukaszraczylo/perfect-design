@@ -4,6 +4,7 @@ import { defineComponent, h, nextTick, ref } from 'vue'
 import MultiSelect from './MultiSelect.vue'
 import { MultiSelect as Exported, multiSelectTriggerVariants } from './index'
 import Field from '../Field/Field.vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 
 const mounted: VueWrapper[] = []
 const mount = ((c: unknown, o: Record<string, unknown> = {}) => {
@@ -731,6 +732,34 @@ describe('MultiSelect', () => {
       expect(active(w)).toBe('Banana')
       await w.find('[role="listbox"]').trigger('keydown', { key: 'a', metaKey: true })
       expect(lastEmit(w)).toEqual(['apple', 'banana', 'cherry', 'elder'])
+    })
+  })
+
+  describe('required and labels', () => {
+    it('required with nothing selected renders a native required input that blocks submit', async () => {
+      const w = mount(MultiSelect, { props: { options: OPTIONS, required: true, name: 'f', 'aria-label': 'Fruit' } })
+      const req = w.find('input[required]')
+      expect(req.exists()).toBe(true)
+      expect((req.element as HTMLInputElement).validity.valueMissing).toBe(true)
+      await trigger(w).trigger('click')
+      await opts(w)[0].trigger('click')
+      expect(w.find('input[required]').exists()).toBe(false)
+    })
+
+    it('required from a Field also applies', () => {
+      const w = mount(defineComponent({ render: () => h(Field, { label: 'Fruit', required: true }, () => h(MultiSelect, { options: OPTIONS })) }))
+      expect(w.find('input[required]').exists()).toBe(true)
+    })
+
+    it('built-in strings come from the ConfigProvider', async () => {
+      const labels = { 'multiSelect.more': '+{count} weitere', 'multiSelect.clearSelection': 'Auswahl löschen', 'multiSelect.selectAll': 'Alle', 'multiSelect.clear': 'Leeren', 'multiSelect.options': 'Optionen' }
+      const w = mount(defineComponent({ render: () => h(ConfigProvider, { labels }, () => h(MultiSelect, { options: OPTIONS, defaultValue: ['apple', 'banana', 'cherry', 'elder'], maxVisible: 2, clearable: true, 'aria-label': 'F' })) }))
+      expect(w.find('[data-slot="multi-select-overflow"]').text()).toBe('+2 weitere')
+      expect(w.find('[data-slot="multi-select-clear"]').attributes('aria-label')).toBe('Auswahl löschen')
+      await trigger(w).trigger('click')
+      await nextTick()
+      expect(w.find('[data-slot="multi-select-select-all"]').text()).toBe('Alle')
+      expect(w.find('[role="listbox"]').attributes('aria-label')).toBe('Optionen')
     })
   })
 })

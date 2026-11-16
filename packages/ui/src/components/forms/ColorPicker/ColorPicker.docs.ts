@@ -20,7 +20,7 @@ const doc: ComponentDoc = {
     { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Swatch and input size (24 / 32 / 40 px swatches). Unknown values fall back to `md`.' },
     { name: 'shape', type: "'rounded' | 'square' | 'circle'", default: "'rounded'", description: 'Outline of every swatch and of the preview chip. The checked ring and the forced-colors outline follow the shape. Unknown values fall back to `rounded`.' },
     { name: 'layout', type: "'stacked' | 'inline' | 'compact'", default: "'stacked'", description: '`stacked` puts the hex field under the swatches. `inline` puts both on one wrapping row (up to `max-w-lg`). `compact` is the same row with a tighter swatch gap, a fixed narrow field and `max-w-md`. The DOM and tab order never change. Unknown values fall back to `stacked`.' },
-    { name: 'name', type: 'string', description: 'Form field name of the hex input.' },
+    { name: 'name', type: 'string', description: 'Form field name. The committed value is submitted through a hidden input, never the half-typed text.' },
     { name: 'placeholder', type: 'string', default: "'#000000'", description: 'Hex input placeholder.' },
     { name: 'swatchesLabel', type: 'string', default: "'Colour swatches'", description: 'Accessible name of the swatch radiogroup.' },
     { name: 'inputLabel', type: 'string', default: "'Hex colour'", description: 'Accessible name of the hex input. Dropped when a surrounding Field label names the input, so the visible label stays the name.' },

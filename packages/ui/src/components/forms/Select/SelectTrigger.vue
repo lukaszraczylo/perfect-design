@@ -68,7 +68,7 @@ const classes = computed(() =>
     :class="classes"
   >
     <slot />
-    <FieldStatusIcon :status="status" :id="statusId" class="relative end-auto top-auto ms-auto shrink-0 translate-y-0" />
+    <FieldStatusIcon :status="status" :id="statusId" aria-hidden="true" class="relative end-auto top-auto ms-auto shrink-0 translate-y-0" />
     <SelectIcon as-child>
       <Icon :icon="faChevronDown" size="sm" class="text-muted-foreground opacity-70" />
     </SelectIcon>

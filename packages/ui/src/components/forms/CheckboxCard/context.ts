@@ -6,6 +6,8 @@ export interface CheckboxCardGroupContext {
   values: ComputedRef<string[]>
   disabled: ComputedRef<boolean>
   invalid: ComputedRef<boolean>
+  /** The group is required (from a surrounding `Field`): at least one card must be checked. */
+  required: ComputedRef<boolean>
   variant: ComputedRef<CardVariant | undefined>
   size: ComputedRef<CardSize | undefined>
   tone: ComputedRef<CardTone | undefined>

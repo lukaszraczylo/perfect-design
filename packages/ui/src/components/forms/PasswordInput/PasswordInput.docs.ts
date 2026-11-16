@@ -88,7 +88,7 @@ const doc: ComponentDoc = {
     'Use PasswordInput, never `<Input type="password">`, so users can reveal what they typed.',
     'Set `autocomplete="new-password"` on registration/change forms.',
     'Use `status` for validation feedback (it adds the icon) and still show the message through `Field error` or `hint`.',
-    'Localise by overriding `showLabel` / `hideLabel`.',
+    'Localise by overriding `showLabel` and `revealWarning`, or once for the app with `passwordInput.show` and `passwordInput.revealWarning` in a ConfigProvider. `hideLabel` has no effect: the toggle name must not change with the state.',
   ],
   replaces: ['custom password inputs with eye icon toggles in login forms'],
 }

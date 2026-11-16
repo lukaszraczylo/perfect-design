@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<InputGroupProps>(), { layout: 'inset', va
 const layout = computed<InputGroupLayout>(() => (props.layout === 'joined' ? 'joined' : 'inset'))
 const status = computed(() => (layout.value === 'inset' ? normalizeStatus(props.status) : 'default'))
 const statusId = `input-group-${useId()}-status`
-provideInputGroup({ layout: () => layout.value })
+provideInputGroup({ layout: () => layout.value, status: () => status.value, statusId: () => statusId })
 
 const classes = computed(() =>
   cn(
@@ -35,13 +35,14 @@ const classes = computed(() =>
       shape: normalizeShape(props.shape),
       status: status.value,
     }),
+    layout.value === 'inset' && INNER_FOCUS,
     props.class,
   ),
 )
 </script>
 
 <template>
-  <div data-slot="input-group" :data-layout="layout" :class="[classes, layout === 'inset' && INNER_FOCUS]">
+  <div data-slot="input-group" :data-layout="layout" :class="classes">
     <slot />
     <FieldStatusIcon :status="status" :id="statusId" :label="statusLabel" class="static shrink-0 translate-y-0" />
   </div>

@@ -7,7 +7,7 @@ const doc: ComponentDoc = {
   subgroup: 'Text fields',
   summary: 'Multi-line text field with v-model, variants, sizes, shapes, status, optional autosize and character counter.',
   description:
-    'Use for free-form text longer than one line. `autosize` grows the field with its content (optionally capped by `maxRows`). `maxlength` + `showCount` renders a `n / max` counter (counts unicode code points); the counter is linked by `aria-describedby` and a polite status announces only when the limit is reached. Inside a `Field` it receives id, aria-describedby and aria-invalid automatically. `variant`, `size`, `shape` and `status` change the look; a `pill` shape is `rounded-xl` because a full pill would clip several lines, and `status` adds an icon at the top end (plus screen reader text for `success` and `warning`). `textareaVariants` gives a plain `<textarea>` the same look. Attributes (`placeholder`, `name`, `aria-*`) go to the `<textarea>`; `class` is merged onto it.',
+    'Use for free-form text longer than one line. `autosize` grows the field with its content (optionally capped by `maxRows`). `maxlength` + `showCount` renders a `n / max` counter (counts UTF-16 code units, the unit `maxlength` enforces, so an emoji is 2); the counter is linked by `aria-describedby` and a polite status announces only when the limit is reached. Inside a `Field` it receives id, aria-describedby and aria-invalid automatically. `variant`, `size`, `shape` and `status` change the look; a `pill` shape is `rounded-xl` because a full pill would clip several lines, and `status` adds an icon at the top end (plus screen reader text for `success` and `warning`). `textareaVariants` gives a plain `<textarea>` the same look. Attributes (`placeholder`, `name`, `aria-*`) go to the `<textarea>`; `class` is merged onto it.',
   status: 'stable',
   props: [
     { name: 'modelValue', type: 'string | null', description: 'v-model value. Uncontrolled when omitted.' },
@@ -21,7 +21,7 @@ const doc: ComponentDoc = {
     { name: 'maxRows', type: 'number', description: 'Cap for autosize; further content scrolls.' },
     { name: 'maxlength', type: 'number', description: 'Native maxlength; drives the counter.' },
     { name: 'showCount', type: 'boolean', default: 'false', description: 'Show `count / maxlength` (needs maxlength).' },
-    { name: 'limitLabel', type: 'string', default: "'Character limit reached'", description: 'Message announced once when the limit is reached (localise here).' },
+    { name: 'limitLabel', type: 'string', default: "'Character limit reached'", description: 'Message announced once when the limit is reached (localise here, or with `textarea.limit` in a ConfigProvider; the counter text is `textarea.count`, `{count} / {max}`).' },
     { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the field (also from Field).' },
     { name: 'readonly', type: 'boolean', default: 'false', description: 'Prevents editing.' },
     { name: 'required', type: 'boolean', default: 'false', description: 'Native required (also from Field).' },

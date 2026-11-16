@@ -19,7 +19,9 @@ export interface FieldsetProps {
 
 const props = withDefaults(defineProps<FieldsetProps>(), { variant: 'plain', size: 'md' })
 const slots = useSlots()
+defineOptions({ inheritAttrs: false })
 const attrs = useAttrs()
+const describedBy = computed(() => [hasDescription.value ? descriptionId : '', attrs['aria-describedby'] as string | undefined].filter(Boolean).join(' ') || undefined)
 
 const uid = useId()
 const descriptionId = `fieldset-${uid}-description`
@@ -49,12 +51,13 @@ const classes = computed(() => cn('m-0 min-w-0 border-0 p-0', VARIANTS[variant.v
 
 <template>
   <fieldset
+    v-bind="$attrs"
     data-slot="fieldset"
     :data-variant="variant"
     :data-size="size"
     :data-disabled="disabled ? '' : undefined"
     :disabled="disabled || undefined"
-    :aria-describedby="hasDescription ? descriptionId : undefined"
+    :aria-describedby="describedBy"
     :class="classes"
   >
     <legend

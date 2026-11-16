@@ -6,6 +6,8 @@ import { floatingSurface } from '../../../lib/styles'
 import { faCheck, faChevronDown, faMagnifyingGlass, faXmark } from '../../../lib/icons'
 import Icon from '../../primitives/Icon/Icon.vue'
 import { checkOptionValues } from '../CheckboxCard/contract-helpers'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
+import { formatLabel } from '../Field/format-label'
 import { useControllable } from '../CheckboxCard/use-controllable'
 import { useFieldControl } from '../Field/useFieldContext'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
@@ -85,6 +87,7 @@ const emit = defineEmits<{
 }>()
 
 const uid = useId()
+const labels = useConfigLabels('multiSelect', { more: '+{count} more', clearSelection: 'Clear selection', selectAll: 'Select all', clear: 'Clear', options: 'Options' })
 const status = computed(() => normalizeStatus(props.status))
 const control = useFieldControl({ invalid: () => props.invalid || status.value === 'error', disabled: () => props.disabled, required: () => props.required })
 const triggerId = computed(() => props.id ?? control.id.value ?? `multi-select-${uid}`)
@@ -375,7 +378,7 @@ onBeforeUnmount(() => {
               v-if="hiddenCount > 0"
               data-slot="multi-select-overflow"
               class="inline-flex items-center rounded-sm bg-muted forced-colors:border px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
-            >+{{ hiddenCount }} more</span>
+            >{{ formatLabel(labels.more, { count: hiddenCount }) }}</span>
           </template>
         </span>
         <FieldStatusIcon :status="status" :id="statusId" class="relative end-auto top-auto shrink-0 translate-y-0" />
@@ -385,7 +388,7 @@ onBeforeUnmount(() => {
         v-if="clearable && selected.length > 0 && !control.disabled.value"
         data-slot="multi-select-clear"
         type="button"
-        aria-label="Clear selection"
+        :aria-label="labels.clearSelection"
         class="absolute end-8 top-1/2 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground outline-hidden hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40 pointer-coarse:size-8"
         @click="clearAll"
       >
@@ -423,7 +426,7 @@ onBeforeUnmount(() => {
           class="inline-flex min-h-6 min-w-6 items-center justify-center rounded-sm px-1 font-medium text-primary hover:underline pointer-coarse:min-h-11"
           @mousedown.prevent
           @click="selectAll"
-        >Select all</button>
+        >{{ labels.selectAll }}</button>
         <span v-else data-slot="multi-select-limit" class="px-1 tabular-nums text-muted-foreground" aria-live="polite">{{ selected.length }} / {{ limit }} selected</span>
         <button
           data-slot="multi-select-clear-all"
@@ -432,7 +435,7 @@ onBeforeUnmount(() => {
           class="inline-flex min-h-6 min-w-6 items-center justify-center rounded-sm px-1 font-medium text-muted-foreground hover:text-foreground hover:underline pointer-coarse:min-h-11"
           @mousedown.prevent
           @click="clearAll"
-        >Clear</button>
+        >{{ labels.clear }}</button>
       </div>
       <div data-slot="multi-select-status" role="status" class="sr-only">{{ statusText }}</div>
       <ul
@@ -441,7 +444,7 @@ onBeforeUnmount(() => {
         data-slot="multi-select-list"
         role="listbox"
         aria-multiselectable="true"
-        aria-label="Options"
+        :aria-label="labels.options"
         :aria-activedescendant="searchable ? undefined : activeDescendant"
         :tabindex="searchable ? -1 : 0"
         :hidden="filtered.length === 0"
@@ -479,6 +482,18 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
+    <input
+      v-if="control.required.value && !selected.length"
+      data-slot="multi-select-required"
+      type="text"
+      required
+      tabindex="-1"
+      aria-hidden="true"
+      class="sr-only"
+      value=""
+      :disabled="control.disabled.value"
+      @focus="trigger?.focus()"
+    />
     <template v-if="name">
       <input v-for="v in selected" :key="v" data-slot="multi-select-input" type="hidden" :name="name" :value="v" />
     </template>

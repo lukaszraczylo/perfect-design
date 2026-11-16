@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
-import { defineComponent, h, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import NativeSelect from './NativeSelect.vue'
 import { NativeSelect as Exported } from './index'
 import Field from '../Field/Field.vue'
@@ -211,5 +211,26 @@ describe('NativeSelect', () => {
       expect(s.attributes('disabled')).toBeDefined()
       expect(s.attributes('required')).toBeDefined()
     })
+  })
+})
+
+describe('NativeSelect controlled rejection', () => {
+  it('shows the prop value again when the parent does not accept the emitted value', async () => {
+    const w = mount(NativeSelect, { props: { modelValue: 'a', 'aria-label': 'x', options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] }, attachTo: document.body })
+    const el = w.find('select')
+    await el.setValue('b')
+    await nextTick()
+    await nextTick()
+    expect((el.element as unknown as HTMLInputElement).value).toBe('a')
+    w.unmount()
+  })
+  it('stays uncontrolled when modelValue is omitted', async () => {
+    const w = mount(NativeSelect, { props: { 'aria-label': 'x', options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] }, attachTo: document.body })
+    const el = w.find('select')
+    await el.setValue('b')
+    await nextTick()
+    await nextTick()
+    expect((el.element as unknown as HTMLInputElement).value).toBe('b')
+    w.unmount()
   })
 })

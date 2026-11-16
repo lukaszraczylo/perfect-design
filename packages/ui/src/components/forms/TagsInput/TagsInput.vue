@@ -89,6 +89,7 @@ watch(
   () => props.modelValue,
   (v) => {
     if (v) model.value = [...v]
+    else if (v === null) model.value = []
   },
   { deep: true },
 )

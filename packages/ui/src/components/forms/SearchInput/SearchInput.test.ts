@@ -80,7 +80,7 @@ describe('SearchInput', () => {
     })
 
     it('clicking clear empties, emits update, clear and search(""), and focuses input', async () => {
-      const w = mount(SearchInput, { props: { modelValue: 'x' }, attachTo: document.body })
+      const w = mount(SearchInput, { props: { modelValue: 'x', 'onUpdate:modelValue': (v: string) => w.setProps({ modelValue: v }) }, attachTo: document.body })
       await clearBtn(w).trigger('click')
       expect(w.emitted('update:modelValue')?.[0]).toEqual([''])
       expect(w.emitted('clear')).toHaveLength(1)
@@ -286,10 +286,31 @@ describe('SearchInput', () => {
     })
 
     it('typing emptied value hides clear and emits search("")', async () => {
-      const w = mount(SearchInput, { props: { modelValue: 'a' } })
+      const w = mount(SearchInput, { props: { modelValue: 'a', 'onUpdate:modelValue': (v: string) => w.setProps({ modelValue: v }) } })
       await input(w).setValue('')
       expect(clearBtn(w).exists()).toBe(false)
       expect(w.emitted('search')?.[0]).toEqual([''])
     })
+  })
+})
+
+describe('SearchInput controlled rejection', () => {
+  it('shows the prop value again when the parent does not accept the emitted value', async () => {
+    const w = mount(SearchInput, { props: { modelValue: 'abc', 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('input')
+    await el.setValue('abcd')
+    await nextTick()
+    await nextTick()
+    expect((el.element as HTMLInputElement).value).toBe('abc')
+    w.unmount()
+  })
+  it('stays uncontrolled when modelValue is omitted', async () => {
+    const w = mount(SearchInput, { props: { 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('input')
+    await el.setValue('free')
+    await nextTick()
+    await nextTick()
+    expect((el.element as HTMLInputElement).value).toBe('free')
+    w.unmount()
   })
 })

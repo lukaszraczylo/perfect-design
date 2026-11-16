@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 import Input from './Input.vue'
 import Field from '../Field/Field.vue'
 
@@ -114,5 +114,75 @@ describe('Input', () => {
       const own = mountInField({}, { invalid: true })
       expect(own.find('input').attributes('aria-invalid')).toBe('true')
     })
+  })
+})
+
+describe('Input controlled rejection', () => {
+  it('shows the prop value again when the parent does not accept the emitted value', async () => {
+    const w = mount(Input, { props: { modelValue: 'abc', 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('input')
+    await el.setValue('abcd')
+    await nextTick()
+    await nextTick()
+    expect((el.element as HTMLInputElement).value).toBe('abc')
+    w.unmount()
+  })
+  it('stays uncontrolled when modelValue is omitted', async () => {
+    const w = mount(Input, { props: { 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('input')
+    await el.setValue('free')
+    await nextTick()
+    await nextTick()
+    expect((el.element as HTMLInputElement).value).toBe('free')
+    w.unmount()
+  })
+})
+
+describe('Input root swap', () => {
+  afterEach(() => vi.restoreAllMocks())
+
+  it('keeps focus and selection when status adds the wrapper', async () => {
+    const w = mount(Input, { props: { modelValue: 'hello world', 'aria-label': 'x' }, attachTo: document.body })
+    const first = w.find('input').element as HTMLInputElement
+    first.focus()
+    first.setSelectionRange(2, 5)
+    await w.setProps({ status: 'success' })
+    await nextTick()
+    const now = w.find('input').element as HTMLInputElement
+    expect(now).not.toBe(first)
+    expect(document.activeElement).toBe(now)
+    expect([now.selectionStart, now.selectionEnd]).toEqual([2, 5])
+    w.unmount()
+  })
+
+  it('does not steal focus when the input was not focused', async () => {
+    const w = mount(Input, { props: { 'aria-label': 'x' }, attachTo: document.body })
+    await w.setProps({ status: 'success' })
+    await nextTick()
+    expect(document.activeElement).not.toBe(w.find('input').element)
+    w.unmount()
+  })
+
+  it('native validation keeps working on the new element after the swap', async () => {
+    const original = Element.prototype.matches
+    vi.spyOn(Element.prototype, 'matches').mockImplementation(function (this: Element, selector: string) {
+      return selector === ':user-invalid' ? true : original.call(this, selector)
+    })
+    const w = mount(
+      defineComponent({
+        props: { status: { type: String, default: 'default' } },
+        render() {
+          return h(Field, { label: 'Name', required: true }, () => h(Input, { status: this.status as 'default' }))
+        },
+      }),
+      { attachTo: document.body },
+    )
+    await w.setProps({ status: 'success' })
+    await nextTick()
+    const el = w.find('input').element as HTMLInputElement
+    el.dispatchEvent(new Event('invalid'))
+    await nextTick()
+    expect(w.find('[data-slot=field-error]').exists()).toBe(true)
+    w.unmount()
   })
 })

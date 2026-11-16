@@ -1,8 +1,9 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import FileDropzone from './FileDropzone.vue'
 import Field from '../Field/Field.vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 
 let wrapper: VueWrapper | undefined
 function make(props: Record<string, unknown> = {}, attrs: Record<string, unknown> = {}, slots = {}) {
@@ -516,6 +517,80 @@ describe('FileDropzone', () => {
       expect(ids).toHaveLength(2)
       expect(ids[1]).toBe(a.attributes('id'))
       expect(document.getElementById(ids[0])!.textContent).toContain('Attachments')
+    })
+  })
+
+  describe('native form value', () => {
+    class FakeDataTransfer {
+      list: File[] = []
+      items = { add: (f: File) => void this.list.push(f) }
+      get files() {
+        return this.list as unknown as FileList
+      }
+    }
+    afterEach(() => vi.unstubAllGlobals())
+    function watchFiles(w: VueWrapper) {
+      const el = input(w).element as HTMLInputElement
+      const assigned: File[][] = []
+      Object.defineProperty(el, 'files', { configurable: true, get: () => assigned.at(-1) ?? [], set: (v: File[]) => void assigned.push([...v]) })
+      return { el, assigned }
+    }
+
+    it('keeps the native input files equal to the selected files', async () => {
+      vi.stubGlobal('DataTransfer', FakeDataTransfer)
+      const w = make({ multiple: true })
+      const a = file('a.txt')
+      const b = file('b.txt', 'text/plain', 10, 2)
+      await drop(w, [a])
+      await drop(w, [b])
+      const { assigned } = watchFiles(w)
+      await w.findAll('[data-slot=file-dropzone-remove]')[0].trigger('click')
+      expect(assigned.at(-1)?.map((f) => f.name)).toEqual(['b.txt'])
+    })
+
+    it('does not clear the native value after a pick', async () => {
+      vi.stubGlobal('DataTransfer', FakeDataTransfer)
+      const w = make()
+      const el = input(w).element as HTMLInputElement
+      const setValue = vi.fn()
+      Object.defineProperty(el, 'value', { configurable: true, get: () => 'C:\\fakepath\\a.txt', set: setValue })
+      await pick(w, [file('a.txt')])
+      expect(setValue).not.toHaveBeenCalled()
+    })
+
+    it('does not clear the native value when DataTransfer is unavailable', async () => {
+      vi.stubGlobal('DataTransfer', undefined)
+      const w = make()
+      const el = input(w).element as HTMLInputElement
+      const setValue = vi.fn()
+      Object.defineProperty(el, 'value', { configurable: true, get: () => 'x', set: setValue })
+      await pick(w, [file('a.txt')])
+      expect(setValue).not.toHaveBeenCalled()
+    })
+
+    it('native required is satisfied once files are selected', async () => {
+      const w = make({ required: true })
+      expect(input(w).attributes('required')).toBeDefined()
+      await drop(w, [file('a.txt')])
+      expect(input(w).attributes('required')).toBeUndefined()
+      await w.find('[data-slot=file-dropzone-remove]').trigger('click')
+      expect(input(w).attributes('required')).toBeDefined()
+    })
+
+    it('modelValue null clears the files', async () => {
+      const w = make({ modelValue: [file('a.txt')] })
+      expect(w.findAll('[data-slot=file-dropzone-item]')).toHaveLength(1)
+      await w.setProps({ modelValue: null })
+      expect(w.findAll('[data-slot=file-dropzone-item]')).toHaveLength(0)
+    })
+  })
+
+  describe('labels', () => {
+    it('takes built-in strings from the ConfigProvider', async () => {
+      const labels = { 'fileDropzone.prompt': 'Dateien hierher ziehen', 'fileDropzone.remove': '{name} entfernen' }
+      wrapper = mount(defineComponent({ render: () => h(ConfigProvider, { labels }, () => h(FileDropzone, { modelValue: [file('a.txt')] })) }), { attachTo: document.body })
+      expect(wrapper.find('[data-slot=file-dropzone-area]').text()).toContain('Dateien hierher ziehen')
+      expect(wrapper.find('[data-slot=file-dropzone-remove]').attributes('aria-label')).toBe('a.txt entfernen')
     })
   })
 })

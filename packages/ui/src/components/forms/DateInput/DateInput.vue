@@ -3,6 +3,7 @@ import { computed, ref, useAttrs, useId, watch, type HTMLAttributes } from 'vue'
 import { cn } from '../../../lib/cn'
 import { useRequireAccessibleName } from '../../../lib/contract'
 import { useFieldControl } from '../Field/useFieldContext'
+import { useRejectableModel } from '../Field/useControlledValue'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
 import { FIELD_STATUS_PAD, normalizeFieldSize, normalizeShape, normalizeStatus, normalizeVariant, type FieldShape, type FieldSize, type FieldStatus, type FieldVariant } from '../Field/field-variants'
 import { dateInputVariants } from './variants'
@@ -73,6 +74,7 @@ watch(
   () => props.modelValue,
   (v) => (model.value = v ?? ''),
 )
+const settle = useRejectableModel(() => props.modelValue, model, '')
 
 function check(value: string): DateInputValidation {
   // ISO date/time strings sort lexicographically, so plain string comparison is a correct range check.
@@ -108,6 +110,7 @@ function onInput(e: Event) {
   }
   model.value = el.value
   emit('update:modelValue', el.value)
+  settle()
   const r = check(el.value)
   emit('validate', r)
   if (!r.valid) emit('invalid', r)

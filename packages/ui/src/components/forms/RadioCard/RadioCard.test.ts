@@ -52,6 +52,28 @@ describe('RadioCard / RadioCardGroup', () => {
       expect(cards(w)[0].element.tagName).toBe('LABEL')
     })
 
+    it('name stays reactive', async () => {
+      const w = group({ name: 'plan' })
+      await w.setProps({ name: 'tier' })
+      expect(radios(w).every((r) => r.attributes('name') === 'tier')).toBe(true)
+    })
+
+    it('without a name no synthetic field is submitted', async () => {
+      const w = mount(
+        defineComponent({
+          render: () => h('form', { id: 'f' }, [h(RadioCardGroup, { 'aria-label': 'Plan', modelValue: 'a' }, () => [h(RadioCard, { value: 'a', title: 'A' }), h(RadioCard, { value: 'b', title: 'B' })])]),
+        }),
+      )
+      const form = w.find('form').element as HTMLFormElement
+      expect([...new FormData(form).keys()]).toEqual([])
+      const named = mount(
+        defineComponent({
+          render: () => h('form', [h(RadioCardGroup, { 'aria-label': 'Plan', modelValue: 'a', name: 'plan' }, () => [h(RadioCard, { value: 'a', title: 'A' })])]),
+        }),
+      )
+      expect([...new FormData(named.find('form').element as HTMLFormElement).keys()]).toEqual(['plan'])
+    })
+
     it('uses the provided name', () => {
       expect(radios(group({ name: 'plan' }))[0].attributes('name')).toBe('plan')
     })

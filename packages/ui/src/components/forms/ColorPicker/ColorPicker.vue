@@ -3,6 +3,7 @@ import { computed, onMounted, ref, useId, watch, type HTMLAttributes } from 'vue
 import { cn } from '../../../lib/cn'
 import { useRequireAccessibleName } from '../../../lib/contract'
 import { fieldSurface, touchTarget } from '../../../lib/styles'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
 import { useFieldControl } from '../Field/useFieldContext'
 import { COLOR_PICKER_SWATCHES, normalizeColorPickerHex } from './color'
 import {
@@ -53,11 +54,12 @@ const props = withDefaults(defineProps<ColorPickerProps>(), {
   shape: 'rounded',
   layout: 'stacked',
   placeholder: '#000000',
-  swatchesLabel: 'Colour swatches',
-  inputLabel: 'Hex colour',
 })
 const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>()
 
+const labels = useConfigLabels('colorPicker', { swatches: 'Colour swatches', input: 'Hex colour', invalid: 'Not a valid hex colour. Use #rgb, #rrggbb or #rrggbbaa.' })
+const swatchesText = computed(() => props.swatchesLabel ?? labels.value.swatches)
+const inputText = computed(() => props.inputLabel ?? labels.value.input)
 const errorId = `color-picker-error-${useId()}`
 const inputEl = ref<HTMLInputElement | null>(null)
 // A surrounding Field label names the input; an own aria-label would replace it (WCAG 2.5.3).
@@ -157,12 +159,13 @@ const fieldClasses = computed(() => colorPickerFieldVariants({ layout: layout.va
 
 <template>
   <div data-slot="color-picker" :class="classes">
+    <input v-if="name" data-slot="color-picker-value" type="hidden" :name="name" :value="value ?? ''" :disabled="control.disabled.value" />
     <div
       v-if="palette.length"
       ref="swatchesEl"
       data-slot="color-picker-swatches"
       role="radiogroup"
-      :aria-label="swatchesLabel"
+      :aria-label="swatchesText"
       :aria-disabled="control.disabled.value ? 'true' : undefined"
       :aria-readonly="readonly ? 'true' : undefined"
       :class="swatchListClasses"
@@ -202,13 +205,12 @@ const fieldClasses = computed(() => colorPickerFieldVariants({ layout: layout.va
           autocorrect="off"
           inputmode="text"
           :id="control.id.value"
-          :name="name"
           :value="draft"
           :placeholder="placeholder"
           :disabled="control.disabled.value"
           :readonly="readonly"
           :required="control.required.value || undefined"
-          :aria-label="hasFieldLabel ? undefined : inputLabel"
+          :aria-label="hasFieldLabel ? undefined : inputText"
           :aria-invalid="isInvalid ? 'true' : undefined"
           :aria-describedby="describedBy"
           :class="cn(fieldSurface, touchTarget, 'h-9 py-1 font-mono text-md tabular-nums md:text-base', size === 'sm' && 'h-8 md:text-sm', size === 'lg' && 'h-11')"
@@ -217,7 +219,7 @@ const fieldClasses = computed(() => colorPickerFieldVariants({ layout: layout.va
         />
       </div>
       <p :id="errorId" data-slot="color-picker-error" role="status" class="text-xs text-destructive">
-        <span v-if="draftInvalid" class="block pt-1">Not a valid hex colour. Use #rgb, #rrggbb or #rrggbbaa.</span>
+        <span v-if="draftInvalid" class="block pt-1">{{ labels.invalid }}</span>
       </p>
     </div>
   </div>

@@ -65,6 +65,8 @@ const own = useControllable<boolean>(
 const checked = computed(() => (grouped.value ? group!.values.value.includes(props.value!) : !!own.value.value))
 const disabled = computed(() => control.disabled.value || !!group?.disabled.value)
 const invalid = computed(() => control.invalid.value || !!group?.invalid.value)
+// In a group a required Field means "at least one checked": every card is required only while none is.
+const nativeRequired = computed(() => (group ? !!props.required || (group.required.value && !group.values.value.length) : control.required.value))
 
 function onChange(next: boolean) {
   if (disabled.value) return
@@ -91,7 +93,9 @@ function onChange(next: boolean) {
     :name="name ?? group?.name.value"
     :disabled="disabled"
     :invalid="invalid"
-    :required="control.required.value"
+    :required="nativeRequired"
+    :id="group ? undefined : control.id.value"
+    :described-by="group ? undefined : control.describedBy.value"
     :class="props.class"
     v-bind="$attrs"
     @change="onChange"

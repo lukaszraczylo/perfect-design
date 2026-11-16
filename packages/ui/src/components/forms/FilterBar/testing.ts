@@ -24,7 +24,7 @@ const mounted: VueWrapper[] = []
 afterEach(async () => {
   while (mounted.length) mounted.pop()!.unmount()
   await new Promise((r) => setTimeout(r, 15))
-  document.body.innerHTML = ''
+  document.body.replaceChildren()
 })
 
 export const tick = async (n = 3) => {

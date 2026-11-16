@@ -46,7 +46,7 @@ const control = useFieldControl({ invalid: () => props.invalid, disabled: () => 
 const root = ref<{ $el: HTMLElement } | null>(null)
 useRequireGroupName('RadioGroup', () => root.value?.$el, 'Wrap it in `Field` with a `label` or in `Fieldset` with a legend, or set `aria-label` / `aria-labelledby` on the group.')
 const orientation = computed(() => (props.orientation === 'horizontal' ? 'horizontal' : 'vertical'))
-provide(RADIO_GROUP_KEY, { size: computed(() => props.size), tone: computed(() => props.tone), labelPosition: computed(() => props.labelPosition) })
+provide(RADIO_GROUP_KEY, { size: computed(() => props.size), tone: computed(() => props.tone), labelPosition: computed(() => props.labelPosition), disabled: computed(() => control.disabled.value) })
 const classes = computed(() =>
   cn(orientation.value === 'horizontal' ? 'flex flex-wrap items-center gap-x-5 gap-y-2' : 'grid gap-2.5', props.class),
 )

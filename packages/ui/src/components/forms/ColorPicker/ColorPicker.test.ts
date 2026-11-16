@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { defineComponent, h } from 'vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 import ColorPicker from './ColorPicker.vue'
 import Field from '../Field/Field.vue'
 import { COLOR_PICKER_SWATCHES, normalizeColorPickerHex } from './color'
@@ -226,10 +228,33 @@ describe('ColorPicker', () => {
 
     it('name / placeholder / labels', () => {
       const w = mount(ColorPicker, { props: { name: 'brand', placeholder: '#fff', inputLabel: 'Hex', swatchesLabel: 'Palette' } })
-      expect(input(w).attributes('name')).toBe('brand')
+      expect(input(w).attributes('name')).toBeUndefined()
+      expect(w.find('input[type=hidden]').attributes('name')).toBe('brand')
       expect(input(w).attributes('placeholder')).toBe('#fff')
       expect(input(w).attributes('aria-label')).toBe('Hex')
       expect(w.find('[data-slot=color-picker-swatches]').attributes('aria-label')).toBe('Palette')
+    })
+
+    it('submits the committed value through a hidden input, never the draft', async () => {
+      const w = mount(ColorPicker, { props: { name: 'brand', modelValue: '#112233' } })
+      const hidden = () => w.find('input[type=hidden][name=brand]').element as HTMLInputElement
+      expect(hidden().value).toBe('#112233')
+      await typeHex(w, '#12')
+      expect(hidden().value).toBe('#112233')
+      await typeHex(w, '#abc')
+      expect(hidden().value).toBe('#aabbcc')
+    })
+
+    it('the hidden input exists without the text input', () => {
+      const w = mount(ColorPicker, { props: { name: 'brand', modelValue: '#112233', showInput: false } })
+      expect((w.find('input[type=hidden][name=brand]').element as HTMLInputElement).value).toBe('#112233')
+    })
+
+    it('labels come from the ConfigProvider', () => {
+      const labels = { 'colorPicker.swatches': 'Farben', 'colorPicker.input': 'Hex-Wert', 'colorPicker.invalid': 'Ungültig' }
+      const w = mount(defineComponent({ render: () => h(ConfigProvider, { labels }, () => h(ColorPicker)) }))
+      expect(w.find('[data-slot=color-picker-swatches]').attributes('aria-label')).toBe('Farben')
+      expect(input(w).attributes('aria-label')).toBe('Hex-Wert')
     })
 
     it('invalid prop sets aria-invalid; Field wiring', () => {

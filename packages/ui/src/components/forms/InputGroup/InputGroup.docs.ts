@@ -20,6 +20,7 @@ const doc: ComponentDoc = {
       description: 'A prefix, suffix or action next to the control. Text is muted; in a `joined` group it gets its own border and fill. A Button inside an inset addon is pulled toward the edge.',
       props: [
         { name: 'as', type: 'string | Component', default: "'div'", description: 'Element to render. Use `span` or `label` when the addon should be associated with the control.' },
+        { name: 'asChild', type: 'boolean', default: 'false', description: 'Render the single child element (for example a `label`) with the addon attributes and classes merged into it, instead of a wrapper.' },
         { name: 'class', type: 'string | object | array', description: 'Merged last; wins over internal classes.' },
       ],
     },
@@ -102,7 +103,7 @@ const doc: ComponentDoc = {
     },
     {
       title: 'Status',
-      description: 'Colour plus an icon; success and warning also add hidden text, error sets `aria-invalid` through the Input inside.',
+      description: 'Colour plus an icon; success and warning add hidden text referenced by the control inside, and error sets `aria-invalid` on it (Input, Textarea and NativeSelect read the group status).',
       code: `<div class="grid max-w-sm gap-3">
   <InputGroup status="success"><InputGroupAddon>https://</InputGroupAddon><Input aria-label="Success" model-value="example" /></InputGroup>
   <InputGroup status="warning"><InputGroupAddon>https://</InputGroupAddon><Input aria-label="Warning" model-value="example" /></InputGroup>
@@ -113,7 +114,7 @@ const doc: ComponentDoc = {
   a11y: [
     'The group is a plain container: it adds no role and no name. The control inside keeps its own label (use `Field`, `aria-label` or `aria-labelledby`), and addon text is read in document order with it.',
     'An addon that holds only an icon must keep the icon decorative (`aria-hidden`, the default of `Icon`); a Button inside an addon needs its own name like any Button.',
-    'Focus shows once, as a border and ring on the whole group (`:has(:focus-visible)`), so keyboard users see which field is active; an invalid control inside turns the group border destructive. The group border stays visible in forced-colors mode, and an invalid group gets a dashed one.',
+    'Focus shows once, as a border and ring on the whole group (`:has(:focus-visible)`), so keyboard users see which field is active (a `class` on the group can override the inner focus border); an invalid control inside turns the group border destructive. The group border stays visible in forced-colors mode, and an invalid group gets a dashed one.',
     '`status` is never colour only: an icon sits at the inline end, and `success` and `warning` add visually hidden text.',
     'Responsive: the group is `w-full min-w-0`, text is 16px below `md` and the minimum height is 44px on touch pointers.',
   ],

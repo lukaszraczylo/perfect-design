@@ -67,7 +67,7 @@ const control = useFieldControl({ invalid: () => props.invalid || kind.value ===
 
 const text = computed(() => props.modelValue ?? props.value ?? '')
 // `legacy` falls back to execCommand so copying also works on plain-http origins.
-const { copy, copied } = useClipboard({ copiedDuring: Math.max(0, Number(props.copiedDuring) || 0), legacy: true })
+const { copy, copied } = useClipboard({ copiedDuring: () => Math.max(0, Number(props.copiedDuring) || 0), legacy: true })
 
 const inputEl = ref<HTMLInputElement | null>(null)
 const buttonEl = ref<HTMLButtonElement | null>(null)

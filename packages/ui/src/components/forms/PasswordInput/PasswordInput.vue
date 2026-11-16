@@ -4,7 +4,9 @@ import { faEye, faEyeSlash } from '../../../lib/icons'
 import { cn } from '../../../lib/cn'
 import { useRequireAccessibleName } from '../../../lib/contract'
 import Icon from '../../primitives/Icon/Icon.vue'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
 import { useFieldControl } from '../Field/useFieldContext'
+import { useRejectableModel } from '../Field/useControlledValue'
 import { useNativeValidation } from '../Field/useNativeValidation'
 import { fieldAddonButton } from '../Field/field-styles'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
@@ -51,15 +53,15 @@ const props = withDefaults(defineProps<PasswordInputProps>(), {
   shape: 'rounded',
   status: 'default',
   autocomplete: 'current-password',
-  showLabel: 'Show password',
-  hideLabel: 'Hide password',
-  revealWarning: 'Shows the password as plain text on screen.',
 })
 const emit = defineEmits<{
   'update:modelValue': [value: string]
   'update:visible': [value: boolean]
 }>()
 const attrs = useAttrs()
+const labels = useConfigLabels('passwordInput', { show: 'Show password', revealWarning: 'Shows the password as plain text on screen.' })
+const showText = computed(() => props.showLabel ?? labels.value.show)
+const warningText = computed(() => props.revealWarning ?? labels.value.revealWarning)
 
 const status = computed(() => normalizeStatus(props.status))
 const control = useFieldControl({ invalid: () => props.invalid || status.value === 'error', disabled: () => props.disabled, required: () => props.required })
@@ -71,6 +73,7 @@ watch(
     model.value = v ?? ''
   },
 )
+const settle = useRejectableModel(() => props.modelValue, model, '')
 
 const shown = ref(!!props.visible)
 watch(
@@ -110,6 +113,7 @@ function onInput(e: Event) {
   const v = (e.target as HTMLInputElement).value
   model.value = v
   emit('update:modelValue', v)
+  settle()
 }
 
 function toggle() {
@@ -146,7 +150,7 @@ function toggle() {
       data-slot="password-input-toggle"
       :disabled="control.disabled.value"
       :aria-pressed="shown ? 'true' : 'false'"
-      :aria-label="showLabel"
+      :aria-label="showText"
       :aria-describedby="warningId"
       :aria-controls="inputId"
       :class="fieldAddonButton"
@@ -154,6 +158,6 @@ function toggle() {
     >
       <Icon :icon="shown ? faEyeSlash : faEye" size="sm" />
     </button>
-    <span :id="warningId" data-slot="password-input-warning" class="sr-only">{{ revealWarning }}</span>
+    <span :id="warningId" data-slot="password-input-warning" class="sr-only">{{ warningText }}</span>
   </div>
 </template>

@@ -95,7 +95,8 @@ function onKeydown(e: KeyboardEvent) {
 
 provide(RADIO_CARD_GROUP_KEY, {
   value: computed(() => model.value.value),
-  name: groupName.value,
+  name: groupName,
+  submits: computed(() => !!props.name),
   disabled: computed(() => control.disabled.value),
   invalid: computed(() => control.invalid.value),
   required: computed(() => control.required.value),

@@ -114,6 +114,22 @@ describe('CopyField', () => {
       expect(button(w).text()).toBe('Kopiuj')
     })
 
+    it('reads copiedDuring live for the copied timer', async () => {
+      vi.useFakeTimers()
+      installClipboard()
+      const w = mount(CopyField, { props: { value: 'v', copiedDuring: 500, label: 'Copy', copiedLabel: 'Done' } })
+      await flushPromises()
+      await w.setProps({ copiedDuring: 2000 })
+      await button(w).trigger('click')
+      await flushPromises()
+      vi.advanceTimersByTime(600)
+      await flushPromises()
+      expect(button(w).text()).toBe('Done')
+      vi.advanceTimersByTime(1500)
+      await flushPromises()
+      expect(button(w).text()).toBe('Copy')
+    })
+
     it('negative / NaN copiedDuring does not throw (bad input)', async () => {
       vi.useFakeTimers()
       installClipboard()

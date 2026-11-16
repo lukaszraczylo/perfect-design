@@ -4,8 +4,10 @@ import { cn } from '../../../lib/cn'
 import { useRequireAccessibleName } from '../../../lib/contract'
 import { useFieldControl } from '../Field/useFieldContext'
 import { useNativeValidation } from '../Field/useNativeValidation'
+import { usePreserveFocus, useRejectableModel } from '../Field/useControlledValue'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
 import { normalizeFieldSize, normalizeShape, normalizeStatus, normalizeVariant, type FieldShape, type FieldSize, type FieldStatus, type FieldVariant } from '../Field/field-variants'
+import { useInputGroupStatus } from '../InputGroup/context'
 import { inputVariants } from './variants'
 
 export interface InputProps {
@@ -36,12 +38,15 @@ const emit = defineEmits<{ 'update:modelValue': [value: string | number] }>()
 const status = computed(() => normalizeStatus(props.status))
 const control = useFieldControl({ invalid: () => props.invalid || status.value === 'error', disabled: () => props.disabled, required: () => props.required })
 
+const group = useInputGroupStatus()
+const ariaInvalid = computed(() => (group.invalid.value ? ('true' as const) : control.ariaInvalid.value))
 const el = ref<HTMLInputElement | null>(null)
 useNativeValidation(el)
 useRequireAccessibleName('Input', () => el.value, 'Wrap it in `Field` with a `label`, wrap it in a `<label>`, or set `aria-label` / `aria-labelledby`.', () => props.type !== 'hidden')
 
 const model = ref<string | number>(props.modelValue ?? '')
 watch(() => props.modelValue, (v) => (model.value = v ?? ''))
+const settle = useRejectableModel(() => props.modelValue, model, '')
 
 // Identifier-like types are not prose: no autocorrect, autocapitalise or spellcheck.
 const identifier = computed(() => ['email', 'url', 'tel'].includes(props.type))
@@ -52,6 +57,7 @@ const hasPrefix = computed(() => !!slots.prefix)
 const hasSuffix = computed(() => !!slots.suffix)
 /** The bare `<input>` is the root unless something has to be positioned around it. */
 const wrapped = computed(() => status.value !== 'default' || hasPrefix.value || hasSuffix.value)
+usePreserveFocus(el, wrapped)
 
 const variant = computed(() => normalizeVariant(props.variant))
 const shape = computed(() => normalizeShape(props.shape))
@@ -82,7 +88,7 @@ const statusClass = computed(() => (hasSuffix.value ? place.value.beforeSuffix :
 /** Everything the `<input>` gets, shared by the bare and the wrapped render. The caller's attributes win, except that the status id is appended to `aria-describedby`. */
 const fieldAttrs = computed(() => {
   const base = (attrs['aria-describedby'] as string | undefined) ?? control.describedBy.value
-  const describedBy = [base, status.value === 'success' || status.value === 'warning' ? statusId : ''].filter(Boolean).join(' ') || undefined
+  const describedBy = [base, status.value === 'success' || status.value === 'warning' ? statusId : '', group.describedBy.value].filter(Boolean).join(' ') || undefined
   return { ...attrs, 'aria-describedby': describedBy }
 })
 
@@ -91,6 +97,7 @@ function onInput(e: Event) {
   const next = props.type === 'number' && target.value !== '' && !Number.isNaN(target.valueAsNumber) ? target.valueAsNumber : target.value
   model.value = next
   emit('update:modelValue', next)
+  settle()
 }
 </script>
 
@@ -108,7 +115,7 @@ function onInput(e: Event) {
       :disabled="control.disabled.value"
       :readonly="readonly"
       :required="control.required.value || undefined"
-      :aria-invalid="control.ariaInvalid.value"
+      :aria-invalid="ariaInvalid"
       :autocapitalize="identifier ? 'none' : undefined"
       :autocorrect="identifier ? 'off' : undefined"
       :spellcheck="identifier ? false : undefined"
@@ -131,7 +138,7 @@ function onInput(e: Event) {
     :disabled="control.disabled.value"
     :readonly="readonly"
     :required="control.required.value || undefined"
-    :aria-invalid="control.ariaInvalid.value"
+    :aria-invalid="ariaInvalid"
     :autocapitalize="identifier ? 'none' : undefined"
     :autocorrect="identifier ? 'off' : undefined"
     :spellcheck="identifier ? false : undefined"

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import DateInput from './DateInput.vue'
 import Field from '../Field/Field.vue'
 
@@ -314,5 +314,26 @@ describe('DateInput: accessibility regressions', () => {
     await field(w).setValue('2000-01-01')
     expect(field(w).attributes('aria-invalid')).toBe('true')
     expect(field(w).attributes('aria-describedby')).toContain(msg(w).attributes('id')!)
+  })
+})
+
+describe('DateInput controlled rejection', () => {
+  it('shows the prop value again when the parent does not accept the emitted value', async () => {
+    const w = mount(DateInput, { props: { modelValue: '2025-01-02', 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('input')
+    await el.setValue('2025-02-03')
+    await nextTick()
+    await nextTick()
+    expect((el.element as HTMLInputElement).value).toBe('2025-01-02')
+    w.unmount()
+  })
+  it('stays uncontrolled when modelValue is omitted', async () => {
+    const w = mount(DateInput, { props: { 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('input')
+    await el.setValue('2025-02-03')
+    await nextTick()
+    await nextTick()
+    expect((el.element as HTMLInputElement).value).toBe('2025-02-03')
+    w.unmount()
   })
 })

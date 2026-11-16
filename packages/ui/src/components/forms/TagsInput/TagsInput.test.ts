@@ -113,12 +113,6 @@ describe('TagsInput', () => {
       expect(tags(w)).toEqual(['q', 'r'])
     })
 
-    it('keeps tags when modelValue becomes null', async () => {
-      const w = make({ modelValue: ['a'] })
-      await w.setProps({ modelValue: null })
-      expect(tags(w)).toEqual(['a'])
-    })
-
     it('works with a parent v-model', async () => {
       const list = ref<string[]>(['a'])
       const Host = defineComponent({
@@ -430,5 +424,13 @@ describe('TagsInput', () => {
       expect(wrapper.find('input[data-slot=tags-input-input]').attributes('id')).toBe('tg2')
       expect(wrapper.find('[data-slot=tags-input]').attributes('id')).toBeUndefined()
     })
+  })
+
+  it('modelValue null clears the tags', async () => {
+    const w = make({ modelValue: ['a', 'b'], ariaLabel: 'Tags' })
+    expect(tags(w)).toEqual(['a', 'b'])
+    await w.setProps({ modelValue: null })
+    await flushPromises()
+    expect(tags(w)).toEqual([])
   })
 })

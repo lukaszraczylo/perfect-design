@@ -21,7 +21,7 @@ export function useStrictHarness() {
   const unmount = () => {
     wrapper?.unmount()
     wrapper = undefined
-    document.body.innerHTML = ''
+    document.body.replaceChildren()
   }
   const mountTree = async (root: () => VNodeChild) => {
     unmount()

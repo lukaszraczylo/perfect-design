@@ -389,6 +389,20 @@ describe('Select', () => {
       expect(trigger().hasAttribute('disabled')).toBe(true)
     })
 
+    it('Field required makes the trigger aria-required and the hidden native select required', () => {
+      make({ withField: { label: 'Fruit', required: true }, selectProps: { name: 'fruit' } })
+      expect(trigger().getAttribute('aria-required')).toBe('true')
+      expect(q('select')?.hasAttribute('required')).toBe(true)
+    })
+
+    it('success status text is described, not part of the trigger name', () => {
+      make({ triggerProps: { status: 'success', 'aria-label': 'Fruit' } })
+      const icon = q('[data-slot="field-status"]')!
+      expect(icon.getAttribute('aria-hidden')).toBe('true')
+      const textId = icon.querySelector('.sr-only')!.id
+      expect(trigger().getAttribute('aria-describedby')).toContain(textId)
+    })
+
     it('Field label click targets the trigger id', () => {
       make({ withField: { label: 'Fruit', id: 'fruit2' } })
       expect(q('[data-slot="field-label"]')!.getAttribute('for')).toBe('fruit2')

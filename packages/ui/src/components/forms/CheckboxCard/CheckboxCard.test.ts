@@ -329,3 +329,42 @@ describe('useControllable', () => {
     expect(c.value.value).toBe(5)
   })
 })
+
+describe('Field required and wiring', () => {
+  const grouped = (required: boolean, modelValue?: string[]) =>
+    mount(
+      defineComponent({
+        render: () =>
+          h(Field, { label: 'Pick', required }, () =>
+            h(CheckboxCardGroup, { modelValue, name: 'k' }, () => [h(CheckboxCard, { value: 'a', title: 'A' }), h(CheckboxCard, { value: 'b', title: 'B' })]),
+          ),
+      }),
+    )
+
+  // aria-required is not allowed on role=group (ARIA 1.2), so each checkbox carries the required state while none is checked.
+  it('group in a required Field: native required on every card only while nothing is checked, none on the group', async () => {
+    const w = grouped(true, [])
+    expect(w.find('[data-slot=checkbox-card-group]').attributes('aria-required')).toBeUndefined()
+    expect(w.findAll('input').every((i) => i.attributes('required') !== undefined)).toBe(true)
+    const w2 = grouped(true, ['a'])
+    expect(w2.findAll('input').every((i) => i.attributes('required') === undefined)).toBe(true)
+  })
+
+  it('group in a non-required Field has no aria-required or native required', () => {
+    const w = grouped(false, [])
+    expect(w.find('[data-slot=checkbox-card-group]').attributes('aria-required')).toBeUndefined()
+    expect(w.findAll('input').every((i) => i.attributes('required') === undefined)).toBe(true)
+  })
+
+  it('a lone card in a required Field keeps native required and gets the Field id and description', () => {
+    const w = mount(
+      defineComponent({
+        render: () => h(Field, { label: 'Terms', required: true, hint: 'Read first' }, () => h(CheckboxCard, { title: 'Accept' })),
+      }),
+    )
+    const el = input(w)
+    expect(el.attributes('required')).toBeDefined()
+    expect(el.attributes('id')).toBe(w.find('label[for]').attributes('for'))
+    expect(el.attributes('aria-describedby')).toContain(`${el.attributes('id')}-hint`)
+  })
+})

@@ -5,6 +5,8 @@ import { cn } from '../../../lib/cn'
 import { useRequireAccessibleName } from '../../../lib/contract'
 import { focusRing } from '../../../lib/styles'
 import Icon from '../../primitives/Icon/Icon.vue'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
+import { formatLabel } from '../Field/format-label'
 import { useFieldControl } from '../Field/useFieldContext'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
 import { normalizeFieldSize, normalizeStatus, type FieldSize, type FieldStatus } from '../Field/field-variants'
@@ -65,14 +67,45 @@ const fieldStatus = computed(() => normalizeStatus(props.status))
 const fieldSize = computed(() => normalizeFieldSize(props.size))
 const control = useFieldControl({ invalid: () => props.invalid || fieldStatus.value === 'error', disabled: () => props.disabled, required: () => props.required })
 
+const labels = useConfigLabels('fileDropzone', {
+  prompt: 'Drag and drop files here, or click to browse',
+  dragging: 'Drop to upload',
+  remove: 'Remove {name}',
+  added: '{name} added',
+  addedMany: '{count} files added',
+  removed: '{name} removed',
+  typeNotAllowed: 'file type not allowed',
+  tooLarge: 'larger than {size}',
+  onlyOne: 'Only one file is allowed',
+  atMost: 'At most {count} files are allowed',
+  accepts: 'Accepts {types}',
+  upTo: 'Up to {size}',
+  maxFiles: 'Max {count} files',
+})
+
 const files = ref<File[]>([...(props.modelValue ?? [])])
-// Keep in sync with controlled usage.
+// Keep in sync with controlled usage; null clears.
 watch(
   () => props.modelValue,
   (v) => {
-    if (v) files.value = [...v]
+    files.value = v ? [...v] : []
   },
 )
+
+// The native input mirrors the selection so a native form submit posts the files.
+// Without DataTransfer the input keeps what the browser selected and is never cleared.
+function syncInput() {
+  const el = inputEl.value
+  if (!el || typeof DataTransfer === 'undefined') return
+  try {
+    const transfer = new DataTransfer()
+    files.value.forEach((f) => transfer.items.add(f))
+    el.files = transfer.files
+  } catch {
+    /* some environments forbid assigning files */
+  }
+}
+watch(files, syncInput, { flush: 'post' })
 
 const dragging = ref(false)
 const errorMessage = ref('')
@@ -129,10 +162,10 @@ function formatSize(bytes: number): string {
 function describe(rejections: FileRejection[]): string {
   const by = (r: FileRejectReason) => rejections.filter((x) => x.reason === r)
   const parts: string[] = []
-  if (by('type').length) parts.push(`${by('type').map((x) => x.file.name).join(', ')}: file type not allowed`)
-  if (by('size').length) parts.push(`${by('size').map((x) => x.file.name).join(', ')}: larger than ${formatSize(props.maxSize!)}`)
+  if (by('type').length) parts.push(`${by('type').map((x) => x.file.name).join(', ')}: ${labels.value.typeNotAllowed}`)
+  if (by('size').length) parts.push(`${by('size').map((x) => x.file.name).join(', ')}: ${formatLabel(labels.value.tooLarge, { size: formatSize(props.maxSize!) })}`)
   if (by('count').length) {
-    parts.push(limit.value === 1 ? 'Only one file is allowed' : `At most ${limit.value} files are allowed`)
+    parts.push(limit.value === 1 ? labels.value.onlyOne : formatLabel(labels.value.atMost, { count: limit.value }))
   }
   return parts.join('. ')
 }
@@ -159,7 +192,7 @@ function addFiles(incoming: File[]) {
   }
   if (accepted.length) {
     files.value = [...base, ...accepted]
-    statusMessage.value = accepted.length === 1 ? `${accepted[0].name} added` : `${accepted.length} files added`
+    statusMessage.value = accepted.length === 1 ? formatLabel(labels.value.added, { name: accepted[0].name }) : formatLabel(labels.value.addedMany, { count: accepted.length })
     emit('update:modelValue', [...files.value])
   }
 }
@@ -169,7 +202,7 @@ function removeFile(index: number) {
   const removed = files.value[index]
   files.value = files.value.filter((_, i) => i !== index)
   errorMessage.value = ''
-  statusMessage.value = removed ? `${removed.name} removed` : ''
+  statusMessage.value = removed ? formatLabel(labels.value.removed, { name: removed.name }) : ''
   emit('update:modelValue', [...files.value])
 }
 
@@ -180,12 +213,7 @@ function open() {
 function onChange(e: Event) {
   const el = e.target as HTMLInputElement
   addFiles(Array.from(el.files ?? []))
-  // Allow picking the same file again.
-  try {
-    el.value = ''
-  } catch {
-    /* some environments forbid resetting file inputs */
-  }
+  syncInput()
 }
 
 let dragDepth = 0
@@ -225,9 +253,9 @@ const describedBy = computed(
 
 const hint = computed(() => {
   const parts: string[] = []
-  if (props.accept) parts.push(`Accepts ${props.accept.split(',').map((t) => t.trim()).filter(Boolean).join(', ')}`)
-  if (props.maxSize !== undefined) parts.push(`Up to ${formatSize(props.maxSize)}`)
-  if (props.multiple && props.maxFiles) parts.push(`Max ${props.maxFiles} files`)
+  if (props.accept) parts.push(formatLabel(labels.value.accepts, { types: props.accept.split(',').map((t) => t.trim()).filter(Boolean).join(', ') }))
+  if (props.maxSize !== undefined) parts.push(formatLabel(labels.value.upTo, { size: formatSize(props.maxSize) }))
+  if (props.multiple && props.maxFiles) parts.push(formatLabel(labels.value.maxFiles, { count: props.maxFiles }))
   return parts.join('. ')
 })
 
@@ -269,7 +297,7 @@ const areaClasses = computed(() =>
       <span v-if="ariaLabel" :id="labelId" data-slot="file-dropzone-label" class="sr-only">{{ ariaLabel }}</span>
       <slot :dragging="dragging">
         <Icon :icon="faCloudArrowUp" :size="FILE_DROPZONE_ICON_SIZES[fieldSize]" />
-        <span class="font-medium text-foreground">{{ dragging ? 'Drop to upload' : 'Drag and drop files here, or click to browse' }}</span>
+        <span class="font-medium text-foreground">{{ dragging ? labels.dragging : labels.prompt }}</span>
         <span v-if="hint" class="text-xs">{{ hint }}</span>
       </slot>
     </button>
@@ -286,7 +314,7 @@ const areaClasses = computed(() =>
       :accept="accept"
       :multiple="multiple"
       :disabled="control.disabled.value"
-      :required="control.required.value || undefined"
+      :required="(control.required.value && !files.length) || undefined"
       @focus="areaEl?.focus()"
       @change="onChange"
     />
@@ -306,7 +334,7 @@ const areaClasses = computed(() =>
         <button
           type="button"
           data-slot="file-dropzone-remove"
-          :aria-label="`Remove ${file.name}`"
+          :aria-label="formatLabel(labels.remove, { name: file.name })"
           :disabled="control.disabled.value"
           :class="cn('inline-flex size-6 shrink-0 items-center pointer-coarse:size-11 justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50', focusRing)"
           @click="removeFile(i)"

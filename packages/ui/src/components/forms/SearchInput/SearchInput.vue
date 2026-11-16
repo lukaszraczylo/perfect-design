@@ -6,6 +6,7 @@ import { cn } from '../../../lib/cn'
 import { requireText, useRequireAccessibleName } from '../../../lib/contract'
 import Icon from '../../primitives/Icon/Icon.vue'
 import { useFieldControl } from '../Field/useFieldContext'
+import { useRejectableModel } from '../Field/useControlledValue'
 import { useNativeValidation } from '../Field/useNativeValidation'
 import { fieldAddonButton } from '../Field/field-styles'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
@@ -62,6 +63,7 @@ watch(
     model.value = v ?? ''
   },
 )
+const settle = useRejectableModel(() => props.modelValue, model, '')
 
 const inputEl = ref<HTMLInputElement | null>(null)
 useNativeValidation(inputEl)
@@ -99,6 +101,7 @@ function onInput(e: Event) {
   const v = (e.target as HTMLInputElement).value
   model.value = v
   emit('update:modelValue', v)
+  settle()
   void debouncedSearch(v)
 }
 
@@ -112,6 +115,7 @@ function clear() {
   debouncedSearch.cancel()
   model.value = ''
   emit('update:modelValue', '')
+  settle()
   emit('clear')
   emit('search', '')
   inputEl.value?.focus()

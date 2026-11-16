@@ -8,6 +8,8 @@ import { inputGroupAddonVariants } from './variants'
 export interface InputGroupAddonProps {
   /** Element to render. Use `span` inside a `label`. */
   as?: PrimitiveProps['as']
+  /** Render the single child element instead of a wrapper and merge the addon's attributes and classes into it. */
+  asChild?: boolean
   class?: HTMLAttributes['class']
 }
 
@@ -17,5 +19,5 @@ const classes = computed(() => cn(inputGroupAddonVariants({ layout: group?.layou
 </script>
 
 <template>
-  <Primitive data-slot="input-group-addon" :as="as" :class="classes"><slot /></Primitive>
+  <Primitive data-slot="input-group-addon" :as="as" :as-child="asChild" :class="classes"><slot /></Primitive>
 </template>

@@ -4,6 +4,12 @@ import { defineComponent, h } from 'vue'
 import Fieldset from './Fieldset.vue'
 
 describe('Fieldset', () => {
+  it('merges a consumer aria-describedby with the description id', () => {
+    const w = mount(Fieldset, { props: { legend: 'L', description: 'D' }, attrs: { 'aria-describedby': 'extra' } })
+    const id = w.find('[data-slot=fieldset-description]').attributes('id')!
+    expect(w.attributes('aria-describedby')).toBe(`${id} extra`)
+  })
+
   it('renders a native fieldset with legend and content', () => {
     const w = mount(Fieldset, { props: { legend: 'Billing' }, slots: { default: '<input class="in" />' } })
     expect(w.element.tagName).toBe('FIELDSET')

@@ -18,6 +18,7 @@ import { cn } from '../../../lib/cn'
 import { useRequireAccessibleName } from '../../../lib/contract'
 import { floatingSurface } from '../../../lib/styles'
 import Icon from '../../primitives/Icon/Icon.vue'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
 import { useFieldControl } from '../Field/useFieldContext'
 import FieldStatusIcon from '../Field/FieldStatusIcon.vue'
 import { normalizeFieldSize, normalizeShape, normalizeStatus, normalizeVariant, type FieldShape, type FieldStatus, type FieldVariant } from '../Field/field-variants'
@@ -66,13 +67,14 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   modelValue: undefined,
   defaultValue: undefined,
   options: () => [],
-  emptyText: 'No results',
   open: undefined,
   size: 'md',
   variant: 'outline',
   shape: 'rounded',
   status: 'default',
 })
+const labels = useConfigLabels('combobox', { clearSelection: 'Clear selection', toggleOptions: 'Toggle options', empty: 'No results' })
+const emptyMessage = computed(() => props.emptyText ?? labels.value.empty)
 const emit = defineEmits<{ 'update:modelValue': [value: string]; 'update:open': [value: boolean] }>()
 
 const status = computed(() => normalizeStatus(props.status))
@@ -143,14 +145,14 @@ function onUpdate(v: unknown) {
         <ComboboxCancel
           v-if="clearable && current && !control.disabled.value"
           data-slot="combobox-clear"
-          aria-label="Clear selection"
+          :aria-label="labels.clearSelection"
           class="inline-flex size-6 items-center justify-center rounded-sm text-muted-foreground outline-hidden hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40 pointer-coarse:size-9"
         >
           <Icon :icon="faXmark" size="sm" />
         </ComboboxCancel>
         <ComboboxTrigger
           data-slot="combobox-trigger"
-          aria-label="Toggle options"
+          :aria-label="labels.toggleOptions"
           class="inline-flex size-6 items-center justify-center rounded-sm text-muted-foreground outline-hidden focus-visible:ring-3 focus-visible:ring-ring/40 disabled:opacity-50 pointer-coarse:size-9"
         >
           <Icon :icon="faChevronDown" size="sm" />
@@ -172,7 +174,7 @@ function onUpdate(v: unknown) {
       >
         <ComboboxViewport class="max-h-72 overflow-y-auto p-1">
           <ComboboxEmpty data-slot="combobox-empty" role="status" aria-live="polite" class="px-2 py-1.5 text-sm text-muted-foreground">
-            <slot name="empty">{{ emptyText }}</slot>
+            <slot name="empty">{{ emptyMessage }}</slot>
           </ComboboxEmpty>
           <ComboboxItem
             v-for="o in options"

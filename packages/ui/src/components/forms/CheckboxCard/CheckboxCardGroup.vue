@@ -64,6 +64,7 @@ provide(CHECKBOX_CARD_GROUP_KEY, {
   values,
   disabled: computed(() => control.disabled.value),
   invalid: computed(() => control.invalid.value),
+  required: computed(() => control.required.value),
   variant: computed(() => props.variant),
   size: computed(() => props.size),
   tone: computed(() => props.tone),

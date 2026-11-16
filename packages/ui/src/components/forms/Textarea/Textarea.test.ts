@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 import Textarea from './Textarea.vue'
 
 afterEach(() => vi.restoreAllMocks())
@@ -41,16 +42,23 @@ describe('Textarea', () => {
 
   describe('counter', () => {
     it('shows n / maxlength when showCount and maxlength', async () => {
-      const w = mount(Textarea, { props: { maxlength: 20, showCount: true, modelValue: 'abc' } })
+      const w = mount(Textarea, { props: { maxlength: 20, showCount: true, modelValue: 'abc', 'onUpdate:modelValue': (v: string) => w.setProps({ modelValue: v }) } })
       expect(w.find('[data-slot="textarea-count"]').text()).toBe('3 / 20')
       expect(w.find('textarea').attributes('maxlength')).toBe('20')
       await w.find('textarea').setValue('hello')
       expect(w.find('[data-slot="textarea-count"]').text()).toBe('5 / 20')
     })
 
-    it('counts unicode code points (emoji = 1)', () => {
+    it('counts UTF-16 code units, the unit maxlength enforces (emoji = 2)', () => {
       const w = mount(Textarea, { props: { maxlength: 10, showCount: true, modelValue: '🌍🌍é' } })
-      expect(w.find('[data-slot="textarea-count"]').text()).toBe('3 / 10')
+      expect(w.find('[data-slot="textarea-count"]').text()).toBe('5 / 10')
+    })
+
+    it('counter and limit text come from the ConfigProvider', () => {
+      const labels = { 'textarea.count': '{count} von {max}', 'textarea.limit': 'Grenze erreicht' }
+      const w = mount(defineComponent({ render: () => h(ConfigProvider, { labels }, () => h(Textarea, { maxlength: 3, showCount: true, modelValue: 'abc', 'aria-label': 'x' })) }))
+      expect(w.find('[data-slot="textarea-count"]').text()).toBe('3 von 3')
+      expect(w.find('[data-slot="textarea-limit-status"]').text()).toBe('Grenze erreicht')
     })
 
     it('highlights when the limit is reached', () => {
@@ -165,5 +173,26 @@ describe('Textarea', () => {
       for (const v of ['a', 'ab', 'abc']) await w.find('textarea').setValue(v)
       expect(w.emitted('update:modelValue')).toHaveLength(3)
     })
+  })
+})
+
+describe('Textarea controlled rejection', () => {
+  it('shows the prop value again when the parent does not accept the emitted value', async () => {
+    const w = mount(Textarea, { props: { modelValue: 'abc', 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('textarea')
+    await el.setValue('abcd')
+    await nextTick()
+    await nextTick()
+    expect((el.element as unknown as HTMLInputElement).value).toBe('abc')
+    w.unmount()
+  })
+  it('stays uncontrolled when modelValue is omitted', async () => {
+    const w = mount(Textarea, { props: { 'aria-label': 'x' }, attachTo: document.body })
+    const el = w.find('textarea')
+    await el.setValue('free')
+    await nextTick()
+    await nextTick()
+    expect((el.element as unknown as HTMLInputElement).value).toBe('free')
+    w.unmount()
   })
 })

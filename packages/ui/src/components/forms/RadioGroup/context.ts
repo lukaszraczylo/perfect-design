@@ -7,6 +7,7 @@ export interface RadioGroupContext {
   size: ComputedRef<RadioGroupSize | undefined>
   tone: ComputedRef<ChoiceTone | undefined>
   labelPosition: ComputedRef<ChoiceLabelPosition | undefined>
+  disabled: ComputedRef<boolean>
 }
 
 export const RADIO_GROUP_KEY: InjectionKey<RadioGroupContext> = Symbol('perfect-design:radio-group')
