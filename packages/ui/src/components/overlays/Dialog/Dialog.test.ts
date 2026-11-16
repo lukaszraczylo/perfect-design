@@ -294,3 +294,16 @@ describe('Dialog variations', () => {
     })
   })
 })
+
+describe('DialogContent attributes', () => {
+  it('lands id, data-* and aria-* on the dialog element, so aria-label names it', async () => {
+    make({ open: true, contentProps: { id: 'settings', 'data-testid': 'dlg', 'aria-label': 'Settings', 'aria-describedby': 'extra' } })
+    await nextTick()
+    const el = q('[data-slot="dialog-content"]')!
+    expect(el.getAttribute('id')).toBe('settings')
+    expect(el.getAttribute('data-testid')).toBe('dlg')
+    expect(el.getAttribute('aria-label')).toBe('Settings')
+    expect(el.getAttribute('aria-describedby')).toBe('extra')
+    expect(el.getAttribute('role')).toBe('dialog')
+  })
+})

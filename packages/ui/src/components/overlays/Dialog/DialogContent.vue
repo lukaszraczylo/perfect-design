@@ -29,6 +29,8 @@ export interface DialogContentOwnProps {
   showClose?: boolean
 }
 
+defineOptions({ inheritAttrs: false })
+
 const props = withDefaults(defineProps<DialogContentProps & DialogContentOwnProps>(), {
   size: 'md',
   variant: 'default',
@@ -60,7 +62,7 @@ const toneKey = computed<OverlayTone>(() => normalizeOverlayTone(props.tone))
     <RekaContent
       data-slot="dialog-content"
       :data-tone="toneKey === 'neutral' ? undefined : toneKey"
-      v-bind="forwarded"
+      v-bind="{ ...attrs, ...forwarded }"
       :class="cn(dialogContentVariants({ variant: variantKey, size: sizeKey, tone: toneKey }), props.class)"
     >
       <RequiredPartsProbe owner="DialogContent" />
