@@ -426,3 +426,18 @@ describe('sequence parse: edge cases', () => {
 function expectArrow(run: string): string {
   return `Unknown arrow "${run}". Use one of ->>, -->>, ->, -->, -x, --x, -) or --).`
 }
+
+describe('sequence parse: linear time', () => {
+  it('long whitespace runs in participant and note lines stay fast', () => {
+    const sp = ' '.repeat(20000)
+    const t0 = performance.now()
+    parseMermaid(`sequenceDiagram\n  participant A${sp}x\n  participant B${sp}`)
+    parseMermaid(`sequenceDiagram\n  participant A\n  Note over A${sp}x`)
+    parseMermaid(`sequenceDiagram\n  Note over A${sp}`)
+    expect(performance.now() - t0).toBeLessThan(500)
+  })
+  it('still reads aliases and notes', () => {
+    const ast = ok('sequenceDiagram\n  participant B as Bob Jones\n  participant A\n  Note over A,B : hi')
+    expect(ast.participants.map((p) => p.label)).toContain('Bob Jones')
+  })
+})

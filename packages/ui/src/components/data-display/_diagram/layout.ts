@@ -508,7 +508,7 @@ export function layoutGraph(nodes: LayoutNode[], edges: LayoutEdge[], clusters: 
     levels.set(id, lvl)
     return lvl
   }
-  const byDepth = [...clusters].sort((a, b) => depth(b.id) - depth(a.id) || clusters.indexOf(a) - clusters.indexOf(b))
+  const byDepth = clusters.toSorted((a, b) => depth(b.id) - depth(a.id) || clusters.indexOf(a) - clusters.indexOf(b))
   for (const c of byDepth) {
     const lvl = runLevel(c.id)
     const pad = opts.clusterPad

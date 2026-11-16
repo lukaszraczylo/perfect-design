@@ -246,6 +246,8 @@ Use \`Markdown\` for prose with code fences, \`CodeViewer\` to show plain source
     { name: 'description', type: 'string', description: 'Longer accessible description. Wins over `accDescr`. Without either, an automatic summary such as "Flowchart with 6 nodes and 7 connections, top to bottom" describes the image.' },
     { name: 'maxNodes', type: 'number', default: '300', description: 'Largest diagram that is drawn, counted in nodes (states, classes, entities, tasks, participants, slices...). Above it an inline error is shown instead of laying out the graph.' },
     { name: 'maxEdges', type: 'number', default: '600', description: 'Largest number of connections (edges, messages, relations) that is drawn.' },
+    { name: 'maxSourceLength', type: 'number', default: '100000', description: 'Longest source, in characters, that is parsed. Longer text shows a size error before any parsing.' },
+    { name: 'maxLineLength', type: 'number', default: '2000', description: 'Longest single source line, in characters, that is parsed. A longer line shows a size error naming the line.' },
     { name: 'as', type: 'string', default: "'figure'", description: 'Root element. With `figure` the title is a `figcaption`.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge onto the root element.' },
   ],

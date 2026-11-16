@@ -132,6 +132,30 @@ function findArrow(head: string): Found | undefined {
   return best
 }
 
+/** `A as Alice` split at the first standalone "as", by scanning so long whitespace runs cost linear time. */
+function splitAlias(rest: string): { id: string; label: string } | undefined {
+  let at = rest.indexOf('as')
+  while (at !== -1) {
+    const before = rest[at - 1]
+    const after = rest[at + 2]
+    if (at > 0 && /\s/.test(before!) && (after === undefined || /\s/.test(after))) return { id: rest.slice(0, at).trim(), label: rest.slice(at + 2).trim() }
+    at = rest.indexOf('as', at + 1)
+  }
+  return undefined
+}
+
+const NOTE_HEAD = /^[Nn]ote\s+(left of|right of|over)\s+/
+
+/** `Note over A,B: text` as [whole, side, names, text]; names and text split on the first colon without lazy backtracking. */
+function matchNote(text: string): [string, string, string, string | undefined] | undefined {
+  const head = NOTE_HEAD.exec(text)
+  if (!head) return undefined
+  const tail = text.slice(head[0].length)
+  const colon = tail.indexOf(':')
+  const names = (colon === -1 ? tail : tail.slice(0, colon)).trimEnd()
+  return [text, head[1]!, names, colon === -1 ? undefined : tail.slice(colon + 1)]
+}
+
 export function parseSequence(p: PreparedSource): SequenceAst {
   if (p.rest !== '' && p.rest !== ';') fail(p.header.no, p.header.col + p.header.text.indexOf(p.rest, p.keyword.length), 'Put each statement on its own line below "sequenceDiagram".')
 
@@ -175,10 +199,10 @@ export function parseSequence(p: PreparedSource): SequenceAst {
       }
       if (id.trim() === '') return fail(l.no, col, `"${kw}" needs a name, the quoted name is empty.`)
     } else {
-      const as = /^(.*?)\s+as(?:\s+(.*))?$/.exec(rest)
+      const as = splitAlias(rest)
       if (as) {
-        id = as[1]!.trim()
-        label = (as[2] ?? '').trim()
+        id = as.id
+        label = as.label
         if (label === '') return fail(l.no, col + rest.length, 'Write the display text after "as", for example "participant A as Alice".')
       } else id = rest
     }
@@ -198,11 +222,11 @@ export function parseSequence(p: PreparedSource): SequenceAst {
   }
 
   const note = (l: SourceLine): void => {
-    const m = /^[Nn]ote\s+(left of|right of|over)\s+([^:]*?)\s*(?::(.*))?$/.exec(l.text)
+    const m = matchNote(l.text)
     if (!m) return fail(l.no, l.col, 'A note is written as "Note left of A: text", "Note right of A: text" or "Note over A,B: text".')
     const side = m[1] === 'left of' ? 'left' : m[1] === 'right of' ? 'right' : 'over'
     const names = m[2]!.split(',').map((n) => n.trim())
-    const namesCol = l.col + l.text.indexOf(m[2]!, m[0].indexOf(m[1]!) + m[1]!.length)
+    const namesCol = l.col + l.text.indexOf(m[2]!, l.text.indexOf(m[1]!) + m[1]!.length)
     if (names.some((n) => n === '')) return fail(l.no, namesCol, `Name the participant${side === 'over' ? 's' : ''} the note belongs to, for example "Note ${m[1]} A: text".`)
     if (side !== 'over' && names.length > 1) return fail(l.no, namesCol, `A note "${m[1]}" takes one participant. Use "Note over A,B: text" to span two.`)
     if (names.length > 2) return fail(l.no, namesCol, 'A note spans at most two participants: "Note over A,B: text".')

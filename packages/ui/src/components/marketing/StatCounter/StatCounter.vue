@@ -68,7 +68,7 @@ const digits = computed(() => {
 
 function format(n: number): string {
   try {
-    return n.toLocaleString(props.locale, { minimumFractionDigits: digits.value, maximumFractionDigits: digits.value })
+    return n.toLocaleString(props.locale, { minimumFractionDigits: digits.value, maximumFractionDigits: digits.value, signDisplay: 'negative' as Intl.NumberFormatOptions['signDisplay'] })
   } catch {
     return n.toFixed(digits.value)
   }

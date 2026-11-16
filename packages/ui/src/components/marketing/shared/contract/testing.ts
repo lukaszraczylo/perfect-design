@@ -41,7 +41,7 @@ export function strictMount() {
       wrapper?.unmount()
       wrapper = undefined
       errors.length = 0
-      document.body.innerHTML = ''
+      document.body.replaceChildren()
     },
   }
 }

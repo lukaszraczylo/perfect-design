@@ -33,6 +33,8 @@ const props = withDefaults(defineProps<MermaidDiagramProps>(), {
   showTable: false,
   maxNodes: 300,
   maxEdges: 600,
+  maxSourceLength: 100_000,
+  maxLineLength: 2000,
   as: 'figure',
 })
 const emit = defineEmits<{
@@ -75,7 +77,32 @@ interface View {
   error?: MermaidParseError
 }
 
+const SNIPPET_LENGTH = 120
+
+// Checked before parsing so hostile or accidental megabyte input never reaches the parsers.
+function sizeError(source: string): MermaidParseError | undefined {
+  const maxSource = limit(props.maxSourceLength, 100_000)
+  const maxLine = limit(props.maxLineLength, 2000)
+  const clip = (text: string) => (text.length > SNIPPET_LENGTH ? `${text.slice(0, SNIPPET_LENGTH)}...` : text)
+  if (source.length > maxSource) {
+    return { code: 'limit', message: `The source has ${source.length} characters, more than maxSourceLength (${maxSource}). Shorten the source or raise maxSourceLength.`, line: 1, column: 1, sourceLine: clip(source.split('\n', 1)[0]!) }
+  }
+  let start = 0
+  for (let no = 1; start <= source.length; no++) {
+    const end = source.indexOf('\n', start)
+    const stop = end === -1 ? source.length : end
+    if (stop - start > maxLine) {
+      return { code: 'limit', message: `Line ${no} has ${stop - start} characters, more than maxLineLength (${maxLine}). Split the line or raise maxLineLength.`, line: no, column: 1, sourceLine: clip(source.slice(start, stop)) }
+    }
+    if (end === -1) break
+    start = end + 1
+  }
+  return undefined
+}
+
 const view = computed<View>(() => {
+  const tooBig = typeof props.source === 'string' ? sizeError(props.source) : undefined
+  if (tooBig) return { error: tooBig }
   const parsed = parseMermaid(props.source)
   if (!parsed.ok) return { error: parsed.errors[0] }
   const result = renderModel(parsed.ast, {

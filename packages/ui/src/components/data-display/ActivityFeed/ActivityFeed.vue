@@ -11,6 +11,7 @@ import { getInitials } from '../../primitives/Avatar/context'
 import Button from '../../primitives/Button/Button.vue'
 import Icon from '../../primitives/Icon/Icon.vue'
 import { hasAriaName, hasText, useMountedCheck } from '../_shared/contract'
+import { useDateLocale } from '../_shared/dateLocale'
 import { formatRelative, makeFormatters, toDate } from './format'
 import {
   ACTIVITY_FEED_DENSITIES,
@@ -65,9 +66,9 @@ export interface ActivityFeedProps extends BaseProps {
   now?: Date | string | number
   /** Relative text ("2 hours ago") for events up to a week old. Off: always the absolute date and time. */
   relative?: boolean
-  /** BCP 47 locale for dates and relative text. Defaults to the runtime locale. */
+  /** BCP 47 locale for dates and relative text. Defaults to `ConfigProvider`, then `en`. */
   locale?: string
-  /** IANA time zone for dates and day groups, e.g. `UTC`. Defaults to the runtime zone. */
+  /** IANA time zone for dates and day groups, e.g. `UTC`. Falls back to `ConfigProvider`, then `UTC`. */
   timeZone?: string
   /** Heading level of the group headings in `grouped`, 2 to 6. */
   headingLevel?: 2 | 3 | 4 | 5 | 6
@@ -139,7 +140,8 @@ const avatars = computed(() => props.showAvatars && (variant.value === 'list' ||
 const AVATAR_SIZES = { sm: 'xs', md: 'sm', lg: 'md' } as const
 
 /* -------------------------------------------------------------------------- time */
-const fmt = computed(() => makeFormatters(props.locale, props.timeZone))
+const dateLocale = useDateLocale(props)
+const fmt = computed(() => makeFormatters(dateLocale.locale.value, dateLocale.timeZone.value))
 const mountedNow = ref<Date | null>(null)
 let timer: ReturnType<typeof setInterval> | undefined
 const referenceNow = computed<Date | null>(() => (props.now !== undefined && props.now !== null ? toDate(props.now) : mountedNow.value))

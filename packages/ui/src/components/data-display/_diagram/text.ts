@@ -37,6 +37,50 @@ export function decodeEntities(text: string): string {
   })
 }
 
+const EMPHASIS_MARKERS = ['**', '__', '*', '_']
+const isWordish = (c: string | undefined): boolean => c !== undefined && /[\w*_]/.test(c)
+
+/** Drops `**x**`, `__x__`, `*x*` and `_x_` wrapped around a phrase on one line, in a left-to-right scan with no regex backtracking. */
+function stripEmphasis(t: string): string {
+  // a failed search from `from` proves every later search for the same marker fails too
+  const failedFrom = new Map<string, number>()
+  const closer = (from: number, marker: string): number => {
+    if (from >= (failedFrom.get(marker) ?? Infinity)) return -1
+    let at = t.indexOf(marker, from)
+    while (at !== -1) {
+      if (!/\s/.test(t[at - 1]!) && !isWordish(t[at + marker.length])) return at
+      at = t.indexOf(marker, at + 1)
+    }
+    failedFrom.set(marker, from)
+    return -1
+  }
+  let out = ''
+  let i = 0
+  while (i < t.length) {
+    if (!isWordish(t[i - 1])) {
+      let close = -1
+      let marker = ''
+      for (const m of EMPHASIS_MARKERS) {
+        const next = t[i + m.length]
+        if (!t.startsWith(m, i) || next === undefined || /\s/.test(next)) continue
+        close = closer(i + m.length + 1, m)
+        if (close !== -1) {
+          marker = m
+          break
+        }
+      }
+      if (close !== -1) {
+        out += t.slice(i + marker.length, close)
+        i = close + marker.length
+        continue
+      }
+    }
+    out += t[i]
+    i++
+  }
+  return out
+}
+
 /** A label as plain text lines: `<br>` and `\n` break lines, markdown emphasis and html tags are dropped, entities decoded. */
 export function cleanLabel(raw: string): string[] {
   let t = raw.trim()
@@ -46,7 +90,7 @@ export function cleanLabel(raw: string): string[] {
   // HTML tags are never rendered: they are dropped and only their text stays
   t = t.replace(/<\/?[a-z][^<>]*>/gi, '')
   // emphasis markers only when they wrap a word or phrase, never inside words (snake_case_name stays intact)
-  t = t.replace(/(?<![\w*_])(\*\*|__)(?=\S)(.+?)(?<=\S)\1(?![\w*_])/g, '$2').replace(/(?<![\w*_])([*_])(?=\S)(.+?)(?<=\S)\1(?![\w*_])/g, '$2')
+  t = t.split('\n').map(stripEmphasis).join('\n')
   t = decodeEntities(t)
   return t.split('\n').map((l) => l.trim()).filter((l, i, a) => l !== '' || a.length === 1)
 }

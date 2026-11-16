@@ -688,7 +688,7 @@ function commitMoves(moves: Map<string, Point>, reason: 'move' | 'layout', label
 
 function moveByKeys(id: string, dx: number, dy: number) {
   const ids = selNodes.value.has(id) ? new Set(selNodes.value) : new Set([id])
-  const key = `keys:${[...ids].sort().join('|')}`
+  const key = `keys:${Array.from(ids).sort().join('|')}`
   moveNodes(ids, dx, dy, 'move', undefined, key)
   const n = nodeMap.value.get(id)
   announce(ids.size === 1 && n ? `Moved ${n.label} to ${r2(n.x + dx)}, ${r2(n.y + dy)}.` : `Moved ${plural(ids.size, 'node')}.`)

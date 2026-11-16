@@ -38,7 +38,7 @@ function pathEnds(pts: Pt[]): { start: Pt; afterStart: Pt; end: Pt; beforeEnd: P
     start: first,
     afterStart: pts.find((p) => near(p, first)) ?? first,
     end: last,
-    beforeEnd: [...pts].reverse().find((p) => near(p, last)) ?? last,
+    beforeEnd: pts.findLast((p) => near(p, last)) ?? last,
   }
 }
 

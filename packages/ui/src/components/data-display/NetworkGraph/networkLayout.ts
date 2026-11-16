@@ -254,7 +254,7 @@ export function computeNetworkLayout(g: NormGraph, layout: NetworkLayout): Layou
 
 /** Convex hull (Andrew's monotone chain), counter-clockwise, no repeated points. Fewer than 3 distinct points are returned as is. */
 export function convexHull(points: UnitPoint[]): UnitPoint[] {
-  const pts = [...points].sort((a, b) => a.x - b.x || a.y - b.y).filter((p, i, a) => i === 0 || p.x !== a[i - 1]!.x || p.y !== a[i - 1]!.y)
+  const pts = points.toSorted((a, b) => a.x - b.x || a.y - b.y).filter((p, i, a) => i === 0 || p.x !== a[i - 1]!.x || p.y !== a[i - 1]!.y)
   if (pts.length < 3) return pts
   const cross = (o: UnitPoint, a: UnitPoint, b: UnitPoint) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
   const lower: UnitPoint[] = []

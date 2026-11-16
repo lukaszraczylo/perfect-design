@@ -5,6 +5,7 @@ import { cn } from '../../../lib/cn'
 import Icon from '../../primitives/Icon/Icon.vue'
 import { DEFAULT_MAX_WIDTH, DEFAULT_MIN_WIDTH, RESIZE_STEP, RESIZE_STEP_LARGE, resizeBy } from './column-sizing'
 import type { DataGridColumn } from './types'
+import { GRID_FOCUS } from './variants'
 
 const props = defineProps<{
   column: DataGridColumn<never>
@@ -111,8 +112,8 @@ function onHandleKeydown(event: KeyboardEvent) {
 const cellClasses = computed(() =>
   cn(
     props.pinned ? 'sticky z-10' : 'relative',
-    'flex h-full min-w-0 items-center gap-1 bg-muted font-medium text-foreground outline-hidden select-none',
-    'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+    'flex h-full min-w-0 items-center gap-1 bg-muted font-medium text-foreground select-none',
+    GRID_FOCUS,
     ALIGN[align.value],
     props.paddingClass,
   ),
@@ -137,7 +138,7 @@ const cellClasses = computed(() =>
       tabindex="-1"
       data-slot="data-grid-sort"
       :data-direction="direction ?? 'none'"
-      :class="cn('flex h-full min-w-0 flex-1 items-center gap-1.5 outline-hidden', ALIGN[align], direction ? 'text-foreground' : 'text-muted-foreground')"
+      :class="cn('flex h-full min-w-0 flex-1 items-center gap-1.5', GRID_FOCUS, ALIGN[align], direction ? 'text-foreground' : 'text-muted-foreground')"
       @click.stop="emit('sort')"
     >
       <span class="min-w-0 truncate"><slot>{{ label }}</slot></span>
@@ -156,7 +157,7 @@ const cellClasses = computed(() =>
       :aria-valuemax="max"
       :tabindex="tabbable ? 0 : -1"
       style="width: 24px; touch-action: none"
-      class="group/handle absolute inset-y-0 end-0 z-10 flex cursor-col-resize items-center justify-end outline-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+      :class="cn('group/handle absolute inset-y-0 end-0 z-10 flex cursor-col-resize items-center justify-end', GRID_FOCUS)"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
       @pointerup="onPointerUp"

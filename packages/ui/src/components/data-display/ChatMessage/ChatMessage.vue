@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useDateLocale } from '../_shared/dateLocale'
 import { Primitive, type PrimitiveProps } from 'reka-ui'
 import { cn } from '../../../lib/cn'
 import { accessibleName, violation } from '../../../lib/contract'
@@ -38,9 +39,9 @@ export interface ChatMessageProps extends BaseProps {
   datetime?: ChatDateInput
   /** Visible time text instead of the formatted time, for example `Just now`. Shown as plain text when `datetime` is missing or invalid. */
   timeLabel?: string
-  /** BCP 47 locale for the formatted time. Bad values fall back to the runtime default. */
+  /** BCP 47 locale for the formatted time. Falls back to `ConfigProvider`, then `en`. */
   locale?: string
-  /** IANA time zone for the formatted time (for example `UTC`), so server and browser render the same text. Bad values fall back to local time. */
+  /** IANA time zone for the formatted time (for example `UTC`), so server and browser render the same text. Falls back to `ConfigProvider`, then `UTC`. */
   timeZone?: string
   /** Visually hidden text read before the content, for example `Ada said`. Defaults to a plain phrase for the role ("You said", "Assistant said", "System message", "Tool result"); the appended colon is added for you. */
   roleLabel?: string
@@ -103,7 +104,8 @@ const statusText = computed(() => (status.value ? (props.statusLabel?.trim() ? p
 const roleText = computed(() => (props.roleLabel?.trim() ? props.roleLabel.trim().replace(/[:\s]+$/, '') : ROLE_LABELS[role.value]))
 
 const date = computed(() => toDate(props.datetime))
-const timeText = computed(() => (props.timeLabel?.trim() ? props.timeLabel : date.value ? formatTime(date.value, props.locale, props.timeZone) : ''))
+const dateLocale = useDateLocale(props)
+const timeText = computed(() => (props.timeLabel?.trim() ? props.timeLabel : date.value ? formatTime(date.value, dateLocale.locale.value, dateLocale.timeZone.value) : ''))
 const hasName = computed(() => !!props.name?.trim())
 
 const markdownComponents = computed(() => (props.showImages ? undefined : { image: ChatMessageImageLink }))

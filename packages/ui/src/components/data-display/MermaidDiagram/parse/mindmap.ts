@@ -93,6 +93,18 @@ function parseNodeText(t: string, no: number, col: number): Parsed {
   return { id: '', text: quoted ? t.slice(1, -1).trim() || t : t, shape: 'default' }
 }
 
+const CLASS_NAMES = /^[\p{L}\p{N}_\- ]+$/u
+
+/** `text :::a b` as [text, classes]; split at the last ":::" so trailing whitespace is never rescanned. */
+function matchInlineClass(t: string): [string, string, string] | undefined {
+  const at = t.lastIndexOf(':::')
+  if (at === -1) return undefined
+  const text = t.slice(0, at).trimEnd()
+  const classes = t.slice(at + 3)
+  if (text === '' || /\s/.test(text[0]!) || !CLASS_NAMES.test(classes)) return undefined
+  return [t, text, classes]
+}
+
 export function parseMindmap(p: PreparedSource): MindmapAst {
   const ast: MindmapAst = { type: 'mindmap', nodes: [], meta: p.meta }
   if (p.rest) fail(p.header.no, p.header.col + p.header.text.indexOf(p.rest, p.keyword.length), 'Put the root node on its own line below "mindmap", indented, for example "  root((Topic))".')
@@ -118,7 +130,7 @@ export function parseMindmap(p: PreparedSource): MindmapAst {
     if (ast.nodes.length > 0 && stack.length === 0) {
       fail(line.no, line.col, 'A mind map has one root, but this line is at the same level as it. Indent it to make it a child of a node, or remove it.')
     }
-    const inline = /^(\S.*?)\s*:::([\p{L}\p{N}_\- ]+)$/u.exec(t)
+    const inline = matchInlineClass(t)
     const parsed = parseNodeText(inline ? inline[1]! : t, line.no, line.col)
     const parent = stack.length ? stack[stack.length - 1]!.index : undefined
     ast.nodes.push({ ...parsed, depth: parent === undefined ? 0 : ast.nodes[parent]!.depth + 1, parent, classes: inline ? inline[2]!.split(/\s+/).filter(Boolean) : [], line: line.no })

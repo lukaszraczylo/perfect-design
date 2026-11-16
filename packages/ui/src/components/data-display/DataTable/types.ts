@@ -53,6 +53,10 @@ export interface DataTableProps<R> extends BaseProps {
   emptyText?: string
   /** Text for null / undefined cells. */
   nullText?: string
+  /** BCP 47 locale for Date cells. Falls back to `ConfigProvider`, then `en`. */
+  locale?: string
+  /** IANA time zone for Date cells. Falls back to `ConfigProvider`, then `UTC`. */
+  timeZone?: string
   /** Make rows clickable (emits `row-click`, keyboard accessible). */
   rowClickable?: boolean
   /** Cell padding scale: `compact`, `default` or `comfortable`. */

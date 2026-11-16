@@ -93,3 +93,12 @@ describe('StatCounter', () => {
     })
   })
 })
+
+describe('StatCounter negative zero', () => {
+  it('never renders -0 after rounding', () => {
+    expect(mount(StatCounter, { props: { value: -0.0001 } }).text()).toBe('0')
+    expect(mount(StatCounter, { props: { value: -0 } }).text()).toBe('0')
+    expect(mount(StatCounter, { props: { value: -0.001, decimals: 2 } }).text()).toBe('0.00')
+    expect(mount(StatCounter, { props: { value: -2.4 } }).text()).toBe('-2')
+  })
+})

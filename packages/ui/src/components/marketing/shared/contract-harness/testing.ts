@@ -25,7 +25,7 @@ export function useContractHarness() {
   afterEach(() => {
     wrapper?.unmount()
     wrapper = undefined
-    document.body.innerHTML = ''
+    document.body.replaceChildren()
     configureStrictMode('off')
     vi.unstubAllGlobals()
     vi.restoreAllMocks()

@@ -37,7 +37,8 @@ const badge = cva('inline-flex shrink-0 items-center justify-center rounded-sm b
       debug: 'border-border text-muted-foreground',
       info: 'border-info/40 bg-info/15 text-info',
       warn: 'border-warning/50 bg-warning/20 text-warning-foreground dark:text-warning',
-      error: 'border-destructive/40 bg-destructive/15 text-destructive',
+      // Solid surface: the row already carries a destructive/10 tint, and stacking a second tint left the text below 4.5:1.
+      error: 'border-destructive/40 bg-background text-destructive',
     },
   },
   defaultVariants: { level: 'debug' },

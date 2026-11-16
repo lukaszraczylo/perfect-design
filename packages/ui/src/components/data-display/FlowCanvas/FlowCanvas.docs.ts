@@ -200,13 +200,13 @@ const edges = ref([['n0', 'n1'], ['n1', 'n2'], ['n1', 'n3'], ['n3', 'n2'], ['n2'
     },
     {
       title: 'Custom node content and toolbar',
-      description: 'The `node` slot draws SVG inside the node; the `toolbar` slot receives the canvas actions.',
+      description: 'The `node` slot draws SVG inside the node (selection is shown by the dot, the text stays the node label); the `toolbar` slot receives the canvas actions.',
       script: `${NODES_SCRIPT}
 // slot props: { node, selected, active, connecting, width, height }`,
       code: `<FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample workflow with custom nodes" size="sm">
   <template #node="{ node, selected, width }">
-    <text :x="width / 2" y="20" text-anchor="middle" font-size="13" class="pointer-events-none fill-foreground">{{ node.label }}</text>
-    <text :x="width / 2" y="38" text-anchor="middle" font-size="11" class="pointer-events-none fill-muted-foreground">{{ selected ? 'selected' : node.id }}</text>
+    <circle :cx="14" cy="26" r="4" :class="selected ? 'fill-primary' : 'fill-muted-foreground'" />
+    <text :x="width / 2" y="26" dominant-baseline="central" text-anchor="middle" font-size="13" class="pointer-events-none fill-foreground">{{ node.label }}</text>
   </template>
   <template #toolbar="{ zoomIn, zoomOut, fit, canUndo, undo }">
     <Button size="sm" variant="outline" @click="zoomOut">Smaller</Button>
@@ -268,6 +268,7 @@ const edges = ref([])`,
   llmNotes: [
     'Always pass `label`, give every node a unique `id` and numeric `x` and `y`, and every connection a unique `id` with `from` and `to` node ids.',
     'Use `v-model:nodes` and `v-model:edges`; handle `connect` or `change` only to react (save, validate), not to re-add what the model already holds.',
+    'Text drawn in the `node` slot is the node\'s visible text, and the accessible name is `node.label`: draw the label itself (WCAG 2.5.3 label in name) and show extra state with shapes, not a second text.',
     'Do not put HTML or components inside nodes: use the `node` slot with SVG elements, in the node\'s own coordinates.',
     'Use `readonly` for display. Use `grid` (or `grid="20"`) when tidy alignment matters; use `autoLayout()` on a template ref to arrange imported data with no positions.',
     'Pick `edge-style="orthogonal"` for flowcharts, `curved` for graphs, `straight` for dense maps. Pick `direction` for auto layout, not for display.',

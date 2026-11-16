@@ -83,16 +83,19 @@ export function scaleLinear(d0: number, d1: number, r0: number, r1: number): (v:
   return (v) => r0 + (v - d0) * k
 }
 
-/** `1200` → `1.2K`. Non-finite → `–`. */
+// ES2023 value that older lib typings do not list: a value that rounds to zero prints without a sign
+const NO_NEGATIVE_ZERO = 'negative' as Intl.NumberFormatOptions['signDisplay']
+
+/** `1200` → `1.2K`. Non-finite → `–`. A value that rounds to zero prints `0`, never `-0`. */
 export function formatCompact(n: number): string {
   if (!isFiniteNumber(n)) return '–'
-  return new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n === 0 ? 0 : n)
+  return new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1, signDisplay: NO_NEGATIVE_ZERO }).format(n)
 }
 
 /** Full-precision-ish number for tooltips: `1234.5678` → `1,234.57`. Non-finite → `–`. */
 export function formatNumber(n: number): string {
   if (!isFiniteNumber(n)) return '–'
-  return new Intl.NumberFormat('en', { maximumFractionDigits: 2 }).format(n === 0 ? 0 : n)
+  return new Intl.NumberFormat('en', { maximumFractionDigits: 2, signDisplay: NO_NEGATIVE_ZERO }).format(n)
 }
 
 /** Split into runs of consecutive non-null points (gaps come from NaN/missing values). */

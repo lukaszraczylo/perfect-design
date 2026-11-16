@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
+import doc from './FlowCanvas.docs'
 import { EDGES, NODES, content, edgeEl, flush, mountCanvas, nodeEl, nodeIds, nodesProp, pointer, status, svgOf, unmountAll, viewport } from './testing'
 
 afterEach(unmountAll)
@@ -479,5 +480,15 @@ describe('FlowCanvas: minimap', () => {
     await nextTick()
     const v = (w.vm as unknown as { getViewport: () => { x: number; y: number } }).getViewport()
     expect(Number.isFinite(v.x) && Number.isFinite(v.y)).toBe(true)
+  })
+})
+
+describe('FlowCanvas docs: node slot', () => {
+  // The accessible name of a node is its label, so extra text in the slot would break WCAG 2.5.3 (label in name).
+  it('the custom node example draws the label as its only text', () => {
+    const example = (doc.examples ?? []).find((e) => e.code.includes('#node'))!
+    const slot = example.code.slice(example.code.indexOf('#node'), example.code.indexOf('</template>', example.code.indexOf('#node')))
+    expect([...slot.matchAll(/<text\b/g)]).toHaveLength(1)
+    expect(slot).toContain('{{ node.label }}')
   })
 })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Comment, Fragment, Text, computed, nextTick, onBeforeUnmount, onMounted, provide, ref, toRef, useAttrs, useId, useSlots, type VNode } from 'vue'
+import { Comment, Fragment, Text, computed, nextTick, onBeforeUnmount, onMounted, onUpdated, provide, ref, toRef, useAttrs, useId, useSlots, type VNode } from 'vue'
 import { requireOneOf, requireText } from '../../../lib/contract'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
@@ -34,9 +34,11 @@ export interface BoardColumnProps extends BaseProps {
   disabled?: boolean
   variant?: BoardColumnVariant
   size?: BoardColumnSize
+  /** Heading level of the column title, 2 to 6. */
+  headingLevel?: number
 }
 
-const props = withDefaults(defineProps<BoardColumnProps>(), { showCount: true, emptyText: 'No cards', variant: 'default', size: 'md' })
+const props = withDefaults(defineProps<BoardColumnProps>(), { showCount: true, emptyText: 'No cards', variant: 'default', size: 'md', headingLevel: 3 })
 const emit = defineEmits<{
   /** A card was dropped here. */
   move: [event: BoardColumnMoveEvent]
@@ -134,10 +136,26 @@ function dropIndex(e: DragEvent, cardId: string): number {
 }
 
 // Polite announcement for assistive tech: a dropped card changes the page without moving focus.
+// A drop is only a request. The move is announced once the card is rendered at the dropped position in this column,
+// so a rejected move (the consumer ignored `move`) is never announced.
 const announcement = ref('')
-function cardName(id: string): string {
-  const el = typeof document === 'undefined' ? null : Array.from(document.querySelectorAll<HTMLElement>('[data-slot="board-card"]')).find((c) => c.dataset.cardId === id)
-  return el?.querySelector('[data-slot="board-card-title"]')?.textContent?.trim() || id
+const PENDING_MS = 10_000
+let pending: { id: string; index: number; timer: ReturnType<typeof setTimeout> } | null = null
+function boardCards(): HTMLElement[] {
+  return Array.from(rootEl.value?.querySelectorAll<HTMLElement>('[data-slot="board-card"]') ?? [])
+}
+function clearPending() {
+  if (pending) clearTimeout(pending.timer)
+  pending = null
+}
+function confirmPending() {
+  if (!pending) return
+  const cards = boardCards()
+  const at = cards.findIndex((c) => c.dataset.cardId === pending!.id)
+  if (at !== pending.index) return
+  const name = cards[at]!.querySelector('[data-slot="board-card-title"]')?.textContent?.trim() || pending.id
+  announce(`Moved ${name} to ${props.title ?? props.id}, position ${at + 1}`)
+  clearPending()
 }
 /** Announce a result (for example after handling a keyboard `move` request). Replaces the previous message. */
 function announce(message: string) {
@@ -145,6 +163,7 @@ function announce(message: string) {
   void nextTick(() => (announcement.value = message))
 }
 defineExpose({ announce })
+onUpdated(confirmPending)
 
 function onDrop(e: DragEvent) {
   resetOver()
@@ -153,8 +172,10 @@ function onDrop(e: DragEvent) {
   if (!payload || !sourceAllowed(payload)) return // foreign data (files, text, other apps): leave to the browser
   e.preventDefault()
   const index = dropIndex(e, payload.id)
+  clearPending()
+  pending = { id: payload.id, index, timer: setTimeout(clearPending, PENDING_MS) }
   emit('move', { cardId: payload.id, from: payload.from, to: props.id, index })
-  announce(`Moved ${cardName(payload.id)} to ${props.title ?? props.id}, position ${index + 1}`)
+  void nextTick(confirmPending)
 }
 
 // A cancelled drag (Escape) or a drop elsewhere never reaches this column; these keep the highlight honest.
@@ -164,10 +185,12 @@ onMounted(() => {
   window.addEventListener('drop', stop)
 })
 onBeforeUnmount(() => {
+  clearPending()
   window.removeEventListener('dragend', stop)
   window.removeEventListener('drop', stop)
 })
 
+const level = computed(() => (Number.isInteger(props.headingLevel) && props.headingLevel >= 2 && props.headingLevel <= 6 ? props.headingLevel : 3))
 const classes = computed(() => cn(boardColumnVariants({ variant: props.variant, size: props.size, over: over.value, disabled: !!props.disabled }), props.class))
 </script>
 
@@ -190,7 +213,7 @@ const classes = computed(() => cn(boardColumnVariants({ variant: props.variant, 
     <template v-for="n in [cardCount()]" :key="0">
     <header data-slot="board-column-header" class="flex items-center justify-between gap-2 px-1">
       <slot name="header" :title="title" :count="n" :over="over">
-        <h3 v-if="title" :id="titleId" data-slot="board-column-title" class="min-w-0 truncate font-semibold">{{ title }}</h3>
+        <component :is="`h${level}`" v-if="title" :id="titleId" data-slot="board-column-title" class="min-w-0 truncate font-semibold">{{ title }}</component>
         <span
           v-if="showCount"
           data-slot="board-column-count"

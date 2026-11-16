@@ -18,7 +18,7 @@ const columns: DataTableColumn<Person>[] = [
   { key: 'joined', header: 'Joined', class: 'text-xs' },
 ]
 const people = (): Person[] => [
-  { id: 1, name: 'Carol', age: 41, joined: new Date(2020, 0, 5) },
+  { id: 1, name: 'Carol', age: 41, joined: new Date(Date.UTC(2020, 0, 5, 12)) },
   { id: 2, name: 'alice', age: 30 },
   { id: 3, name: 'Bob', age: null },
   { id: 4, name: 'dave', age: 30 },
@@ -53,9 +53,33 @@ describe('DataTable', () => {
       const w = mnt({ nullText: 'n/a' })
       const rows = bodyRows(w)
       expect(rows[2]!.findAll('td')[1]!.text()).toBe('n/a')
-      expect(rows[0]!.findAll('td')[2]!.text()).toBe(new Date(2020, 0, 5).toLocaleDateString())
+      expect(rows[0]!.findAll('td')[2]!.text()).toBe('1/5/2020')
       expect(rows[0]!.findAll('td')[1]!.text()).toBe('41')
       expect(rows[1]!.findAll('td')[2]!.text()).toBe('n/a')
+    })
+
+    it('Dates use UTC and en by default, and follow locale and timeZone props', () => {
+      const joined = new Date(Date.UTC(2020, 0, 5, 23, 30))
+      const cell = (props: Record<string, unknown>) => bodyRows(mnt({ rows: [{ id: 1, name: 'x', age: 1, joined }], ...props }))[0]!.findAll('td')[2]!.text()
+      expect(cell({})).toBe('1/5/2020')
+      expect(cell({ timeZone: 'Asia/Tokyo' })).toBe('1/6/2020')
+      expect(cell({ locale: 'de' })).toBe('5.1.2020')
+      expect(cell({ locale: 'not a locale', timeZone: 'Nope/Zone' })).toMatch(/2020/)
+    })
+
+    it('renders objects as JSON, never [object Object]', () => {
+      const big = { id: 1, name: { a: 1, b: [1, 2] }, age: Array.from({ length: 100 }, (_, i) => i) }
+      const circular: Record<string, unknown> = {}
+      circular.self = circular
+      const w = mnt({ nullText: 'n/a', rows: [big, { id: 2, name: circular, age: () => 1 }] })
+      const rows = bodyRows(w)
+      expect(rows[0]!.findAll('td')[0]!.text()).toBe('{"a":1,"b":[1,2]}')
+      const long = rows[0]!.findAll('td')[1]!.text()
+      expect(long.length).toBe(80)
+      expect(long.endsWith('…')).toBe(true)
+      expect(rows[1]!.findAll('td')[0]!.text()).toBe('n/a')
+      expect(rows[1]!.findAll('td')[1]!.text()).toBe('n/a')
+      expect(w.text()).not.toContain('[object Object]')
     })
 
     it('invalid Date renders nullText', () => {

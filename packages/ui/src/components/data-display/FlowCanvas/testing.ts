@@ -19,7 +19,7 @@ export const flush = async () => {
 const mounted: VueWrapper[] = []
 export function unmountAll() {
   while (mounted.length) mounted.pop()!.unmount()
-  document.body.innerHTML = ''
+  document.body.replaceChildren()
 }
 
 /** Mounts with `v-model:nodes` and `v-model:edges` wired to the props, so changes flow back like in an app. */

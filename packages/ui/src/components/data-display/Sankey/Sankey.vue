@@ -128,8 +128,8 @@ const nodesDrawn = computed(() => {
   const step = g.layers > 1 ? (W.value - nodeW.value) / (g.layers - 1) : 0
   const room = Math.max(0, step - nodeW.value - 12)
   const lastBottom = new Map<number, number>()
-  return [...g.nodes]
-    .sort((a, b) => a.layer - b.layer || a.y - b.y)
+  return g.nodes
+    .toSorted((a, b) => a.layer - b.layer || a.y - b.y)
     .map((n) => {
       const t = SANKEY_TONES[toneOf(n.index)]
       const onRight = n.layer < g.layers - 1

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { cn } from '../../../lib/cn'
+import { useConfig } from '../../layout/ConfigProvider/config'
+import { DEFAULT_NUMBER_LOCALE } from '../../typography/FormattedNumber/format'
 import type { BaseProps } from '../../../lib/types'
 import { TREND_BADGE_SHAPES, TREND_BADGE_SIZES, TREND_BADGE_VARIANTS, trendBadgeVariants, type TrendBadgeShape, type TrendBadgeSize, type TrendBadgeTone, type TrendBadgeVariant } from './variants'
 
@@ -20,7 +22,7 @@ export interface TrendBadgeProps extends BaseProps {
   format?: TrendBadgeFormat
   /** ISO currency code, used when `format="currency"`. Invalid codes fall back to plain numbers. */
   currency?: string
-  /** BCP 47 locale; invalid values fall back to the runtime default. */
+  /** BCP 47 locale. Unset uses the ConfigProvider locale, then `en`, so server and browser print the same digits. Invalid values fall back to `en`. */
   locale?: string
   /** Maximum fraction digits (0-20, default 1). */
   fractionDigits?: number
@@ -58,6 +60,7 @@ const tone = computed<TrendBadgeTone>(() => {
   return dir.value === good.value ? 'good' : 'bad'
 })
 
+const config = useConfig()
 function formatter(): Intl.NumberFormat {
   const digits = Number.isInteger(props.fractionDigits) ? Math.min(20, Math.max(0, props.fractionDigits)) : 1
   const opts: Intl.NumberFormatOptions = { maximumFractionDigits: digits }
@@ -65,9 +68,9 @@ function formatter(): Intl.NumberFormat {
   else if (props.format === 'percent') Object.assign(opts, { style: 'unit', unit: 'percent' })
   else if (props.format === 'currency' && props.currency) Object.assign(opts, { style: 'currency', currency: props.currency })
   const attempts: [string | undefined, Intl.NumberFormatOptions][] = [
-    [props.locale, opts],
-    [undefined, opts],
-    [undefined, { maximumFractionDigits: digits }],
+    [props.locale ?? config.value.locale ?? DEFAULT_NUMBER_LOCALE, opts],
+    [DEFAULT_NUMBER_LOCALE, opts],
+    [DEFAULT_NUMBER_LOCALE, { maximumFractionDigits: digits }],
   ]
   for (const [loc, o] of attempts) {
     try {
@@ -76,7 +79,7 @@ function formatter(): Intl.NumberFormat {
       /* try the next, more forgiving combination */
     }
   }
-  return new Intl.NumberFormat()
+  return new Intl.NumberFormat(DEFAULT_NUMBER_LOCALE)
 }
 
 const text = computed(() => {

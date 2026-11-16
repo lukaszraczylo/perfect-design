@@ -110,7 +110,7 @@ export function drawGraph(spec: GraphSpec, m: Metrics, edgeStyle: EdgeStyle): Gr
     }
     return d
   }
-  const ordered = [...clusters].sort((a, b) => depth(a.id) - depth(b.id))
+  const ordered = clusters.toSorted((a, b) => depth(a.id) - depth(b.id))
   for (const c of ordered) {
     const box = layout.clusters.get(c.id)
     if (!box) continue

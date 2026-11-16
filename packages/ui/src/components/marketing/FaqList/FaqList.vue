@@ -33,6 +33,8 @@ export interface FaqListProps extends BaseProps {
   single?: boolean
   /** Indexes open on first render (uncontrolled). With `single` only the first valid index is used. */
   defaultOpen?: number[]
+  /** `with-categories` + `headings`: heading level of the category titles, 2 to 6. */
+  headingLevel?: number
 }
 
 const props = withDefaults(defineProps<FaqListProps>(), {
@@ -43,10 +45,12 @@ const props = withDefaults(defineProps<FaqListProps>(), {
   categoriesLabel: 'Question categories',
   single: false,
   defaultOpen: () => [],
+  headingLevel: 3,
 })
 const slots = useSlots()
 const emit = defineEmits<{ toggle: [payload: { index: number; open: boolean }] }>()
 
+const level = computed(() => (Number.isInteger(props.headingLevel) && props.headingLevel >= 2 && props.headingLevel <= 6 ? props.headingLevel : 3))
 const blank = (v: unknown) => typeof v !== 'string' || v.trim() === ''
 // Reports the first incomplete item once, not once per item.
 onMounted(async () => {
@@ -134,7 +138,7 @@ function onToggle(i: number, e: Event) {
 
     <template v-else-if="mode === 'headings'">
       <div v-for="(g, gi) in groups" :key="g.label" data-slot="faq-category" role="group" :aria-labelledby="`${uid}-category-${gi}`">
-        <h3 :id="`${uid}-category-${gi}`" data-slot="faq-category-title" class="mb-3 text-lg font-semibold">{{ g.label }}</h3>
+        <component :is="`h${level}`" :id="`${uid}-category-${gi}`" data-slot="faq-category-title" class="mb-3 text-lg font-semibold">{{ g.label }}</component>
         <div :class="faqGroupClass">
           <FaqEntry
             v-for="e in g.entries"

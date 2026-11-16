@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T">
 import { computed, nextTick, onBeforeUnmount, onBeforeUpdate, onMounted, onUpdated, ref, useAttrs, useSlots, watch } from 'vue'
+import { useDateLocale } from '../_shared/dateLocale'
 import { cn } from '../../../lib/cn'
 import { violation } from '../../../lib/contract'
 import { faArrowDown } from '../../../lib/icons'
@@ -48,9 +49,9 @@ export interface ChatThreadProps<T> extends BaseProps {
   loadingOlder?: boolean
   /** Also emit `load-older` once when the reader scrolls to the top. It fires again only after `loadingOlder` ends or the list changes. */
   autoLoadOlder?: boolean
-  /** BCP 47 locale for the day labels. Bad values fall back to the runtime default. */
+  /** BCP 47 locale for the day labels. Falls back to `ConfigProvider`, then `en`. */
   locale?: string
-  /** IANA time zone used to decide which day a message belongs to. Local time when omitted or invalid. */
+  /** IANA time zone used to decide which day a message belongs to. Falls back to `ConfigProvider`, then `UTC`. */
   timeZone?: string
   /** The current time, for "Today" and "Yesterday". Defaults to the clock after mount; pass it for tests or server rendering. */
   now?: ChatDateInput
@@ -141,8 +142,13 @@ function read(item: unknown, key: string | ((item: T, index: number) => unknown)
   return undefined
 }
 
+const dateLocale = useDateLocale(props)
 const mounted = ref(false)
-const clock = computed(() => (props.now !== undefined ? toDate(props.now) : mounted.value ? new Date() : null))
+// A client-only minute clock keeps "Today" and "Yesterday" correct across midnight; the server and first client render have none.
+const CLOCK_MS = 60_000
+const tick = ref<Date | null>(null)
+let clockTimer: ReturnType<typeof setInterval> | undefined
+const clock = computed(() => (props.now !== undefined ? toDate(props.now) : tick.value))
 
 interface Row {
   item: T
@@ -160,10 +166,10 @@ const rows = computed<Row[]>(() => {
     const date = toDate(read(item, props.itemDate, index) as ChatDateInput)
     let day: Row['day'] = null
     if (date) {
-      const k = dayKey(date, props.timeZone)
+      const k = dayKey(date, dateLocale.timeZone.value)
       if (k !== lastDay) {
         lastDay = k
-        day = { key: k, label: formatDay(date, props.locale, props.timeZone, now) }
+        day = { key: k, label: formatDay(date, dateLocale.locale.value, dateLocale.timeZone.value, now) }
       }
     }
     out.push({ item, index, key, day })
@@ -314,6 +320,8 @@ watch(() => props.announcement, (value) => {
 let observer: ResizeObserver | undefined
 onMounted(() => {
   mounted.value = true
+  tick.value = new Date()
+  clockTimer = setInterval(() => (tick.value = new Date()), CLOCK_MS)
   renderedFirst = firstKey.value
   renderedLast = lastKey.value
   if (props.follow) scrollToBottom()
@@ -323,6 +331,8 @@ onMounted(() => {
   }
 })
 onBeforeUnmount(() => {
+  clearInterval(clockTimer)
+  clockTimer = undefined
   observer?.disconnect()
   observer = undefined
   clearTimeout(announceTimer)

@@ -8,7 +8,7 @@ const vueFiles = Object.keys(import.meta.glob('../components/*/*/*.vue'))
 const docFiles = new Set(Object.keys(import.meta.glob('../components/*/*/*.docs.ts')))
 
 // Ratchet: folders known to lack docs. Remove an entry when its docs file lands; never add one.
-const KNOWN_UNDOCUMENTED = new Set(['primitives/Spinner', 'primitives/Icon', 'data-display/LogViewer'])
+const KNOWN_UNDOCUMENTED = new Set<string>([])
 
 const folders = [...new Set(vueFiles.map((f) => f.split('/').slice(2, 4).join('/')))].filter((f) => !f.split('/')[1].startsWith('_'))
 

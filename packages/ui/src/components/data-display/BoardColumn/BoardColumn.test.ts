@@ -480,26 +480,56 @@ describe('BoardColumn', () => {
       expect(s.text()).toBe('')
     })
 
-    it('announces a drop with the card title, the column and the position', async () => {
-      const w = mountColumn({}, { default: () => [h(BoardCard, { id: 'a', title: 'Write docs' })] })
-      const other = mount(BoardCard, { props: { id: 'x', title: 'Moved card' }, attachTo: document.body })
+    const Host = defineComponent({
+      props: { ids: { type: Array as () => string[], required: true } },
+      setup: (p) => () => h(BoardColumn, { id: 'todo', title: 'To do' }, { default: () => p.ids.map((id) => h(BoardCard, { id, title: `Title ${id}` })) }),
+    })
+    const statusOf = (w: VueWrapper) => w.find('[data-slot="board-column-status"]').text()
+
+    it('does not announce a drop the consumer has not applied', async () => {
+      const w = mount(Host, { props: { ids: ['a'] }, attachTo: document.body })
+      mounted.push(w)
       fire(w.element, 'drop', { dataTransfer: cardDt('x', 'doing'), clientY: 0 })
       await nextTick()
       await nextTick()
-      expect(w.find('[data-slot="board-column-status"]').text()).toBe('Moved Moved card to To do, position 1')
-      other.unmount()
+      expect(statusOf(w)).toBe('')
     })
 
-    it('falls back to the card id and the column id, and announce() can be called for keyboard moves', async () => {
+    it('announces the move once the card is rendered at the dropped position', async () => {
+      const w = mount(Host, { props: { ids: ['a'] }, attachTo: document.body })
+      mounted.push(w)
+      fire(w.element, 'drop', { dataTransfer: cardDt('x', 'doing'), clientY: 0 })
+      await w.setProps({ ids: ['x', 'a'] })
+      await nextTick()
+      await nextTick()
+      expect(statusOf(w)).toBe('Moved Title x to To do, position 1')
+    })
+
+    it('stops waiting after a new drop replaces the pending one, and on unmount', async () => {
+      const w = mount(Host, { props: { ids: ['a'] }, attachTo: document.body })
+      mounted.push(w)
+      fire(w.element, 'drop', { dataTransfer: cardDt('x', 'doing'), clientY: 0 })
+      fire(w.element, 'drop', { dataTransfer: cardDt('y', 'doing'), clientY: 0 })
+      await w.setProps({ ids: ['x', 'a'] })
+      await nextTick()
+      expect(statusOf(w)).toBe('')
+      await w.setProps({ ids: ['y', 'x', 'a'] })
+      await nextTick()
+      await nextTick()
+      expect(statusOf(w)).toBe('Moved Title y to To do, position 1')
+    })
+
+    it('announce() can be called for keyboard moves', async () => {
       const w = mountColumn({ title: undefined })
-      fire(w.element, 'drop', { dataTransfer: cardDt('ghost'), clientY: 0 })
-      await nextTick()
-      await nextTick()
-      expect(w.find('[data-slot="board-column-status"]').text()).toBe('Moved ghost to todo, position 1')
       ;(w.vm as unknown as { announce: (m: string) => void }).announce('Moved by keyboard')
       await nextTick()
       await nextTick()
       expect(w.find('[data-slot="board-column-status"]').text()).toBe('Moved by keyboard')
+    })
+
+    it('headingLevel sets the title element and falls back to h3', () => {
+      expect(mountColumn({ headingLevel: 2 }).find('[data-slot="board-column-title"]').element.tagName).toBe('H2')
+      for (const v of [1, 7, 2.5, 'x']) expect(mountColumn({ headingLevel: v }).find('[data-slot="board-column-title"]').element.tagName).toBe('H3')
     })
 
     it('the count unit is singular for one card', () => {

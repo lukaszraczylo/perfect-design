@@ -1,5 +1,9 @@
 import { cva, type VariantProps } from '../../../lib/cva'
+import { focusRing } from '../../../lib/styles'
 import type { DataGridDensity, DataGridSize, DataGridVariant } from './types'
+
+// Cells sit in clipped scroll areas, so the ring is inset; `outline-hidden` sets the outline style to none, so a plain `focus-visible:outline-2` draws nothing.
+export const GRID_FOCUS = `${focusRing} focus-visible:ring-inset forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-solid forced-colors:focus-visible:-outline-offset-2 forced-colors:focus-visible:outline-[Highlight]`
 
 export const DATA_GRID_VARIANTS = ['bordered', 'striped', 'borderless'] as const
 export const DATA_GRID_SIZES = ['sm', 'md', 'lg'] as const

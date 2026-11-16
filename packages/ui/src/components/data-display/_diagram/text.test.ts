@@ -126,3 +126,17 @@ describe('small helpers', () => {
     expect(truncateToWidth('abc', 1, 14)).toBe('a…')
   })
 })
+
+describe('cleanLabel: linear time', () => {
+  it('handles long runs of emphasis-like text quickly', () => {
+    const t0 = performance.now()
+    cleanLabel(' *a'.repeat(32000))
+    cleanLabel('*'.repeat(32000))
+    cleanLabel('_ '.repeat(20000))
+    expect(performance.now() - t0).toBeLessThan(500)
+  })
+  it('still strips emphasis around words and keeps snake_case', () => {
+    expect(cleanLabel('**bold** and *it* and __b__ and _i_ snake_case_name')).toEqual(['bold and it and b and i snake_case_name'])
+    expect(cleanLabel('2 * 3 * 4')).toEqual(['2 * 3 * 4'])
+  })
+})

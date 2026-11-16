@@ -188,7 +188,7 @@ function toggle(id) {
     <TableBody>
       <TableRow v-for="r in rows" :key="r.id" :selected="picked.includes(r.id)">
         <TableCell>{{ r.name }}</TableCell>
-        <TableCell align="right"><input type="checkbox" class="relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary disabled:cursor-not-allowed disabled:opacity-50 after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0" :aria-label="'Select ' + r.name" :checked="picked.includes(r.id)" @change="toggle(r.id)" /></TableCell>
+        <TableCell align="right"><input type="checkbox" class="relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary disabled:cursor-not-allowed disabled:opacity-50 after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0 outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40" :aria-label="'Select ' + r.name" :checked="picked.includes(r.id)" @change="toggle(r.id)" /></TableCell>
       </TableRow>
     </TableBody>
   </Table>
@@ -292,7 +292,7 @@ const options = [{ key: 'name', label: 'Item' }, { key: 'seats', label: 'Seats' 
 const rows = computed(() => {
   const s = sort.value
   if (!s) return data
-  return [...data].sort((x, y) => (x[s.key] > y[s.key] ? 1 : -1) * (s.direction === 'asc' ? 1 : -1))
+  return data.toSorted((x, y) => (x[s.key] > y[s.key] ? 1 : -1) * (s.direction === 'asc' ? 1 : -1))
 })
 const ariaSort = (key) => (sort.value?.key === key ? (sort.value.direction === 'asc' ? 'ascending' : 'descending') : undefined)
 function toggleAll() {
@@ -313,7 +313,7 @@ function toggle(id) {
     </TableHeader>
     <TableBody>
       <TableRow v-for="r in rows" :key="r.id" :selected="picked.includes(r.id)">
-        <TableCell label="Select"><input type="checkbox" class="size-5 accent-primary" :aria-label="'Select ' + r.name" :checked="picked.includes(r.id)" @change="toggle(r.id)" /></TableCell>
+        <TableCell label="Select"><input type="checkbox" class="relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary disabled:cursor-not-allowed disabled:opacity-50 after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0 outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40" :aria-label="'Select ' + r.name" :checked="picked.includes(r.id)" @change="toggle(r.id)" /></TableCell>
         <TableCell label="Item">{{ r.name }}</TableCell>
         <TableCell label="Seats" numeric>{{ r.seats }}</TableCell>
       </TableRow>
@@ -327,7 +327,7 @@ function toggle(id) {
         const rows = computed(() => {
           const s = sort.value
           if (!s) return data
-          return [...data].sort((x, y) => ((x as any)[s.key] > (y as any)[s.key] ? 1 : -1) * (s.direction === 'asc' ? 1 : -1))
+          return data.toSorted((x, y) => ((x as any)[s.key] > (y as any)[s.key] ? 1 : -1) * (s.direction === 'asc' ? 1 : -1))
         })
         return {
           sort, picked, data, rows,

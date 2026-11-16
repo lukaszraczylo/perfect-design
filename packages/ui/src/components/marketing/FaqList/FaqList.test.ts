@@ -19,6 +19,17 @@ async function setOpen(w: ReturnType<typeof mount>, i: number, open: boolean) {
 }
 const openState = (w: ReturnType<typeof mount>) => w.findAll('details').map((d) => (d.element as HTMLDetailsElement).open)
 
+describe('FaqList heading level', () => {
+  const cat = [{ q: 'A?', a: 'a', category: 'Billing' }, { q: 'B?', a: 'b', category: 'Setup' }]
+  it('defaults category titles to h3 and honours headingLevel 2 to 6', () => {
+    expect(mount(FaqList, { props: { items: cat, variant: 'with-categories' } }).find('[data-slot="faq-category-title"]').element.tagName).toBe('H3')
+    expect(mount(FaqList, { props: { items: cat, variant: 'with-categories', headingLevel: 2 } }).find('[data-slot="faq-category-title"]').element.tagName).toBe('H2')
+  })
+  it('falls back to h3 for invalid levels', () => {
+    for (const v of [1, 7, 2.5, 'x', null]) expect(mount(FaqList, { props: { items: cat, variant: 'with-categories', headingLevel: v as never } }).find('[data-slot="faq-category-title"]').element.tagName).toBe('H3')
+  })
+})
+
 describe('FaqList', () => {
   describe('good path', () => {
     it('renders a <details> per item with question and answer', () => {

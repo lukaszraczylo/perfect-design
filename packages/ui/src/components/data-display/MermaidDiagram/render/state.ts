@@ -222,7 +222,7 @@ export function renderState(ast: StateAst, opts: RenderOptions, m: Metrics): Ren
   const ordered: StateDef[] = []
   const walk = (parent: string): void => {
     const list = kids.get(parent) ?? []
-    for (const def of [...list].sort((a, b) => (a.region ?? 1) - (b.region ?? 1))) {
+    for (const def of list.toSorted((a, b) => (a.region ?? 1) - (b.region ?? 1))) {
       ordered.push(def)
       walk(def.id)
     }

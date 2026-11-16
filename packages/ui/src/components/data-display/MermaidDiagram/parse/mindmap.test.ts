@@ -232,3 +232,16 @@ describe('mindmap parse: errors', () => {
     }
   })
 })
+
+describe('mindmap parse: linear time', () => {
+  it('a long whitespace run before a class suffix stays fast', () => {
+    const t0 = performance.now()
+    parseMermaid(`mindmap\n  root\n    a${' '.repeat(20000)}x`)
+    parseMermaid(`mindmap\n  root\n    a${' '.repeat(20000)}:::`)
+    expect(performance.now() - t0).toBeLessThan(500)
+  })
+  it('still reads an inline class', () => {
+    const r = parseMermaid('mindmap\n  root\n    child   :::big small')
+    expect(r.ok && (r.ast as { nodes: { classes: string[] }[] }).nodes[1]!.classes).toEqual(['big', 'small'])
+  })
+})

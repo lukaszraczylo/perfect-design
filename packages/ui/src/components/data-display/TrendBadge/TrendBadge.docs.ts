@@ -15,7 +15,7 @@ const doc: ComponentDoc = {
     { name: 'inverse', type: 'boolean', default: 'false', description: 'Shorthand for `goodWhen="down"` (cost, latency, error rate).' },
     { name: 'format', type: "'number' | 'percent' | 'compact' | 'currency'", default: "'number'", description: '`percent` appends % to the value as-is (12 becomes 12%).' },
     { name: 'currency', type: 'string', description: 'ISO 4217 code for `format="currency"`; invalid codes fall back to a plain number.' },
-    { name: 'locale', type: 'string', description: 'BCP 47 locale; invalid values fall back to the runtime default.' },
+    { name: 'locale', type: 'string', description: 'BCP 47 locale. Unset uses the ConfigProvider locale, then `en`; invalid values fall back to `en`.' },
     { name: 'fractionDigits', type: 'number', default: '1', description: 'Maximum fraction digits (clamped to 0-20).' },
     { name: 'variant', type: "'soft' | 'solid' | 'ghost' | 'outline'", default: "'soft'", description: 'Tinted background, solid fill, text only, or bordered text. Unknown values fall back to `soft`.' },
     { name: 'shape', type: "'rounded' | 'pill' | 'square'", default: "'rounded'", description: 'Corner radius: 6px, fully round, or none. Unknown values fall back to `rounded`.' },

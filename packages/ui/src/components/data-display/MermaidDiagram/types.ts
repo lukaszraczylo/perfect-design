@@ -30,6 +30,10 @@ export interface MermaidDiagramBaseProps extends BaseProps {
   description?: string
   maxNodes?: number
   maxEdges?: number
+  /** Longest source, in characters, that is parsed. Longer text shows a size error. Default 100000. */
+  maxSourceLength?: number
+  /** Longest single source line, in characters, that is parsed. Default 2000. */
+  maxLineLength?: number
   as?: string
 }
 

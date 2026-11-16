@@ -555,3 +555,26 @@ describe('DataGrid editing', () => {
     expect(w.find('[data-row="1"][data-col="0"]').text()).toBe('Via model')
   })
 })
+
+describe('DataGrid focus indicator', () => {
+  // `outline-hidden` sets the outline style to none, so `focus-visible:outline-2` alone draws nothing; the ring must be used.
+  const drawsRing = (el: { classes: () => string[] }) => {
+    const c = el.classes()
+    expect(c).toContain('focus-visible:ring-3')
+    expect(c).toContain('focus-visible:ring-ring/40')
+    expect(c).toContain('forced-colors:focus-visible:outline-solid')
+    expect(c).not.toContain('focus-visible:outline-2')
+  }
+  it('header cells, sort buttons, resize handles and body cells show a focus ring', () => {
+    const w = mnt({ resizable: true })
+    drawsRing(w.find('[data-slot="data-grid-header-cell"]'))
+    drawsRing(w.find('[data-slot="data-grid-sort"]'))
+    drawsRing(w.find('[data-slot="data-grid-resize-handle"]'))
+    drawsRing(w.find('[data-slot="data-grid-cell"]'))
+  })
+  it('the selection checkbox and select header cell show a focus ring', () => {
+    const w = mnt({ selectable: true })
+    drawsRing(w.find('[data-slot="data-grid-header-cell"]'))
+    expect(w.find('input[type="checkbox"]').classes()).toContain('focus-visible:ring-3')
+  })
+})

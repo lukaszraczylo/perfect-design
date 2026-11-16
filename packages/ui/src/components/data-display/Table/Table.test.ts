@@ -1,3 +1,4 @@
+import doc from './Table.docs'
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
@@ -362,5 +363,18 @@ describe('Table', () => {
       expect(tableRowSelectedTones.accent).not.toContain('shadow')
       expect(tableRowSelectedTones.accent).toContain('bg-primary/10')
     })
+  })
+})
+
+describe('Table docs: selection checkboxes', () => {
+  // A native checkbox drawn with accent-color changes no computed style, so state-check sees no visible change; the styled box does.
+  it('every checkbox in an example uses the styled box with a checked fill and a focus ring', () => {
+    const boxes = (doc.examples ?? []).flatMap((e) => [...e.code.matchAll(/<input type="checkbox" class="([^"]*)"/g)].map((m) => m[1]!))
+    expect(boxes.length).toBeGreaterThan(1)
+    for (const cls of boxes) {
+      expect(cls).toContain('checked:bg-primary')
+      expect(cls).toContain('focus-visible:ring-3')
+      expect(cls).not.toContain('accent-')
+    }
   })
 })

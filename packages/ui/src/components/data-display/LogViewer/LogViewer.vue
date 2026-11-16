@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, useAttrs, useId, useTemplateRef, watch } from 'vue'
+import { useDateLocale } from '../_shared/dateLocale'
 import { requireOneOf, violation } from '../../../lib/contract'
 import { cn } from '../../../lib/cn'
 import { faArrowDown, faChevronDown, faChevronUp } from '../../../lib/icons'
@@ -52,9 +53,9 @@ export interface LogViewerProps extends BaseProps {
   announceInterval?: number
   /** Height of the whole viewer: a number (px) or any CSS length. Default `20rem`; `class` can set another. */
   height?: number | string
-  /** Locale for numbers and for times given as Date or epoch milliseconds. */
+  /** Locale for numbers and times. Falls back to `ConfigProvider`, then `en`. */
   locale?: string
-  /** Time zone for times given as Date or epoch milliseconds. */
+  /** Time zone for times given as Date or epoch milliseconds. Falls back to `ConfigProvider`, then `UTC`. */
   timeZone?: string
 }
 
@@ -101,12 +102,13 @@ const size = computed<LogViewerSize>(() => (LOG_VIEWER_SIZES.includes(props.size
 const density = computed<LogViewerDensity>(() => (LOG_VIEWER_DENSITIES.includes(props.density) ? props.density : 'comfortable'))
 const rowHeight = computed(() => LOG_ROW_HEIGHT[density.value][size.value])
 
-const built = computed(() => buildRecords(props.lines, props.maxLines, { locale: props.locale, timeZone: props.timeZone }))
+const dateLocale = useDateLocale(props)
+const built = computed(() => buildRecords(props.lines, props.maxLines, { locale: dateLocale.locale.value, timeZone: dateLocale.timeZone.value }))
 const records = computed(() => built.value.records)
 const dropped = computed(() => built.value.dropped)
 const nf = computed(() => {
   try {
-    return new Intl.NumberFormat(props.locale)
+    return new Intl.NumberFormat(dateLocale.locale.value)
   } catch {
     return new Intl.NumberFormat()
   }
@@ -296,7 +298,7 @@ function toggleSelect(index: number) {
 }
 const clearSelection = () => (selected.value = new Set())
 function copyText(): string {
-  if (selected.value.size) return [...selected.value].sort((a, b) => a - b).map((i) => records.value[i].copy).join('\n')
+  if (selected.value.size) return Array.from(selected.value).sort((a, b) => a - b).map((i) => records.value[i].copy).join('\n')
   const out: string[] = []
   for (let pos = 0; pos < count.value; pos++) out.push(recordAt(pos)!.copy)
   return out.join('\n')

@@ -1,5 +1,6 @@
 export { default as LogoCloud } from './LogoCloud.vue'
 export type { LogoCloudProps, LogoItem } from './LogoCloud.vue'
+export type { LogoCloudLogoProps } from './LogoCloudLogo.vue'
 export {
   logoCloudVariants,
   logoCloudTitleVariants,

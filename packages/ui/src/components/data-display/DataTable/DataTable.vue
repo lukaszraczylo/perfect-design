@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T">
 import { computed, nextTick, provide, ref, useSlots, watch, watchPostEffect } from 'vue'
+import { useDateLocale } from '../_shared/dateLocale'
 import { requireOneOf, violation } from '../../../lib/contract'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
@@ -252,9 +253,32 @@ function onRowKeydown(entry: Entry, event: KeyboardEvent) {
   }
 }
 
+const dateLocale = useDateLocale(props)
+function formatDate(date: Date): string {
+  try {
+    return date.toLocaleDateString(dateLocale.locale.value, { timeZone: dateLocale.timeZone.value })
+  } catch {
+    return date.toISOString().slice(0, 10)
+  }
+}
+const OBJECT_TEXT_MAX = 80
+// Plain objects and arrays are shown as JSON, never "[object Object]". Use the `cell` slot for a real rendering.
+function formatObject(value: object): string {
+  let text: string | undefined
+  try {
+    text = JSON.stringify(value)
+  } catch {
+    text = undefined
+  }
+  if (text === undefined) return props.nullText
+  return text.length > OBJECT_TEXT_MAX ? `${text.slice(0, OBJECT_TEXT_MAX - 1)}…` : text
+}
+
 function format(value: unknown): string {
   if (value === null || value === undefined) return props.nullText
-  if (value instanceof Date) return Number.isNaN(value.getTime()) ? props.nullText : value.toLocaleDateString()
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? props.nullText : formatDate(value)
+  if (typeof value === 'function') return props.nullText
+  if (typeof value === 'object') return formatObject(value as object)
   return String(value)
 }
 

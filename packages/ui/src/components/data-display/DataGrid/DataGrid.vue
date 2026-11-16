@@ -15,7 +15,7 @@ import { applyRange, headerState, setAll, toggleId } from './selection'
 import { toTsv } from './tsv'
 import type { DataGridCellEdit, DataGridColumn, DataGridOption, DataGridProps, DataGridRowId, SortState } from './types'
 import { computeRange, renderedIndexes, scrollTopToReveal, totalHeight, visibleRowCount } from './virtual-window'
-import { DATA_GRID_ROW_HEIGHTS, DATA_GRID_TOUCH_ROW_HEIGHT, DENSITY_PADDING, EDITOR_TEXT, dataGridVariants, normalizeDensity, normalizeSize, normalizeVariant } from './variants'
+import { DATA_GRID_ROW_HEIGHTS, GRID_FOCUS, DATA_GRID_TOUCH_ROW_HEIGHT, DENSITY_PADDING, EDITOR_TEXT, dataGridVariants, normalizeDensity, normalizeSize, normalizeVariant } from './variants'
 
 defineOptions({ inheritAttrs: false })
 
@@ -477,7 +477,7 @@ function cellClasses(v: number, ci: number) {
   const align = dc.kind === 'select' ? 'center' : (dc.column.align ?? (dc.column.type === 'number' ? 'end' : 'start'))
   return cn(
     pinned ? 'sticky z-10' : 'relative',
-    'flex h-full min-w-0 items-center outline-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+    'flex h-full min-w-0 items-center', GRID_FOCUS,
     padding.value,
     ALIGN[align],
     dc.kind === 'data' && dc.column.type === 'number' && 'tabular-nums',
@@ -491,7 +491,7 @@ function cellClasses(v: number, ci: number) {
   )
 }
 const checkboxClasses =
-  "relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0 outline-hidden focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
+  "relative inline-grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded border border-input bg-background align-middle checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary after:hidden after:content-[''] after:h-2.5 after:w-1.5 after:rotate-45 after:border-b-2 after:border-e-2 after:border-primary-foreground checked:after:block indeterminate:after:block indeterminate:after:h-0 indeterminate:after:w-2.5 indeterminate:after:rotate-0 indeterminate:after:border-e-0 outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40 forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-solid forced-colors:focus-visible:outline-offset-1 forced-colors:focus-visible:outline-[Highlight]"
 
 // ---- lifecycle
 let resizeObserver: ResizeObserver | undefined
@@ -596,7 +596,7 @@ defineExpose({
               :aria-colindex="ci + 1"
               :tabindex="activePos.row === 0 && activePos.col === ci ? 0 : -1"
               :style="stickyStyle(ci)"
-              :class="cn('sticky z-10 flex h-full items-center justify-center bg-muted outline-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring', variant === 'bordered' && 'border-e border-border')"
+              :class="cn('sticky z-10 flex h-full items-center justify-center bg-muted', GRID_FOCUS, variant === 'bordered' && 'border-e border-border')"
             >
               <input :ref="setHeaderCheckbox" type="checkbox" tabindex="-1" aria-label="Select all rows" data-slot="data-grid-select-all" :class="checkboxClasses" :checked="allState === 'all'" :disabled="count === 0" @click.stop="toggleAll" />
             </div>

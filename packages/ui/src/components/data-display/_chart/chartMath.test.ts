@@ -140,3 +140,15 @@ describe('tones', () => {
     for (const t of CHART_TONES) expect(toneClasses[t].stroke).toBe(`stroke-${t}`)
   })
 })
+
+describe('negative zero', () => {
+  it('formatCompact and formatNumber never print -0', () => {
+    for (const n of [-0, -0.0001, -0.004]) {
+      expect(formatNumber(n)).toBe('0')
+      expect(formatCompact(n)).toBe('0')
+    }
+    expect(formatCompact(-0.04)).toBe('0')
+    expect(formatNumber(-0.01)).toBe('-0.01')
+    expect(formatCompact(-1200)).toBe('-1.2K')
+  })
+})
