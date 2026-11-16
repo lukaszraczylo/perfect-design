@@ -240,7 +240,8 @@ describe('ComparisonTable', () => {
       const rs = Array.from({ length: 100 }, (_, i) => ({ label: `R${i}`, values: cols.map((_, j) => (i + j) % 3 === 0) }))
       const w = mount(ComparisonTable, { props: { columns: cols, rows: rs, variant: 'striped' } })
       expect(w.findAll('td')).toHaveLength(10000)
-    })
+      // 10 000 cells: about 1 s locally, up to 6 s on a shared CI runner under coverage; the 5 s default is too tight.
+    }, 20_000)
     it('duplicate labels and keys do not warn or break', () => {
       const w = mount(ComparisonTable, { props: { columns: [{ title: 'A', key: 'k' }, { title: 'A', key: 'k2' }], rows: [{ label: 'x', values: [true, true] }, { label: 'x', values: [true, true] }] } })
       expect(w.findAll('tbody tr')).toHaveLength(2)

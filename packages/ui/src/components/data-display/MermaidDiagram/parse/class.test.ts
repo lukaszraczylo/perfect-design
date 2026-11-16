@@ -423,14 +423,15 @@ note for A "<img onerror=alert(1)>"`)
 })
 
 describe('classDiagram annotations on hostile whitespace', () => {
-  const spaces = ' '.repeat(20000)
+  // Inputs large enough that the old super-linear code took seconds; the linear code takes milliseconds, so the bound survives slow CI.
+  const spaces = ' '.repeat(80000)
   it.each([
     ['member line', `classDiagram\nclass A {\n  <<${spaces}x\n}`],
     ['standalone line', `classDiagram\nclass A\n<<${spaces}x`],
   ])('a %s with an unclosed annotation parses in linear time', (_name, src) => {
     const start = performance.now()
     parseMermaid(src)
-    expect(performance.now() - start).toBeLessThan(500)
+    expect(performance.now() - start).toBeLessThan(2000)
   })
   it('padded annotations keep their trimmed name', () => {
     const ast = ok(`classDiagram\nclass A {\n  <<   interface   >>\n}\n<<  service  >> A`)

@@ -128,12 +128,13 @@ describe('small helpers', () => {
 })
 
 describe('cleanLabel: linear time', () => {
+  // Inputs large enough that the old super-linear code took seconds; the linear code takes milliseconds, so the bound survives slow CI.
   it('handles long runs of emphasis-like text quickly', () => {
     const t0 = performance.now()
-    cleanLabel(' *a'.repeat(32000))
-    cleanLabel('*'.repeat(32000))
-    cleanLabel('_ '.repeat(20000))
-    expect(performance.now() - t0).toBeLessThan(500)
+    cleanLabel(' *a'.repeat(128000))
+    cleanLabel('*'.repeat(128000))
+    cleanLabel('_ '.repeat(80000))
+    expect(performance.now() - t0).toBeLessThan(2000)
   })
   it('still strips emphasis around words and keeps snake_case', () => {
     expect(cleanLabel('**bold** and *it* and __b__ and _i_ snake_case_name')).toEqual(['bold and it and b and i snake_case_name'])

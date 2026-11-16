@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import type { Block, Inline, Root } from './ast'
 import { parseMarkdown } from './parse'
 
+// Stress test: about 2 s locally, up to 6 s on a shared CI runner under coverage; the 5 s default is too tight.
+const STRESS_TIMEOUT = 20_000
+
 /** Every link and image URL anywhere in the tree. The renderer checks these; the parser must keep them as data. */
 function urls(root: Root): string[] {
   const out: string[] = []
@@ -127,7 +130,7 @@ describe('hostile input finishes quickly', () => {
     expect(() => parseMarkdown('*'.repeat(10_000) + 'a' + '*'.repeat(10_000))).not.toThrow()
     expect(() => parseMarkdown('['.repeat(20_000) + 'a' + '](u)'.repeat(20_000))).not.toThrow()
     expect(() => parseMarkdown('![a'.repeat(20_000) + ']()'.repeat(20_000))).not.toThrow()
-  })
+  }, STRESS_TIMEOUT)
 
   it('nesting stays within the configured depth', () => {
     const depthOf = (node: unknown): number => {
