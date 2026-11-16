@@ -9,10 +9,20 @@ export default defineConfig(({ command }) => ({
   ...(command === 'build'
     ? {
         build: {
-          lib: { entry: 'src/index.ts', formats: ['es'], fileName: 'index' },
+          lib: { entry: 'src/index.ts', formats: ['es'] },
           outDir: 'dist',
           emptyOutDir: true,
-          rollupOptions: { external: ['vue', 'pinia', 'reka-ui', 'tailwind-merge'] },
+          // One module per source file instead of a single 2 MB index.js: a consumer importing one
+          // component pulls only that component and its imports. Mirrors the declaration layout.
+          rollupOptions: {
+            external: ['vue', 'pinia', 'reka-ui', 'tailwind-merge'],
+            output: {
+              preserveModules: true,
+              preserveModulesRoot: 'src',
+              entryFileNames: '[name].js',
+              chunkFileNames: '[name].js',
+            },
+          },
           sourcemap: true,
         },
       }

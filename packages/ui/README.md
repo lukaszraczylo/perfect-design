@@ -30,7 +30,7 @@ pnpm add https://github.com/lukaszraczylo/perfect-design/releases/download/v0.1.
 @import "tailwindcss";
 @import "@perfect-design/ui/theme.css";
 @import "@perfect-design/ui/themes/emerald.css"; /* optional accent preset */
-@source "../node_modules/@perfect-design/ui/src";  /* Tailwind must scan the component classes */
+@source "../node_modules/@perfect-design/ui/dist";  /* Tailwind must scan the component classes */
 ```
 
 ```ts
