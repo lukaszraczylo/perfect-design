@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import Banner from './Banner.vue'
 import { bannerVariants } from './variants'
@@ -55,6 +56,7 @@ describe('Banner', () => {
       await w.find('[data-slot="banner-dismiss"]').trigger('click')
       expect(localStorage.getItem(`${BANNER_STORAGE_PREFIX}promo`)).toBe('1')
       const again = mount(Banner, { props: { dismissible: true, storageKey: 'promo' } })
+      await nextTick()
       expect(again.find('[data-slot="banner"]').exists()).toBe(false)
     })
 

@@ -20,7 +20,7 @@ const doc: ComponentDoc = {
     { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Padding, gap and type scale. Unknown values fall back to `md`. Non-default values add a `data-size` attribute.' },
     { name: 'layout', type: "'default' | 'inline'", default: "'default'", description: 'Body layout. `default` stacks title, description and actions; `inline` puts title, description and the `actions` slot in one wrapping row with the actions pushed to the end. Unknown values fall back to `default`. Non-default values add `data-layout`.' },
     { name: 'icon', type: 'IconDefinition', description: 'Optional FontAwesome icon. Nothing is rendered when omitted.' },
-    { name: 'dismissible', type: 'boolean', default: 'false', description: 'Shows a dismiss (X) button. Dismissing hides the alert and emits `dismiss` once.' },
+    { name: 'dismissible', type: 'boolean', default: 'false', description: 'Shows a dismiss (X) button. Dismissing hides the alert, moves focus to the next focusable sibling (else the parent region) and emits `dismiss` once. To show it again, change its `:key`.' },
     { name: 'dismissLabel', type: 'string', default: "'Dismiss'", description: 'Accessible label of the dismiss button.' },
     { name: 'role', type: "'alert' | 'status' | 'note'", description: 'Overrides the computed role: `alert` for warning/destructive, `status` otherwise.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
@@ -150,6 +150,7 @@ const doc: ComponentDoc = {
     'Throws a ContractError when an `Alert` is empty (no title or text) or is `dismissible` with a blank `dismissLabel`.',
   ],
   llmNotes: [
+    'A dismissed Alert stays gone until its `:key` changes; bind `:key` to the message id to show a new message.',
     'Always give an Alert a title or text; do not render empty alerts.',
     'Use variant="destructive" for errors and "warning" for recoverable problems.',
     'Use Alert for in-page messages only; use Toaster for transient feedback.',

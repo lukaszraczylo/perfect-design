@@ -6,6 +6,8 @@ import { violation } from '../../../lib/contract'
 import type { BaseProps } from '../../../lib/types'
 import Button from '../../primitives/Button/Button.vue'
 import Icon from '../../primitives/Icon/Icon.vue'
+import { useConfig } from '../../layout/ConfigProvider/config'
+import { subscribeClock } from '../../typography/RelativeTime/clock'
 import { checkAfterMount } from '../requireContent'
 import { pick } from '../pick'
 import { formatRelativeTime, toTimestamp, type RelativeTimeInput } from './formatRelativeTime'
@@ -41,6 +43,7 @@ export interface StaleNoticeProps extends BaseProps {
   refreshLabel?: string
   /** Spinner + disabled refresh button. */
   refreshing?: boolean
+  /** BCP 47 tag. Defaults to the `ConfigProvider` locale, then `en`. */
   locale?: string
 }
 
@@ -52,24 +55,31 @@ const props = withDefaults(defineProps<StaleNoticeProps>(), {
   label: 'Last updated',
   staleLabel: 'Data may be out of date.',
   refreshLabel: 'Refresh',
-  locale: 'en',
+  locale: undefined,
 })
 const emit = defineEmits<{ refresh: [] }>()
 
-const now = ref(Date.now())
-let timer: ReturnType<typeof setInterval> | undefined
+// Before mount there is no clock: the notice renders the absolute time and counts as fresh, so server and client match.
+const mounted = ref(false)
+const now = ref(0)
+const config = useConfig()
+const locale = computed(() => props.locale ?? config.value.locale ?? 'en')
+let unsubscribe: (() => void) | undefined
 
 function stop() {
-  if (timer !== undefined) clearInterval(timer)
-  timer = undefined
+  unsubscribe?.()
+  unsubscribe = undefined
 }
 function start() {
   stop()
   now.value = Date.now()
-  if (Number.isFinite(props.interval) && props.interval > 0) timer = setInterval(() => (now.value = Date.now()), props.interval)
+  if (Number.isFinite(props.interval) && props.interval > 0) unsubscribe = subscribeClock(props.interval, (t) => (now.value = t))
 }
-onMounted(start)
-watch(() => props.interval, start)
+onMounted(() => {
+  mounted.value = true
+  start()
+})
+watch(() => props.interval, () => mounted.value && start())
 onBeforeUnmount(stop)
 
 const ts = computed(() => toTimestamp(props.timestamp))
@@ -88,13 +98,13 @@ watch(
     checkTimestamp()
   },
 )
-const relative = computed(() => (valid.value ? formatRelativeTime(ts.value, now.value, props.locale) : ''))
-const stale = computed(() => !valid.value || now.value - ts.value > props.staleAfter)
+const absolute = computed(() => (valid.value ? new Date(ts.value).toLocaleString(locale.value, mounted.value ? undefined : { timeZone: 'UTC' }) : undefined))
+const relative = computed(() => (!valid.value ? '' : mounted.value ? formatRelativeTime(ts.value, now.value, locale.value) : (absolute.value ?? '')))
+const stale = computed(() => !valid.value || (mounted.value && now.value - ts.value > props.staleAfter))
 const resolvedVariant = computed<StaleNoticeVariant>(() => pick(props.variant, STALE_NOTICE_VARIANTS, 'default'))
 const resolvedTone = computed<StaleNoticeTone>(() => pick(props.tone, STALE_NOTICE_TONES, 'auto'))
 const effectiveTone = computed<StaleNoticeResolvedTone>(() => (resolvedTone.value === 'auto' ? (stale.value ? 'warning' : 'neutral') : resolvedTone.value))
 const iso = computed(() => (valid.value ? new Date(ts.value).toISOString() : undefined))
-const absolute = computed(() => (valid.value ? new Date(ts.value).toLocaleString(props.locale) : undefined))
 const show = computed(() => !(props.hideWhenFresh && !stale.value))
 
 function refresh() {

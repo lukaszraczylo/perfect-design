@@ -31,6 +31,8 @@ export interface ProgressRingProps extends BaseProps {
   shape?: ProgressRingShape
   /** Accessible name of the meter. REQUIRED (or `aria-label` / `aria-labelledby`); the rendered fallback is "Progress". */
   label?: string
+  /** Text for `aria-valuetext` (e.g. `42 of 100 GB`). Defaults to the rounded percent. */
+  valueText?: string
 }
 
 const props = withDefaults(defineProps<ProgressRingProps>(), {
@@ -42,6 +44,7 @@ const props = withDefaults(defineProps<ProgressRingProps>(), {
   variant: 'default',
   shape: 'round',
   label: undefined,
+  valueText: undefined,
 })
 
 const attrs = useAttrs()
@@ -104,7 +107,7 @@ const arcClasses = computed(() =>
     :aria-valuenow="safeValue"
     aria-valuemin="0"
     :aria-valuemax="safeMax"
-    :aria-valuetext="`${percent}%`"
+    :aria-valuetext="valueText || `${percent}%`"
     :class="rootClasses"
     :style="{ width: `${safeSize}px`, height: `${safeSize}px` }"
   >

@@ -291,8 +291,9 @@ describe('NotificationList bad path', () => {
     expect(make({ loading: true, loadingCount: 9999 }).findAll('[data-slot="notification-list-skeleton"]')).toHaveLength(50)
   })
 
-  it('invalid now falls back to current time', () => {
+  it('invalid now falls back to current time', async () => {
     const w = make({ now: NaN, items: [{ id: 1, title: 'a', time: Date.now() }] })
+    await nextTick()
     expect(w.find('time').text()).toBe('now')
   })
 

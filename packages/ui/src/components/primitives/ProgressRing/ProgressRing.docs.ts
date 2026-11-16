@@ -10,6 +10,7 @@ const doc: ComponentDoc = {
   status: 'stable',
   props: [
     { name: 'label', type: 'string', description: 'Accessible name of the ring. Required: `label`, `aria-label` or `aria-labelledby` must say what is measured.' },
+    { name: 'valueText', type: 'string', description: 'Text for `aria-valuetext`, e.g. `42 of 100 GB`. Defaults to the rounded percent.' },
     { name: 'value', type: 'number', default: '0', description: 'Current value, clamped to 0..max.' },
     { name: 'max', type: 'number', default: '100', description: 'Upper bound. Non-finite or <= 0 falls back to 100.' },
     { name: 'size', type: "number | 'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: '64', description: 'Outer diameter in px, or a preset: xs 40, sm 48, md 64, lg 96, xl 128. Invalid numbers and unknown presets fall back to 64.' },

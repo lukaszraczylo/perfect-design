@@ -156,7 +156,7 @@ describe('Chip', () => {
   describe('bad path', () => {
     it('disabled blocks remove click, keyboard, and removes tab stop', async () => {
       const w = mount(Chip, { props: { label: 'Vue', removable: true, disabled: true } })
-      expect(w.attributes('aria-disabled')).toBe('true')
+      expect(w.attributes('aria-disabled')).toBeUndefined()
       expect(w.attributes('tabindex')).toBeUndefined()
       expect(w.find('[data-slot="chip-remove"]').attributes('disabled')).toBeDefined()
       await w.find('[data-slot="chip-remove"]').trigger('click')

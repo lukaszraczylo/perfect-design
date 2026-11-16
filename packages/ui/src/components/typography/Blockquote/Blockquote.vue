@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue'
+import { computed, useSlots, watchEffect } from 'vue'
 import { Primitive, type PrimitiveProps } from 'reka-ui'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
@@ -25,7 +25,9 @@ export interface BlockquoteProps extends BaseProps {
   citation?: string
   /** Author name; switches the footer to an author row (avatar, name, role). */
   author?: string
-  /** Author role or company, shown under the name. */
+  /** Author job title or company, shown under the name. */
+  authorRole?: string
+  /** @deprecated Use `authorRole`. `role` is the ARIA attribute name; it keeps working for now and warns once per instance in development. */
   role?: string
   /** Avatar image URL, shown before the name. Use the `avatar` slot for an `Avatar` component. */
   avatar?: string
@@ -38,11 +40,25 @@ export interface BlockquoteProps extends BaseProps {
 const props = withDefaults(defineProps<BlockquoteProps>(), { variant: 'default', as: 'blockquote' })
 const slots = useSlots()
 
-const hasAvatar = computed(() => Boolean(props.avatar) || Boolean(slots.avatar))
-const hasAuthorName = computed(() => Boolean(props.author) || Boolean(slots.author))
-const hasRole = computed(() => Boolean(props.role) || Boolean(slots.role))
-const hasAuthorRow = computed(() => hasAvatar.value || hasAuthorName.value || hasRole.value)
-const hasCitation = computed(() => Boolean(props.citation) || Boolean(slots.citation))
+// Slots are not reactive: read them while rendering so a slot that appears or disappears updates the footer.
+const roleText = computed(() => props.authorRole ?? props.role)
+const hasAvatar = () => Boolean(props.avatar) || Boolean(slots.avatar)
+const hasAuthorName = () => Boolean(props.author) || Boolean(slots.author)
+const hasRole = () => Boolean(roleText.value) || Boolean(slots.role)
+const hasAuthorRow = () => hasAvatar() || hasAuthorName() || hasRole()
+const hasCitation = () => Boolean(props.citation) || Boolean(slots.citation)
+
+function isDev(): boolean {
+  const env = (import.meta as { env?: { DEV?: boolean; PROD?: boolean } }).env
+  const node = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.NODE_ENV
+  return !(env?.PROD === true || env?.DEV === false || node === 'production') && (env?.DEV === true || node === 'development' || node === 'test')
+}
+let warned = false
+watchEffect(() => {
+  if (warned || props.authorRole !== undefined || props.role === undefined) return
+  warned = true
+  if (isDev()) console.warn('[perfect-design] Blockquote: the `role` prop is deprecated, use `authorRole`.')
+})
 
 const align = computed<BlockquoteAlign | undefined>(() => (props.align && blockquoteAligns.includes(props.align) ? props.align : undefined))
 const classes = computed(() =>
@@ -63,21 +79,21 @@ const authorClasses = computed(() => blockquoteAuthorVariants({ align: align.val
     <slot v-if="asChild" />
     <template v-else>
       <slot />
-      <footer v-if="hasAuthorRow" data-slot="blockquote-footer" :class="authorClasses">
-        <span v-if="hasAvatar" data-slot="blockquote-avatar" class="shrink-0">
+      <footer v-if="hasAuthorRow()" data-slot="blockquote-footer" :class="authorClasses">
+        <span v-if="hasAvatar()" data-slot="blockquote-avatar" class="shrink-0">
           <slot name="avatar"><img :src="avatar" alt="" class="size-10 rounded-full object-cover" /></slot>
         </span>
-        <span v-if="hasAuthorName || hasRole" class="min-w-0 text-start leading-snug">
-          <span v-if="hasAuthorName" data-slot="blockquote-author" class="block text-sm font-semibold text-foreground">
+        <span v-if="hasAuthorName() || hasRole()" class="min-w-0 text-start leading-snug">
+          <span v-if="hasAuthorName()" data-slot="blockquote-author" class="block text-sm font-semibold text-foreground">
             <slot name="author">{{ author }}</slot>
           </span>
-          <span v-if="hasRole" data-slot="blockquote-role" class="block text-sm text-muted-foreground">
-            <slot name="role">{{ role }}</slot>
+          <span v-if="hasRole()" data-slot="blockquote-role" class="block text-sm text-muted-foreground">
+            <slot name="role">{{ roleText }}</slot>
           </span>
         </span>
       </footer>
       <footer
-        v-else-if="hasCitation"
+        v-else-if="hasCitation()"
         data-slot="blockquote-footer"
         class="mt-2 text-sm not-italic text-muted-foreground"
       >

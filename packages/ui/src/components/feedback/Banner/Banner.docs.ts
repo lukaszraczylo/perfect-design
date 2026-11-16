@@ -22,7 +22,7 @@ const doc: ComponentDoc = {
     { name: 'icon', type: 'IconDefinition', description: 'Optional leading FontAwesome icon.' },
     { name: 'dismissible', type: 'boolean', default: 'false', description: 'Shows a dismiss button.' },
     { name: 'dismissLabel', type: 'string', default: "'Dismiss'", description: 'Accessible label of the dismiss button.' },
-    { name: 'storageKey', type: 'string', description: 'Remember dismissal in localStorage under `pd-banner:<storageKey>`; the banner is not rendered next time. Storage errors are ignored.' },
+    { name: 'storageKey', type: 'string', description: 'Remember dismissal in localStorage under `pd-banner:<storageKey>`; the banner is hidden after mount next time (the first render always shows it, so server and client markup match). Storage errors are ignored.' },
     { name: 'role', type: "'alert' | 'status' | 'note'", description: 'Overrides the computed role: `alert` for warning/destructive, `status` otherwise.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],

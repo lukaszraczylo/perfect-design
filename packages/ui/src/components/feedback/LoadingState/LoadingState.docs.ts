@@ -69,9 +69,9 @@ const doc: ComponentDoc = {
     },
   ],
   a11y: [
-    'role="status" with aria-busy="true" and aria-live="polite".',
+    'role="status" (a polite live region). It has no aria-busy: the region exists only while loading.',
     'Skeleton blocks are aria-hidden. The label is announced through an sr-only element.',
-    'Size, layout and shape only change geometry: every combination keeps the same status region, `aria-busy` and the announced label. The inline layout keeps the label visible next to the spinner.',
+    'Size, layout and shape only change geometry: every combination keeps the same status region and the announced label. The inline layout keeps the label visible next to the spinner.',
     'The pulse animation is disabled under prefers-reduced-motion.',
   ],
   related: ['EmptyState', 'ErrorState', 'Spinner'],

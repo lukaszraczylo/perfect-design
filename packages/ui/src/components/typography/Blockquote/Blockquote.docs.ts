@@ -14,7 +14,8 @@ const doc: ComponentDoc = {
     { name: 'align', type: "'start' | 'center'", default: "'start'", description: 'Centres the quote and the author row.' },
     { name: 'citation', type: 'string', description: 'Attribution text shown in a muted footer. Overridden by the `citation` slot; ignored when an author row is rendered.' },
     { name: 'author', type: 'string', description: 'Author name; renders the author row. Overridden by the `author` slot.' },
-    { name: 'role', type: 'string', description: 'Role or company under the author name. Overridden by the `role` slot.' },
+    { name: 'authorRole', type: 'string', description: 'The author\'s job title or company, under the author name. Overridden by the `role` slot.' },
+    { name: 'role', type: 'string', description: 'Deprecated: use `authorRole`. Still shown when `authorRole` is not set, and logs one development warning per instance.' },
     { name: 'avatar', type: 'string', description: 'Avatar image URL (decorative, `alt=""`). Use the `avatar` slot for an `Avatar` component.' },
     { name: 'cite', type: 'string', description: 'Source URL, rendered as the native `cite` attribute.' },
     { name: 'as', type: 'string | Component', default: "'blockquote'", description: 'Element to render.' },
@@ -51,14 +52,14 @@ const doc: ComponentDoc = {
     {
       title: 'Variant: card with author row',
       description: 'Author, role and avatar render an author row.',
-      code: `<Blockquote variant="card" author="Sample author" role="Sample role" avatar="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+      code: `<Blockquote variant="card" author="Sample author" author-role="Sample role" avatar="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
   Sample quotation text inside a card.
 </Blockquote>`,
     },
     {
       title: 'Variant: pull-quote',
       description: 'Large display type; centre it for a single highlighted quote.',
-      code: `<Blockquote variant="pull" align="center" author="Sample author" role="Sample role">
+      code: `<Blockquote variant="pull" align="center" author="Sample author" author-role="Sample role">
   Sample pull-quote text in display size.
 </Blockquote>`,
     },
@@ -82,7 +83,7 @@ const doc: ComponentDoc = {
   ],
   a11y: ['Native <blockquote> element; the `cite` attribute is not announced, so show the attribution visibly via `citation` or `author`.', 'The avatar image is decorative (`alt=""`) because the author name is rendered as text next to it.', 'Borders use logical properties (`border-s`, `ps`), so the quote rule flips in right-to-left layouts.', 'Text wraps and reflows at 320px; no fixed widths.'],
   related: ['Text', 'Prose', 'Lead'],
-  llmNotes: ['Put the quote in the default slot and the author in `citation`.', 'Use `cite` only for a real URL.', 'Use `author` (+ `role`, `avatar`) for attributed quotes, `citation` for plain sources; do not pass both.', 'Only use real quotes with a real source. Never invent a quote, person or company.', 'Use `variant="pull"` for at most one highlighted quote per section.'],
+  llmNotes: ['Put the quote in the default slot and the author in `citation`.', 'Use `cite` only for a real URL.', 'Use `author` (+ `authorRole`, `avatar`; `role` is a deprecated alias) for attributed quotes, `citation` for plain sources; do not pass both.', 'Only use real quotes with a real source. Never invent a quote, person or company.', 'Use `variant="pull"` for at most one highlighted quote per section.'],
   replaces: ['ad-hoc <blockquote class="border-l-2 pl-4 italic"> patterns'],
 }
 export default doc

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSlots } from 'vue'
+import { useId, useSlots } from 'vue'
 import { Separator as RekaSeparator, type SeparatorProps as RekaSeparatorProps } from 'reka-ui'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
@@ -48,6 +48,7 @@ defineSlots<{
 }>()
 
 const slots = useSlots()
+const labelId = useId()
 const VARIANTS: readonly SeparatorVariant[] = ['solid', 'dashed', 'dotted']
 const SIZES: readonly SeparatorSize[] = ['thin', 'md', 'thick']
 const TONES: readonly SeparatorTone[] = ['default', 'muted', 'strong', 'primary']
@@ -65,7 +66,7 @@ const rootClasses = () =>
   labelled() ? cn(separatorLabelledVariants(), props.class) : cn(separatorVariants({ variant: variant(), size: size(), tone: tone() }), props.class)
 const lineClasses = () => cn(separatorLineVariants({ variant: variant(), orientation: orientation(), size: size(), tone: tone() }))
 const labelClasses = () => cn(separatorLabelVariants({ tone: tone() }))
-// Role "separator" hides its children from assistive tech, so expose the text as the name.
+// Role "separator" hides its children from assistive tech, so expose the text as the name (a slot label via aria-labelledby).
 const ariaLabel = () => (labelled() && !props.decorative && props.label && !slots.default ? props.label : undefined)
 </script>
 
@@ -78,11 +79,12 @@ const ariaLabel = () => (labelled() && !props.decorative && props.label && !slot
     :as-child="asChild"
     :data-align="labelled() ? align() : undefined"
     :aria-label="ariaLabel()"
+    :aria-labelledby="labelled() && !decorative && slots.default ? labelId : undefined"
     :class="rootClasses()"
   >
     <template v-if="labelled()">
       <span v-if="align() !== 'start'" data-slot="separator-line" :data-orientation="orientation()" :class="lineClasses()" />
-      <span data-slot="separator-label" :class="labelClasses()"><slot>{{ label }}</slot></span>
+      <span data-slot="separator-label" :id="labelled() && !decorative && slots.default ? labelId : undefined" :class="labelClasses()"><slot>{{ label }}</slot></span>
       <span v-if="align() !== 'end'" data-slot="separator-line" :data-orientation="orientation()" :class="lineClasses()" />
     </template>
     <slot v-else />

@@ -81,7 +81,6 @@ function onKeydown(e: KeyboardEvent) {
     :aria-label="focusable && label ? label : undefined"
     :aria-keyshortcuts="focusable ? 'Delete Backspace' : undefined"
     :tabindex="focusable ? 0 : undefined"
-    :aria-disabled="disabled ? 'true' : undefined"
     :data-disabled="disabled ? '' : undefined"
     :data-selectable="selectable ? '' : undefined"
     :data-selected="selectable && selected ? '' : undefined"

@@ -15,7 +15,7 @@ import { cva, type VariantProps } from '../../../lib/cva'
 export const scrollBarVariants = cva('flex touch-none select-none p-px transition-colors', {
   variants: {
     orientation: {
-      vertical: 'h-full border-l border-l-transparent',
+      vertical: 'h-full border-s border-s-transparent',
       horizontal: 'w-full flex-col border-t border-t-transparent',
     },
     size: {

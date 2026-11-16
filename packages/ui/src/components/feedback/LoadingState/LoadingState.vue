@@ -74,8 +74,6 @@ const mediaBone = computed(() => cn(bone.value, resolvedShape.value === 'pill' &
     :data-layout="resolvedLayout === 'stacked' ? undefined : resolvedLayout"
     :data-shape="resolvedShape === 'rounded' ? undefined : resolvedShape"
     role="status"
-    aria-live="polite"
-    aria-busy="true"
     :class="classes"
   >
     <template v-if="resolvedVariant === 'spinner'">

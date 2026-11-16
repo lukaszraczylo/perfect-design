@@ -21,7 +21,7 @@ const doc: ComponentDoc = {
     { name: 'refreshable', type: 'boolean', default: 'false', description: 'Show a refresh button.' },
     { name: 'refreshLabel', type: 'string', default: "'Refresh'", description: 'Refresh button text.' },
     { name: 'refreshing', type: 'boolean', default: 'false', description: 'Spinner + disabled refresh button.' },
-    { name: 'locale', type: 'string', default: "'en'", description: 'BCP 47 tag for Intl.RelativeTimeFormat. Invalid tags fall back to `en`.' },
+    { name: 'locale', type: 'string', default: 'ConfigProvider locale, then `en`', description: 'BCP 47 tag for Intl.RelativeTimeFormat. Invalid tags fall back to `en`.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],
   emits: [{ name: 'refresh', payload: '[]', description: 'Refresh button clicked (not emitted while `refreshing`).' }],

@@ -14,9 +14,9 @@ export function isScrollable(el: Element): boolean {
 
 /**
  * Observes `targets()` and calls `onChange` after mount, after every update and whenever one of them (or its
- * first child) resizes. Returns nothing; cleans up on unmount. ResizeObserver is optional (older test DOMs).
+ * first child) resizes. With `root`, elements added or removed under it later are picked up too. Cleans up on unmount. ResizeObserver is optional (older test DOMs).
  */
-function observeTargets(targets: () => Element[], onChange: () => void) {
+function observeTargets(targets: () => Element[], onChange: () => void, root?: () => Element | null) {
   let observer: ResizeObserver | undefined
   const attach = () => {
     observer?.disconnect()
@@ -27,12 +27,24 @@ function observeTargets(targets: () => Element[], onChange: () => void) {
       if (el.firstElementChild) observer.observe(el.firstElementChild)
     }
   }
+  let mutations: MutationObserver | undefined
   onMounted(() => {
     attach()
     onChange()
+    const node = root?.()
+    if (node && typeof MutationObserver !== 'undefined') {
+      mutations = new MutationObserver(() => {
+        attach()
+        onChange()
+      })
+      mutations.observe(node, { childList: true, subtree: true })
+    }
   })
   onUpdated(onChange)
-  onBeforeUnmount(() => observer?.disconnect())
+  onBeforeUnmount(() => {
+    observer?.disconnect()
+    mutations?.disconnect()
+  })
 }
 
 /**
@@ -59,18 +71,22 @@ const AUTO = 'data-auto-tabindex'
  */
 export function useFocusableScrollers(root: Ref<unknown>, selector = 'pre') {
   const nodes = () => Array.from(toElement(root.value)?.querySelectorAll<HTMLElement>(selector) ?? [])
-  observeTargets(nodes, () => {
-    for (const node of nodes()) {
-      const auto = node.hasAttribute(AUTO)
-      if (isScrollable(node)) {
-        if (!node.hasAttribute('tabindex')) {
-          node.setAttribute('tabindex', '0')
-          node.setAttribute(AUTO, '')
+  observeTargets(
+    nodes,
+    () => {
+      for (const node of nodes()) {
+        const auto = node.hasAttribute(AUTO)
+        if (isScrollable(node)) {
+          if (!node.hasAttribute('tabindex')) {
+            node.setAttribute('tabindex', '0')
+            node.setAttribute(AUTO, '')
+          }
+        } else if (auto) {
+          node.removeAttribute('tabindex')
+          node.removeAttribute(AUTO)
         }
-      } else if (auto) {
-        node.removeAttribute('tabindex')
-        node.removeAttribute(AUTO)
       }
-    }
-  })
+    },
+    () => toElement(root.value),
+  )
 }

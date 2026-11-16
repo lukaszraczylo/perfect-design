@@ -21,7 +21,7 @@ const doc: ComponentDoc = {
     { name: 'asChild', type: 'boolean', default: 'false', description: 'Render the single slot child instead of a wrapper (reka-ui).' },
     { name: 'type', type: "'button' | 'submit' | 'reset'", default: "'button'", description: 'Native button type. Defaults to button so it never submits forms by accident.' },
     { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables interaction.' },
-    { name: 'loading', type: 'boolean', default: 'false', description: 'Shows a spinner, sets aria-busy, blocks clicks, keeps width.' },
+    { name: 'loading', type: 'boolean', default: 'false', description: 'Shows a decorative spinner, sets aria-busy, blocks clicks, keeps width. The label stays in the accessible name.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],
   slots: [

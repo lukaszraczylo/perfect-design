@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import type { IconDefinition } from '../../../lib/icons-tools'
 import { faXmark } from '../../../lib/icons'
 import { cn } from '../../../lib/cn'
@@ -10,6 +10,7 @@ import Icon from '../../primitives/Icon/Icon.vue'
 import { checkAfterMount, useRequireContent } from '../requireContent'
 import { isBannerDismissed, persistBannerDismissal } from './storage'
 import { pick } from '../pick'
+import { focusAfterDismiss } from '../focusAfterDismiss'
 import { BANNER_LAYOUTS, BANNER_SIZES, bannerVariants, type BannerAppearance, type BannerLayout, type BannerPlacement, type BannerSize, type BannerVariant } from './variants'
 
 export interface BannerProps extends BaseProps {
@@ -53,7 +54,11 @@ const emit = defineEmits<{
   action: []
 }>()
 
-const visible = ref(!isBannerDismissed(props.storageKey))
+// Storage is read after mount so the first client render matches the server render.
+const visible = ref(true)
+onMounted(() => {
+  if (isBannerDismissed(props.storageKey)) visible.value = false
+})
 const root = useTemplateRef('root')
 useRequireContent('Banner', () => root.value, 'Put the message in the default slot.')
 checkAfterMount(() => {
@@ -90,6 +95,7 @@ const ctaClasses = cn(
 
 function dismiss() {
   if (!visible.value) return
+  focusAfterDismiss(root.value)
   visible.value = false
   persistBannerDismissal(props.storageKey)
   emit('dismiss')

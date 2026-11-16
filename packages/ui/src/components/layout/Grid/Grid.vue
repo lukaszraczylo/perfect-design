@@ -4,6 +4,7 @@ import { Primitive, type PrimitiveProps } from 'reka-ui'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
 import { gapClasses, gapXClasses, gapYClasses, lgGapClasses, lookup, mdGapClasses, smGapClasses, type Gap } from '../Stack/gap'
+import { lgGapXClasses, lgGapYClasses, mdGapXClasses, mdGapYClasses, smGapXClasses, smGapYClasses } from './gapAxes'
 import {
   autoColsClasses,
   autoGridTemplate,
@@ -80,6 +81,13 @@ const classes = computed(() =>
     lookup(lgGapClasses, props.gapLg),
     lookup(gapXClasses, props.gapX),
     lookup(gapYClasses, props.gapY),
+    // The axis gaps beat `gap` and the responsive gaps at every breakpoint that sets one.
+    props.gapSm !== undefined && lookup(smGapClasses, props.gapSm) && lookup(smGapXClasses, props.gapX),
+    props.gapSm !== undefined && lookup(smGapClasses, props.gapSm) && lookup(smGapYClasses, props.gapY),
+    props.gapMd !== undefined && lookup(mdGapClasses, props.gapMd) && lookup(mdGapXClasses, props.gapX),
+    props.gapMd !== undefined && lookup(mdGapClasses, props.gapMd) && lookup(mdGapYClasses, props.gapY),
+    props.gapLg !== undefined && lookup(lgGapClasses, props.gapLg) && lookup(lgGapXClasses, props.gapX),
+    props.gapLg !== undefined && lookup(lgGapClasses, props.gapLg) && lookup(lgGapYClasses, props.gapY),
     props.class,
   ),
 )

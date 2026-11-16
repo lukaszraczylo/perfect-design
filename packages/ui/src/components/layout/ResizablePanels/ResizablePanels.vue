@@ -143,7 +143,7 @@ function sort() {
   const list = items.value
   /* v8 ignore next -- defensive: an item whose element is not mounted yet */
   if (list.some((i) => !i.el.value)) return
-  const sorted = list.slice().sort((a, b) => (a.el.value!.compareDocumentPosition(b.el.value!) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
+  const sorted = list.toSorted((a, b) => (a.el.value!.compareDocumentPosition(b.el.value!) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
   if (sorted.some((it, i) => it !== list[i])) {
     const before = snapshot()
     items.value = sorted

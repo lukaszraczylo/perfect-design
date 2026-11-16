@@ -114,8 +114,8 @@ describe('LoadingState combinations and accessibility', () => {
   it.each(cross)('%s + %s + %s + %s keeps the status region and the label', (variant, size, layout, shape) => {
     const w = make({ variant, size, layout, shape, label: 'Loading invoices' })
     expect(w.attributes('role')).toBe('status')
-    expect(w.attributes('aria-busy')).toBe('true')
-    expect(w.attributes('aria-live')).toBe('polite')
+    expect(w.attributes('aria-busy')).toBeUndefined()
+    expect(w.attributes('aria-live')).toBeUndefined()
     expect(w.find('[data-slot="loading-state-label"]').text()).toBe('Loading invoices')
   })
 

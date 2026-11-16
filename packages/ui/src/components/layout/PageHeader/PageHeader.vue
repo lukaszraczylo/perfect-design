@@ -57,8 +57,9 @@ const tabsEl = ref<HTMLElement | null>(null)
 // The tabs row scrolls sideways on narrow screens: it is a Tab stop only while it actually overflows.
 const tabsScrollable = useScrollable(tabsEl)
 
-const hasTitle = computed(() => !!props.title || !!slots.title)
-const hasDescription = computed(() => !!props.description || !!slots.description)
+// Slots are not reactive: evaluate them while rendering, not in a cached computed.
+const hasTitle = () => !!props.title || !!slots.title
+const hasDescription = () => !!props.description || !!slots.description
 
 const variant = computed<PageHeaderVariant>(() => (pageHeaderVariantNames.includes(props.variant) ? props.variant : 'default'))
 const isHero = computed(() => variant.value === 'hero')
@@ -116,7 +117,7 @@ const backClasses = computed(() =>
       <slot name="back" />
     </div>
     <a v-else-if="backHref" data-slot="page-header-back" :href="backHref" :class="backClasses">
-      <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="size-4">
+      <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="size-4 rtl:-scale-x-100">
         <path d="M10 3.5 5.5 8l4.5 4.5" />
       </svg>
       {{ backLabel }}
@@ -126,10 +127,10 @@ const backClasses = computed(() =>
     </div>
     <div :class="rowClasses">
       <div data-slot="page-header-heading" :class="headingClasses">
-        <component :is="titleAs" v-if="hasTitle" data-slot="page-header-title" :class="titleClasses">
+        <component :is="titleAs" v-if="hasTitle()" data-slot="page-header-title" :class="titleClasses">
           <slot name="title">{{ title }}</slot>
         </component>
-        <div v-if="hasDescription" data-slot="page-header-description" :class="cn('text-sm', muted, center && 'max-w-2xl text-balance')">
+        <div v-if="hasDescription()" data-slot="page-header-description" :class="cn('text-sm', muted, center && 'max-w-2xl text-balance')">
           <slot name="description">{{ description }}</slot>
         </div>
       </div>

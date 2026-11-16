@@ -59,7 +59,7 @@ describe('ErrorState', () => {
     it('shows busy state, disables retry and does not emit', async () => {
       const w = mount(ErrorState, { props: { retrying: true } })
       const btn = w.find('[data-slot="error-state-retry"]')
-      expect(w.attributes('aria-busy')).toBe('true')
+      expect(w.attributes('aria-busy')).toBeUndefined()
       expect(btn.attributes('disabled')).toBeDefined()
       expect(btn.attributes('aria-busy')).toBe('true')
       await btn.trigger('click')

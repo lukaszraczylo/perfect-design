@@ -9,6 +9,7 @@ import type { BaseProps } from '../../../lib/types'
 import Icon from '../../primitives/Icon/Icon.vue'
 import { checkAfterMount, useRequireContent } from '../requireContent'
 import { pick } from '../pick'
+import { focusAfterDismiss } from '../focusAfterDismiss'
 import { ALERT_LAYOUTS, alertActionsVariants, alertBodyVariants, alertIconVariants, alertVariants, type AlertAppearance, type AlertLayout, type AlertSize, type AlertVariant } from './variants'
 
 export interface AlertProps extends BaseProps {
@@ -66,6 +67,7 @@ const dismissClasses = computed(() =>
 
 function dismiss() {
   if (!visible.value) return
+  focusAfterDismiss(root.value)
   visible.value = false
   emit('dismiss')
 }

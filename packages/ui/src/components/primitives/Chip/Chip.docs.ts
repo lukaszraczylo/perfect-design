@@ -136,7 +136,7 @@ const doc: ComponentDoc = {
     'A removable, non-selectable chip is a focusable `group` named by `label`: Backspace or Delete removes it (`aria-keyshortcuts`). The remove button has aria-label "Remove <label>" and stays out of the tab order, but screen-reader and touch users can still activate it.',
     'The remove button is at least 24x24px (WCAG 2.5.8) even on the small chip: it extends past the chip with negative margins instead of growing it.',
     'A selected chip adds a primary ring; the ring is also drawn in forced-colors mode through the focus outline, and `aria-pressed` carries the state so colour is not the only signal.',
-    'Disabled chips set aria-disabled and disable inner buttons.',
+    'Disabled chips set `data-disabled` and disable inner buttons (a role-less span takes no aria-disabled).',
   ],
   related: ['Badge', 'IconButton'],
   requires: [

@@ -14,6 +14,7 @@ const doc: ComponentDoc = {
     { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Text and icon size (text-xs, text-sm, text-base). Unknown values fall back to `md`. Non-default values add `data-size`.' },
     { name: 'variant', type: "'plain' | 'soft' | 'outline'", default: "'plain'", description: '`plain` is coloured text with an icon; `soft` adds a tinted box; `outline` adds a bordered box. Use the boxed forms for a message that stands alone (above a form, beside a toolbar). Unknown values fall back to `plain`. Non-default values add `data-variant`.' },
     { name: 'icon', type: 'IconDefinition', description: 'Replaces the tone icon.' },
+    { name: 'live', type: "'polite' | 'assertive' | 'off'", default: "'assertive' for danger, else 'polite'", description: 'Live-region behaviour: `polite` is role=status, `assertive` is role=alert, `off` renders no live role. Use `off` for field hints and messages present on first render.' },
     { name: 'hideIcon', type: 'boolean', default: 'false', description: 'Hides the icon.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],
@@ -57,7 +58,7 @@ const doc: ComponentDoc = {
     'The box variants shrink to the text (`w-fit`) and wrap at `max-w-full`, so long messages reflow at 320px.',
   ],
   related: ['Alert', 'Field'],
-  llmNotes: ['Use `variant="soft"` or `"outline"` only for a message that stands alone; under a field use the plain default.', 'Always give the message an id and link it with aria-describedby.', 'Keep it to a single short sentence.'],
+  llmNotes: ['Use `variant="soft"` or `"outline"` only for a message that stands alone; under a field use the plain default.', 'Set `live="off"` on a field hint or a message that is already there at first render; live roles are for messages that appear after an action.', 'Always give the message an id and link it with aria-describedby.', 'Keep it to a single short sentence.'],
   replaces: ['hand-rolled InlineMessage markup in app code'],
 }
 export default doc

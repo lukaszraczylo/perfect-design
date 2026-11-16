@@ -53,7 +53,7 @@ const current = computed<Toast[]>(() => {
   return [...held.value, ...store.toasts.filter((t) => !heldIds.has(t.id))]
 })
 // DOM order == visual order: newest nearest the screen edge the stack is anchored to.
-const displayed = computed(() => (resolvedPosition.value.startsWith('top') ? [...current.value].reverse() : current.value))
+const displayed = computed(() => (resolvedPosition.value.startsWith('top') ? current.value.toReversed() : current.value))
 
 function pause() {
   if (!props.pauseOnHover) return

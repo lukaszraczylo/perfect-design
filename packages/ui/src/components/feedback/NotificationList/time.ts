@@ -1,3 +1,4 @@
+import { DEFAULT_TIME_LOCALE } from '../../typography/RelativeTime/format'
 export type NotificationTime = Date | string | number
 
 export interface NotificationTimeResult {
@@ -33,25 +34,35 @@ const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
 /**
  * Format a notification time. Dates / epoch numbers / ISO strings become relative text via
  * `Intl.RelativeTimeFormat`; any other string is returned as provided; invalid input yields empty text.
+ * With `now` null there is no clock yet (server render, first client render): the text is the absolute UTC time.
  */
-export function formatNotificationTime(value: unknown, now: number = Date.now(), locale?: string): NotificationTimeResult {
+export function formatNotificationTime(value: unknown, now: number | null = Date.now(), locale?: string): NotificationTimeResult {
   const date = toNotificationDate(value)
   if (!date) return typeof value === 'string' && value.trim() && !ISO_LIKE.test(value.trim()) ? { text: value.trim(), iso: null, title: '' } : EMPTY
   const iso = date.toISOString()
+  if (now === null) {
+    let utc: string
+    try {
+      utc = date.toLocaleString(locale, { timeZone: 'UTC' })
+    } catch {
+      utc = date.toLocaleString(DEFAULT_TIME_LOCALE, { timeZone: 'UTC' })
+    }
+    return { text: utc, iso, title: utc }
+  }
   const diff = (date.getTime() - (Number.isFinite(now) ? now : Date.now())) / 1000
   const abs = Math.abs(diff)
   let title = ''
   try {
     title = date.toLocaleString(locale)
   } catch {
-    title = date.toLocaleString()
+    title = date.toLocaleString(DEFAULT_TIME_LOCALE)
   }
   if (typeof Intl === 'undefined' || typeof Intl.RelativeTimeFormat !== 'function') return { text: iso.slice(0, 10), iso, title }
   let rtf: Intl.RelativeTimeFormat
   try {
     rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
   } catch {
-    rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+    rtf = new Intl.RelativeTimeFormat(DEFAULT_TIME_LOCALE, { numeric: 'auto' })
   }
   if (abs < 5) return { text: rtf.format(0, 'second'), iso, title }
   const [unit, size] = UNITS.find(([, s]) => abs >= s) ?? (['second', 1] as [Intl.RelativeTimeFormatUnit, number])

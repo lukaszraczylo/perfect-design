@@ -89,7 +89,7 @@ function onClick(e: MouseEvent) {
   >
     <slot v-if="asChild" />
     <template v-else>
-      <Spinner v-if="loading" size="sm" label="Loading" />
+      <Spinner v-if="loading" size="sm" decorative />
       <slot v-else-if="$slots['icon-start'] || iconStart" name="icon-start"><Icon v-if="iconStart" :icon="iconStart" /></slot>
       <slot />
       <slot v-if="$slots['icon-end'] || iconEnd" name="icon-end"><Icon v-if="iconEnd" :icon="iconEnd" /></slot>

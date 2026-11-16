@@ -32,7 +32,7 @@ const horizontal = (w: VueWrapper) => bars(w).find((b) => b.attributes('data-ori
 describe('ScrollArea scrollbar defaults are unchanged', () => {
   it('md and default produce the original bar and thumb classes', () => {
     const w = area({ horizontal: true })
-    expect(vertical(w).classes().sort()).toEqual(['border-l', 'border-l-transparent', 'flex', 'h-full', 'p-px', 'select-none', 'touch-none', 'transition-colors', 'w-2.5'])
+    expect(vertical(w).classes().sort()).toEqual(['border-s', 'border-s-transparent', 'flex', 'h-full', 'p-px', 'select-none', 'touch-none', 'transition-colors', 'w-2.5'])
     expect(horizontal(w).classes().sort()).toEqual(['border-t', 'border-t-transparent', 'flex', 'flex-col', 'h-2.5', 'p-px', 'select-none', 'touch-none', 'transition-colors', 'w-full'])
     expect(thumbs(w)[0]!.classes().sort()).toEqual(['bg-input', 'flex-1', 'hover:bg-muted-foreground', 'relative', 'rounded-full'])
     expect(area({ size: 'md', variant: 'default' }) && vertical(wrapper!).classes()).toContain('w-2.5')

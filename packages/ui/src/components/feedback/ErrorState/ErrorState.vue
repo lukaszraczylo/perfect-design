@@ -119,7 +119,6 @@ function retry() {
     :data-size="resolvedSize === 'md' ? undefined : resolvedSize"
     :data-layout="resolvedLayout === 'center' ? undefined : resolvedLayout"
     :data-tone="resolvedTone === 'danger' ? undefined : resolvedTone"
-    :aria-busy="retrying ? 'true' : undefined"
     :class="classes"
   >
     <p v-if="codeText" data-slot="error-state-code" :class="errorStateCodeVariants(parts)">{{ codeText }}</p>
@@ -131,7 +130,7 @@ function retry() {
       <slot>{{ messageText }}</slot>
     </p>
     <div v-if="showRetry || $slots.actions" data-slot="error-state-actions" :class="errorStateActionsVariants({ variant: resolvedVariant, layout: resolvedLayout })">
-      <Button v-if="showRetry" variant="outline" size="sm" :loading="retrying" data-slot="error-state-retry" @click="retry">
+      <Button v-if="showRetry" variant="outline" size="sm" :loading="retrying" :aria-busy="retrying ? 'true' : undefined" data-slot="error-state-retry" @click="retry">
         <Icon v-if="!retrying" :icon="faRotateRight" />
         {{ retryLabel }}
       </Button>

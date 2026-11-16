@@ -22,7 +22,7 @@ const doc: ComponentDoc = {
     { name: 'details', type: 'string', description: 'Technical detail in a collapsible <details> block (closed by default). Hidden when blank.' },
     { name: 'retryable', type: 'boolean', default: 'true', description: 'Show the retry button. When omitted it follows the `status` preset (false for 403/404), otherwise true.' },
     { name: 'retryLabel', type: 'string', default: "'Try again'", description: 'Retry button text.' },
-    { name: 'retrying', type: 'boolean', default: 'false', description: 'Spinner + disabled retry button, aria-busy on the root.' },
+    { name: 'retrying', type: 'boolean', default: 'false', description: 'Spinner + disabled retry button with aria-busy (the alert root is not marked busy).' },
     { name: 'detailsLabel', type: 'string', default: "'Technical details'", description: 'Summary text of the details block.' },
     { name: 'icon', type: 'IconDefinition', default: 'faTriangleExclamation', description: 'Icon in the destructive-tinted circle. Hidden when a `code` is shown.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },

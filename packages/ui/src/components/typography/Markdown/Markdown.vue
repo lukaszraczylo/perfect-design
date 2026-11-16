@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useSlots, watch } from 'vue'
+import { computed, onMounted, useSlots, watch } from 'vue'
 import { cn } from '../../../lib/cn'
 import { headingMap, parseMarkdown, type HeadingInfo } from './parse'
 import { createContext, renderRoot, type ResolvedOptions } from './render'
@@ -56,14 +56,14 @@ const options = computed<ResolvedOptions>(() => ({
   components: props.components ?? {},
 }))
 
-watch(
-  outline,
-  (next, prev) => {
-    const key = (list: HeadingInfo[]) => JSON.stringify(list)
-    if (!prev || key(next) !== key(prev)) emit('headings', next)
-  },
-  { immediate: true },
-)
+// Emitted after mount (not during setup) so a parent handler sees the rendered document, then on every real change.
+const outlineKey = (list: HeadingInfo[]) => JSON.stringify(list)
+onMounted(() => {
+  emit('headings', outline.value)
+  watch(outline, (next, prev) => {
+    if (outlineKey(next) !== outlineKey(prev)) emit('headings', next)
+  })
+})
 
 const Rendered = () => renderRoot(ast.value, createContext(nodes.value, options.value), props.inline)
 const classes = computed(() => cn(markdownVariants({ size: size.value, tone: tone.value, inline: props.inline }), props.class))

@@ -5,6 +5,7 @@ import type { HTMLAttributes } from 'vue'
 import { cn } from '../../../lib/cn'
 import { focusRing } from '../../../lib/styles'
 import type { BaseProps } from '../../../lib/types'
+import { useConfig } from '../../layout/ConfigProvider/config'
 import ScrollBar from './ScrollBar.vue'
 import type { ScrollBarSize, ScrollBarVariant } from './variants'
 
@@ -25,6 +26,8 @@ export interface ScrollAreaProps extends BaseProps {
   viewportClass?: HTMLAttributes['class']
   /** Accessible name of the scrolling viewport. It is always a keyboard tab stop (reka-ui sets `tabindex="0"`); with a label it is also exposed as a named `region`. */
   label?: string
+  /** Text direction of the scrollbars. Defaults to the `ConfigProvider` direction (`auto` there means the browser decides). */
+  dir?: 'ltr' | 'rtl'
   as?: PrimitiveProps['as']
 }
 
@@ -37,7 +40,10 @@ const props = withDefaults(defineProps<ScrollAreaProps>(), {
   variant: 'default',
   viewportClass: undefined,
   label: undefined,
+  dir: undefined,
 })
+const config = useConfig()
+const resolvedDir = computed(() => props.dir ?? (config.value.dir === 'ltr' || config.value.dir === 'rtl' ? config.value.dir : undefined))
 
 
 const rootClasses = computed(() => cn('relative overflow-hidden', props.class))
@@ -51,7 +57,7 @@ const viewportClasses = computed(() =>
 </script>
 
 <template>
-  <ScrollAreaRoot data-slot="scroll-area" :type="type" :scroll-hide-delay="scrollHideDelay" :as="as" :class="rootClasses">
+  <ScrollAreaRoot data-slot="scroll-area" :type="type" :scroll-hide-delay="scrollHideDelay" :dir="resolvedDir" :as="as" :class="rootClasses">
     <ScrollAreaViewport
       data-slot="scroll-area-viewport"
       :role="label ? 'region' : undefined"

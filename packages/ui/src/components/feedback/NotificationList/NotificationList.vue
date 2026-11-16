@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, useId, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { cn } from '../../../lib/cn'
 import { faCheck, faXmark } from '../../../lib/icons'
 import { requireText, violation } from '../../../lib/contract'
@@ -9,6 +9,8 @@ import type { BaseProps } from '../../../lib/types'
 import Button from '../../primitives/Button/Button.vue'
 import Icon from '../../primitives/Icon/Icon.vue'
 import { checkAfterMount } from '../requireContent'
+import { useConfig } from '../../layout/ConfigProvider/config'
+import { subscribeClock } from '../../typography/RelativeTime/clock'
 import { toTone, type FeedbackTone } from '../tones'
 import { formatNotificationTime, type NotificationTime } from './time'
 import { pick } from '../pick'
@@ -66,7 +68,7 @@ export interface NotificationListProps extends BaseProps {
   showMarkAll?: boolean
   /** Reference time (ms or Date) for relative formatting; defaults to the current time. */
   now?: number | Date
-  /** BCP 47 locale for relative times. */
+  /** BCP 47 locale for relative times. Defaults to the `ConfigProvider` locale, then the browser default. */
   locale?: string
   markAllLabel?: string
   showMoreLabel?: string
@@ -157,7 +159,19 @@ function commit(next: NotificationItem[]) {
 const variant = computed<NotificationListVariant>(() => (props.variant === 'compact' ? 'compact' : 'default'))
 const appearance = computed<NotificationListAppearance>(() => pick(props.appearance, NOTIFICATION_LIST_APPEARANCES, 'card'))
 const shape = computed<NotificationListShape>(() => pick(props.shape, NOTIFICATION_LIST_SHAPES, 'circle'))
-const nowMs = computed(() => (props.now instanceof Date ? props.now.getTime() : typeof props.now === 'number' && Number.isFinite(props.now) ? props.now : Date.now()))
+const REFRESH_MS = 30_000
+const pinnedNow = computed(() => (props.now instanceof Date ? props.now.getTime() : typeof props.now === 'number' && Number.isFinite(props.now) ? props.now : null))
+// No clock before mount: the first render shows absolute UTC times so server and client markup match, then relative times go live.
+const clock = ref<number | null>(null)
+let unsubscribe: (() => void) | undefined
+onMounted(() => {
+  clock.value = Date.now()
+  unsubscribe = subscribeClock(REFRESH_MS, (t) => (clock.value = t))
+})
+onBeforeUnmount(() => unsubscribe?.())
+const nowMs = computed(() => pinnedNow.value ?? clock.value)
+const config = useConfig()
+const locale = computed(() => props.locale ?? config.value.locale)
 const safeHref = (href: unknown) => (typeof href === 'string' && href.trim() && !/^\s*javascript:/i.test(href) ? href : undefined)
 
 const rows = computed(() => {
@@ -168,7 +182,7 @@ const rows = computed(() => {
     const id = raw.id
     if ((typeof id !== 'string' && typeof id !== 'number') || seen.has(id)) continue
     seen.add(id)
-    const time = formatNotificationTime(raw.time, nowMs.value, props.locale)
+    const time = formatNotificationTime(raw.time, nowMs.value, locale.value)
     out.push({
       raw,
       id,

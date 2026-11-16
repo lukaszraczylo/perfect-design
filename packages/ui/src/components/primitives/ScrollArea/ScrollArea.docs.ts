@@ -29,6 +29,7 @@ const doc: ComponentDoc = {
     { name: 'horizontal', type: 'boolean', default: 'false', description: 'Render the horizontal scrollbar (for content wider than the area).' },
     { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Scrollbar thickness: 6px, 10px or 16px. Applies to both bars. Unknown values fall back to md.' },
     { name: 'variant', type: "'default' | 'track' | 'solid'", default: "'default'", description: 'Scrollbar look: default (faint thumb), track (visible muted track behind a solid thumb) or solid (solid thumb). Unknown values fall back to default.' },
+    { name: 'dir', type: "'ltr' | 'rtl'", description: 'Text direction of the scrollbars. Defaults to the `ConfigProvider` direction.' },
     { name: 'label', type: 'string', description: 'Accessible name of the viewport. With a label the viewport is exposed as a `region` with that name; it is a tab stop either way.' },
     { name: 'viewportClass', type: 'string | object | array', description: 'Classes for the inner viewport (padding, max-height).' },
     { name: 'as', type: 'string | Component', description: 'Root element (default div).' },

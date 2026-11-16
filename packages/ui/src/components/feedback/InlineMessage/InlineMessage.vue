@@ -18,14 +18,23 @@ export interface InlineMessageProps extends BaseProps {
   icon?: IconDefinition
   /** Hide the icon. */
   hideIcon?: boolean
+  /** Live-region behaviour: `polite` (role=status), `assertive` (role=alert) or `off` (no live region, for field hints). Default: `assertive` for the danger tone, else `polite`. */
+  live?: InlineMessageLive
 }
 
-const props = withDefaults(defineProps<InlineMessageProps>(), { tone: 'neutral', size: 'md', variant: 'plain' })
+const LIVE_MODES = ['polite', 'assertive', 'off'] as const
+export type InlineMessageLive = (typeof LIVE_MODES)[number]
+
+const props = withDefaults(defineProps<InlineMessageProps>(), { tone: 'neutral', size: 'md', variant: 'plain', live: undefined })
 
 const resolvedTone = computed(() => toTone(props.tone))
 const resolvedSize = computed<InlineMessageSize>(() => pick(props.size, INLINE_MESSAGE_SIZES, 'md'))
 const resolvedVariant = computed<InlineMessageVariant>(() => pick(props.variant, INLINE_MESSAGE_VARIANTS, 'plain'))
 const resolvedIcon = computed(() => props.icon ?? toneIcons[resolvedTone.value])
+const role = computed(() => {
+  const live = props.live && (LIVE_MODES as readonly string[]).includes(props.live) ? props.live : resolvedTone.value === 'danger' ? 'assertive' : 'polite'
+  return live === 'off' ? undefined : live === 'assertive' ? 'alert' : 'status'
+})
 const classes = computed(() => cn(inlineMessageVariants({ tone: resolvedTone.value, size: resolvedSize.value, variant: resolvedVariant.value }), props.class))
 </script>
 
@@ -35,7 +44,7 @@ const classes = computed(() => cn(inlineMessageVariants({ tone: resolvedTone.val
     :data-tone="resolvedTone"
     :data-variant="resolvedVariant === 'plain' ? undefined : resolvedVariant"
     :data-size="resolvedSize === 'md' ? undefined : resolvedSize"
-    :role="resolvedTone === 'danger' ? 'alert' : 'status'"
+    :role="role"
     :class="classes"
   >
     <Icon v-if="!hideIcon" data-slot="inline-message-icon" :icon="resolvedIcon" class="mt-0.5" />

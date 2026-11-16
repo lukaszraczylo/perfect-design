@@ -30,9 +30,11 @@ describe('OfflineIndicator', () => {
       expect(w!.text()).toBe('')
     })
 
-    it('shows the message when navigator is offline at mount', () => {
+    it('shows the message when navigator is offline at mount', async () => {
       setOnline(false)
       make()
+      expect(w!.attributes('data-state')).toBe('online')
+      await nextTick()
       expect(w!.attributes('data-state')).toBe('offline')
       expect(w!.text()).toBe('You are offline. Changes may not be saved.')
       expect(w!.find('svg').exists()).toBe(true)
