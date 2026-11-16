@@ -221,8 +221,9 @@ export function parseClass(p: PreparedSource): ClassAst {
     if (name && !d.annotations.includes(name)) d.annotations.push(name)
   }
   const addMember = (d: ClassDef, raw: string): void => {
-    const ann = /^<<\s*([^<>]*?)\s*>>$/.exec(raw.trim())
-    if (ann) return addAnnotation(d, decodeEntities(ann[1]!))
+    // One unbounded run per pattern and trim afterwards: `\s*([^<>]*?)\s*` backtracks cubically on long whitespace.
+    const ann = /^<<([^<>]*)>>$/.exec(raw.trim())
+    if (ann) return addAnnotation(d, decodeEntities(ann[1]!.trim()))
     const mem = parseMember(raw)
     ;(mem.kind === 'method' ? d.methods : d.attributes).push(mem)
   }
@@ -363,11 +364,11 @@ export function parseClass(p: PreparedSource): ClassAst {
       return
     }
 
-    const ann = /^<<\s*([^<>]*?)\s*>>\s+(\S.*)$/.exec(t)
+    const ann = /^<<([^<>]*)>>\s+(\S.*)$/.exec(t)
     if (ann) {
       const at = t.indexOf(ann[2]!, t.indexOf('>>'))
       c.i = at
-      addAnnotation(touch(readRef(c, 'a class name after the annotation'), line.no), decodeEntities(ann[1]!))
+      addAnnotation(touch(readRef(c, 'a class name after the annotation'), line.no), decodeEntities(ann[1]!.trim()))
       return
     }
 

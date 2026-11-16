@@ -421,3 +421,19 @@ note for A "<img onerror=alert(1)>"`)
     }
   })
 })
+
+describe('classDiagram annotations on hostile whitespace', () => {
+  const spaces = ' '.repeat(20000)
+  it.each([
+    ['member line', `classDiagram\nclass A {\n  <<${spaces}x\n}`],
+    ['standalone line', `classDiagram\nclass A\n<<${spaces}x`],
+  ])('a %s with an unclosed annotation parses in linear time', (_name, src) => {
+    const start = performance.now()
+    parseMermaid(src)
+    expect(performance.now() - start).toBeLessThan(500)
+  })
+  it('padded annotations keep their trimmed name', () => {
+    const ast = ok(`classDiagram\nclass A {\n  <<   interface   >>\n}\n<<  service  >> A`)
+    expect(cls(ast, 'A').annotations).toEqual(['interface', 'service'])
+  })
+})
