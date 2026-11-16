@@ -113,20 +113,21 @@ function isActive(item: SidebarNavItem): boolean | undefined {
 function hasActiveChild(item: SidebarNavItem): boolean {
   return (item.children ?? []).some((c) => isActive(c) === true || hasActiveChild(c))
 }
-function isOpen(item: SidebarNavItem): boolean {
-  return toggled[keyOf(item)] ?? hasActiveChild(item)
+const stateKey = (gi: number, item: SidebarNavItem) => `${gi}:${keyOf(item)}`
+function isOpen(gi: number, item: SidebarNavItem): boolean {
+  return toggled[stateKey(gi, item)] ?? hasActiveChild(item)
 }
-function toggle(item: SidebarNavItem) {
+function toggle(gi: number, item: SidebarNavItem) {
   if (props.collapsed) {
     // A collapsed rail has no room for sub-lists: ask the parent to expand it first.
-    toggled[keyOf(item)] = true
+    toggled[stateKey(gi, item)] = true
     emit('update:collapsed', false)
     return
   }
-  toggled[keyOf(item)] = !isOpen(item)
+  toggled[stateKey(gi, item)] = !isOpen(gi, item)
 }
 const hasChildren = (item: SidebarNavItem) => Array.isArray(item.children) && item.children.length > 0
-const subListId = (item: SidebarNavItem) => `${uid}-${keyOf(item).replace(/\s+/g, '-')}`
+const subListId = (gi: number, item: SidebarNavItem) => `${uid}-${gi}-${keyOf(item).replace(/\s+/g, '-')}`
 </script>
 
 <template>
@@ -176,17 +177,17 @@ const subListId = (item: SidebarNavItem) => `${uid}-${keyOf(item).replace(/\s+/g
               type="button"
               data-slot="sidebar-nav-parent"
               :class="cn(navLinkVariants({ variant: 'sidebar', size: linkSize }), 'cursor-pointer', tileClass)"
-              :aria-expanded="collapsed ? undefined : isOpen(item)"
-              :aria-controls="collapsed ? undefined : subListId(item)"
+              :aria-expanded="collapsed ? undefined : isOpen(gi, item)"
+              :aria-controls="collapsed ? undefined : subListId(gi, item)"
               :disabled="item.disabled"
               :title="labelTitle(item)"
-              @click="toggle(item)"
+              @click="toggle(gi, item)"
             >
               <span v-if="item.icon" class="inline-flex shrink-0"><Icon :icon="item.icon" /></span>
               <span :class="collapsed ? 'sr-only' : tile ? 'min-w-0 max-w-full truncate' : 'min-w-0 flex-1 truncate text-start'">{{ item.label }}</span>
-              <Icon v-if="!collapsed" :icon="faChevronDown" size="sm" :class="cn('motion-safe:transition-transform', !tile && 'ms-auto', isOpen(item) && 'rotate-180')" />
+              <Icon v-if="!collapsed" :icon="faChevronDown" size="sm" :class="cn('motion-safe:transition-transform', !tile && 'ms-auto', isOpen(gi, item) && 'rotate-180')" />
             </button>
-            <ul v-if="!collapsed && isOpen(item)" :id="subListId(item)" data-slot="sidebar-nav-children" :class="cn('mt-0.5 flex flex-col gap-0.5', tile ? 'border-t border-sidebar-border pt-0.5' : 'ms-4 border-s border-sidebar-border ps-2')">
+            <ul v-if="!collapsed && isOpen(gi, item)" :id="subListId(gi, item)" data-slot="sidebar-nav-children" :class="cn('mt-0.5 flex flex-col gap-0.5', tile ? 'border-t border-sidebar-border pt-0.5' : 'ms-4 border-s border-sidebar-border ps-2')">
               <li v-for="child in item.children" :key="keyOf(child)" data-slot="sidebar-nav-item">
                 <NavLink
                   variant="sidebar"

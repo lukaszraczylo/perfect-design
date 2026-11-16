@@ -17,7 +17,7 @@ provideMenuLook(props)
 </script>
 
 <template>
-  <DropdownMenuRoot data-slot="dropdown-menu" v-bind="forwarded">
+  <DropdownMenuRoot v-bind="forwarded">
     <slot />
   </DropdownMenuRoot>
 </template>

@@ -130,12 +130,12 @@ const kbdSize = computed(() => (densityKey.value === 'compact' ? 'sm' : 'md'))
     <DialogTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DialogTrigger>
-    <DialogContent :size="sizeKey" :class="props.class">
+    <DialogContent v-bind="$attrs" :size="sizeKey" :class="props.class">
       <DialogHeader data-slot="shortcuts-dialog-header">
         <DialogTitle>{{ title }}</DialogTitle>
         <DialogDescription v-if="description">{{ description }}</DialogDescription>
       </DialogHeader>
-      <div v-bind="$attrs" data-slot="shortcuts-dialog-body" :data-layout="layoutKey" :class="shortcutsDialogVariants({ layout: layoutKey })">
+      <div data-slot="shortcuts-dialog-body" :data-layout="layoutKey" :class="shortcutsDialogVariants({ layout: layoutKey })">
         <div v-for="(group, index) in groups" :key="group.name" data-slot="shortcuts-dialog-group" class="min-w-0">
           <component :is="headingTag" :id="`${baseId}-${index}`" data-slot="shortcuts-dialog-group-title" class="mb-1 break-words text-sm font-semibold text-foreground">
             {{ group.name }}

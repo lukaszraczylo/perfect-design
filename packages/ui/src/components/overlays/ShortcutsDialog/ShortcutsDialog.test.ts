@@ -255,11 +255,12 @@ describe('ShortcutsDialog customisation', () => {
     expect(panel.classList.contains('max-w-xs')).toBe(true)
   })
 
-  it('falls attributes through to the body and keeps data-slot hooks on every part', async () => {
+  it('lands attrs on the same element as class (the dialog panel) and keeps data-slot hooks on every part', async () => {
     await make({ open: true, hotkey: '', registered: false, shortcuts: sample }, {}, { 'data-testid': 'body', id: 'shortcuts-body', 'aria-live': 'off' })
-    const body = q('[data-slot="shortcuts-dialog-body"]')!
-    expect(body.getAttribute('data-testid')).toBe('body')
-    expect(body.id).toBe('shortcuts-body')
+    const panel = q('[data-slot="dialog-content"]')!
+    expect(panel.getAttribute('data-testid')).toBe('body')
+    expect(panel.id).toBe('shortcuts-body')
+    expect(q('[data-slot="shortcuts-dialog-body"]')!.getAttribute('data-testid')).toBeNull()
     for (const slot of ['shortcuts-dialog-header', 'shortcuts-dialog-group', 'shortcuts-dialog-group-title', 'shortcuts-dialog-list', 'shortcuts-dialog-item', 'shortcuts-dialog-label', 'shortcuts-dialog-keys']) {
       expect(q(`[data-slot="${slot}"]`), slot).not.toBeNull()
     }

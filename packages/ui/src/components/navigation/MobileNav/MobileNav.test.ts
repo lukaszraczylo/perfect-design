@@ -8,6 +8,7 @@ afterEach(() => {
   wrapper?.unmount()
   wrapper = undefined
   document.body.innerHTML = ''
+  document.body.style.overflow = ''
 })
 
 const content = `<a href="/one" class="l1">One</a><a href="/two" class="l2">Two</a><button class="b" data-mobile-nav-close>Close me</button>`
@@ -222,6 +223,59 @@ describe('MobileNav', () => {
       key('Escape')
       await flushPromises()
       expect(panel()).toBeNull()
+    })
+  })
+  describe('sheet modality and Escape handling', () => {
+    it('sheet locks body scroll and makes the rest of the page inert while open, then restores', async () => {
+      document.body.insertAdjacentHTML('afterbegin', '<main id="page">Page</main>')
+      document.body.style.overflow = 'auto'
+      make({ variant: 'sheet', open: false })
+      await wrapper!.setProps({ open: true })
+      await flushPromises()
+      expect(document.body.style.overflow).toBe('hidden')
+      expect(document.getElementById('page')!.hasAttribute('inert')).toBe(true)
+      expect(panel()!.closest('[inert]')).toBeNull()
+      expect(document.querySelector('[data-slot="mobile-nav-overlay"]')!.closest('[inert]')).toBeNull()
+      await wrapper!.setProps({ open: false })
+      await flushPromises()
+      expect(document.body.style.overflow).toBe('auto')
+      expect(document.getElementById('page')!.hasAttribute('inert')).toBe(false)
+    })
+
+    it('sheet releases the scroll lock and inert state on unmount while open', async () => {
+      document.body.insertAdjacentHTML('afterbegin', '<main id="page">Page</main>')
+      make({ variant: 'sheet', open: true })
+      await flushPromises()
+      expect(document.body.style.overflow).toBe('hidden')
+      wrapper!.unmount()
+      wrapper = undefined
+      expect(document.body.style.overflow).toBe('')
+      expect(document.getElementById('page')!.hasAttribute('inert')).toBe(false)
+    })
+
+    it('dropdown does not lock scroll or inert the page', async () => {
+      document.body.insertAdjacentHTML('afterbegin', '<main id="page">Page</main>')
+      make({ open: true })
+      await flushPromises()
+      expect(document.body.style.overflow).toBe('')
+      expect(document.getElementById('page')!.hasAttribute('inert')).toBe(false)
+    })
+
+    it('Escape ignores an already-defaultPrevented event', async () => {
+      make({ open: true })
+      await flushPromises()
+      const e = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      e.preventDefault()
+      document.dispatchEvent(e)
+      expect(wrapper!.emitted('update:open')).toBeUndefined()
+    })
+
+    it('Escape that closes the panel calls preventDefault', async () => {
+      make({ open: true })
+      await flushPromises()
+      const e = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      document.dispatchEvent(e)
+      expect(e.defaultPrevented).toBe(true)
     })
   })
 })

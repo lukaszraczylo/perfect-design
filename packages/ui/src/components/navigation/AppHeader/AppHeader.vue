@@ -65,6 +65,7 @@ const onWide = (e: MediaQueryListEvent) => {
 onMounted(() => {
   wide = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(min-width: 48rem)') : null
   wide?.addEventListener?.('change', onWide)
+  if (wide?.matches && open.value) open.value = false
 })
 onBeforeUnmount(() => wide?.removeEventListener?.('change', onWide))
 </script>
@@ -95,7 +96,7 @@ onBeforeUnmount(() => wide?.removeEventListener?.('change', onWide))
         class="md:hidden"
         :aria-label="menuLabel"
         :aria-expanded="open"
-        :aria-controls="panelId"
+        :aria-controls="open ? panelId : undefined"
         @click="open = !open"
       >
         <Icon :icon="open ? faXmark : faBars" />

@@ -543,6 +543,41 @@ describe('CommandDialog', () => {
     expect(c).not.toContain('sm:max-w-xl')
   })
 
+  it('resets the search text when the dialog closes (v-model:search stays in sync)', async () => {
+    const { open, search } = makeDialog()
+    open.value = true
+    await nextTick()
+    await tick()
+    await type('set')
+    expect(search.value).toBe('set')
+    open.value = false
+    await nextTick()
+    await tick()
+    expect(search.value).toBe('')
+    open.value = true
+    await nextTick()
+    await tick()
+    expect(input().value).toBe('')
+    expect(labels()).toHaveLength(2)
+  })
+
+  it('resets the search text when the dialog closes itself on Escape', async () => {
+    const { search } = makeDialog({ open: true })
+    await nextTick()
+    await type('set')
+    q('[role="dialog"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    await tick()
+    expect(search.value).toBe('')
+  })
+
+  it('forwards fallthrough attrs to the dialog panel', async () => {
+    makeDialog({ open: true, 'data-testid': 'palette', 'aria-label': 'Palette' })
+    await nextTick()
+    const panel = q('[data-slot="dialog-content"]')!
+    expect(panel.getAttribute('data-testid')).toBe('palette')
+  })
+
   it('removes the portalled dialog when unmounted while open', async () => {
     makeDialog({ open: true })
     await nextTick()

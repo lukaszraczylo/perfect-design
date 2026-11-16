@@ -237,5 +237,18 @@ describe('SidebarNav', () => {
       const w = mount(SidebarNav, { props: { groups, collapsed: true } })
       expect(w.findAll('[data-slot="sidebar-nav-group"]')[1].classes()).toContain('border-t')
     })
+
+    it('same-labelled parents in different groups toggle independently and get unique sub-list ids', async () => {
+      const dup = (label: string): SidebarNavGroup => ({ label, items: [{ label: 'More', children: [{ label: `${label} child`, href: `/${label}` }] }] })
+      const w = mount(SidebarNav, { props: { groups: [dup('A'), dup('B')] } })
+      const parents = w.findAll('[data-slot="sidebar-nav-parent"]')
+      await parents[0].trigger('click')
+      expect(w.findAll('[data-slot="sidebar-nav-children"]')).toHaveLength(1)
+      expect(parents[1].attributes('aria-expanded')).toBe('false')
+      await parents[1].trigger('click')
+      const ids = w.findAll('[data-slot="sidebar-nav-children"]').map((l) => l.attributes('id'))
+      expect(new Set(ids).size).toBe(2)
+      expect(parents[0].attributes('aria-controls')).not.toBe(parents[1].attributes('aria-controls'))
+    })
   })
 })

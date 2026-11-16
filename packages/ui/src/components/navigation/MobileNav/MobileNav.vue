@@ -58,8 +58,39 @@ function focusables(): HTMLElement[] {
   return panel.value ? [...panel.value.querySelectorAll<HTMLElement>(FOCUSABLE)] : []
 }
 
+// The sheet is aria-modal: freeze page scroll and make everything outside the panel (and its overlay) inert.
+let restoreModal: (() => void) | null = null
+function lockPage() {
+  if (restoreModal || typeof document === 'undefined' || !panel.value) return
+  const body = document.body
+  const prevOverflow = body.style.overflow
+  body.style.overflow = 'hidden'
+  const inerted: Element[] = []
+  const keep = new Set<Element>()
+  const overlay = panel.value.previousElementSibling
+  if (overlay?.getAttribute('data-slot') === 'mobile-nav-overlay') keep.add(overlay)
+  for (let node: Element | null = panel.value; node && node !== body; node = node.parentElement) {
+    keep.add(node)
+    for (const sib of node.parentElement ? [...node.parentElement.children] : []) {
+      if (keep.has(sib) || sib.hasAttribute('inert')) continue
+      sib.setAttribute('inert', '')
+      inerted.push(sib)
+    }
+  }
+  restoreModal = () => {
+    body.style.overflow = prevOverflow
+    for (const el of inerted) el.removeAttribute('inert')
+    restoreModal = null
+  }
+}
+function unlockPage() {
+  restoreModal?.()
+}
+
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
+    if (e.defaultPrevented) return
+    e.preventDefault()
     e.stopPropagation()
     close()
     return
@@ -92,7 +123,10 @@ function onPanelClick(e: MouseEvent) {
 // A panel that renders already open (defaultOpen / initial v-model) must not steal focus on page load,
 // so focus only moves on a later open and returns on close.
 onMounted(() => {
-  if (isOpen.value) document.addEventListener('keydown', onKeydown)
+  if (isOpen.value) {
+    document.addEventListener('keydown', onKeydown)
+    if (isSheet.value) lockPage()
+  }
 })
 watch(
   isOpen,
@@ -102,15 +136,20 @@ watch(
       previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null
       document.addEventListener('keydown', onKeydown)
       await nextTick()
+      if (isSheet.value) lockPage()
       ;(focusables()[0] ?? panel.value)?.focus()
     } else {
       document.removeEventListener('keydown', onKeydown)
+      unlockPage()
       previouslyFocused?.focus()
       previouslyFocused = null
     }
   },
 )
-onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onKeydown)
+  unlockPage()
+})
 </script>
 
 <template>

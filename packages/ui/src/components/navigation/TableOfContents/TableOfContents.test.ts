@@ -204,6 +204,26 @@ describe('TableOfContents', () => {
       expect(links().every((l) => l.className.includes('ps-3'))).toBe(true)
     })
 
+    it('follows hashchange, emits update:modelValue and stops listening after unmount', async () => {
+      addHeadings()
+      history.replaceState(null, '', '/')
+      const w = await make()
+      history.replaceState(null, '', '/#setup')
+      window.dispatchEvent(new HashChangeEvent('hashchange'))
+      await flushPromises()
+      expect(active()).toEqual(['Setup'])
+      expect(w.emitted('update:modelValue')!.at(-1)).toEqual(['setup'])
+      const remove = vi.spyOn(window, 'removeEventListener')
+      w.unmount()
+      wrapper = undefined
+      expect(remove.mock.calls.some(([type]) => type === 'hashchange')).toBe(true)
+    })
+
+    it('a malformed percent escape in the hash does not throw', async () => {
+      history.replaceState(null, '', '/#%E0%A4%A')
+      await expect(make()).resolves.toBeDefined()
+    })
+
     it('hash pointing at an unknown id is ignored', async () => {
       history.replaceState(null, '', '/#nope')
       await make()

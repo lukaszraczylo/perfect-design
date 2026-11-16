@@ -38,7 +38,13 @@ onMounted(async () => {
 
 function onClick(e: MouseEvent) {
   if (typeof document === 'undefined' || !props.href.startsWith('#') || props.href.length < 2) return
-  const target = document.getElementById(decodeURIComponent(props.href.slice(1)))
+  let id = props.href.slice(1)
+  try {
+    id = decodeURIComponent(id)
+  } catch {
+    /* malformed escape: look the id up as written */
+  }
+  const target = document.getElementById(id)
   if (!target) return
   // Moving focus, rather than only scrolling, is what makes the skip effective for keyboard and screen-reader users.
   e.preventDefault()

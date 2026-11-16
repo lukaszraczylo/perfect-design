@@ -94,8 +94,13 @@ function observe() {
 
 function syncFromHash() {
   if (typeof location === 'undefined') return
-  const id = decodeURIComponent(location.hash.slice(1))
-  if (id && list.value.some((i) => i.id === id)) tracked.value = id
+  let id = location.hash.slice(1)
+  try {
+    id = decodeURIComponent(id)
+  } catch {
+    /* malformed escape: look the id up as written */
+  }
+  if (id && list.value.some((i) => i.id === id)) setActive(id)
 }
 
 // Only the shape of `items` is checked: whether each id exists in the page is not, because routes render later.
@@ -114,11 +119,15 @@ function checkItems() {
 onMounted(async () => {
   checkItems()
   syncFromHash()
+  window.addEventListener('hashchange', syncFromHash)
   await nextTick()
   observe()
 })
 watch([() => list.value.map((i) => i.id).join('\u0000'), () => props.offset], () => nextTick(observe))
-onBeforeUnmount(disconnect)
+onBeforeUnmount(() => {
+  window.removeEventListener('hashchange', syncFromHash)
+  disconnect()
+})
 
 function onClick(e: MouseEvent, item: TocItem) {
   const el = typeof document === 'undefined' ? null : document.getElementById(item.id)

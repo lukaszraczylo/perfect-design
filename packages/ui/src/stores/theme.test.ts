@@ -51,19 +51,26 @@ describe('useThemeStore', () => {
     expect(s.accent).toBe('default')
   })
 
-  it('restores persisted values', () => {
-    localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify({ mode: 'dark', accent: 'indigo' }))
+  it('creation ignores persisted values (first client render matches server HTML) and init restores them', async () => {
+    localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify({ mode: 'dark', accent: 'indigo', style: 'raw' }))
     const s = useThemeStore()
-    expect(s.mode).toBe('dark')
-    expect(s.accent).toBe('indigo')
+    expect([s.mode, s.accent, s.style]).toEqual(['system', 'default', 'quiet'])
+    s.init()
+    expect([s.mode, s.accent, s.style]).toEqual(['dark', 'indigo', 'raw'])
+    await nextTick()
+    expect(JSON.parse(localStorage.getItem(THEME_STORAGE_KEY)!)).toEqual({ mode: 'dark', accent: 'indigo', style: 'raw' })
+    expect(document.documentElement.getAttribute('data-theme')).toBe('indigo')
   })
 
   it('survives corrupt or invalid persisted data', () => {
     localStorage.setItem(THEME_STORAGE_KEY, '{not json')
-    expect(useThemeStore().mode).toBe('system')
+    const first = useThemeStore()
+    first.init()
+    expect(first.mode).toBe('system')
     setActivePinia(createPinia())
     localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify({ mode: 5, accent: 'zzz' }))
     const s = useThemeStore()
+    s.init()
     expect(s.mode).toBe('system')
     expect(s.accent).toBe('default')
   })
@@ -144,16 +151,21 @@ describe('useThemeStore', () => {
       s.setStyle('neon')
       expect(s.style).toBe('quiet')
     })
-    it('restores a persisted style and ignores an invalid one', () => {
+    it('init restores a persisted style and ignores an invalid one', () => {
       localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify({ style: 'terminal' }))
-      expect(useThemeStore().style).toBe('terminal')
+      const a = useThemeStore()
+      a.init()
+      expect(a.style).toBe('terminal')
       setActivePinia(createPinia())
       localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify({ style: 'neon' }))
-      expect(useThemeStore().style).toBe('quiet')
+      const b = useThemeStore()
+      b.init()
+      expect(b.style).toBe('quiet')
     })
-    it('data persisted before styles existed still loads', () => {
+    it('data persisted before styles existed still loads on init', () => {
       localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify({ mode: 'dark', accent: 'rose' }))
       const s = useThemeStore()
+      s.init()
       expect([s.mode, s.accent, s.style]).toEqual(['dark', 'rose', 'quiet'])
     })
   })

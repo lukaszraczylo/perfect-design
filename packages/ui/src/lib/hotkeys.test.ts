@@ -295,6 +295,26 @@ describe('useHotkeys matching', () => {
     expect(digit).toHaveBeenCalledTimes(1)
   })
 
+  it('matches shift+digit through event.code (shift rewrites the character)', () => {
+    const fn = vi.fn()
+    const bang = vi.fn()
+    host({ 'shift+1': fn, '!': bang })
+    press(document, '!', { shiftKey: true, code: 'Digit1' })
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(bang).toHaveBeenCalledTimes(1)
+  })
+
+  it('matches Alt+letter on the produced character for non-QWERTY layouts, and falls back to code when Alt rewrote it', () => {
+    const a = vi.fn()
+    host({ 'alt+a': a })
+    press(document, 'a', { altKey: true, code: 'KeyQ' }) // AZERTY: the key labelled A sits at KeyQ
+    expect(a).toHaveBeenCalledTimes(1)
+    press(document, 'å', { altKey: true, code: 'KeyA' }) // macOS Option+A
+    expect(a).toHaveBeenCalledTimes(2)
+    press(document, 'q', { altKey: true, code: 'KeyQ' }) // produced 'q' must not trigger alt+a
+    expect(a).toHaveBeenCalledTimes(2)
+  })
+
   it('ignores repeats, composition, modifier-only presses and events without a key', () => {
     const fn = vi.fn()
     host({ k: fn, 'ctrl+k': fn })
@@ -830,6 +850,46 @@ describe('useHotkeys inputs shapes and lifecycle', () => {
     on.value = true
     press(document, 'a')
     expect(fn).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('useHotkeys defaultPrevented, modals and stop', () => {
+  it('skips events whose defaultPrevented is already true', () => {
+    const fn = vi.fn()
+    host({ k: fn })
+    const e = new KeyboardEvent('keydown', { key: 'k', bubbles: true, cancelable: true })
+    e.preventDefault()
+    document.dispatchEvent(e)
+    expect(fn).not.toHaveBeenCalled()
+  })
+
+  it('skips global hotkeys while a modal dialog is open and the target is outside it, unless allowInModal', () => {
+    const blocked = vi.fn()
+    const allowed = vi.fn()
+    host({ k: blocked, j: { handler: allowed, allowInModal: true } })
+    document.body.insertAdjacentHTML('beforeend', '<div role="dialog" aria-modal="true"><button id="in">in</button></div><button id="out">out</button>')
+    press(document.getElementById('out')!, 'k')
+    press(document.getElementById('out')!, 'j')
+    expect(blocked).not.toHaveBeenCalled()
+    expect(allowed).toHaveBeenCalledTimes(1)
+    press(document.getElementById('in')!, 'k')
+    expect(blocked).toHaveBeenCalledTimes(1)
+  })
+
+  it('stop() also stops the watcher when used outside an effect scope', async () => {
+    const source = ref<HotkeyInput>({ a: () => {} })
+    let reads = 0
+    const api = useHotkeys(() => {
+      reads++
+      return source.value
+    })
+    await nextTick()
+    api.stop()
+    const before = reads
+    source.value = { b: () => {} }
+    await nextTick()
+    await nextTick()
+    expect(reads).toBe(before)
   })
 })
 

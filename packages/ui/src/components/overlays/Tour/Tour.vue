@@ -293,7 +293,7 @@ async function checkContract() {
 
 watch(visible, (v) => (v ? onOpen() : onClose()), { flush: 'post' })
 watch(visible, (v) => (v ? checkContract() : undefined), { flush: 'post' })
-watch([index, () => current.value.target], () => visible.value && void showStep(true), { flush: 'post' })
+watch([index, () => resolveTourTarget(current.value.target)], () => visible.value && void showStep(true), { flush: 'post' })
 watch(
   () => [props.placement, props.padding, props.offset, sizeKey.value, variantKey.value, current.value.placement],
   () => visible.value && void nextTick(measure),

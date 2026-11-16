@@ -41,14 +41,14 @@ function readPersisted(): Persisted {
 }
 
 /**
- * Theme state: colour mode (light/dark/system), accent preset and style pack. Persists to localStorage and applies
+ * Theme state: colour mode (light/dark/system), accent preset and style pack. Persists to localStorage (read in `init()`, not at creation, so SSR and hydration agree) and applies
  * `class="dark"`, `data-theme` and `data-style` to <html>. Call `init()` once at app start (or rely on ThemeProvider).
  */
 export const useThemeStore = defineStore('pd-theme', () => {
-  const saved = readPersisted()
-  const mode = ref<ThemeMode>(isMode(saved.mode) ? saved.mode : 'system')
-  const accent = ref<ThemeAccent>(isAccent(saved.accent) ? saved.accent : 'default')
-  const style = ref<ThemeStyle>(isStyle(saved.style) ? saved.style : 'quiet')
+  // Defaults until init(): reading storage at creation makes the first client render differ from the server HTML.
+  const mode = ref<ThemeMode>('system')
+  const accent = ref<ThemeAccent>('default')
+  const style = ref<ThemeStyle>('quiet')
   const systemDark = ref(false)
 
   const resolved = computed<'light' | 'dark'>(() => (mode.value === 'system' ? (systemDark.value ? 'dark' : 'light') : mode.value))
@@ -96,6 +96,10 @@ export const useThemeStore = defineStore('pd-theme', () => {
   function init() {
     if (started) return
     started = true
+    const saved = readPersisted()
+    if (isMode(saved.mode)) mode.value = saved.mode
+    if (isAccent(saved.accent)) accent.value = saved.accent
+    if (isStyle(saved.style)) style.value = saved.style
     if (typeof window !== 'undefined' && window.matchMedia) {
       const mq = window.matchMedia('(prefers-color-scheme: dark)')
       systemDark.value = mq.matches

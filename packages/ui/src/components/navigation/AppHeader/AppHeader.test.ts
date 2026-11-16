@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import AppHeader from './AppHeader.vue'
 
@@ -7,6 +7,7 @@ afterEach(() => {
   wrapper?.unmount()
   wrapper = undefined
   document.body.innerHTML = ''
+  vi.unstubAllGlobals()
 })
 
 const slots = {
@@ -65,6 +66,20 @@ describe('AppHeader', () => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
       await flushPromises()
       expect(panel()).toBeNull()
+    })
+
+    it('sets aria-controls on the menu button only while the panel exists', async () => {
+      mk()
+      expect(menu().hasAttribute('aria-controls')).toBe(false)
+      await click(menu())
+      expect(menu().getAttribute('aria-controls')).toBe(panel()!.id)
+    })
+
+    it('closes an initially open mobile panel on mount when the viewport is already wide', async () => {
+      vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener: () => {}, removeEventListener: () => {} }))
+      const w = mk({ mobileOpen: true })
+      await flushPromises()
+      expect(w.emitted('update:mobileOpen')![0]).toEqual([false])
     })
 
     it('supports v-model:mobileOpen', async () => {
@@ -149,8 +164,8 @@ describe('AppHeader', () => {
       expect(panel()).toBeNull()
     })
 
-    it('panel id is derived from useId and referenced by the button', () => {
-      mk()
+    it('panel id is derived from useId and referenced by the button while open', () => {
+      mk({ mobileOpen: true })
       expect(menu().getAttribute('aria-controls')).toMatch(/-mobile-nav$/)
     })
   })

@@ -25,6 +25,8 @@ export interface HotkeyOptions {
   group?: string
   /** Fire while focus is in an input, textarea, select or contenteditable element. Default `false`. */
   allowInInputs?: boolean
+  /** Fire while a modal dialog (`aria-modal="true"`) is open and the key is pressed outside it. Default `false`. */
+  allowInModal?: boolean
   /** Call `event.preventDefault()` when the shortcut fires. Default `true`. */
   preventDefault?: boolean
   /** Keep the shortcut out of the registry listing (it still works). Default `false`. */
@@ -355,19 +357,48 @@ function isEditableTarget(event: KeyboardEvent): boolean {
   return typeof el.closest === 'function' && el.closest('[contenteditable]:not([contenteditable="false"])') !== null
 }
 
-/** Lowercase `event.key`, with Alt+letter/digit resolved through `event.code` (Option rewrites the character on macOS). */
-function eventKey(event: KeyboardEvent): string {
-  if (event.altKey && typeof event.code === 'string') {
-    const m = /^Key([A-Z])$/.exec(event.code) ?? /^Digit(\d)$/.exec(event.code)
-    if (m) return m[1].toLowerCase()
+/**
+ * Candidate keys for an event. Alt keeps the produced character when it is a plain letter or digit (right on any layout) and
+ * falls back to `event.code` when Alt rewrote it (macOS Option). Shift+digit adds the digit from `event.code`.
+ */
+function eventKeys(event: KeyboardEvent): string[] {
+  const key = event.key === ' ' ? 'space' : event.key.toLowerCase()
+  const fromCode = () => {
+    const m = typeof event.code === 'string' ? (/^Key([A-Z])$/.exec(event.code) ?? /^Digit(\d)$/.exec(event.code)) : null
+    return m ? m[1].toLowerCase() : null
   }
-  return event.key === ' ' ? 'space' : event.key.toLowerCase()
+  if (event.altKey) {
+    if (/^[a-z0-9]$/.test(key)) return [key]
+    const code = fromCode()
+    return code ? [code] : [key]
+  }
+  if (event.shiftKey && typeof event.code === 'string') {
+    const digit = /^Digit(\d)$/.exec(event.code)
+    if (digit) return [key, digit[1]]
+  }
+  return [key]
 }
 
-function stepMatches(step: HotkeyStep, event: KeyboardEvent, key: string): boolean {
+function stepMatches(step: HotkeyStep, event: KeyboardEvent, keys: string[]): boolean {
   if (event.ctrlKey !== step.ctrl || event.altKey !== step.alt || event.metaKey !== step.meta) return false
   if (!isSymbol(step.key) && event.shiftKey !== step.shift) return false
-  return key === step.key
+  return keys.includes(step.key)
+}
+
+/** Events this library already prevented, so a second `useHotkeys` listener still sees them while foreign `preventDefault` calls are respected. */
+const ours = new WeakSet<Event>()
+function prevent(event: Event) {
+  ours.add(event)
+  event.preventDefault()
+}
+
+function inModalOutside(event: KeyboardEvent): boolean {
+  if (typeof document === 'undefined') return false
+  const modals = document.querySelectorAll('[aria-modal="true"]')
+  if (modals.length === 0) return false
+  const first = typeof event.composedPath === 'function' ? event.composedPath()[0] : undefined
+  const el = (first ?? event.target) as Node | null
+  return !el || ![...modals].some((m) => m.contains(el))
 }
 
 /* ------------------------------------------------------------------ useHotkeys */
@@ -377,6 +408,7 @@ interface ActiveBinding {
   steps: HotkeyStep[]
   handler: HotkeyHandler
   allowInInputs: boolean
+  allowInModal: boolean
   preventDefault: boolean
 }
 
@@ -441,6 +473,7 @@ export function useHotkeys(input: MaybeRefOrGetter<HotkeyInput | null | undefine
         steps: parsed.steps,
         handler: binding.handler,
         allowInInputs: binding.allowInInputs ?? options.allowInInputs ?? false,
+        allowInModal: binding.allowInModal ?? options.allowInModal ?? false,
         preventDefault: binding.preventDefault ?? options.preventDefault ?? true,
       })
     }
@@ -456,13 +489,14 @@ export function useHotkeys(input: MaybeRefOrGetter<HotkeyInput | null | undefine
 
     const onKeydown = (raw: Event) => {
       const event = raw as KeyboardEvent
-      if (typeof event.key !== 'string' || event.isComposing || event.key === 'Process' || event.repeat || MODIFIER_EVENT_KEYS.has(event.key)) return
-      const key = eventKey(event)
+      if ((event.defaultPrevented && !ours.has(event)) || typeof event.key !== 'string' || event.isComposing || event.key === 'Process' || event.repeat || MODIFIER_EVENT_KEYS.has(event.key)) return
+      const key = eventKeys(event)
       const inField = isEditableTarget(event)
+      const modalOutside = inModalOutside(event)
       const fired: ActiveBinding[] = []
 
       for (const b of active) {
-        if (!b.entry.enabled() || (inField && !b.allowInInputs)) {
+        if (!b.entry.enabled() || (inField && !b.allowInInputs) || (modalOutside && !b.allowInModal)) {
           progress.delete(b)
           continue
         }
@@ -476,7 +510,7 @@ export function useHotkeys(input: MaybeRefOrGetter<HotkeyInput | null | undefine
         else {
           progress.set(b, index + 1)
           const s = b.steps[index]
-          if (b.preventDefault && (s.ctrl || s.meta || s.alt)) event.preventDefault()
+          if (b.preventDefault && (s.ctrl || s.meta || s.alt)) prevent(event)
         }
       }
 
@@ -485,7 +519,7 @@ export function useHotkeys(input: MaybeRefOrGetter<HotkeyInput | null | undefine
         clearTimer()
         let failure: { error: unknown } | undefined
         for (const b of fired) {
-          if (b.preventDefault) event.preventDefault()
+          if (b.preventDefault) prevent(event)
           try {
             b.handler(event)
           } catch (error) {
@@ -513,8 +547,10 @@ export function useHotkeys(input: MaybeRefOrGetter<HotkeyInput | null | undefine
     }
   }
 
+  let stopWatch: (() => void) | undefined
   function stop() {
     stopped = true
+    stopWatch?.()
     teardown()
   }
 
@@ -523,7 +559,7 @@ export function useHotkeys(input: MaybeRefOrGetter<HotkeyInput | null | undefine
   else if (typeof document !== 'undefined') attach()
 
   if (instance || typeof document !== 'undefined') {
-    watch(
+    stopWatch = watch(
       () => [toValue(input), resolveTarget(options.target)] as const,
       () => {
         if (!instance || instance.isMounted) attach()

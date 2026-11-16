@@ -124,5 +124,17 @@ describe('SkipLink', () => {
       expect(document.activeElement).toBe(t)
       w.unmount()
     })
+
+    it('a malformed percent escape in href does not throw on click and looks the id up as written', async () => {
+      const t = document.createElement('main')
+      t.id = '100%'
+      document.body.appendChild(t)
+      const w = mount(SkipLink, { props: { href: '#100%' }, attachTo: document.body })
+      const e = new MouseEvent('click', { bubbles: true, cancelable: true })
+      expect(() => w.element.dispatchEvent(e)).not.toThrow()
+      expect(document.activeElement).toBe(t)
+      w.unmount()
+      t.remove()
+    })
   })
 })

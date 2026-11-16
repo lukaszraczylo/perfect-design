@@ -245,6 +245,19 @@ describe('Tour customisation', () => {
     expect(spy).not.toHaveBeenCalled()
   })
 
+  it('does not re-scroll when a parent re-renders with a new inline getter for the same element', async () => {
+    const el = document.getElementById('t-a') as HTMLElement
+    const spy = vi.fn()
+    el.scrollIntoView = spy
+    const w = make({ steps: [{ target: () => document.getElementById('t-a'), title: 'One' }] })
+    await flush()
+    const before = spy.mock.calls.length
+    expect(before).toBeGreaterThan(0)
+    await w.setProps({ steps: [{ target: () => document.getElementById('t-a'), title: 'One' }] })
+    await flush()
+    expect(spy.mock.calls.length).toBe(before)
+  })
+
   it('reacts to placement/padding changes', async () => {
     const w = make()
     await flush()

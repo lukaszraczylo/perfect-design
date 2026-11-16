@@ -17,7 +17,7 @@ provideMenuLook(props)
 </script>
 
 <template>
-  <ContextMenuRoot data-slot="context-menu" v-bind="forwarded">
+  <ContextMenuRoot v-bind="forwarded">
     <slot />
   </ContextMenuRoot>
 </template>

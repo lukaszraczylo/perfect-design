@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useWindowScroll } from '../../../lib/use-helpers'
 import { faArrowUp } from '../../../lib/icons'
 import { cn } from '../../../lib/cn'
@@ -40,6 +40,21 @@ const classes = computed(() => cn(backToTopVariants({ variant: variant.value, si
 const limit = computed(() => (Number.isFinite(props.threshold) && props.threshold >= 0 ? props.threshold : 300))
 const visible = computed(() => y.value > limit.value)
 
+const root = ref<{ $el?: Element } | null>(null)
+// A focused control that unmounts drops focus to <body>; hand it to the top of the page instead.
+watch(
+  visible,
+  (v) => {
+    const el = root.value?.$el
+    if (v || !(el instanceof HTMLElement) || !el.contains(document.activeElement)) return
+    const top = document.querySelector<HTMLElement>('main, [role="main"]') ?? document.querySelector<HTMLElement>('h1, h2, h3, h4, h5, h6')
+    if (!top) return
+    if (!top.hasAttribute('tabindex')) top.setAttribute('tabindex', '-1')
+    top.focus({ preventScroll: true })
+  },
+  { flush: 'pre' },
+)
+
 function toTop() {
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   window.scrollTo({ top: 0, behavior: props.smooth && !reduce ? 'smooth' : 'auto' })
@@ -49,6 +64,7 @@ function toTop() {
 <template>
   <Button
     v-if="visible"
+    ref="root"
     data-slot="back-to-top"
     variant="secondary"
     :data-variant="variant"

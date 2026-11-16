@@ -146,6 +146,37 @@ describe('BackToTop', () => {
       expect(btn()).toBeNull()
     })
 
+    it('moves focus to the main landmark when the focused button hides, so keyboard users continue from the top', async () => {
+      document.body.insertAdjacentHTML('afterbegin', '<main id="m"><h1>Title</h1></main>')
+      scrollTo(1000)
+      await make()
+      btn()!.focus()
+      expect(document.activeElement).toBe(btn())
+      scrollTo(0)
+      await flushPromises()
+      expect(btn()).toBeNull()
+      expect(document.activeElement).toBe(document.getElementById('m'))
+      expect(document.getElementById('m')!.getAttribute('tabindex')).toBe('-1')
+    })
+
+    it('falls back to the first heading, then body, and leaves focus alone when the button was not focused', async () => {
+      document.body.insertAdjacentHTML('afterbegin', '<h2 id="h">Heading</h2>')
+      scrollTo(1000)
+      await make()
+      btn()!.focus()
+      scrollTo(0)
+      await flushPromises()
+      expect(document.activeElement).toBe(document.getElementById('h'))
+      const other = document.createElement('button')
+      document.body.appendChild(other)
+      scrollTo(1000)
+      await flushPromises()
+      other.focus()
+      scrollTo(0)
+      await flushPromises()
+      expect(document.activeElement).toBe(other)
+    })
+
     it('unmount removes the scroll listener', async () => {
       const remove = vi.spyOn(window, 'removeEventListener')
       await make()
