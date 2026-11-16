@@ -181,7 +181,9 @@ export function parseSequence(p: PreparedSource): SequenceAst {
 
   const declare = (l: SourceLine, restAt: number, actor: boolean): void => {
     let rest = l.text.slice(restAt)
-    rest = rest.replace(/\s*@\{.*\}\s*$/, '')
+    // Drop a trailing `@{ ... }` configuration. A regex with a leading \s* rescans long whitespace runs (quadratic).
+    const config = rest.indexOf('@{')
+    if (config !== -1 && rest.trimEnd().endsWith('}')) rest = rest.slice(0, config).trimEnd()
     const col = l.col + restAt
     const kw = actor ? 'actor' : 'participant'
     if (rest === '') fail(l.no, col, `"${kw}" needs a name, for example "${kw} Alice" or "${kw} A as Alice Smith".`)

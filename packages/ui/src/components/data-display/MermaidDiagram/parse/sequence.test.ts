@@ -429,12 +429,13 @@ function expectArrow(run: string): string {
 
 describe('sequence parse: linear time', () => {
   it('long whitespace runs in participant and note lines stay fast', () => {
-    const sp = ' '.repeat(20000)
+    // Inputs large enough that the old super-linear code took seconds; the linear code takes milliseconds, so the bound survives slow CI.
+    const sp = ' '.repeat(160000)
     const t0 = performance.now()
     parseMermaid(`sequenceDiagram\n  participant A${sp}x\n  participant B${sp}`)
     parseMermaid(`sequenceDiagram\n  participant A\n  Note over A${sp}x`)
     parseMermaid(`sequenceDiagram\n  Note over A${sp}`)
-    expect(performance.now() - t0).toBeLessThan(500)
+    expect(performance.now() - t0).toBeLessThan(2000)
   })
   it('still reads aliases and notes', () => {
     const ast = ok('sequenceDiagram\n  participant B as Bob Jones\n  participant A\n  Note over A,B : hi')
