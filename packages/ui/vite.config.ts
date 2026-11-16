@@ -20,6 +20,11 @@ export default defineConfig(({ command }) => ({
   test: {
     environment: 'jsdom',
     globals: true,
+    // The suite triggers thousands of *expected* dev warnings (hostile input, partial trees, jsdom
+    // unimplemented APIs); vitest.setup.ts filters the known shapes at the console source. Disabling
+    // vitest's per-test console buffering makes every warning route straight through that filter, so
+    // a full run prints only warnings that are genuinely new and unexpected.
+    disableConsoleIntercept: true,
     setupFiles: ['./vitest.setup.ts'],
     include: ['src/**/*.test.ts'],
     css: false,

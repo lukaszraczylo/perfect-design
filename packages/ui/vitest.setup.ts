@@ -37,4 +37,6 @@ window.HTMLElement.prototype.scrollTo ??= () => {}
 // Component unit tests mount partial trees on purpose (a DialogContent without a title, an icon button without a label).
 // Contract enforcement is off by default here; the contract tests and the docs-example harnesses switch it on explicitly.
 import { configureStrictMode } from './src/lib/contract'
+import { filterKnownTestWarnings } from './src/lib/console-filter'
 configureStrictMode('off')
+filterKnownTestWarnings()
