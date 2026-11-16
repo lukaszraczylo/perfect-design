@@ -76,7 +76,7 @@ const classes = computed(() => cn(formSectionVariants({ variant: variant.value, 
         <slot name="aside" />
       </div>
     </header>
-    <div data-slot="form-section-fields" :class="formSectionFieldsVariants({ columns, variant, size })">
+    <div data-slot="form-section-fields" :class="cn(formSectionFieldsVariants({ columns, variant, size }))">
       <slot />
     </div>
   </section>

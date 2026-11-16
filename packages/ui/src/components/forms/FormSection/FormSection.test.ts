@@ -145,3 +145,17 @@ describe('FormSection', () => {
     })
   })
 })
+
+describe('FormSection fields grid size', () => {
+  it.each([
+    { size: 'sm', gap: ['gap-x-4', 'gap-y-3'], dropped: ['gap-x-6', 'gap-y-4'] },
+    { size: 'lg', gap: ['gap-x-8', 'gap-y-6'], dropped: ['gap-x-6', 'gap-y-4'] },
+    { size: 'md', gap: ['gap-x-6', 'gap-y-4'], dropped: [] },
+  ] as const)('size $size leaves exactly one gap per axis on the fields grid', ({ size, gap, dropped }) => {
+    const w = vtuMount(FormSection, { props: { title: 'Profile', size }, slots: { default: '<input aria-label="x" />' } })
+    const cls = w.find('[data-slot="form-section-fields"]').classes()
+    for (const c of gap) expect(cls).toContain(c)
+    for (const c of dropped) expect(cls).not.toContain(c)
+    w.unmount()
+  })
+})
