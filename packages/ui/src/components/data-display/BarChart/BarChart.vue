@@ -4,7 +4,7 @@ import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
 import { allIntegers, extent, formatCompact, formatNumber, niceTicks, r2 } from '../_chart/chartMath'
 import {
-  barFill, barRadius, chartHeight, dimension, edgeAnchor, estimateTextWidth, fitText, hasValues, labelGutter, labelStep, LABEL_GAP, LABEL_SAFETY, normalizeSeries, plural, scaleSafe, truncateLabel,
+  barFill, barRadius, chartHeight, dimension, dropOverlappingLabels, edgeAnchor, estimateTextWidth, fitText, hasValues, labelGutter, labelStep, LABEL_GAP, LABEL_SAFETY, normalizeSeries, plural, scaleSafe, truncateLabel,
   type BarGap, type BarRounded, type ChartSeries, type ChartSize,
 } from '../_chart/chartKit'
 import { toneClasses } from '../_chart/tones'
@@ -325,7 +325,7 @@ const catLabels = computed(() => {
       full: text === full ? null : full,
     })
   }
-  return out
+  return horizontal.value ? out : dropOverlappingLabels(out, FONT)
 })
 
 const summary = computed(() => {

@@ -115,6 +115,33 @@ export function edgeAnchor(x: number, text: string, viewWidth: number, fontPx = 
   return 'middle'
 }
 
+/**
+ * Drops axis labels that would overlap once anchored. Edge anchoring shifts the first and last labels inwards,
+ * which can push them into a neighbour that a fixed thinning step left in place. The first and last labels
+ * always stay; a label in between gives way.
+ */
+export function dropOverlappingLabels<L extends { x: number; anchor: string; text: string }>(labels: L[], fontPx = 12, gap = 4): L[] {
+  const extent = (l: L) => {
+    const w = estimateTextWidth(l.text, fontPx)
+    const left = l.anchor === 'start' ? l.x : l.anchor === 'end' ? l.x - w : l.x - w / 2
+    return [left, left + w] as const
+  }
+  const kept: L[] = []
+  labels.forEach((l, i) => {
+    const prev = kept[kept.length - 1]
+    if (!prev || extent(prev)[1] + gap <= extent(l)[0]) {
+      kept.push(l)
+      return
+    }
+    if (i === labels.length - 1) {
+      if (kept.length > 1) kept.pop()
+      const before = kept[kept.length - 1]
+      if (!before || extent(before)[1] + gap <= extent(l)[0]) kept.push(l)
+    }
+  })
+  return kept
+}
+
 /** Space between a right-aligned axis label and the axis (the label's x is `x0 - LABEL_GAP`). */
 export const LABEL_GAP = 6
 /** Extra pixels for what the estimate misses: another fallback font, hinting, a slightly heavier weight. */

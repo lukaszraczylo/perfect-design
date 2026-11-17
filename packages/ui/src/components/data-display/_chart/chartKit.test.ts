@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { dimension, edgeAnchor, estimateTextWidth, fitText, hasValues, labelGutter, LABEL_GAP, LABEL_SAFETY, labelStep, normalizeSeries, plural, scaleSafe, truncateLabel } from './chartKit'
+import { dimension, dropOverlappingLabels, edgeAnchor, estimateTextWidth, fitText, hasValues, labelGutter, LABEL_GAP, LABEL_SAFETY, labelStep, normalizeSeries, plural, scaleSafe, truncateLabel } from './chartKit'
 import ChartLegend from './ChartLegend.vue'
 
 describe('normalizeSeries', () => {
@@ -177,4 +177,30 @@ describe('edgeAnchor', () => {
     expect(edgeAnchor(5, '13:00:10', 200)).toBe('start')
   })
   it('an empty label is centred', () => expect(edgeAnchor(100, '', 200)).toBe('middle'))
+})
+
+describe('dropOverlappingLabels', () => {
+  const lab = (x: number, anchor: string, text = '23 Sept') => ({ x, anchor, text })
+  it('keeps labels that do not touch', () => {
+    const ls = [lab(20, 'start'), lab(120, 'middle'), lab(220, 'middle')]
+    expect(dropOverlappingLabels(ls, 12)).toEqual(ls)
+  })
+  it('drops the neighbour, not the edge label, when the end-anchored last label would overlap it', () => {
+    const ls = [lab(20, 'start'), lab(120, 'middle'), lab(200, 'middle'), lab(240, 'end', '25 Sept')]
+    const kept = dropOverlappingLabels(ls, 12)
+    expect(kept.at(0)).toBe(ls[0])
+    expect(kept.at(-1)).toBe(ls[3])
+    expect(kept).not.toContain(ls[2])
+  })
+  it('never lets two kept labels overlap, and keeps an empty list empty', () => {
+    const ls = Array.from({ length: 12 }, (_, i) => lab(10 + i * 30, i === 0 ? 'start' : i === 11 ? 'end' : 'middle'))
+    const kept = dropOverlappingLabels(ls, 12)
+    const ext = (l: { x: number; anchor: string; text: string }) => {
+      const w = estimateTextWidth(l.text, 12)
+      const left = l.anchor === 'start' ? l.x : l.anchor === 'end' ? l.x - w : l.x - w / 2
+      return [left, left + w]
+    }
+    for (let i = 1; i < kept.length; i++) expect(ext(kept[i - 1]!)[1]).toBeLessThanOrEqual(ext(kept[i]!)[0])
+    expect(dropOverlappingLabels([], 12)).toEqual([])
+  })
 })

@@ -4,7 +4,7 @@ import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
 import { allIntegers, isFiniteNumber, curveAreaPath, curvePath, extent, formatCompact, formatNumber, isolatedPoints, niceTicks, normalizeCurve, r2, runs, type Curve, type Point } from '../_chart/chartMath'
 import {
-  chartHeight, dimension, edgeAnchor, estimateTextWidth, hasValues, labelStep, markerPath, normalizeSeries, plural, scaleSafe, seriesMarker, truncateLabel,
+  chartHeight, dimension, dropOverlappingLabels, edgeAnchor, estimateTextWidth, hasValues, labelStep, markerPath, normalizeSeries, plural, scaleSafe, seriesMarker, truncateLabel,
   MARKER_SHAPES, type ChartSeries, type ChartSize, type MarkerShape,
 } from '../_chart/chartKit'
 import { toneClasses, type ToneClasses } from '../_chart/tones'
@@ -188,7 +188,7 @@ const xLabels = computed(() => {
     const x = r2(sx.value(i))
     out.push({ i, x, y: r2(y1 + 14), anchor: edgeAnchor(x, text, W.value, FONT), text, full: text === full ? null : full })
   }
-  return out
+  return dropOverlappingLabels(out, FONT)
 })
 
 /** Vertical gridlines (`grid="full"`) at the x positions that carry a visible label. */
