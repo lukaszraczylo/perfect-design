@@ -16923,6 +16923,7 @@ Props:
 - grid: 'none' | 'value' | 'dashed' | 'full' - Gridline style: `value` lines at each tick, `dashed` dashed value lines, `full` value lines plus a separator between categories, `none` no lines. When omitted, `showGrid` decides (`value` when on).
 - showGrid: boolean = true - Gridlines at each tick.
 - showAxis: boolean = true - Value ticks, category labels and the zero baseline.
+- integerTicks: boolean | 'auto' = 'auto' - Value axis ticks on whole numbers only. `auto` does this when every value is an integer (counts, so no 0.5 tick); `true` forces it; `false` always allows fractional ticks.
 - showLegend: boolean | 'auto' = 'auto' - Legend of series swatches. `auto` shows it when there is more than one series.
 - valueFormatter: (n: number) => string - Formats axis ticks and tooltips (default: compact on the axis, grouped numbers in tooltips).
 - label: string - Accessible name of the chart image. Required (or pass `aria-label` / `aria-labelledby`); an auto-generated summary ("Bar chart: 3 categories, 2 series, values from 1 to 9") is only the fallback when strict mode is off.
@@ -16956,6 +16957,11 @@ Accessibility:
 Example: Minimal
 ```vue
 <BarChart class="max-w-md" label="Sample data: bar chart" :labels="['Mon', 'Tue', 'Wed', 'Thu', 'Fri']" :series="[{ name: 'Orders', data: [12, 19, 8, 24, 16] }]" />
+```
+
+Example: Whole-number ticks for counts
+```vue
+<BarChart class="max-w-md" label="Sample data: small counts" :labels="['Mon', 'Tue', 'Wed']" :series="[{ name: 'Failures', data: [0, 1, 2] }]" />
 ```
 
 Example: Stacked, multi-series
@@ -17657,7 +17663,8 @@ Props:
 - shape: 'square' | 'circle' = 'square' - Cell shape: slightly rounded square, or a circle (`rounded-full`) for a dot matrix. Applies to the legend swatches too.
 - gap: 'sm' | 'md' | 'lg' = 'md' - Space between cells: 1px, 2px or 4px (`border-spacing`).
 - showLegend: boolean = true - Less … More swatch legend.
-- colLabelStep: number = 1 - Show every n-th column label visibly; the others stay screen-reader only.
+- colLabelStep: number = 1 - Show every n-th column label visibly; the others stay screen-reader only. With `fit` the step also grows automatically so labels never overlap.
+- fit: boolean = false - Stretch the columns to the width of the container. Cells stay square and grow up to 40px (`size` is ignored; `shape` and `gap` still apply). The table keeps its semantics through ARIA roles. The first and last column labels always show and the ones between are thinned so none overlap.
 - label: string - Accessible name of the region and its visually hidden table caption. Required (or pass `aria-label` / `aria-labelledby`); an auto-generated summary is only the fallback when strict mode is off.
 - emptyText: string = 'No data' - Shown when there are no cells.
 - cellTitle: (value: number | null, rowLabel: string, colLabel: string) => string - Custom native tooltip per cell (default "Row, Col: value").
@@ -17711,6 +17718,11 @@ const grid = days.map((_, r) => weeks.map((_, c) => ((r * 7 + c * 13) % 11 < 3 ?
 />
 ```
 
+Example: Fit the container
+```vue
+<Heatmap fit label="Sample data: requests by hour" :row-labels="['Mon', 'Tue', 'Wed']" :col-labels="Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0') + ':00')" :values="Array.from({ length: 3 }, (_, r) => Array.from({ length: 24 }, (_, c) => (r * 7 + c * 3) % 11))" />
+```
+
 Example: Shape: square and circle
 ```vue
 <div class="flex flex-wrap items-start gap-8">
@@ -17755,6 +17767,9 @@ Props:
 - grid: 'none' | 'horizontal' | 'dashed' | 'full' - Gridline style: `horizontal` solid lines at each y tick, `dashed` dashed ones, `full` horizontal lines plus a vertical line at each labelled x position, `none` no lines. When omitted, `showGrid` decides (`horizontal` when on).
 - showGrid: boolean = true - Horizontal gridlines at each y tick.
 - showAxis: boolean = true - Y tick labels and x labels.
+- integerTicks: boolean | 'auto' = 'auto' - Value axis ticks on whole numbers only. `auto` does this when every value is an integer (counts, so no 0.5 tick); `true` forces it; `false` always allows fractional ticks.
+- yMin: number - Lower bound of the y axis, rounded down to a tick. Without it the axis starts below the lowest value, which makes a narrow series look like a large swing. Values below it are drawn on the bottom edge. Non-finite values are ignored.
+- yMax: number - Upper bound of the y axis, rounded up to a tick. Values above it are drawn on the top edge. Non-finite values are ignored.
 - showLegend: boolean | 'auto' = 'auto' - Legend of series swatches; `auto` shows it for more than one series.
 - valueFormatter: (n: number) => string - Formats y ticks and tooltips.
 - label: string - Accessible name of the chart image. Required (or pass `aria-label` / `aria-labelledby`); an auto-generated summary ("Line chart: 12 points per series, 2 series, values from 1 to 9") is only the fallback when strict mode is off.
@@ -17788,6 +17803,19 @@ Accessibility:
 Example: Minimal
 ```vue
 <LineChart class="max-w-md" label="Sample data: line chart" :labels="['Jan', 'Feb', 'Mar', 'Apr', 'May']" :series="[{ name: 'Series A', data: [120, 180, 150, 240, 310] }]" />
+```
+
+Example: Fixed y domain
+```vue
+<div class="grid gap-6 md:grid-cols-2">
+  <LineChart label="Sample data: automatic domain" :labels="['a', 'b', 'c', 'd']" :series="[{ name: 'Reading', data: [172.0, 172.6, 172.2, 172.4] }]" />
+  <LineChart label="Sample data: domain 150 to 200" :y-min="150" :y-max="200" :labels="['a', 'b', 'c', 'd']" :series="[{ name: 'Reading', data: [172.0, 172.6, 172.2, 172.4] }]" />
+</div>
+```
+
+Example: Whole-number ticks and edge labels
+```vue
+<LineChart class="max-w-md" label="Sample data: queue length" :labels="['13:00:00', '13:00:05', '13:00:10']" :series="[{ name: 'Queued', data: [0, 2, 1] }]" />
 ```
 
 Example: Multi-series with area and gaps
@@ -18987,6 +19015,7 @@ Props:
 - showValues: boolean = false - Print the change (`+80`, `−25`) or the total at the end of each bar. Labels that do not fit are left out; they are also in the table.
 - showGrid: boolean = true - Gridlines at each tick of the value axis.
 - showAxis: boolean = true - Tick labels, category labels and the zero line.
+- integerTicks: boolean | 'auto' = 'auto' - Value axis ticks on whole numbers only. `auto` does this when every value is an integer (counts, so no 0.5 tick); `true` forces it; `false` always allows fractional ticks.
 - showLegend: boolean | 'auto' = 'auto' - Legend of increase, decrease and total with the marking of the variant; `auto` shows it when more than one kind of bar is present.
 - positiveTone: 'chart-1' | 'chart-2' | 'chart-3' | 'chart-4' | 'chart-5' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'muted' = 'success' - Tone of increases.
 - negativeTone: 'chart-1' | 'chart-2' | 'chart-3' | 'chart-4' | 'chart-5' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'muted' = 'danger' - Tone of decreases.
@@ -23294,6 +23323,7 @@ Props:
 - size: 'default' | 'compact' | 'lg' = 'default' - `compact` = `p-3 gap-1`, smaller label and value; `lg` = `p-6 gap-3` with a 36px value. Unknown values behave like `default`.
 - layout: 'stacked' | 'split' | 'centered' = 'stacked' - `stacked` is the default column. `split` puts the label at the start and the value at the end of one row (delta, sparkline and progress span the full width below). `centered` centres every row. Unknown values behave like `stacked`.
 - tone: 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info' = 'primary' - Colour of the progress bar and sparkline. Unknown values fall back to `primary`.
+- sparklineVariant: 'area' | 'line' = 'area' - `area` fills under the built-in sparkline; `line` draws the line only. Unknown values behave like `area`.
 - sparkline: number[] - Values for a mini area sparkline under the delta (non-finite entries become gaps). Hidden while `loading` or when empty.
 - progress: number | null - Percentage 0-100 (clamped) rendered as `role="progressbar"`; null / NaN / Infinity hide it.
 - as: string | Component = 'div' - Element to render (e.g. `a` for a linking tile).
@@ -23360,6 +23390,14 @@ Example: With sparkline
 <StatGroup :columns="2" aria-label="Sample data: sparkline tiles">
   <KpiTile label="Throughput" value="48.2k" delta="+12%" trend="up" :sparkline="[3, 5, 4, 7, 9, 8, 12]" tone="success" />
   <KpiTile label="Retries" :value="320" :sparkline="[9, 7, 8, 5, 6, 4, 3]" />
+</StatGroup>
+```
+
+Example: Line-only sparkline
+```vue
+<StatGroup :columns="2" aria-label="Sample data: line sparkline tiles">
+  <KpiTile label="Latency" value="142 ms" sparkline-variant="line" :sparkline="[3, 5, 4, 7, 9, 8, 12]" />
+  <KpiTile label="Retries" :value="320" sparkline-variant="line" :sparkline="[9, 7, 8, 5, 6, 4, 3]" tone="warning" />
 </StatGroup>
 ```
 
@@ -23830,7 +23868,7 @@ Give `columns` and `rows`; the table renders them with `Table` parts. Sorting cy
 import { DataTable, SortHeaderButton, TableCardControls } from '@perfect-design/ui'
 
 Props:
-- columns*: DataTableColumn<T>[] - `{ key, header, sortable?, align?, numeric?, rowHeader?, width?, accessor?, class? }`. `accessor(row)` defaults to `row[key]`; `width` is an inline CSS width; `numeric` right-aligns with tabular figures; `rowHeader` renders the column as `<th scope="row">` and names the row checkbox.
+- columns*: DataTableColumn<T>[] - `{ key, header, sortable?, align?, numeric?, rowHeader?, actions?, width?, accessor?, class? }`. `accessor(row)` defaults to `row[key]`; `width` is an inline CSS width; `numeric` right-aligns with tabular figures; `rowHeader` renders the column as `<th scope="row">` and names the row checkbox; `actions` marks a row-actions column, which in `layout="cards"` has no "Actions:" label and closes the card at the end with a rule.
 - rows*: T[] - Source rows (never mutated).
 - rowKey: keyof T | ((row: T, index: number) => string | number) = 'id' - Row property name or function giving a unique string or number id, used for selection. Required to resolve for every row when `selectable` is set; otherwise missing ids fall back to the row index.
 - sort: { key: string; direction: "asc" | "desc" } | null = null - v-model:sort. Controlled or uncontrolled.
@@ -24054,6 +24092,28 @@ const selected = ref([])
   <DataTable v-model:sort="sort" v-model:selected="selected" :columns="columns" :rows="rows" layout="cards" selectable label="Sample data: cards layout" />
   <Badge variant="secondary" class="tabular-nums">{{ sort ? sort.key + ' ' + sort.direction : 'default order' }}, {{ selected.length }} selected</Badge>
 </div>
+```
+
+Example: Cards layout: actions column
+```vue
+<script setup lang="ts">
+const columns = [
+  { key: 'name', header: 'Name', sortable: true, rowHeader: true },
+  { key: 'plan', header: 'Plan', sortable: true },
+  { key: 'seats', header: 'Seats', sortable: true, numeric: true },
+]
+const rows = [
+  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },
+  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },
+  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },
+  { id: 4, name: 'Item D', plan: 'Plan 1', seats: null },
+]
+const actionColumns = [...columns, { key: 'actions', header: 'Actions', actions: true, accessor: () => null }]
+</script>
+
+<DataTable :columns="actionColumns" :rows="rows" layout="cards" label="Sample data: row actions in cards">
+  <template #cell-actions="{ row }"><Button size="sm" variant="outline">Rename</Button></template>
+</DataTable>
 ```
 
 Example: Cards layout: relabelled controls

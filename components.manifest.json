@@ -22807,6 +22807,12 @@
           "description": "Value ticks, category labels and the zero baseline."
         },
         {
+          "name": "integerTicks",
+          "type": "boolean | 'auto'",
+          "default": "'auto'",
+          "description": "Value axis ticks on whole numbers only. `auto` does this when every value is an integer (counts, so no 0.5 tick); `true` forces it; `false` always allows fractional ticks."
+        },
+        {
           "name": "showLegend",
           "type": "boolean | 'auto'",
           "default": "'auto'",
@@ -22850,6 +22856,11 @@
           "title": "Minimal",
           "description": "Sample data.",
           "code": "<BarChart class=\"max-w-md\" label=\"Sample data: bar chart\" :labels=\"['Mon', 'Tue', 'Wed', 'Thu', 'Fri']\" :series=\"[{ name: 'Orders', data: [12, 19, 8, 24, 16] }]\" />"
+        },
+        {
+          "title": "Whole-number ticks for counts",
+          "description": "Integer data gets whole-number ticks automatically; `:integer-ticks=\"false\"` restores fractional ticks. Sample data.",
+          "code": "<BarChart class=\"max-w-md\" label=\"Sample data: small counts\" :labels=\"['Mon', 'Tue', 'Wed']\" :series=\"[{ name: 'Failures', data: [0, 1, 2] }]\" />"
         },
         {
           "title": "Stacked, multi-series",
@@ -23741,7 +23752,13 @@
           "name": "colLabelStep",
           "type": "number",
           "default": "1",
-          "description": "Show every n-th column label visibly; the others stay screen-reader only."
+          "description": "Show every n-th column label visibly; the others stay screen-reader only. With `fit` the step also grows automatically so labels never overlap."
+        },
+        {
+          "name": "fit",
+          "type": "boolean",
+          "default": "false",
+          "description": "Stretch the columns to the width of the container. Cells stay square and grow up to 40px (`size` is ignored; `shape` and `gap` still apply). The table keeps its semantics through ARIA roles. The first and last column labels always show and the ones between are thinned so none overlap."
         },
         {
           "name": "label",
@@ -23776,6 +23793,11 @@
           "description": "Deterministic sample data; `colLabelStep` thins the visible week labels, `cellTitle` customises tooltips. The grid scrolls inside its own focusable region on a phone.",
           "script": "const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']\nconst weeks = Array.from({ length: 26 }, (_, i) => 'W' + (i + 1))\nconst grid = days.map((_, r) => weeks.map((_, c) => ((r * 7 + c * 13) % 11 < 3 ? 0 : (r * 31 + c * 17) % 9)))",
           "code": "<Heatmap\n  size=\"sm\"\n  label=\"Sample data: activity by weekday and week\"\n  tone=\"success\"\n  :row-labels=\"days\"\n  :col-labels=\"weeks\"\n  :col-label-step=\"4\"\n  :values=\"grid\"\n  :cell-title=\"(v, r, c) => (v ? v + ' commits' : 'No commits') + ' on ' + r + ', ' + c\"\n/>"
+        },
+        {
+          "title": "Fit the container",
+          "description": "`fit` fills the available width with square cells and thins the hour labels to fit. Deterministic sample data.",
+          "code": "<Heatmap fit label=\"Sample data: requests by hour\" :row-labels=\"['Mon', 'Tue', 'Wed']\" :col-labels=\"Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0') + ':00')\" :values=\"Array.from({ length: 3 }, (_, r) => Array.from({ length: 24 }, (_, c) => (r * 7 + c * 3) % 11))\" />"
         },
         {
           "title": "Shape: square and circle",
@@ -23895,6 +23917,22 @@
           "description": "Y tick labels and x labels."
         },
         {
+          "name": "integerTicks",
+          "type": "boolean | 'auto'",
+          "default": "'auto'",
+          "description": "Value axis ticks on whole numbers only. `auto` does this when every value is an integer (counts, so no 0.5 tick); `true` forces it; `false` always allows fractional ticks."
+        },
+        {
+          "name": "yMin",
+          "type": "number",
+          "description": "Lower bound of the y axis, rounded down to a tick. Without it the axis starts below the lowest value, which makes a narrow series look like a large swing. Values below it are drawn on the bottom edge. Non-finite values are ignored."
+        },
+        {
+          "name": "yMax",
+          "type": "number",
+          "description": "Upper bound of the y axis, rounded up to a tick. Values above it are drawn on the top edge. Non-finite values are ignored."
+        },
+        {
           "name": "showLegend",
           "type": "boolean | 'auto'",
           "default": "'auto'",
@@ -23938,6 +23976,16 @@
           "title": "Minimal",
           "description": "Sample data.",
           "code": "<LineChart class=\"max-w-md\" label=\"Sample data: line chart\" :labels=\"['Jan', 'Feb', 'Mar', 'Apr', 'May']\" :series=\"[{ name: 'Series A', data: [120, 180, 150, 240, 310] }]\" />"
+        },
+        {
+          "title": "Fixed y domain",
+          "description": "A narrow series (172.0 to 172.6) on the default axis fills the whole height; `yMin` and `yMax` show it against a wider scale. Sample data.",
+          "code": "<div class=\"grid gap-6 md:grid-cols-2\">\n  <LineChart label=\"Sample data: automatic domain\" :labels=\"['a', 'b', 'c', 'd']\" :series=\"[{ name: 'Reading', data: [172.0, 172.6, 172.2, 172.4] }]\" />\n  <LineChart label=\"Sample data: domain 150 to 200\" :y-min=\"150\" :y-max=\"200\" :labels=\"['a', 'b', 'c', 'd']\" :series=\"[{ name: 'Reading', data: [172.0, 172.6, 172.2, 172.4] }]\" />\n</div>"
+        },
+        {
+          "title": "Whole-number ticks and edge labels",
+          "description": "Integer data gets whole-number ticks; the first and last x labels are anchored so they are never cut off. Sample data.",
+          "code": "<LineChart class=\"max-w-md\" label=\"Sample data: queue length\" :labels=\"['13:00:00', '13:00:05', '13:00:10']\" :series=\"[{ name: 'Queued', data: [0, 2, 1] }]\" />"
         },
         {
           "title": "Multi-series with area and gaps",
@@ -25235,6 +25283,12 @@
           "type": "boolean",
           "default": "true",
           "description": "Tick labels, category labels and the zero line."
+        },
+        {
+          "name": "integerTicks",
+          "type": "boolean | 'auto'",
+          "default": "'auto'",
+          "description": "Value axis ticks on whole numbers only. `auto` does this when every value is an integer (counts, so no 0.5 tick); `true` forces it; `false` always allows fractional ticks."
         },
         {
           "name": "showLegend",
@@ -29879,6 +29933,12 @@
           "description": "Colour of the progress bar and sparkline. Unknown values fall back to `primary`."
         },
         {
+          "name": "sparklineVariant",
+          "type": "'area' | 'line'",
+          "default": "'area'",
+          "description": "`area` fills under the built-in sparkline; `line` draws the line only. Unknown values behave like `area`."
+        },
+        {
           "name": "sparkline",
           "type": "number[]",
           "description": "Values for a mini area sparkline under the delta (non-finite entries become gaps). Hidden while `loading` or when empty."
@@ -29948,6 +30008,11 @@
           "title": "With sparkline",
           "description": "Pass `sparkline` values; the line takes the tile `tone`. Sample data.",
           "code": "<StatGroup :columns=\"2\" aria-label=\"Sample data: sparkline tiles\">\n  <KpiTile label=\"Throughput\" value=\"48.2k\" delta=\"+12%\" trend=\"up\" :sparkline=\"[3, 5, 4, 7, 9, 8, 12]\" tone=\"success\" />\n  <KpiTile label=\"Retries\" :value=\"320\" :sparkline=\"[9, 7, 8, 5, 6, 4, 3]\" />\n</StatGroup>"
+        },
+        {
+          "title": "Line-only sparkline",
+          "description": "`sparklineVariant=\"line\"` drops the fill for dense dashboards. Sample data.",
+          "code": "<StatGroup :columns=\"2\" aria-label=\"Sample data: line sparkline tiles\">\n  <KpiTile label=\"Latency\" value=\"142 ms\" sparkline-variant=\"line\" :sparkline=\"[3, 5, 4, 7, 9, 8, 12]\" />\n  <KpiTile label=\"Retries\" :value=\"320\" sparkline-variant=\"line\" :sparkline=\"[9, 7, 8, 5, 6, 4, 3]\" tone=\"warning\" />\n</StatGroup>"
         },
         {
           "title": "With progress",
@@ -30481,7 +30546,7 @@
           "name": "columns",
           "type": "DataTableColumn<T>[]",
           "required": true,
-          "description": "`{ key, header, sortable?, align?, numeric?, rowHeader?, width?, accessor?, class? }`. `accessor(row)` defaults to `row[key]`; `width` is an inline CSS width; `numeric` right-aligns with tabular figures; `rowHeader` renders the column as `<th scope=\"row\">` and names the row checkbox."
+          "description": "`{ key, header, sortable?, align?, numeric?, rowHeader?, actions?, width?, accessor?, class? }`. `accessor(row)` defaults to `row[key]`; `width` is an inline CSS width; `numeric` right-aligns with tabular figures; `rowHeader` renders the column as `<th scope=\"row\">` and names the row checkbox; `actions` marks a row-actions column, which in `layout=\"cards\"` has no \"Actions:\" label and closes the card at the end with a rule."
         },
         {
           "name": "rows",
@@ -30869,6 +30934,12 @@
           "description": "Below 640px every row is a card of label and value pairs and a control bar appears above them: a \"Sort by\" select with a direction button, and a \"Select all\" checkbox. It drives the same sort and selection as the header (hidden on phones). From 640px it is a table. Narrow the window to see it. Sample data.",
           "script": "const columns = [\n  { key: 'name', header: 'Name', sortable: true, rowHeader: true },\n  { key: 'plan', header: 'Plan', sortable: true },\n  { key: 'seats', header: 'Seats', sortable: true, numeric: true },\n]\nconst rows = [\n  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },\n  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },\n  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },\n  { id: 4, name: 'Item D', plan: 'Plan 1', seats: null },\n]\nconst sort = ref(null)\nconst selected = ref([])",
           "code": "<div class=\"space-y-3\">\n  <DataTable v-model:sort=\"sort\" v-model:selected=\"selected\" :columns=\"columns\" :rows=\"rows\" layout=\"cards\" selectable label=\"Sample data: cards layout\" />\n  <Badge variant=\"secondary\" class=\"tabular-nums\">{{ sort ? sort.key + ' ' + sort.direction : 'default order' }}, {{ selected.length }} selected</Badge>\n</div>"
+        },
+        {
+          "title": "Cards layout: actions column",
+          "description": "A column with `actions: true` shows no label in a card and sits at the end of it; in the table layout it is an ordinary column. Narrow the window to see it. Sample data.",
+          "script": "const columns = [\n  { key: 'name', header: 'Name', sortable: true, rowHeader: true },\n  { key: 'plan', header: 'Plan', sortable: true },\n  { key: 'seats', header: 'Seats', sortable: true, numeric: true },\n]\nconst rows = [\n  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },\n  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },\n  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },\n  { id: 4, name: 'Item D', plan: 'Plan 1', seats: null },\n]\nconst actionColumns = [...columns, { key: 'actions', header: 'Actions', actions: true, accessor: () => null }]",
+          "code": "<DataTable :columns=\"actionColumns\" :rows=\"rows\" layout=\"cards\" label=\"Sample data: row actions in cards\">\n  <template #cell-actions=\"{ row }\"><Button size=\"sm\" variant=\"outline\">Rename</Button></template>\n</DataTable>"
         },
         {
           "title": "Cards layout: relabelled controls",
