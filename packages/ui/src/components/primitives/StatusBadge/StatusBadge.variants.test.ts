@@ -180,3 +180,20 @@ describe('StatusBadge variations', () => {
     })
   })
 })
+
+describe('StatusBadge tinted variant', () => {
+  it('tints danger and primary instead of filling them', () => {
+    expect(statusBadgeLook('tinted', 'danger')).toEqual({ variant: 'soft', tone: 'danger' })
+    expect(statusBadgeLook('tinted', 'primary')).toEqual({ variant: 'soft', tone: 'primary' })
+    const failed = mount(StatusBadge, { props: { status: 'failed', variant: 'tinted' } })
+    expect(failed.classes()).toEqual(expect.arrayContaining(['bg-destructive/10', 'text-destructive']))
+    expect(failed.classes()).not.toContain('bg-destructive')
+  })
+  it('matches soft for success, warning, info and neutral', () => {
+    for (const status of ['active', 'pending', 'running', 'archived'])
+      expect(mount(StatusBadge, { props: { status, variant: 'tinted' } }).classes().sort()).toEqual(mount(StatusBadge, { props: { status } }).classes().sort())
+  })
+  it('keeps the soft default unchanged (danger stays filled)', () => {
+    expect(mount(StatusBadge, { props: { status: 'failed' } }).classes()).toContain('bg-destructive')
+  })
+})

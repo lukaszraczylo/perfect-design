@@ -25,7 +25,7 @@ export interface StatusBadgeProps extends BaseProps {
   tones?: Record<string, StatusBadgeTone>
   /** Text to show. Defaults to the humanised status (`in_progress` -> `In progress`). */
   label?: string
-  /** Look: `soft` (default), `outline`, `solid` or `plain` (text and dot only). */
+  /** Look: `soft` (default), `outline`, `solid`, `plain` (text and dot only) or `tinted` (every tone tinted, danger included). */
   variant?: StatusBadgeVariant
   /** Text, padding and dot size: `sm`, `md` or `lg`. */
   size?: StatusBadgeSize

@@ -10,13 +10,14 @@ import type { StatusBadgeTone } from './status'
  * - `outline`: bordered, tone-coloured text.
  * - `solid`: filled with the tone colour (neutral is foreground on background).
  * - `plain`: tone-coloured text and dot with no border, fill or horizontal padding.
+ * - `tinted`: every tone tinted, danger and primary included, for screens where many statuses sit side by side.
  */
-export type StatusBadgeVariant = 'soft' | 'outline' | 'solid' | 'plain'
+export type StatusBadgeVariant = 'soft' | 'outline' | 'solid' | 'plain' | 'tinted'
 export type StatusBadgeSize = 'sm' | 'md' | 'lg'
 /** `rounded` is rounded-md (default), `pill` is fully round, `square` has no radius. */
 export type StatusBadgeShape = 'pill' | 'rounded' | 'square'
 
-export const STATUS_BADGE_VARIANTS: readonly StatusBadgeVariant[] = ['soft', 'outline', 'solid', 'plain']
+export const STATUS_BADGE_VARIANTS: readonly StatusBadgeVariant[] = ['soft', 'outline', 'solid', 'plain', 'tinted']
 export const STATUS_BADGE_SIZES: readonly StatusBadgeSize[] = ['sm', 'md', 'lg']
 export const STATUS_BADGE_SHAPES: readonly StatusBadgeShape[] = ['pill', 'rounded', 'square']
 
@@ -47,6 +48,7 @@ const SOFT_VARIANT_BY_TONE: Record<StatusBadgeTone, BadgeVariant> = {
 /** The Badge `variant` and `tone` that draw a StatusBadge look for a status tone. */
 export function statusBadgeLook(variant: StatusBadgeVariant, tone: StatusBadgeTone): { variant: BadgeVariant; tone?: BadgeTone } {
   if (variant === 'soft') return { variant: SOFT_VARIANT_BY_TONE[tone] }
+  if (variant === 'tinted') return tone === 'primary' || tone === 'danger' ? { variant: 'soft', tone } : { variant: SOFT_VARIANT_BY_TONE[tone] }
   return { variant: variant === 'solid' ? 'solid' : 'outline', tone }
 }
 
