@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { computed, useAttrs } from 'vue'
+import { computed, ref, useAttrs } from 'vue'
 import { cn } from '../../../lib/cn'
 import { requireOneOf, violation } from '../../../lib/contract'
 import { focusRing } from '../../../lib/styles'
 import type { BaseProps } from '../../../lib/types'
 import { extent, formatNumber, isFiniteNumber } from '../_chart/chartMath'
-import { oneOf, plural } from '../_chart/chartKit'
+import { estimateTextWidth, labelStep, oneOf, plural } from '../_chart/chartKit'
+import { useMeasuredWidth } from '../_chart/useMeasuredWidth'
 import { useMountedCheck } from '../_shared/contract'
 import type { ChartTone } from '../_chart/tones'
 import { heatClass, heatLevel, normalizeLevels } from './heatLevel'
-import { heatmapCellVariants, heatmapTableVariants, type HeatmapGap, type HeatmapShape, type HeatmapSize } from './variants'
+import { heatmapCellVariants, heatmapFitGapClass, heatmapFitShapeClass, heatmapTableVariants, HEATMAP_FIT_MAX_CELL_PX, type HeatmapGap, type HeatmapShape, type HeatmapSize } from './variants'
 
 export interface HeatmapProps extends BaseProps {
   /** Rows × columns. `null` / NaN / missing cells are "empty". Rows may be ragged. */
@@ -31,8 +32,10 @@ export interface HeatmapProps extends BaseProps {
   gap?: HeatmapGap
   /** Show the Less … More legend. */
   showLegend?: boolean
-  /** Show every n-th column label visibly (the rest stay available to screen readers). */
+  /** Show every n-th column label visibly (the rest stay available to screen readers). With `fit` the step also grows on its own so labels never overlap. */
   colLabelStep?: number
+  /** Cells stretch to the width of the container (square, up to 40px) instead of the fixed `size`. The first and last column labels always show; the ones between are thinned to fit. */
+  fit?: boolean
   /** Accessible label (table caption); defaults to an auto-generated summary. */
   label?: string
   /** Shown when `values` has no cells. */
@@ -49,6 +52,7 @@ const props = withDefaults(defineProps<HeatmapProps>(), {
   gap: 'md',
   showLegend: true,
   colLabelStep: 1,
+  fit: false,
   emptyText: 'No data',
 })
 
@@ -66,11 +70,48 @@ useMountedCheck(
 const cellClass = computed(() => heatmapCellVariants({ shape: oneOf<HeatmapShape>(props.shape, ['square', 'circle'], 'square'), size: oneOf<HeatmapSize>(props.size, ['sm', 'md', 'lg'], 'md') }))
 const tableClass = computed(() => [heatmapTableVariants({ gap: oneOf<HeatmapGap>(props.gap, ['sm', 'md', 'lg'], 'md') }), 'text-xs text-muted-foreground'])
 
+const rootEl = ref<HTMLElement | null>(null)
+const measured = useMeasuredWidth(rootEl)
+const FIT_FONT = 12
+const FIT_LABEL_GUTTER_PAD = 4
+const FIT_GAP_PX = { sm: 1, md: 2, lg: 4 } as const
+const gapKey = computed(() => oneOf<HeatmapGap>(props.gap, ['sm', 'md', 'lg'], 'md'))
+const shapeKey = computed(() => oneOf<HeatmapShape>(props.shape, ['square', 'circle'], 'square'))
+
+const legendCellClass = computed(() => (props.fit ? heatmapCellVariants({ shape: shapeKey.value, size: 'md' }) : cellClass.value))
+const fitCellClass = computed(() => cn('block aspect-square w-full', heatmapFitShapeClass[shapeKey.value]))
+const fitTableStyle = computed(() => ({
+  gridTemplateColumns: `${hasRowLabels.value ? 'auto ' : ''}repeat(${cols.value}, minmax(0, ${HEATMAP_FIT_MAX_CELL_PX}px))`,
+}))
+
 const rows = computed<unknown[][]>(() => (Array.isArray(props.values) ? props.values : []).map((r) => (Array.isArray(r) ? r : [])))
 const cols = computed(() => rows.value.reduce((m, r) => Math.max(m, r.length), 0))
 const empty = computed(() => rows.value.length === 0 || cols.value === 0)
 const levels = computed(() => normalizeLevels(props.levels))
 const step = computed(() => (isFiniteNumber(props.colLabelStep) ? Math.max(1, Math.floor(props.colLabelStep)) : 1))
+
+const hasColLabels = computed(() => Array.isArray(props.colLabels) && props.colLabels.length > 0)
+const hasRowLabels = computed(() => Array.isArray(props.rowLabels) && props.rowLabels.length > 0)
+const colName = (c: number) => String(props.colLabels?.[c] ?? '')
+const rowName = (r: number) => String(props.rowLabels?.[r] ?? '')
+
+/** Visible column-label step: the explicit step, raised in `fit` mode until the widest label fits its stretch of cells. */
+const effectiveStep = computed(() => {
+  if (!props.fit || !hasColLabels.value || measured.value <= 0) return step.value
+  const rowGutter = hasRowLabels.value ? Math.max(0, ...Array.from({ length: rows.value.length }, (_, r) => estimateTextWidth(rowName(r), FIT_FONT))) + FIT_LABEL_GUTTER_PAD : 0
+  const gap = FIT_GAP_PX[gapKey.value]
+  const cell = Math.min(HEATMAP_FIT_MAX_CELL_PX, Math.max(1, (measured.value - rowGutter - gap * cols.value) / Math.max(1, cols.value)))
+  const widest = Math.max(0, ...Array.from({ length: cols.value }, (_, c) => estimateTextWidth(colName(c), FIT_FONT))) + FIT_LABEL_GUTTER_PAD
+  return Math.max(step.value, labelStep(cell + gap, widest))
+})
+/** Whether the label of 0-based column `c` is visible. The first and (in `fit` mode) the last always are; a step multiple too close to the last one yields to it. */
+const labelShown = (c: number): boolean => {
+  const s = effectiveStep.value
+  if (!props.fit) return c % s === 0
+  const last = cols.value - 1
+  if (c === last || c === 0) return true
+  return c % s === 0 && last - c >= s
+}
 
 const domain = computed(() => {
   const ext = extent(rows.value.flat())
@@ -79,11 +120,6 @@ const domain = computed(() => {
     hi: isFiniteNumber(props.max) ? props.max : (ext?.[1] ?? 0),
   }
 })
-
-const hasColLabels = computed(() => Array.isArray(props.colLabels) && props.colLabels.length > 0)
-const hasRowLabels = computed(() => Array.isArray(props.rowLabels) && props.rowLabels.length > 0)
-const colName = (c: number) => String(props.colLabels?.[c] ?? '')
-const rowName = (r: number) => String(props.rowLabels?.[r] ?? '')
 
 const grid = computed(() =>
   rows.value.map((row, r) => ({
@@ -125,41 +161,49 @@ const summary = computed(() => {
   </div>
   <div
     v-else
+    ref="rootEl"
     data-slot="heatmap"
     role="region"
     tabindex="0"
     :aria-label="label || summary"
-    :class="cn('relative flex w-fit max-w-full min-w-0 flex-col gap-2 overflow-x-auto focus-visible:ring-inset', focusRing, $props.class)"
+    :data-fit="fit ? '' : undefined"
+    :class="cn('relative flex max-w-full min-w-0 flex-col gap-2 overflow-x-auto focus-visible:ring-inset', fit ? 'w-full' : 'w-fit', focusRing, $props.class)"
   >
-    <table data-slot="heatmap-table" :class="tableClass">
+    <table
+      data-slot="heatmap-table"
+      :role="fit ? 'table' : undefined"
+      :class="fit ? ['grid w-full justify-start text-xs text-muted-foreground', heatmapFitGapClass[gapKey]] : tableClass"
+      :style="fit ? fitTableStyle : undefined"
+    >
       <caption class="sr-only">{{ label || summary }}</caption>
-      <thead v-if="hasColLabels">
-        <tr>
-          <td v-if="hasRowLabels" />
+      <thead v-if="hasColLabels" :class="fit ? 'contents' : undefined" :role="fit ? 'rowgroup' : undefined">
+        <tr :class="fit ? 'contents' : undefined" :role="fit ? 'row' : undefined">
+          <td v-if="hasRowLabels" :role="fit ? 'presentation' : undefined" />
           <th
             v-for="c in cols"
             :key="c"
             data-slot="heatmap-col-label"
             scope="col"
-            class="whitespace-nowrap p-0 text-start font-normal"
+            :role="fit ? 'columnheader' : undefined"
+            :class="fit ? 'flex min-w-0 p-0 font-normal whitespace-nowrap' + (c === cols ? ' justify-end' : ' justify-start') : 'whitespace-nowrap p-0 text-start font-normal'"
           >
-            <span :class="(c - 1) % step === 0 ? '' : 'sr-only'">{{ colName(c - 1) }}</span>
+            <span :class="labelShown(c - 1) ? '' : 'sr-only'">{{ colName(c - 1) }}</span>
           </th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="(row, r) in grid" :key="r" data-slot="heatmap-row">
-          <th v-if="hasRowLabels" data-slot="heatmap-row-label" scope="row" class="whitespace-nowrap pe-1 text-end font-normal">{{ row.label }}</th>
-          <td v-for="(cell, c) in row.cells" :key="c" data-slot="heatmap-cell" :data-empty="cell.value === null ? 'true' : undefined" class="p-0">
+      <tbody :class="fit ? 'contents' : undefined" :role="fit ? 'rowgroup' : undefined">
+        <tr v-for="(row, r) in grid" :key="r" data-slot="heatmap-row" :class="fit ? 'contents' : undefined" :role="fit ? 'row' : undefined">
+          <th v-if="hasRowLabels" data-slot="heatmap-row-label" scope="row" :role="fit ? 'rowheader' : undefined" :class="fit ? 'flex items-center justify-end pe-1 font-normal whitespace-nowrap' : 'whitespace-nowrap pe-1 text-end font-normal'">{{ row.label }}</th>
+          <td v-for="(cell, c) in row.cells" :key="c" data-slot="heatmap-cell" :role="fit ? 'cell' : undefined" :data-empty="cell.value === null ? 'true' : undefined" class="p-0">
             <span class="sr-only">{{ cell.text }}</span>
-            <span data-slot="heatmap-swatch" :title="cell.title" aria-hidden="true" :class="[cellClass, cell.cls]" />
+            <span data-slot="heatmap-swatch" :title="cell.title" aria-hidden="true" :class="[fit ? fitCellClass : cellClass, cell.cls]" />
           </td>
         </tr>
       </tbody>
     </table>
     <div v-if="showLegend" data-slot="heatmap-legend" class="flex items-center gap-1 text-xs text-muted-foreground tabular-nums" aria-hidden="true">
       <span>Less</span>
-      <span v-for="(c, i) in legend" :key="i" data-slot="heatmap-legend-swatch" :class="[cellClass, c]" />
+      <span v-for="(c, i) in legend" :key="i" data-slot="heatmap-legend-swatch" :class="[legendCellClass, c]" />
       <span>More</span>
     </div>
   </div>

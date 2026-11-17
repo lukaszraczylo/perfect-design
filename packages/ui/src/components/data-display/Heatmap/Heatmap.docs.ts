@@ -22,7 +22,8 @@ const doc: ComponentDoc = {
     { name: 'shape', type: "'square' | 'circle'", default: "'square'", description: 'Cell shape: slightly rounded square, or a circle (`rounded-full`) for a dot matrix. Applies to the legend swatches too.' },
     { name: 'gap', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Space between cells: 1px, 2px or 4px (`border-spacing`).' },
     { name: 'showLegend', type: 'boolean', default: 'true', description: 'Less … More swatch legend.' },
-    { name: 'colLabelStep', type: 'number', default: '1', description: 'Show every n-th column label visibly; the others stay screen-reader only.' },
+    { name: 'colLabelStep', type: 'number', default: '1', description: 'Show every n-th column label visibly; the others stay screen-reader only. With `fit` the step also grows automatically so labels never overlap.' },
+    { name: 'fit', type: 'boolean', default: 'false', description: 'Stretch the columns to the width of the container. Cells stay square and grow up to 40px (`size` is ignored; `shape` and `gap` still apply). The table keeps its semantics through ARIA roles. The first and last column labels always show and the ones between are thinned so none overlap.' },
     { name: 'label', type: 'string', description: 'Accessible name of the region and its visually hidden table caption. Required (or pass `aria-label` / `aria-labelledby`); an auto-generated summary is only the fallback when strict mode is off.' },
     { name: 'emptyText', type: 'string', default: "'No data'", description: 'Shown when there are no cells.' },
     { name: 'cellTitle', type: '(value: number | null, rowLabel: string, colLabel: string) => string', description: 'Custom native tooltip per cell (default "Row, Col: value").' },
@@ -61,6 +62,11 @@ const grid = days.map((_, r) => weeks.map((_, c) => ((r * 7 + c * 13) % 11 < 3 ?
         const grid = days.map((_, r) => weeks.map((_, c) => ((r * 7 + c * 13) % 11 < 3 ? 0 : (r * 31 + c * 17) % 9)))
         return { days, weeks, grid }
       },
+    },
+    {
+      title: 'Fit the container',
+      description: '`fit` fills the available width with square cells and thins the hour labels to fit. Deterministic sample data.',
+      code: `<Heatmap fit label="Sample data: requests by hour" :row-labels="['Mon', 'Tue', 'Wed']" :col-labels="Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0') + ':00')" :values="Array.from({ length: 3 }, (_, r) => Array.from({ length: 24 }, (_, c) => (r * 7 + c * 3) % 11))" />`,
     },
     {
       title: 'Shape: square and circle',

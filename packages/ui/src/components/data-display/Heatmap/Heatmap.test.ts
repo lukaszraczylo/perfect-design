@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import Heatmap from './Heatmap.vue'
 
 const m = (props: Record<string, unknown>, attrs: Record<string, unknown> = {}) => mount(Heatmap, { props: props as never, attrs })
@@ -197,5 +198,78 @@ describe('Heatmap: edge cases', () => {
       expect(w.attributes('role')).toBe('img')
       expect(w.attributes('tabindex')).toBeUndefined()
     })
+  })
+})
+
+describe('Heatmap: fit mode', () => {
+  const wide = Array.from({ length: 3 }, (_, r) => Array.from({ length: 24 }, (_, c) => (r + c) % 5))
+  const hours = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`)
+  const visible = (w: ReturnType<typeof m>) => w.findAll('[data-slot="heatmap-col-label"]').map((th) => !th.find('span').classes().includes('sr-only'))
+  const spy = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+  afterEach(() => spy.mockReset())
+
+  it('is off by default: fixed cell sizes, w-fit root, plain table', () => {
+    const w = m({ values })
+    expect(w.attributes('data-fit')).toBeUndefined()
+    expect(w.classes()).toContain('w-fit')
+    expect(w.find('table').classes()).toContain('border-separate')
+    expect(w.find('table').attributes('style')).toBeUndefined()
+    expect(swatch(w, 0).classes()).toContain('size-4')
+  })
+  it('fit: root fills the width, columns are fr-capped, cells are square and fill their column', () => {
+    const w = m({ values, fit: true, rowLabels: ['a', 'b'] })
+    expect(w.attributes('data-fit')).toBe('')
+    expect(w.classes()).toContain('w-full')
+    expect(w.classes()).not.toContain('w-fit')
+    expect(w.find('table').classes()).toContain('grid')
+    expect(w.find('table').attributes('style')).toContain('auto repeat(3, minmax(0px, 40px))')
+    expect(swatch(w, 0).classes()).toEqual(expect.arrayContaining(['aspect-square', 'w-full']))
+    expect(swatch(w, 0).classes()).not.toContain('size-4')
+  })
+  it('fit keeps table semantics through explicit roles and every cell', () => {
+    const w = m({ values, fit: true, rowLabels: ['a', 'b'], colLabels: ['x', 'y', 'z'] })
+    expect(w.find('table').attributes('role')).toBe('table')
+    expect(w.findAll('tr').every((tr) => tr.attributes('role') === 'row')).toBe(true)
+    expect(w.find('[data-slot="heatmap-row-label"]').attributes('role')).toBe('rowheader')
+    expect(w.find('[data-slot="heatmap-col-label"]').attributes('role')).toBe('columnheader')
+    expect(cells(w)).toHaveLength(6)
+  })
+  it('fit respects shape and gap', () => {
+    const w = m({ values, fit: true, shape: 'circle', gap: 'lg' })
+    expect(swatch(w, 0).classes()).toContain('rounded-full')
+    expect(w.find('table').classes()).toContain('gap-1')
+  })
+  it('fit thins column labels on a narrow container; first and last always show, none collide', async () => {
+    spy.mockReturnValue(300)
+    const w = m({ values: wide, fit: true, colLabels: hours })
+    await nextTick()
+    const shown = visible(w)
+    const idx = shown.flatMap((v, i) => (v ? [i] : []))
+    expect(shown[0]).toBe(true)
+    expect(shown[23]).toBe(true)
+    expect(idx.length).toBeLessThan(24)
+    const gaps = idx.slice(1).map((v, i) => v - idx[i]!)
+    expect(Math.min(...gaps)).toBeGreaterThanOrEqual(2)
+  })
+  it('fit shows every label when there is room, and an explicit colLabelStep is never lowered', async () => {
+    spy.mockReturnValue(5000)
+    const roomy = m({ values: wide, fit: true, colLabels: hours })
+    const forced = m({ values: wide, fit: true, colLabels: hours, colLabelStep: 4 })
+    await nextTick()
+    expect(visible(roomy).every(Boolean)).toBe(true)
+    const stepped = visible(forced)
+    expect(stepped[1]).toBe(false)
+    expect(stepped[4]).toBe(true)
+  })
+  it('without fit the label step is unchanged even in a narrow container', async () => {
+    spy.mockReturnValue(300)
+    const plain = m({ values: wide, colLabels: hours })
+    await nextTick()
+    expect(visible(plain).every(Boolean)).toBe(true)
+  })
+  it('single column and no labels do not break', () => {
+    spy.mockReturnValue(100)
+    expect(cells(m({ values: [[1], [2]], fit: true, colLabels: ['only'] }))).toHaveLength(2)
+    expect(cells(m({ values: [[1, 2]], fit: true }))).toHaveLength(2)
   })
 })
