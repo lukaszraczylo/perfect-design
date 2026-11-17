@@ -212,6 +212,7 @@
 - [KpiTile](/components/data-display/kpi-tile): Headline metric tile: label, value, trend delta with good/bad colouring, hint, icon and loading skeleton. (Statistics)
 - [StatGroup](/components/data-display/stat-group): Responsive grid wrapper for KpiTile (or any tile) rows. (Statistics)
 - [TrendBadge](/components/data-display/trend-badge): Compact up / down / flat change indicator with good-or-bad colouring, Intl formatting and screen-reader text. (Statistics)
+- [UptimeBar](/components/data-display/uptime-bar): Row of segments, one per check or period, each marked up, degraded, down or unknown, for status pages. (Status)
 - [DataGrid](/components/data-display/data-grid): Spreadsheet-like data grid: keyboard navigation over cells, inline editing with validation, sorting, resizable and pinned columns, row selection, copy as TSV and a windowed render for 10,000 rows. (Tables)
 - [DataTable](/components/data-display/data-table): Data-array table with client-side sorting, row selection, pagination, loading and empty states. (Tables)
 - [Table](/components/data-display/table): Styled, responsive native <table> with compound parts for hand-written tabular markup. (Tables)
@@ -1827,6 +1828,7 @@ Props:
 - size: 'inherit' | 'sm' | 'md' | 'lg' = 'inherit' - inherit keeps the size of the surrounding text; sm, md, lg set text-sm, text-base, text-lg. Unknown values fall back to inherit.
 - href: string - Destination. Omitted while `disabled`.
 - external: boolean = false - target="_blank", rel="noopener noreferrer", trailing icon and sr-only hint.
+- externalLabel: string = '(opens in new tab)' - Visually hidden hint read after an external link. Use it to translate the text; a `ConfigProvider` label `link.externalHint` sets it for a whole subtree and this prop wins.
 - externalIcon: boolean = true - Show the trailing arrow icon on external links.
 - disabled: boolean = false - aria-disabled, tabindex -1, no href, clicks blocked.
 - as: string | Component = 'a' - Element or component (e.g. RouterLink) to render.
@@ -4275,7 +4277,7 @@ Example: Larger sizes
 group: layout / Configuration
 Sets text direction, locale, time zone, motion override, default size and density, and translated built-in strings for everything inside it.
 
-Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`. Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox and ModelPicker read them today. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. `blurMedia` is the privacy switch: it blurs avatars and photos in the subtree, and each component's own `blurred` prop wins. Use `asChild` to render no extra element, or `class="contents"` to keep layout unchanged.
+Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`, `link.externalHint`. Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox, ModelPicker and Link read them today. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. `blurMedia` is the privacy switch: it blurs avatars and photos in the subtree, and each component's own `blurred` prop wins. Use `asChild` to render no extra element, or `class="contents"` to keep layout unchanged.
 
 import { ConfigProvider } from '@perfect-design/ui'
 
@@ -17722,6 +17724,7 @@ Props:
 - fit: boolean = false - Stretch the columns to the width of the container. Cells stay square and grow up to 40px (`size` is ignored; `shape` and `gap` still apply). The table keeps its semantics through ARIA roles. The first and last column labels always show and the ones between are thinned so none overlap.
 - label: string - Accessible name of the region and its visually hidden table caption. Required (or pass `aria-label` / `aria-labelledby`); an auto-generated summary is only the fallback when strict mode is off.
 - emptyText: string = 'No data' - Shown when there are no cells.
+- formatValue: (value: number) => string - Formats numbers in the visually hidden table cells, the default cell tooltip and the summary range, e.g. as a percentage. Empty cells stay "no data". Unset keeps plain number formatting.
 - cellTitle: (value: number | null, rowLabel: string, colLabel: string) => string - Custom native tooltip per cell (default "Row, Col: value").
 - class: string | object | array - Merged last with tailwind-merge onto the root element.
 
@@ -17733,6 +17736,7 @@ Rules:
 - Pass `values` as rows × columns; use null for missing cells (zero is also drawn as empty).
 - Provide `rowLabels`/`colLabels` so the table is understandable to screen readers.
 - Use `shape="circle"` for sparse matrices and `gap="lg"` to separate cells further; keep squares for dense calendars. `levels` already sets the number of intensity steps (1 to 5), so there is no separate `scale` prop.
+- Use `formatValue` for units (percent, bytes); it changes text only, not the intensity.
 - Use `colLabelStep` for wide calendars instead of removing labels.
 - Pick one `tone`; do not mix colours. Use `min`/`max` to compare several heatmaps on one scale.
 
@@ -17793,6 +17797,11 @@ Example: Gap
   <Heatmap gap="md" label="Sample data: default cells" :values="[[1, 4, 7], [3, 6, 9]]" :show-legend="false" />
   <Heatmap gap="lg" shape="circle" label="Sample data: wide spacing" :values="[[1, 4, 7], [3, 6, 9]]" :show-legend="false" />
 </div>
+```
+
+Example: Formatted values
+```vue
+<Heatmap label="Sample data: success rate by weekday" :row-labels="['Mon', 'Tue']" :col-labels="['9', '12', '15']" :values="[[0.5, 0.75, 1], [0.25, null, 0.9]]" :format-value="(v) => Math.round(v * 100) + '%'" />
 ```
 
 Example: Empty
@@ -22518,6 +22527,7 @@ Props:
 - variant: 'plain' | 'divided' | 'card' | 'interactive' | 'with-avatar' - Row presentation, shared with every `ListItem` inside. When omitted the `divided` prop decides (dividers by default); unknown values behave as omitted.
 - size: 'sm' | 'md' | 'lg' = 'md' - Row padding and text size, shared with every `ListItem`: `sm` 12px text, `md` 14px, `lg` 16px with roomier rows. Unknown values fall back to `md`.
 - gap: 'none' | 'sm' | 'md' | 'lg' - Space between rows (0, 4px, 8px, 16px). Only `plain` and `card` lists use it; `card` rows keep 8px when it is not set. Divided variants ignore it. Unknown values behave as unset.
+- marker: 'none' | 'disc' | 'decimal' = 'none' - Real list markers for hand-authored bulleted or numbered text (legal text, feature bullets). The list becomes a plain block with logical start padding and muted markers; `variant`, `divided` and `gap` do not apply and rows drop their flex layout. `decimal` renders an `ol` unless `as` is set. Unknown values behave as `none`.
 - divided: boolean = true - Dividers between items. Only used when `variant` is not set.
 - bordered: boolean = false - Rounded border around the list.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
@@ -22538,6 +22548,7 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when a `ListItem` is rendered outside a `List` (a plain `ul`, `ol` or `role="list"` parent also counts).
 
 Rules:
+- Use `marker="disc"` or `"decimal"` for prose-like bulleted or numbered text; leave it unset for rows with slots and dividers.
 - Use `leading`/`trailing` slots instead of custom flex wrappers inside ListItem.
 - Choose the look with `variant` on List (not per row): `card` for separated entries, `with-avatar` for people lists, `interactive` when every row is clickable.
 - Set `size` and `gap` on List, not per row; `gap` only affects `plain` and `card`.
@@ -22551,6 +22562,20 @@ Accessibility:
 - Rows are flat: no accent stripe or hover movement. Selection is a background plus `aria-current`, not colour alone. Slot text inherits a muted colour: give a Button inside `trailing` its own `text-foreground` on selected rows.
 - `size` and `gap` change spacing and text only. Interactive rows keep at least a 28px height at `sm`, above the 24px minimum target.
 - Keyboard: Tab reaches interactive rows (and links or buttons inside them); Enter or Space activates a non-native row. Dividers and rows reflow at any width.
+
+Example: Bulleted and numbered text
+```vue
+<div class="flex flex-wrap gap-8">
+  <List marker="disc" class="max-w-xs">
+    <ListItem>Sample feature one</ListItem>
+    <ListItem>Sample feature two</ListItem>
+  </List>
+  <List marker="decimal" class="max-w-xs">
+    <ListItem>Sample first step</ListItem>
+    <ListItem>Sample second step</ListItem>
+  </List>
+</div>
+```
 
 Example: Simple list
 ```vue
@@ -23654,6 +23679,75 @@ Example: Currency and missing data
   <TrendBadge :value="null" />
   <TrendBadge direction="down" />
 </div>
+```
+
+---
+
+# UptimeBar
+group: data-display / Status
+Row of segments, one per check or period, each marked up, degraded, down or unknown, for status pages.
+
+Use `UptimeBar` to show the history of one service as a strip: one segment per check (or per day), oldest first. Each segment is `up` (success), `degraded` (warning), `down` (destructive) or `unknown` (muted track). Segments share the width, with a 1px minimum, so 90 days or 200 checks fit a phone; above 100 segments the gap between them is dropped. The strip is one image with a text alternative: "API: 28 checks: 26 up, 1 degraded, 1 down", and the same counts show as a visible summary line, so state never relies on colour alone. Each segment has a native tooltip with its `label` and state name. Pass `summary` (or the `summary` slot) for your own line, such as an uptime percentage you computed. Not a chart for numeric values (use `Sparkline` or `BarChart`) and not a single indicator (use `StatusDot`).
+
+import { UptimeBar } from '@perfect-design/ui'
+
+Props:
+- segments*: { state: 'up' | 'degraded' | 'down' | 'unknown'; label?: string }[] - One entry per check or period, oldest first. Unknown states are drawn as `unknown`. An empty array shows `emptyText`.
+- label: string - Accessible name of the image, e.g. "API checks, last 28 days". Required (or pass `aria-label` / `aria-labelledby`).
+- stateLabels: Partial<Record<'up' | 'degraded' | 'down' | 'unknown', string>> - Replaces the state names in tooltips and the summary. English defaults: up, degraded, down, unknown. Blank values are ignored.
+- size: 'sm' | 'md' | 'lg' = 'md' - Segment height: 16px, 32px or 48px. Unknown values fall back to `md`.
+- summary: string - Replaces the generated summary in the visible line and the accessible name.
+- hideSummary: boolean = false - Hide the visible summary line; the accessible name still carries it.
+- emptyText: string = 'No checks yet' - Shown when there are no segments.
+- class: string | object | array - Merged last with tailwind-merge onto the root element.
+
+Slots:
+- summary ({ total: number; counts: Record<state, number>; text: string }) - Replaces the visible summary line. The accessible name is unchanged; use `summary` to change both.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when there is no `label` (or `aria-label` / `aria-labelledby`).
+- Throws a ContractError when `segments` is not an array. An empty array is valid and shows `emptyText`.
+
+Rules:
+- Pass `segments` oldest first, one per check or period; add `label` (time or day) so tooltips are useful.
+- Always set `label`; compute figures such as an uptime percentage yourself and pass them as `summary`.
+- Translate state names with `stateLabels`; use `StatusDot` for one current state instead.
+- Do not invent uptime numbers in examples; label sample data as sample.
+
+Accessibility:
+- The strip is a `role="img"` named "<label>: <summary>", so a screen reader gets the counts without 200 separate stops. Segments are not focusable.
+- State never relies on colour alone: the summary line shows the counts as text and each segment has a native tooltip with its label and state name. Touch and keyboard users read the summary.
+- The success, warning and destructive fills and the muted track are semantic tokens, checked in every theme. No animation.
+- Direction-neutral: the row follows the document direction, so right-to-left shows the oldest segment on the right.
+
+Example: Minimal
+```vue
+<UptimeBar label="Sample service, last 6 checks" :segments="[{ state: 'up' }, { state: 'up' }, { state: 'degraded' }, { state: 'up' }, { state: 'down' }, { state: 'up' }]" />
+```
+
+Example: Status page row (28 days)
+```vue
+<script setup lang="ts">
+const days = Array.from({ length: 28 }, (_, i) => ({ state: i === 9 ? 'down' : i === 17 || i === 18 ? 'degraded' : 'up', label: 'Day ' + (i + 1) }))
+</script>
+
+<div class="flex max-w-xl flex-col gap-2">
+  <div class="flex items-baseline justify-between text-sm"><span class="font-medium">Sample API</span><span class="text-muted-foreground">Sample data</span></div>
+  <UptimeBar label="Sample API, last 28 days" :segments="days" />
+</div>
+```
+
+Example: Sizes, 200 segments and translated states
+```vue
+<div class="flex max-w-xl flex-col gap-4">
+  <UptimeBar size="sm" label="Sample data: 200 checks" :segments="Array.from({ length: 200 }, (_, i) => ({ state: i % 50 === 7 ? 'down' : 'up' }))" />
+  <UptimeBar size="lg" label="Beispieldaten" :state-labels="{ up: 'in Betrieb', degraded: 'eingeschränkt', down: 'ausgefallen', unknown: 'unbekannt' }" :segments="[{ state: 'up' }, { state: 'degraded' }, { state: 'down' }, { state: 'unknown' }]" empty-text="Noch keine Prüfungen" />
+</div>
+```
+
+Example: Empty
+```vue
+<UptimeBar label="Sample service" :segments="[]" />
 ```
 
 ---

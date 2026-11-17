@@ -212,6 +212,7 @@
 - [KpiTile](/components/data-display/kpi-tile): Headline metric tile: label, value, trend delta with good/bad colouring, hint, icon and loading skeleton. (Statistics)
 - [StatGroup](/components/data-display/stat-group): Responsive grid wrapper for KpiTile (or any tile) rows. (Statistics)
 - [TrendBadge](/components/data-display/trend-badge): Compact up / down / flat change indicator with good-or-bad colouring, Intl formatting and screen-reader text. (Statistics)
+- [UptimeBar](/components/data-display/uptime-bar): Row of segments, one per check or period, each marked up, degraded, down or unknown, for status pages. (Status)
 - [DataGrid](/components/data-display/data-grid): Spreadsheet-like data grid: keyboard navigation over cells, inline editing with validation, sorting, resizable and pinned columns, row selection, copy as TSV and a windowed render for 10,000 rows. (Tables)
 - [DataTable](/components/data-display/data-table): Data-array table with client-side sorting, row selection, pagination, loading and empty states. (Tables)
 - [Table](/components/data-display/table): Styled, responsive native <table> with compound parts for hand-written tabular markup. (Tables)
