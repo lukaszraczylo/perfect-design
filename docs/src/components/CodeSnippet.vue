@@ -23,11 +23,14 @@ onBeforeUnmount(() => clearTimeout(timer))
 </script>
 
 <template>
-  <div class="relative rounded-lg border bg-muted/50">
+  <div class="rounded-lg border bg-muted/50">
     <div v-if="label" class="border-b px-3 py-1.5 text-xs text-muted-foreground">{{ label }}</div>
-    <Button variant="ghost" size="icon-sm" class="absolute top-1.5 end-1.5" :aria-label="copied ? 'Copied' : 'Copy code'" @click="copy">
-      <Icon :icon="copied ? faCheck : faCopy" size="sm" />
-    </Button>
-    <pre tabindex="0" role="region" :aria-label="regionLabel" class="overflow-x-auto p-4 pe-12 font-mono text-sm leading-relaxed focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:outline-none"><code>{{ code }}</code></pre>
+    <!-- The copy button gets its own column so a long, horizontally scrolled line never runs under it. -->
+    <div class="flex items-start">
+      <pre tabindex="0" role="region" :aria-label="regionLabel" class="min-w-0 flex-1 overflow-x-auto p-4 font-mono text-sm leading-relaxed focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:outline-none"><code>{{ code }}</code></pre>
+      <Button variant="ghost" size="icon-sm" class="m-1.5 shrink-0" :aria-label="copied ? 'Copied' : 'Copy code'" @click="copy">
+        <Icon :icon="copied ? faCheck : faCopy" size="sm" />
+      </Button>
+    </div>
   </div>
 </template>

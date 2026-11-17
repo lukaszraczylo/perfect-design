@@ -61,7 +61,7 @@ const tabs = ['preview', 'code'] as const
 <template>
   <figure class="overflow-hidden rounded-xl border" data-testid="example" :aria-labelledby="`${uid}-title`">
     <figcaption class="flex items-center justify-between gap-2 border-b bg-muted/40 px-3 py-2">
-      <div>
+      <div class="min-w-0 [overflow-wrap:anywhere]">
         <h3 :id="`${uid}-title`" class="text-sm font-medium">{{ example.title }}</h3>
         <DocText v-if="example.description" :text="example.description" size="sm" tone="muted" />
       </div>
