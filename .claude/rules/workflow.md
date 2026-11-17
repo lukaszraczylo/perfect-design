@@ -3,6 +3,9 @@
 ## Before you change anything
 Read `AGENTS.md`, `DESIGN.md`, `LLMSlop.md` and the rule file that matches the area (`components`, `contracts`, `accessibility`, `slop`, `testing`, `docs-and-llm`, `tokens-theming`). Other agents often edit the repository at the same time: re-read a file just before editing it, put new helpers in new files inside your own folder, never rewrite a shared barrel, and do not touch shared files (`src/index.ts`, `src/lib/*`, `src/styles/*`, `src/stores/*`, `vite.config.ts`, `vitest.setup.ts`, `scripts/*`, shared tests) unless the task is about them.
 
+## Skills
+The procedures live in `.claude/skills/`: `developing-components` (add or change a component, test first), `validating-components` (the check ladder and how to report it), `releasing-components` (tag, npm, update an app) and `auditing-components` (find gaps the guard tests miss). `consumers.md` holds the rules for changes that apps depend on.
+
 ## Adding a component
 1. Folder + `.vue` + `variants.ts` + `index.ts` + barrel line (`components.md`).
 2. Enforce what is required (`contracts.md`), accessible by construction (`accessibility.md`), tokens only, no slop (`slop.md`).

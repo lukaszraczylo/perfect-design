@@ -43,6 +43,7 @@ Style packs (`data-style="workbench|tactile|editorial|raw|contrast|terminal"`, `
 9. **Tokens only.** Shared class fragments live in `src/lib/styles.ts` (`focusRing`, `invalidRing`, `fieldSurface`, `floatingSurface`, `touchTarget`).
 10. **Icons**: FontAwesome-shaped `IconDefinition` data passed to `<Icon :icon="faCheck" />`, rendered as inline SVG (no FontAwesome runtime). Library code imports icons from `lib/icons` (regenerate with `pnpm tsx scripts/gen-icons.ts`).
 11. **Dependencies are a budget.** Source files may import only `vue`, `reka-ui`, `tailwind-merge`, `pinia` and relative paths. Use `lib/cva`, `lib/cn`, `lib/use-helpers` (debounce, clipboard, online, scroll) instead of clsx/CVA/vueuse. Component SFCs have no `<style>` blocks (shared keyframes live in `styles/theme.css`).
+12. **Built-in text is translatable.** Every string a component shows or announces can be replaced: a `labels` prop, read through `useConfigLabels(prefix, defaults)` so a `ConfigProvider` can set it too, or a text prop with an English default. New options are opt-in and leave the default output unchanged.
 
 ## Required parts are enforced
 
