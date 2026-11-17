@@ -8,7 +8,7 @@ export const blockquoteVariants = cva('text-foreground', {
       /** Left border in the primary colour. */
       primary: 'border-s-2 border-primary ps-4 italic',
       /** Softly tinted surface with a hairline border. */
-      tinted: 'rounded-lg border border-border bg-muted/50 px-4 py-3',
+      tinted: 'rounded-lg border border-border bg-muted/50 px-4 py-3 text-foreground',
       /** Quote card: bordered surface, roman type. */
       card: 'rounded-lg border border-border bg-card p-6 text-card-foreground',
       /** Large display quote. Pair with `align="center"` for a pull-quote. */

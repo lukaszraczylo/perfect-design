@@ -15,8 +15,8 @@ export const logViewerVariants = cva('relative flex min-w-0 max-w-full flex-col 
   variants: {
     variant: {
       plain: '',
-      panel: 'rounded-md border bg-card',
-      terminal: 'rounded-md border-2 border-foreground bg-card',
+      panel: 'rounded-md border bg-card text-card-foreground',
+      terminal: 'rounded-md border-2 border-foreground bg-card text-card-foreground',
     },
     size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
   },

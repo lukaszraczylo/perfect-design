@@ -8,7 +8,7 @@ const set = (s: string) => [...new Set(s.split(/\s+/).filter(Boolean))].sort()
 
 describe('InlineCode variations', () => {
   it('default output is unchanged', () => {
-    const original = 'rounded-sm bg-muted px-1 py-0.5 font-mono text-sm font-medium break-words'
+    const original = 'rounded-sm bg-muted px-1 py-0.5 font-mono text-sm font-medium text-foreground break-words'
     expect(set(mount(InlineCode).classes().join(' '))).toEqual(set(original))
     expect(set(cn(inlineCodeVariants()))).toEqual(set(original))
     expect(mount(InlineCode, { slots: { default: 'x' } }).element.children).toHaveLength(0)

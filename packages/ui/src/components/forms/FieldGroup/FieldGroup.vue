@@ -32,7 +32,7 @@ const gapKey = computed<keyof typeof GAPS>(() => (Object.hasOwn(GAPS, props.gap)
 const layout = computed(() => {
   const gap = GAPS[gapKey.value]
   const cols = Number(props.columns)
-  if (cols === 2 || cols === 3) return `grid grid-cols-1 ${gap.grid} ${GRID[cols]}`
+  if (cols === 2 || cols === 3) return `grid grid-cols-1 items-start ${gap.grid} ${GRID[cols]}`
   return props.orientation === 'horizontal' ? `flex flex-row flex-wrap items-start ${gap.row} *:min-w-0 *:grow *:basis-48` : `flex flex-col ${gap.stack}`
 })
 const classes = computed(() => cn('w-full', layout.value, props.class))

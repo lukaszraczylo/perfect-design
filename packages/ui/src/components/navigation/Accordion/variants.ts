@@ -28,7 +28,7 @@ export const accordionItemVariants = cva('border-b last:border-b-0', {
       flush: '',
       bordered: '',
       separated: 'rounded-lg border bg-card px-4 text-card-foreground last:border-b',
-      filled: 'rounded-lg border-b-0 bg-muted/50 px-4',
+      filled: 'rounded-lg border-b-0 bg-muted/50 px-4 text-foreground',
     },
   },
   defaultVariants: { variant: 'flush' },

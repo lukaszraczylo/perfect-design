@@ -208,3 +208,14 @@ describe('AvatarGroup overflow bubble', () => {
     expect(more.attributes('aria-label')).toBe('2 more')
   })
 })
+
+describe('AvatarGroup initials', () => {
+  it('pads the fallback of overlapped avatars by their overlap so initials stay readable', () => {
+    const cls = avatarGroupVariants({ layout: 'stacked', size: 'md', density: 'default' })
+    expect(cls).toContain('-space-x-2.5')
+    expect(cls).toContain('[&>*:not(:last-child)>[data-slot=avatar-fallback]]:pe-2.5')
+  })
+  it('does not pad the spaced layout', () => {
+    expect(avatarGroupVariants({ layout: 'spaced' })).not.toContain(':pe-')
+  })
+})

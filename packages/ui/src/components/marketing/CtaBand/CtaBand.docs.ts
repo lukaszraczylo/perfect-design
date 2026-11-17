@@ -32,7 +32,7 @@ const doc: ComponentDoc = {
   slots: [
     { name: 'headline', description: 'Replaces the headline text.' },
     { name: 'subtext', description: 'Replaces the subtext.' },
-    { name: 'actions', description: 'Buttons row. On `primary` use `variant="secondary"` Buttons, on `inverted` use `outline`, on `muted` the default Button.' },
+    { name: 'actions', description: 'Buttons row. On `primary` use `variant="secondary"` Buttons, on `inverted` use a default Button with `class="bg-background text-foreground hover:bg-background/90"`, on `muted` the default Button.' },
     { name: 'form', description: '`newsletter`: email form under the subtext. `split`: form shown beside the copy. Ignored by other variants.' },
     { name: 'media', description: '`split` only: real screenshot beside the copy.' },
   ],
@@ -52,7 +52,7 @@ const doc: ComponentDoc = {
     {
       title: 'Split with media',
       code: `<CtaBand variant="split" tone="inverted" headline="See the table with real data" subtext="Swap the placeholder for a screenshot of your own screen.">
-  <template #actions><Button variant="outline">Open the table docs</Button></template>
+  <template #actions><Button class="bg-background text-foreground hover:bg-background/90">Open the table docs</Button></template>
   <template #media>
     <div class="flex aspect-video items-center justify-center rounded-lg border border-background text-sm">Screenshot placeholder</div>
   </template>
@@ -91,7 +91,7 @@ const doc: ComponentDoc = {
       description: '`size` scales padding and headline; `shape="square"` removes the radius.',
       code: `<div class="grid gap-6">
   <CtaBand size="sm" tone="muted" :level="3" headline="Small"><template #actions><Button>Action</Button></template></CtaBand>
-  <CtaBand size="lg" shape="square" tone="inverted" :level="3" headline="Large and square"><template #actions><Button variant="outline">Action</Button></template></CtaBand>
+  <CtaBand size="lg" shape="square" tone="inverted" :level="3" headline="Large and square"><template #actions><Button class="bg-background text-foreground hover:bg-background/90">Action</Button></template></CtaBand>
 </div>`,
     },
     {
@@ -99,7 +99,7 @@ const doc: ComponentDoc = {
       code: `<div class="grid gap-6">
   <CtaBand tone="primary" :level="3" headline="Primary"><template #actions><Button variant="secondary">Action</Button></template></CtaBand>
   <CtaBand tone="muted" :level="3" headline="Muted"><template #actions><Button>Action</Button></template></CtaBand>
-  <CtaBand tone="inverted" :level="3" headline="Inverted"><template #actions><Button variant="outline">Action</Button></template></CtaBand>
+  <CtaBand tone="inverted" :level="3" headline="Inverted"><template #actions><Button class="bg-background text-foreground hover:bg-background/90">Action</Button></template></CtaBand>
 </div>`,
     },
   ],
@@ -117,7 +117,7 @@ const doc: ComponentDoc = {
     'One main CtaBand per page, placed before the footer; `inline` may be used additionally mid-page.',
     'Choose by content: card = default, band = full-bleed layouts, split = needs a real screenshot or form, inline = small nudge, newsletter = email capture.',
     'Label the action with what happens ("Open the catalogue"), never a generic invitation.',
-    'On `primary` use a `secondary` Button (a default Button would blend in); on `inverted` use `outline`.',
+    'On `primary` use a `secondary` Button (a default Button would blend in); on `inverted` use a default Button with `bg-background text-foreground` (an `outline` Button turns grey on the light panel in dark mode).',
     'There is no gradient tone. Do not fade text with opacity utilities inside the band.',
     'The `form` slot renders only in `newsletter` and `split`; `media` only in `split`.',
     'Do not invent customer counts or claims in the headline or subtext.',

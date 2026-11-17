@@ -156,7 +156,7 @@ const headerClass = computed(() => newsletterSignupHeaderVariants({ variant: var
 const formClass = () => cn(newsletterSignupFormVariants({ variant: variant.value }), sideClass())
 const titleClass = computed(() => newsletterSignupTitleVariants({ size: size.value }))
 const descriptionClass = computed(() => newsletterSignupDescriptionVariants({ size: size.value }))
-const fieldClass = computed(() => newsletterSignupFieldVariants({ size: size.value, shape: shape.value }))
+const fieldClass = computed(() => newsletterSignupFieldVariants({ variant: variant.value, size: size.value, shape: shape.value }))
 const buttonClass = computed(() => newsletterSignupButtonVariants({ size: size.value }))
 const controlSize = computed(() => NEWSLETTER_CONTROL_SIZES[size.value])
 const buttonRounded = computed(() => NEWSLETTER_BUTTON_ROUNDED[shape.value])

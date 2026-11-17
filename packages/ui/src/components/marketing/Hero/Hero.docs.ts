@@ -1,5 +1,8 @@
 import type { ComponentDoc } from '../../../docs-types'
-import { sampleImage } from '../shared/sample'
+
+/** Neutral textless landscape sample (docs only). */
+const sampleScene = (bg = '#e4e4e7', mid = '#d4d4d8', fg = '#a1a1aa') =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice"><rect width="640" height="360" fill="${bg}"/><circle cx="470" cy="110" r="42" fill="${mid}"/><path d="M0 300 170 150 300 260 410 180 640 330V360H0z" fill="${mid}"/><path d="M0 360 220 230 380 360z" fill="${fg}"/></svg>`)}`
 
 const shot = `<div class="flex aspect-video items-center justify-center bg-muted text-muted-foreground">Screenshot placeholder</div>`
 
@@ -186,7 +189,7 @@ const doc: ComponentDoc = {
   <template #actions><Button size="lg">Open the catalogue</Button></template>
 </Hero>`,
       script: `const cover = '/images/hero.jpg'`,
-      state: () => ({ cover: sampleImage('16/9') }),
+      state: () => ({ cover: sampleScene() }),
     },
     {
       title: 'Bento',

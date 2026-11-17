@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<TableHeadProps>(), { align: 'left', scope
 const ctx = inject(tableContextKey, null)
 const cards = computed(() => ctx?.layout() === 'cards')
 const classes = computed(() =>
-  cn(tableHeadVariants({ align: props.align, density: ctx?.density(), size: ctx?.size(), variant: ctx?.variant(), layout: ctx?.layout() }), props.class),
+  cn(tableHeadVariants({ align: props.align, density: ctx?.density(), size: ctx?.size(), variant: props.scope === 'row' ? 'default' : ctx?.variant(), layout: ctx?.layout() }), props.class),
 )
 const role = computed(() => (!cards.value ? undefined : props.scope === 'row' || props.scope === 'rowgroup' ? 'rowheader' : 'columnheader'))
 

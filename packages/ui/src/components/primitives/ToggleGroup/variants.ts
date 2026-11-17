@@ -25,7 +25,7 @@ export const toggleGroupVariants = cva('inline-flex w-fit items-center rounded-m
     variant: {
       default: '',
       outline: '',
-      segmented: 'gap-0.5 rounded-lg bg-muted p-0.5',
+      segmented: 'gap-0.5 rounded-lg bg-muted p-0.5 text-foreground',
     },
     orientation: {
       horizontal: '',

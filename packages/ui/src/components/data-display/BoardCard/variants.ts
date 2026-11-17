@@ -7,7 +7,7 @@ export const boardCardVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border bg-card shadow-xs',
+        default: 'border bg-card shadow-xs text-card-foreground',
         outline: 'border border-dashed bg-transparent',
         flat: 'bg-secondary text-secondary-foreground',
       },

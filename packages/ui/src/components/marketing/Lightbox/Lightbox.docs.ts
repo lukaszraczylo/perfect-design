@@ -1,9 +1,13 @@
 import { ref } from 'vue'
 import type { ComponentDoc } from '../../../docs-types'
 
-/** Flat sample image as an inline SVG data URI (no network, no gradient). Fills are the only raw colours, kept neutral. */
-const sample = (n: number, w = 4, h = 3) =>
-  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w * 40} ${h * 40}"><rect width="${w * 40}" height="${h * 40}" fill="${['#52525b', '#0f766e', '#71717a', '#115e59', '#3f3f46'][n % 5]}"/><text x="${w * 20}" y="${h * 20 + 4}" font-size="12" text-anchor="middle" fill="#fff" font-family="sans-serif">Sample ${n + 1}</text></svg>`)}`
+/** Neutral textless sample scene sized to the tile ratio, so masonry keeps its mixed heights and nothing clips under `object-cover`. */
+const sample = (n: number, w = 4, h = 3) => {
+  const [W, H] = [w * 160, h * 160]
+  const [bg, mid, fg] = [['#e4e4e7', '#d4d4d8', '#a1a1aa'], ['#e7e5e4', '#d6d3d1', '#a8a29e'], ['#e4e4e7', '#cfcfd4', '#8b8b94']][n % 3]
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><rect width="${W}" height="${H}" fill="${bg}"/><circle cx="${W * 0.72}" cy="${H * 0.3}" r="${Math.min(W, H) * 0.12}" fill="${mid}"/><path d="M0 ${H * 0.83} ${W * 0.27} ${H * 0.42} ${W * 0.47} ${H * 0.72} ${W * 0.64} ${H * 0.5} ${W} ${H * 0.92}V${H}H0z" fill="${mid}"/><path d="M0 ${H} ${W * 0.34} ${H * 0.64} ${W * 0.6} ${H}z" fill="${fg}"/></svg>`
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+}
 
 const doc: ComponentDoc = {
   name: 'Lightbox',

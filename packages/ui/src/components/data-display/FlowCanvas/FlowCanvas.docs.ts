@@ -155,12 +155,12 @@ const nodes = ref(shapes.map((shape, i) => ({ id: shape, label: shape, shape, to
     },
     {
       title: 'Backgrounds',
-      description: '`variant` is `plain`, `dots` or `grid`. The pattern pans and zooms with the content.',
+      description: '`variant` is `plain`, `dots` or `grid`. The pattern pans and zooms with the content. Each canvas is wide enough to fit the graph at a readable zoom.',
       script: NODES_SCRIPT,
-      code: `<div class="grid gap-4 lg:grid-cols-3">
-  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, plain background" size="sm" variant="plain" :toolbar="false" readonly />
-  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, dots background" size="sm" variant="dots" :toolbar="false" readonly />
-  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, grid background" size="sm" variant="grid" :toolbar="false" readonly />
+      code: `<div class="grid gap-4 xl:grid-cols-2">
+  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, plain background" size="md" variant="plain" :toolbar="false" readonly />
+  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, dots background" size="md" variant="dots" :toolbar="false" readonly />
+  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, grid background" size="md" variant="grid" :toolbar="false" readonly />
 </div>`,
       state: () => ({ nodes: ref(nodes()), edges: ref(edges()) }),
     },

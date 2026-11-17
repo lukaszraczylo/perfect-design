@@ -295,3 +295,11 @@ describe('Blockquote', () => {
     })
   })
 })
+
+describe('Blockquote author row', () => {
+  it('renders no avatar box without an avatar, so the author lines up with the quote', () => {
+    const w = mount(Blockquote, { props: { variant: 'card', author: 'Sample author', authorRole: 'Sample role' }, slots: { default: 'Quote' } })
+    expect(w.find('[data-slot="blockquote-avatar"]').exists()).toBe(false)
+    expect(w.find('[data-slot="blockquote-author"]').text()).toBe('Sample author')
+  })
+})

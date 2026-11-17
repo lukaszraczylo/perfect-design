@@ -135,7 +135,7 @@ const doc: ComponentDoc = {
     {
       title: 'Variants and sizes',
       description: '`card` puts the states and the content on one bordered surface. `compact` swaps in the dense forms of the states. `size` scales the built-in states.',
-      code: `<div class="grid gap-4 md:grid-cols-2">
+      code: `<div class="grid items-start gap-4 md:grid-cols-2">
   <AsyncBoundary variant="card" state="success" :retryable="false"><p>Content on a card surface.</p></AsyncBoundary>
   <AsyncBoundary variant="card" size="sm" state="empty" empty-title="No sample items" :retryable="false"><p>Items</p></AsyncBoundary>
   <AsyncBoundary variant="compact" state="loading" loading-label="Loading sample items" :retryable="false"><p>Items</p></AsyncBoundary>

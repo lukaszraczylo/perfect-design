@@ -80,8 +80,8 @@ describe('Card', () => {
 
   describe('new variants', () => {
     it('default output is unchanged', () => {
-      expect(cardVariants()).toBe('flex flex-col gap-6 rounded-xl py-6 text-card-foreground border bg-card shadow-sm')
-      expect(mount(Card).classes().join(' ')).toBe('flex flex-col gap-6 rounded-xl py-6 text-card-foreground border bg-card shadow-sm')
+      expect(cardVariants()).toBe('flex flex-col gap-6 rounded-xl py-6 border bg-card shadow-sm text-card-foreground')
+      expect(mount(Card).classes().join(' ')).toBe('flex flex-col gap-6 rounded-xl py-6 border bg-card shadow-sm text-card-foreground')
       expect(mount(Card).attributes('data-layout')).toBeUndefined()
       expect(mount(Card).attributes('role')).toBeUndefined()
       expect(mount(Card).attributes('data-state')).toBeUndefined()

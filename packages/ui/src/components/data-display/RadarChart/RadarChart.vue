@@ -117,6 +117,10 @@ const scale = computed(() => radarScale(allValues.value, levels.value, props.min
 
 const LINE = 14
 const GAP = 12
+/** Ring labels sit just inside their ring so the outermost one never meets the top axis name. */
+const RING_LABEL_DROP = 8
+/** Clear space kept around a ring label when a value label is placed, so the two never touch. */
+const RING_BOX_PAD = 3
 const labelTexts = computed(() => {
   const maxChars = clamp(Math.floor((W.value * 0.2) / (FONT * 0.58)), 4, 14)
   return axes.value.map((a) => {
@@ -156,7 +160,7 @@ const ringLabels = computed(() => {
   const every = Math.max(1, Math.ceil(14 / (R.value / levels.value)))
   return rings.value
     .filter((r) => (levels.value - r.k - 1) % every === 0)
-    .map((r) => ({ k: r.k, x: r2(cx.value + 4), y: r2(cy.value - r.r), text: fmtRing(r.value) }))
+    .map((r) => ({ k: r.k, x: r2(cx.value + 4), y: r2(cy.value - r.r + RING_LABEL_DROP), text: fmtRing(r.value) }))
 })
 
 const dotsOnly = computed(() => variant.value === 'dots')
@@ -190,7 +194,7 @@ const valueLabels = computed(() => {
   // Axis names and ring values are already on the chart: values keep clear of them.
   const placed: LabelBox[] = [
     ...axisLabels.value.map((l) => textBox(l.x, l.y, labelTexts.value[l.i]!.width, l.lines.length * LINE, l.anchor)),
-    ...ringLabels.value.map((l) => textBox(l.x, l.y, estimateTextWidth(l.text, FONT) + 2, FONT, 'start')),
+    ...ringLabels.value.map((l) => textBox(l.x - RING_BOX_PAD, l.y, estimateTextWidth(l.text, FONT) + 2 + 2 * RING_BOX_PAD, FONT + 2 * RING_BOX_PAD, 'start')),
   ]
   for (const sh of shapes.value) {
     for (const p of sh.dots) {
@@ -198,8 +202,10 @@ const valueLabels = computed(() => {
       const text = fmtRing(p.v!)
       const w = estimateTextWidth(text, FONT)
       // First just outside the point, then just inside it.
-      const box = [10, -10]
-        .map((off) => ({ x: p.x + d.dx * off, y: p.y + d.dy * off, anchor: off > 0 ? labelAnchor(d.dx) : labelAnchor(-d.dx) }))
+      const along = [10, -10].map((off) => ({ x: p.x + d.dx * off, y: p.y + d.dy * off, anchor: off > 0 ? labelAnchor(d.dx) : labelAnchor(-d.dx) }))
+      // Last resort: beside the point, where ring labels (which sit right of the first axis) are not.
+      const beside = [{ x: p.x - 6, y: p.y, anchor: 'end' as const }, { x: p.x + 6, y: p.y, anchor: 'start' as const }]
+      const box = [...along, ...beside]
         .map((c) => ({ ...c, box: textBox(c.x, c.y, w, FONT, c.anchor) }))
         .find((c) => c.box.x0 >= 0 && c.box.x1 <= W.value && c.box.y0 >= 0 && c.box.y1 <= H.value && !placed.some((b) => overlaps(b, c.box)))
       if (!box) continue

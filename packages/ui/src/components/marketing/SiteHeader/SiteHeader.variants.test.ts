@@ -43,7 +43,7 @@ describe('SiteHeader variations', () => {
   describe('defaults are unchanged', () => {
     it('keeps the original root, bar, brand, link and toggle classes', () => {
       mountWith()
-      expect([...w!.classes()].sort()).toEqual(['bg-background', 'border-b', 'border-border', 'sticky', 'top-0', 'w-full', 'z-(--z-sticky)'])
+      expect([...w!.classes()].sort()).toEqual(['bg-background', 'border-b', 'border-border', 'sticky', 'text-foreground', 'top-0', 'w-full', 'z-(--z-sticky)'])
       expect([...bar().classes()].sort()).toEqual(['flex', 'gap-4', 'items-center', 'justify-between', 'lg:px-8', 'max-w-7xl', 'min-h-16', 'mx-auto', 'px-4', 'sm:px-6', 'w-full'])
       expect([...brand().classes()].sort()).toEqual(
         ['inline-flex', 'min-h-6', 'items-center', 'rounded-md', 'text-lg', 'font-semibold', 'tracking-tight', 'pointer-coarse:min-h-11', 'outline-hidden', 'focus-visible:border-ring', 'focus-visible:ring-3', 'focus-visible:ring-ring/40'].sort(),

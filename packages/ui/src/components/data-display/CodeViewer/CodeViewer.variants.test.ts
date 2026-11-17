@@ -15,7 +15,7 @@ afterEach(() => mounted.splice(0).forEach((w) => w.unmount()))
 describe('CodeViewer variant and size dimensions', () => {
   it('keeps the default class strings', () => {
     const w = mk()
-    expect(w.attributes('class')).toBe('flex min-w-0 max-w-full flex-col overflow-hidden text-sm text-foreground rounded-md border bg-card')
+    expect(w.attributes('class')).toBe('flex min-w-0 max-w-full flex-col overflow-hidden text-sm rounded-md border bg-card text-card-foreground')
     expect(w.attributes('data-variant')).toBe('bordered')
     expect(w.attributes('data-size')).toBeUndefined()
     expect(w.find('[data-slot="code-viewer-code"]').attributes('class')).toBe('py-2 font-mono leading-6 [tab-size:4] w-max min-w-full')

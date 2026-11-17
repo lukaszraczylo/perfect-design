@@ -29,7 +29,7 @@ export const faqItemVariants = cva('group', {
       bordered: 'py-4',
       numbered: 'py-4',
       'with-categories': 'py-4',
-      separated: 'rounded-lg border bg-card px-5 py-4',
+      separated: 'rounded-lg border bg-card px-5 py-4 text-card-foreground',
       plain: 'py-3',
       'two-column': 'border-b py-4',
     },

@@ -28,7 +28,7 @@ const doc: ComponentDoc = {
   examples: [
     {
       title: 'Basic gauge',
-      code: `<div class="flex items-end gap-6">
+      code: `<div class="flex flex-wrap items-end gap-6">
   <Gauge :value="42" label="CPU" size="sm" />
   <Gauge :value="68" label="Memory" />
   <Gauge :value="91" label="Disk" size="lg" />
@@ -55,8 +55,8 @@ const doc: ComponentDoc = {
     {
       title: 'Threshold tones',
       description: 'Green below 70, amber from 70, red from 90. The value text also states the band, so colour is not the only signal. Sample data.',
-      code: `<div class="flex items-end gap-6">
-  <Gauge v-for="v in [35, 78, 96]" :key="v" :value="v" :label="'Load ' + v" :value-text="v + '% ' + (v >= 90 ? 'high' : v >= 70 ? 'raised' : 'normal')" :thresholds="thresholds" size="sm" />
+      code: `<div class="flex flex-wrap items-end gap-6">
+  <Gauge v-for="v in [35, 78, 96]" :key="v" :value="v" :label="'Load ' + v" :value-text="v + '% ' + (v >= 90 ? 'high' : v >= 70 ? 'raised' : 'normal')" :thresholds="thresholds" />
 </div>`,
       script: `const thresholds = [
   { value: 0, tone: 'success' },

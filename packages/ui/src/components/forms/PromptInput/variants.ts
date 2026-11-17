@@ -25,8 +25,8 @@ export const promptInputVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-input bg-background shadow-xs dark:bg-input/30',
-        filled: 'border-transparent bg-muted forced-colors:border-[ButtonText]',
+        default: 'border-input bg-background text-foreground shadow-xs dark:bg-input/30',
+        filled: 'border-transparent bg-muted text-foreground forced-colors:border-[ButtonText]',
         minimal: 'border-transparent bg-transparent hover:border-input forced-colors:border-[ButtonText]',
       },
       size: {

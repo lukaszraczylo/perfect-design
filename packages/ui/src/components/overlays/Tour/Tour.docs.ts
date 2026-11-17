@@ -56,9 +56,9 @@ const doc: ComponentDoc = {
     {
       title: 'Minimal',
       description: 'Starts closed; the button opens it.',
-      code: `<div class="flex items-center gap-3">
+      code: `<div class="flex flex-wrap items-center gap-3">
   <Button size="sm" @click="open = true">Take the tour</Button>
-  <input id="tour-demo-search" class="rounded-md border px-2 py-1 text-sm" placeholder="Search" aria-label="Search" />
+  <input id="tour-demo-search" class="min-w-0 rounded-md border px-2 py-1 text-sm" placeholder="Search" aria-label="Search" />
   <Button id="tour-demo-create" size="sm" variant="outline">Create</Button>
 </div>
 <Tour v-model:open="open" v-model:step="step" :steps="steps" />`,

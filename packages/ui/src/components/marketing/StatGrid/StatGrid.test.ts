@@ -259,3 +259,18 @@ describe('StatGrid', () => {
     })
   })
 })
+
+describe('StatGrid trend placement', () => {
+  const items = [{ value: 40, label: 'Wide', suffix: ' per week', trend: 'down' as const, change: '-8' }, { value: 5, label: 'Narrow', trend: 'up' as const, change: '+1' }]
+  it('is a block row under the figure for every card, so a wide value cannot change where the trend sits', () => {
+    const w = mount(StatGrid, { props: { variant: 'cards', items } })
+    w.findAll('[data-slot="stat-grid-trend"]').forEach((t) => {
+      expect(t.classes()).toContain('flex')
+      expect(t.classes()).not.toContain('inline-flex')
+    })
+  })
+  it('stays centred under a centred figure', () => {
+    const w = mount(StatGrid, { props: { variant: 'plain', items } })
+    expect(w.find('[data-slot="stat-grid-trend"]').classes()).toContain('justify-center')
+  })
+})

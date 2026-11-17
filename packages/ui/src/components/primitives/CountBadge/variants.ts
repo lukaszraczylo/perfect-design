@@ -6,7 +6,7 @@ import { cva, type VariantProps } from '../../../lib/cva'
  * - `appearance`: `solid` (filled), `soft` (tinted fill) and `outline` (border on the page background, so it stays
  *   readable when anchored over another element). Colours come from `tone` through compound variants and reuse the
  *   token pairs `Badge` already uses.
- * - `size`: `sm` 16px, `md` 20px (default), `lg` 24px tall. In `dot` mode the same steps give a 6px, 8px or 10px dot.
+ * - `size`: `sm` 16px, `md` 20px (default), `lg` 28px tall. In `dot` mode the same steps give a 6px, 8px or 10px dot.
  * - `shape`: `pill` (default, grows with the text), `circle` (round for one or two digits, widens for `99+`) and
  *   `square` (rounded-md corners, the radius used for controls).
  * - `dot`: a small marker without a number. Width and height are set by `size`, padding is removed.
@@ -20,7 +20,7 @@ export const countBadgeVariants = cva(
       appearance: {
         solid: 'border-transparent',
         soft: 'border-transparent',
-        outline: 'bg-background',
+        outline: 'bg-background text-foreground',
       },
       tone: {
         neutral: '',
@@ -33,7 +33,7 @@ export const countBadgeVariants = cva(
       size: {
         sm: 'text-2xs leading-none',
         md: 'text-xs leading-none',
-        lg: 'text-sm leading-none',
+        lg: 'text-base leading-none',
       },
       shape: {
         pill: 'rounded-full',
@@ -49,10 +49,10 @@ export const countBadgeVariants = cva(
       // Number mode: height, minimum width and padding per size and shape.
       { dot: false, size: 'sm', class: 'h-4 min-w-4' },
       { dot: false, size: 'md', class: 'h-5 min-w-5' },
-      { dot: false, size: 'lg', class: 'h-6 min-w-6' },
+      { dot: false, size: 'lg', class: 'h-7 min-w-7' },
       { dot: false, shape: ['pill', 'square'], size: 'sm', class: 'px-1' },
       { dot: false, shape: ['pill', 'square'], size: 'md', class: 'px-1.5' },
-      { dot: false, shape: ['pill', 'square'], size: 'lg', class: 'px-2' },
+      { dot: false, shape: ['pill', 'square'], size: 'lg', class: 'px-2.5' },
       { dot: false, shape: 'circle', class: 'px-0.5' },
       { dot: false, shape: 'square', class: 'rounded-md' },
       // Dot mode: a fixed square box.

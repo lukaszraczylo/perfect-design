@@ -47,7 +47,7 @@ describe('Tabs variations', () => {
         'inline-flex max-w-full items-center overflow-x-auto text-muted-foreground data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch data-[orientation=vertical]:overflow-visible gap-1 border-b data-[orientation=vertical]:border-e data-[orientation=vertical]:border-b-0',
       )
       expect(tabsTriggerVariants()).toContain('relative border-b-2 border-transparent px-3 py-2')
-      expect(tabsTriggerVariants({ variant: 'pill' })).toContain('rounded-md px-3 py-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm')
+      expect(tabsTriggerVariants({ variant: 'pill' })).toContain('rounded-md px-3 py-1.5 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm')
     })
 
     it('pill: muted track and a raised active tab', () => {

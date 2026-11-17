@@ -52,7 +52,7 @@ export function resolveRatingGlyph(icon: unknown): RatingGlyph {
 }
 
 const rootBase = cva(
-  'inline-flex max-w-full flex-wrap items-center rounded-md border border-transparent align-middle select-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50 ' +
+  'inline-flex w-fit max-w-full flex-wrap items-center rounded-md border border-transparent align-middle select-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50 ' +
     focusRing +
     ' ' +
     invalidRing,

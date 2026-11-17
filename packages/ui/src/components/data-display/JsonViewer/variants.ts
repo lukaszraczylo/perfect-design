@@ -7,9 +7,9 @@ export const JSON_VIEWER_SIZES = ['sm', 'md', 'lg'] as const
 export const jsonViewerVariants = cva('font-mono leading-snug text-foreground', {
   variants: {
     variant: {
-      default: 'rounded-md border bg-card p-2',
+      default: 'rounded-md border bg-card p-2 text-card-foreground',
       plain: '',
-      flush: 'rounded-none border-x-0 border-y bg-card px-2 py-2',
+      flush: 'rounded-none border-x-0 border-y bg-card px-2 py-2 text-card-foreground',
     },
     size: {
       sm: 'text-xs',

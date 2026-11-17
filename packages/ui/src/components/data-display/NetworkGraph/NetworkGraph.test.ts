@@ -128,11 +128,24 @@ describe('NetworkGraph: nodes', () => {
     const w = m({ nodes: hub, edges: hub.slice(1).map((n) => ({ from: 'hub', to: n.id })) })
     expect(nodeFor(w, 0).attributes('aria-label')).toBe('hub, 8 connections: s0, s1, s2, s3, s4 and 3 more')
   })
+  it('draws connection labels after every line, with a surface-coloured halo, in the foreground colour', () => {
+    const w = m({ variant: 'labelled', nodes: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }, { id: 'c', label: 'C' }], edges: [{ from: 'a', to: 'b', label: 'Pickup' }, { from: 'b', to: 'c', label: 'Flour' }] })
+    const groups = w.findAll('svg > g').map((g) => g.attributes('data-slot'))
+    expect(groups.indexOf('network-graph-edge-labels')).toBeGreaterThan(groups.indexOf('network-graph-edges'))
+    expect(groups.indexOf('network-graph-edge-labels')).toBeLessThan(groups.indexOf('network-graph-nodes'))
+    const label = w.find('[data-slot="network-graph-edge-label"]')
+    expect(label.classes()).toEqual(expect.arrayContaining(['fill-foreground', 'stroke-background', '[paint-order:stroke]']))
+    expect(w.find('[data-slot="network-graph-node-label"]').attributes('stroke-width')).toBe('4')
+  })
+  it('keeps names of up to 18 characters whole', () => {
+    const w = m({ variant: 'labelled', nodes: [{ id: 'a', label: 'Brightwater Co' }, { id: 'b', label: 'Tallow and Finch' }], edges: [] })
+    expect(w.findAll('[data-slot="network-graph-node-label"]').map((t) => t.text())).toEqual(['Brightwater Co', 'Tallow and Finch'])
+  })
   it('long and unicode labels render unchanged in the name and are cut in the drawing', () => {
     const long = 'A very long node label that keeps going'
     const w = m({ variant: 'labelled', nodes: [{ id: 'a', label: long }, { id: 'b', label: 'Ünïcödé 東京' }], edges: [] })
     expect(nodeFor(w, 0).attributes('aria-label')).toContain(long)
-    expect(w.find('[data-slot="network-graph-node-label"]').text()).toBe('A very long…')
+    expect(w.find('[data-slot="network-graph-node-label"]').text()).toBe('A very long node …')
     expect(nodeFor(w, 1).find('[data-slot="network-graph-node-label"]').text()).toBe('Ünïcödé 東京')
   })
   it('a single node and nodes without edges render', () => {

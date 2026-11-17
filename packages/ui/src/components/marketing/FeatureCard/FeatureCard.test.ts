@@ -205,3 +205,14 @@ describe('FeatureCard', () => {
     })
   })
 })
+
+describe('FeatureCard icon alignment', () => {
+  it.each(['card', 'bordered', 'flat', 'icon-top', 'icon-badge', 'minimal', 'highlight'] as const)('%s: left-aligned icon starts with the text instead of centring over it', (variant) => {
+    const w = mount(FeatureCard, { props: { title: 'T', icon: faBolt, variant } })
+    expect(w.find('[data-slot="feature-card-icon"]').classes()).toContain('self-start')
+  })
+  it('center alignment leaves the icon centred', () => {
+    const w = mount(FeatureCard, { props: { title: 'T', icon: faBolt, variant: 'icon-top', align: 'center' } })
+    expect(w.find('[data-slot="feature-card-icon"]').classes()).not.toContain('self-start')
+  })
+})

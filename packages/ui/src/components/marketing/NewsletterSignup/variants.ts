@@ -66,12 +66,14 @@ export const newsletterSignupDescriptionVariants = cva('text-pretty text-muted-f
  * The email field. The shape changes the radius only: the field keeps its border, its 16px text and its focus ring.
  * `pill` also widens the inline padding so text stays off the curve.
  */
-export const newsletterSignupFieldVariants = cva('flex-1 text-start', {
+export const newsletterSignupFieldVariants = cva('min-w-0 text-start', {
   variants: {
+    /** Row layouts let the field grow; a column keeps its own height (a grown field collapses to its content). */
+    variant: { inline: 'flex-1', stacked: '', card: '', split: 'flex-1' },
     size: { sm: '', md: '', lg: 'h-12' },
     shape: { rounded: '', pill: 'rounded-full px-5', square: 'rounded-none' },
   },
-  defaultVariants: { size: 'md', shape: 'rounded' },
+  defaultVariants: { variant: 'inline', size: 'md', shape: 'rounded' },
 })
 
 /** The submit button (the shape is the Button `rounded` prop). */

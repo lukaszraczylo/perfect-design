@@ -89,7 +89,7 @@ const doc: ComponentDoc = {
       script: "const text = ref('')",
       code: `<PromptInput v-model="text" class="max-w-xl" aria-label="Message">
   <template #header><Badge variant="outline">notes.txt</Badge></template>
-  <template #attach><IconButton label="Attach a file" variant="ghost" :icon="faPlus" /></template>
+  <template #attach><IconButton label="Attach a file" variant="outline" shape="circle" :icon="faPlus" /></template>
   <template #actions><Badge variant="secondary">Draft - fast</Badge></template>
   <template #footer>Enter sends, Shift+Enter adds a line.</template>
 </PromptInput>`,

@@ -112,8 +112,8 @@ const doc: ComponentDoc = {
       code: `<SiteFooter variant="newsletter" nav-label="Newsletter footer" :legal="\`© \${year} Perfect Design\`" description="Vue components and design tokens." :columns="columns" newsletter-title="Release notes by email" newsletter-description="Sent when a version ships.">
   <template #brand><span class="text-lg font-semibold">Perfect Design</span></template>
   <template #newsletter>
-    <form class="flex flex-col gap-2 sm:flex-row" @submit.prevent>
-      <Input type="email" autocomplete="email" placeholder="name@example.com" aria-label="Email address" />
+    <form class="flex flex-col gap-2" @submit.prevent>
+      <Input type="email" autocomplete="email" placeholder="name@example.com" aria-label="Email address" class="min-w-0" />
       <Button type="submit">Send release notes</Button>
     </form>
   </template>

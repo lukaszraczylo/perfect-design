@@ -223,3 +223,15 @@ describe('CtaBand variants', () => {
     })
   })
 })
+
+describe('CtaBand inverted examples', () => {
+  it('pair the action with the background token, never an outline Button (grey on the light panel in dark mode)', async () => {
+    const { default: doc } = await import('./CtaBand.docs')
+    const inverted = (doc.examples ?? []).filter((e) => e.code.includes('tone="inverted"'))
+    expect(inverted.length).toBeGreaterThan(0)
+    for (const e of inverted) {
+      expect(e.code).not.toContain('variant="outline"')
+      expect(e.code).toContain('bg-background text-foreground')
+    }
+  })
+})

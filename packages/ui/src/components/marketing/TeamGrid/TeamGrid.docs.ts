@@ -1,13 +1,13 @@
 import { faArrowUpRightFromSquare, faEnvelope } from '../../../lib/icons'
 import type { ComponentDoc } from '../../../docs-types'
 
-/** Flat sample portrait as an inline SVG data URI (no network, no gradient). */
-const photo = (fill: string) =>
-  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="${fill}"/></svg>`)}`
+/** Neutral textless avatar sample (docs only). */
+const samplePortrait = (bg = '#e4e4e7', fg = '#a1a1aa') =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="${bg}"/><circle cx="40" cy="31" r="14" fill="${fg}"/><path d="M12 80c2-17 14-26 28-26s26 9 28 26z" fill="${fg}"/></svg>`)}`
 
 /** Visibly sample people: no invented names, roles or biographies. */
 const team = [
-  { name: 'Sample person A', role: 'Role title', bio: 'One or two sentences about this person.', avatar: photo('#52525b'), avatarAlt: 'Sample portrait placeholder', links: [{ label: 'Email sample person A', href: 'mailto:name@example.com', icon: faEnvelope }, { label: 'Profile of sample person A', href: '/components', icon: faArrowUpRightFromSquare, external: true }] },
+  { name: 'Sample person A', role: 'Role title', bio: 'One or two sentences about this person.', avatar: samplePortrait('#e4e4e7', '#a1a1aa'), avatarAlt: 'Sample portrait', links: [{ label: 'Email sample person A', href: 'mailto:name@example.com', icon: faEnvelope }, { label: 'Profile of sample person A', href: '/components', icon: faArrowUpRightFromSquare, external: true }] },
   { name: 'Sample person B', role: 'Role title', bio: 'One or two sentences about this person.', links: [{ label: 'Profile of sample person B', href: '/guides/getting-started', icon: faArrowUpRightFromSquare, external: true }] },
   { name: 'Sample person C', role: 'Role title', bio: 'One or two sentences about this person.' },
   { name: 'Sample person D', role: 'Role title' },

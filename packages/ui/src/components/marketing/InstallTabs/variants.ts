@@ -19,7 +19,7 @@ export const installTabsVariants = cva('', {
 export const installTabsHeaderVariants = cva('flex items-center justify-between gap-2', {
   variants: {
     variant: {
-      default: 'border-b bg-muted/50 px-2',
+      default: 'border-b bg-muted/50 px-2 text-foreground',
       minimal: 'border-b',
       contained: 'px-1 pb-2',
     },
@@ -71,7 +71,7 @@ export const installTabsPanelVariants = cva('overflow-x-auto font-mono', {
     variant: {
       default: 'p-4',
       minimal: 'py-4',
-      contained: 'rounded-md border bg-background p-4',
+      contained: 'rounded-md border bg-background p-4 text-foreground',
     },
     size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
   },

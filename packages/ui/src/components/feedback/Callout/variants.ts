@@ -43,7 +43,7 @@ const calloutRoot = cva('relative flex gap-3 rounded-md border px-4 py-3 text-sm
       caution: 'border-destructive/30 bg-destructive/10',
       danger: 'border-destructive/30 bg-destructive/10',
       success: 'border-success/30 bg-success/10',
-      quote: 'border-border bg-muted/40',
+      quote: 'border-border bg-muted/40 text-foreground',
       example: 'border-chart-2/30 bg-chart-2/10',
     },
     appearance: { soft: '', solid: '', outline: '', minimal: 'border-transparent bg-transparent px-0' },

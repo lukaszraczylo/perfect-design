@@ -24,7 +24,7 @@ describe('Card size dimension', () => {
   it('lists the values', () => expect([...CARD_SIZES]).toEqual(['sm', 'md', 'lg']))
 
   it('keeps the default class string and no data-size', () => {
-    expect(cardVariants()).toBe('flex flex-col gap-6 rounded-xl py-6 text-card-foreground border bg-card shadow-sm')
+    expect(cardVariants()).toBe('flex flex-col gap-6 rounded-xl py-6 border bg-card shadow-sm text-card-foreground')
     expect(cardVariants({ size: 'md' })).toBe(cardVariants())
     expect(tree().attributes('data-size')).toBeUndefined()
   })

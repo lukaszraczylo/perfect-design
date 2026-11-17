@@ -86,12 +86,12 @@ describe('CountBadge variations', () => {
     it.each([
       ['sm', ['h-4', 'min-w-4', 'px-1', 'text-2xs']],
       ['md', ['h-5', 'min-w-5', 'px-1.5', 'text-xs']],
-      ['lg', ['h-6', 'min-w-6', 'px-2', 'text-sm']],
+      ['lg', ['h-7', 'min-w-7', 'px-2.5', 'text-base']],
     ] as const)('%s', (size, cls) => {
       const c = classesOf({ size })
       expect(c).toEqual(expect.arrayContaining([...cls]))
       expect(c.filter((x) => /^h-\d/.test(x))).toHaveLength(1)
-      expect(c.filter((x) => /^text-(2xs|xs|sm)$/.test(x))).toHaveLength(1)
+      expect(c.filter((x) => /^text-(2xs|xs|sm|base)$/.test(x))).toHaveLength(1)
     })
     it.each([
       ['sm', 'size-1.5'],
@@ -183,7 +183,7 @@ describe('CountBadge variations', () => {
   describe('cross product and class override', () => {
     it('lg + circle + soft + danger + 99+', () => {
       const c = classesOf({ size: 'lg', shape: 'circle', appearance: 'soft', tone: 'danger', count: 1000 })
-      expect(c).toEqual(expect.arrayContaining(['h-6', 'min-w-6', 'px-0.5', 'rounded-full', 'bg-destructive/10', 'text-destructive', 'text-sm']))
+      expect(c).toEqual(expect.arrayContaining(['h-7', 'min-w-7', 'px-0.5', 'rounded-full', 'bg-destructive/10', 'text-destructive', 'text-base']))
     })
     it('sm + square + outline + info', () => {
       const c = classesOf({ size: 'sm', shape: 'square', appearance: 'outline', tone: 'info' })
@@ -192,7 +192,7 @@ describe('CountBadge variations', () => {
     it('class wins over every dimension', () => {
       const c = classesOf({ size: 'lg', shape: 'square', tone: 'danger', class: 'h-10 rounded-none bg-pink-500' })
       expect(c).toEqual(expect.arrayContaining(['h-10', 'rounded-none', 'bg-pink-500']))
-      expect(c).not.toContain('h-6')
+      expect(c).not.toContain('h-7')
       expect(c).not.toContain('rounded-md')
       expect(c).not.toContain('bg-destructive')
     })

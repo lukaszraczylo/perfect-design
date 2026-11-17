@@ -17,7 +17,7 @@ const cardVariantsBase = cva(
         outline:
           'border-input bg-transparent shadow-xs not-data-[disabled]:hover:bg-accent/50 data-[state=checked]:border-primary data-[state=checked]:bg-primary/5',
         filled:
-          'border-transparent bg-muted not-data-[disabled]:hover:bg-muted/70 data-[state=checked]:border-primary data-[state=checked]:bg-primary/10',
+          'border-transparent bg-muted text-foreground not-data-[disabled]:hover:bg-muted/70 data-[state=checked]:border-primary data-[state=checked]:bg-primary/10',
       },
       size: {
         sm: 'gap-2.5 p-3 text-sm',

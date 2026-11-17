@@ -25,7 +25,7 @@ export const resizablePanelVariants = cva(
  * hairline), `lg` is 2px. `bar`: `sm` 4px, `md` 8px (default), `lg` 12px.
  */
 export const resizableHandleVariants = cva(
-  'relative z-10 flex shrink-0 touch-none items-center justify-center outline-hidden transition-colors motion-reduce:transition-none focus-visible:bg-ring data-[dragging]:bg-ring data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+  'relative z-10 flex shrink-0 touch-none items-center justify-center outline-hidden transition-colors motion-reduce:transition-none focus-visible:bg-ring data-[dragging]:bg-ring data-[disabled]:cursor-not-allowed data-[disabled]:bg-input data-[disabled]:hover:bg-input',
   {
     variants: {
       orientation: {
@@ -34,7 +34,7 @@ export const resizableHandleVariants = cva(
       },
       variant: {
         line: 'bg-border hover:bg-ring/60 forced-colors:bg-[CanvasText] forced-colors:hover:bg-[CanvasText] forced-colors:focus-visible:bg-[CanvasText] forced-colors:data-[dragging]:bg-[CanvasText] forced-colors:not-focus-visible:outline-0',
-        bar: 'bg-muted hover:bg-accent forced-colors:border forced-colors:border-[CanvasText] forced-colors:not-focus-visible:outline-0',
+        bar: 'bg-input hover:bg-ring/60 forced-colors:border forced-colors:border-[CanvasText] forced-colors:not-focus-visible:outline-0',
       },
       size: {
         sm: '',

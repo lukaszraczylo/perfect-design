@@ -94,6 +94,9 @@ const excerptClass = computed(() => blogCardExcerptVariants({ size: size.value, 
 const metaClass = computed(() => blogCardMetaVariants({ size: size.value, appearance: appearance.value }))
 // The category badge is a secondary badge; on the filled surface (also secondary) it would vanish, so it takes the page surface.
 const badgeClass = computed(() => cn('self-start', appearance.value === 'filled' && 'bg-background text-foreground'))
+// Each separator sits inside the item it precedes, so a wrap can never leave one dangling at the end of a line.
+const partClass = 'inline-flex items-center gap-2 whitespace-nowrap'
+const sepClass = 'size-1 shrink-0 rounded-full bg-muted-foreground'
 const authorClass = computed(() => cn('font-medium [overflow-wrap:anywhere]', appearance.value === 'filled' ? 'text-secondary-foreground' : 'text-foreground'))
 </script>
 
@@ -128,11 +131,15 @@ const authorClass = computed(() => cn('font-medium [overflow-wrap:anywhere]', ap
       </p>
       <div v-if="hasMeta" data-slot="blog-card-meta" :class="metaClass">
         <span v-if="author" data-slot="blog-card-author" :class="authorClass">{{ author }}</span>
-        <span v-if="author && dateText" data-slot="blog-card-sep" aria-hidden="true" class="size-1 rounded-full bg-muted-foreground"></span>
-        <time v-if="isoDate" data-slot="blog-card-date" :datetime="isoDate">{{ dateText }}</time>
-        <span v-else-if="dateText" data-slot="blog-card-date">{{ dateText }}</span>
-        <span v-if="(author || dateText) && readTimeText" data-slot="blog-card-sep" aria-hidden="true" class="size-1 rounded-full bg-muted-foreground"></span>
-        <span v-if="readTimeText" data-slot="blog-card-read-time">{{ readTimeText }}</span>
+        <span v-if="dateText" data-slot="blog-card-meta-part" :class="partClass">
+          <span v-if="author" data-slot="blog-card-sep" aria-hidden="true" :class="sepClass"></span>
+          <time v-if="isoDate" data-slot="blog-card-date" :datetime="isoDate">{{ dateText }}</time>
+          <span v-else data-slot="blog-card-date">{{ dateText }}</span>
+        </span>
+        <span v-if="readTimeText" data-slot="blog-card-meta-part" :class="partClass">
+          <span v-if="author || dateText" data-slot="blog-card-sep" aria-hidden="true" :class="sepClass"></span>
+          <span data-slot="blog-card-read-time">{{ readTimeText }}</span>
+        </span>
       </div>
     </div>
   </article>

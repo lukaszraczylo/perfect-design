@@ -43,7 +43,7 @@ const doc: ComponentDoc = {
       script: `const saving = ref(false)\nconst result = ref('')\nfunction publish() {\n  saving.value = true\n  result.value = 'Publishing'\n  setTimeout(() => { saving.value = false; result.value = 'Published' }, 600)\n}`,
       code: `<form @submit.prevent="publish">
   <FormActions align="between" aria-label="Publish actions">
-    <Button variant="ghost" type="button" @click="result = 'Draft deleted'">Delete draft</Button>
+    <Button variant="outline" class="text-destructive" type="button" @click="result = 'Draft deleted'">Delete draft</Button>
     <div class="flex flex-wrap gap-2">
       <Button variant="outline" type="button" @click="result = 'Draft saved'">Save draft</Button>
       <Button type="submit" :loading="saving">Publish</Button>

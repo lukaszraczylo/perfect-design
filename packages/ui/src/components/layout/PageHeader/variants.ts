@@ -7,7 +7,7 @@ import { cva, type VariantProps } from '../../../lib/cva'
 export const pageHeaderVariants = cva('flex flex-col gap-3', {
   variants: {
     sticky: {
-      true: 'sticky top-0 z-(--z-sticky) border-b border-border bg-background px-4 py-3 sm:px-6',
+      true: 'sticky top-0 z-(--z-sticky) border-b border-border bg-background text-foreground px-4 py-3 sm:px-6',
       false: 'pb-4',
     },
     variant: {
@@ -18,9 +18,9 @@ export const pageHeaderVariants = cva('flex flex-col gap-3', {
     },
     /** Hero only (the component ignores it for other variants). */
     background: {
-      muted: 'bg-muted',
+      muted: 'bg-muted text-foreground',
       primary: 'border-transparent bg-primary text-primary-foreground',
-      image: 'bg-muted',
+      image: 'bg-muted text-foreground',
     },
   },
   compoundVariants: [

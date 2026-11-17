@@ -14,6 +14,12 @@ const cards = (w: ReturnType<typeof mount>) => w.findAll('[data-slot="blog-card"
 
 describe('BlogGrid', () => {
   describe('good path', () => {
+    it('imageless posts hug their content instead of stretching to an image card row', () => {
+      const w = mount(BlogGrid, { props: { items: [{ title: 'A', image: 'data:image/svg+xml;utf8,x', imageAlt: '' }, { title: 'B' }] } })
+      const li = w.findAll('[data-slot="blog-grid-item"]')
+      expect(li[0].classes()).not.toContain('self-start')
+      expect(li[1].classes()).toContain('self-start')
+    })
     it('renders a card per post inside a list', () => {
       const w = mount(BlogGrid, { props: { items } })
       expect(w.attributes('data-slot')).toBe('blog-grid')

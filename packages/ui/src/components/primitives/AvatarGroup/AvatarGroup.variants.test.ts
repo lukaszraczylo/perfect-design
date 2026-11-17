@@ -7,9 +7,9 @@ const items = [{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author T
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const
 
 describe('AvatarGroup layout', () => {
-  it('stacked is the default and keeps the original class string', () => {
+  it('stacked is the default and keeps its class string (plus fallback padding that centres initials)', () => {
     expect(avatarGroupVariants()).toBe(
-      'flex items-center [&>*]:ring-2 [&>*]:ring-background forced-colors:[&>*]:outline-2 forced-colors:[&>*]:outline-solid forced-colors:[&>*]:outline-[CanvasText] -space-x-2.5',
+      'flex items-center [&>*]:ring-2 [&>*]:ring-background forced-colors:[&>*]:outline-2 forced-colors:[&>*]:outline-solid forced-colors:[&>*]:outline-[CanvasText] -space-x-2.5 [&>*:not(:last-child)>[data-slot=avatar-fallback]]:pe-2.5',
     )
     const w = mount(AvatarGroup, { props: { items } })
     expect(w.classes().sort()).toEqual(mount(AvatarGroup, { props: { items, layout: 'stacked', density: 'default' } }).classes().sort())

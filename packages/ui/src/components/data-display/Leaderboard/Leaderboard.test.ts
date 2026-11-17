@@ -139,6 +139,11 @@ describe('Leaderboard', () => {
 
   describe('table variant', () => {
     const t = (props: Record<string, unknown> = {}) => mk({ variant: 'table', ...props })
+    it('keeps a minimum name column so the region scrolls sideways instead of cutting names to an ellipsis', () => {
+      const w = t({ entries: [{ ...E[0], delta: 2 }, E[1]] })
+      expect(w.find('tbody th').classes()).toContain('min-w-32')
+      expect(w.findAll('thead th').at(-1)!.classes()).not.toContain('whitespace-nowrap')
+    })
     it('is a focusable named region around a real table with caption and scoped headers', () => {
       const w = t({ entries: [{ ...E[0], delta: 2 }, E[1]] })
       expect(w.attributes('role')).toBe('region')

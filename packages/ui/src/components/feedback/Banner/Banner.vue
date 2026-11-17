@@ -116,7 +116,7 @@ function dismiss() {
     :class="classes"
   >
     <span v-if="icon" data-slot="banner-icon" class="shrink-0 [&_svg]:size-4"><Icon :icon="icon" /></span>
-    <div data-slot="banner-content" class="min-w-0 flex-1 break-words">
+    <div data-slot="banner-content" class="min-w-0 flex-1 basis-48 break-words">
       <slot />
     </div>
     <div v-if="$slots.action || hasCta" data-slot="banner-action" class="flex shrink-0 items-center gap-2">

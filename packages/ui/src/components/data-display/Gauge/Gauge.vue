@@ -5,7 +5,7 @@ import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
 import { useMountedCheck } from '../_shared/contract'
 import { oneOf } from '../_chart/chartKit'
-import { GAUGE_SIZES, GAUGE_VARIANTS, gaugeLinearValueSize, gaugeToneStroke, gaugeVariants, type GaugeSize, type GaugeTone, type GaugeVariant } from './variants'
+import { GAUGE_SIZES, GAUGE_VARIANTS, gaugeDialFontClass, gaugeLinearValueSize, gaugeToneStroke, gaugeVariants, type GaugeSize, type GaugeTone, type GaugeVariant } from './variants'
 
 export interface GaugeThreshold {
   /** The tone applies once the value is >= this number (the highest matching threshold wins). */
@@ -160,9 +160,9 @@ const name = computed(() => {
     <div
       v-if="shape !== 'linear'"
       data-slot="gauge-content"
-      :class="['absolute flex flex-col items-center leading-none', shape === 'arc' ? 'inset-0 justify-center' : 'inset-x-0 bottom-0']"
+      :class="['absolute flex flex-col items-center px-[15%] text-center leading-none', shape === 'arc' ? 'inset-0 justify-center' : 'inset-x-0 bottom-0']"
     >
-      <span data-slot="gauge-value" class="font-semibold tabular-nums">
+      <span data-slot="gauge-value" :class="['max-w-full whitespace-nowrap font-semibold leading-tight tabular-nums', gaugeDialFontClass(sizeKey, text.length)]">
         <slot :value="clamped" :percent="percent" :tone="activeTone" :text="text">{{ text }}</slot>
       </span>
       <span v-if="label || $slots.label" data-slot="gauge-label" class="mt-1 text-xs font-normal text-muted-foreground">

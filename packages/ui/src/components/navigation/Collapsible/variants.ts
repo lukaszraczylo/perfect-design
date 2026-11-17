@@ -8,7 +8,7 @@ import { cva, type VariantProps } from '../../../lib/cva'
  */
 export const collapsibleVariants = cva('', {
   variants: {
-    variant: { plain: '', bordered: 'rounded-lg border', filled: 'rounded-lg bg-muted/50' },
+    variant: { plain: '', bordered: 'rounded-lg border', filled: 'rounded-lg bg-muted/50 text-foreground' },
     size: { sm: '', md: '', lg: '' },
   },
   compoundVariants: [

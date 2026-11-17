@@ -97,7 +97,7 @@ function onKeydown(e: KeyboardEvent) {
       data-slot="chip-toggle"
       :aria-pressed="selected ? 'true' : 'false'"
       :disabled="disabled"
-      :class="cn('rounded-full', focusRing)"
+      :class="cn('relative rounded-full after:absolute after:inset-x-0 after:-inset-y-1', focusRing)"
       @click="toggle"
     >
       <slot>{{ label }}</slot>

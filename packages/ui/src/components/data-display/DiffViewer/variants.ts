@@ -66,7 +66,7 @@ export const diffWordVariants = cva('rounded-xs text-foreground', {
   variants: {
     kind: {
       add: 'bg-success/30 underline',
-      del: 'bg-destructive/20 line-through',
+      del: 'me-0.5 bg-destructive/20 line-through',
     },
   },
   defaultVariants: { kind: 'add' },

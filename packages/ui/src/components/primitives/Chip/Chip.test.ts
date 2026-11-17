@@ -426,3 +426,11 @@ describe('Chip accessibility (WCAG 2.5.8 target size, names)', () => {
     expect(selectable.find('[data-slot="chip-toggle"]').attributes('aria-pressed')).toBe('false')
   })
 })
+
+describe('Chip toggle target', () => {
+  it('extends the toggle hit area vertically with a pseudo-element so it reaches 24px', () => {
+    const w = mount(Chip, { props: { label: 'Sample', selectable: true } })
+    const cls = w.find('[data-slot="chip-toggle"]').classes()
+    expect(cls).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-inset-y-1', 'after:inset-x-0']))
+  })
+})

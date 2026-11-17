@@ -34,8 +34,8 @@ const base = cva('flex', {
     /** `plain` has no surface; `bar` is a full-width footer with a top border; `boxed` is a bordered, rounded panel. All are opaque. */
     variant: {
       plain: '',
-      bar: 'border-t bg-background',
-      boxed: 'rounded-md border bg-background',
+      bar: 'border-t bg-background text-foreground',
+      boxed: 'rounded-md border bg-background text-foreground',
     },
     /** Sticks to the bottom of the scroll container. A plain sticky bar gets the `bar` surface so content never shows through. */
     sticky: { true: 'sticky bottom-0 z-(--z-sticky)', false: '' },
@@ -44,7 +44,7 @@ const base = cva('flex', {
   compoundVariants: [
     ...FORM_ACTIONS_ALIGNS.map((a) => ({ layout: 'stacked' as const, align: a, class: ALIGN_SM[a] })),
     ...FORM_ACTIONS_ALIGNS.map((a) => ({ layout: 'inline' as const, align: a, class: ALIGN_ROW[a] })),
-    { variant: 'plain' as const, sticky: true, class: 'border-t bg-background' },
+    { variant: 'plain' as const, sticky: true, class: 'border-t bg-background text-foreground' },
     ...FORM_ACTIONS_SIZES.flatMap((s) => [
       { variant: ['bar', 'boxed'] as ('bar' | 'boxed')[], size: s, class: PAD[s] },
       { sticky: true, size: s, class: PAD[s] },

@@ -122,7 +122,7 @@ describe('ErrorState', () => {
       expect(title.attributes('class')).toBe('text-base font-semibold tracking-tight break-words')
       expect(w.find('[data-slot="error-state-message"]').attributes('class')).toBe('max-w-md text-sm text-muted-foreground break-words')
       expect(w.find('[data-slot="error-state-actions"]').attributes('class')).toBe('mt-1 flex flex-wrap items-center justify-center gap-2')
-      expect(w.find('[data-slot="error-state-details"]').attributes('class')).toBe('w-full max-w-xl text-left')
+      expect(w.find('[data-slot="error-state-details"]').attributes('class')).toBe('w-full max-w-xl text-center [&>summary]:mx-auto')
     })
 
     it.each(VARIANTS)('%s renders alert role and every part', (variant) => {

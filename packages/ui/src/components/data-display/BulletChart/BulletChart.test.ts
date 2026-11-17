@@ -323,4 +323,15 @@ describe('BulletChart: separate scales', () => {
     const shared = m({ label: 'Sample', bullets: [{ label: 'Small', value: 5, ranges: [10] }, { label: 'Large', value: 500, ranges: [1000] }] })
     expect(num(slot(shared, 'bullet-chart-measure')[0]!, 'width')).toBeLessThan(bars[0]! / 5)
   })
+
+  describe('range labels vs axis', () => {
+    it('keeps horizontal axis labels a full text line below the last row range labels', () => {
+      const w = m({ ...base, bullets: two, showRangeLabels: true, showAxis: true })
+      const ys = (s: string) => slot(w, s).map((t) => num(t, 'y'))
+      const rangeMax = Math.max(...ys('bullet-chart-range-label'))
+      const tickMin = Math.min(...ys('bullet-chart-tick'))
+      expect(tickMin - rangeMax).toBeGreaterThanOrEqual(14)
+      expect(Number(w.find('svg').attributes('viewBox')!.split(' ')[3])).toBeGreaterThan(tickMin)
+    })
+  })
 })

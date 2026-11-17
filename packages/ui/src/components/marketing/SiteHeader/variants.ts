@@ -20,8 +20,8 @@ const BARS = ['default', 'centered', 'with-announcement', 'minimal', 'stacked'] 
  * (background on foreground is the tested foreground/background pair).
  */
 const SURFACE = {
-  default: 'bg-background',
-  muted: 'bg-muted',
+  default: 'bg-background text-foreground',
+  muted: 'bg-muted text-foreground',
   inverted: 'bg-foreground text-background',
 } as const
 
@@ -180,8 +180,8 @@ export const siteHeaderInvertedFocus = 'outline-hidden focus-visible:outline-2 f
 export const siteHeaderPanelVariants = cva('max-h-dvh overflow-y-auto border-t px-4 pb-4 pt-2', {
   variants: {
     tone: {
-      default: 'bg-background',
-      muted: 'bg-muted',
+      default: 'bg-background text-foreground',
+      muted: 'bg-muted text-foreground',
       inverted: 'border-background/20 bg-foreground text-background',
     },
   },

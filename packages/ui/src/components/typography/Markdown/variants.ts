@@ -96,7 +96,7 @@ export const md = {
   taskBody: 'min-w-0 flex-1',
   tableScroll: `mt-4 max-w-full overflow-x-auto rounded-md border first:mt-0 focus-visible:ring-inset ${focusRing}`,
   table: 'w-full border-collapse [&_tbody_tr:last-child_td]:border-b-0',
-  thead: 'bg-muted/50',
+  thead: 'bg-muted/50 text-foreground',
   th: 'border-b px-3 py-2 align-bottom font-semibold',
   td: 'border-b px-3 py-2 align-top',
   codeWrap: 'mt-4 max-w-full min-w-0 first:mt-0',

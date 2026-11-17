@@ -52,7 +52,7 @@ const doc: ComponentDoc = {
     {
       title: 'Realistic: single-open with a default and toggle events',
       code: `<FaqList single :default-open="[0]" :items="items" @toggle="last = $event" />
-<p class="mt-2 text-sm text-muted-foreground">Last: {{ last }}</p>`,
+<p class="mt-2 text-sm text-muted-foreground">Last: {{ last ?? 'none yet' }}</p>`,
       script: `const last = ref(null)`,
       state: () => ({ last: ref(null), items }),
     },

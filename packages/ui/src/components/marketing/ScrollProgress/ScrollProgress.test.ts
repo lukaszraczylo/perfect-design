@@ -23,6 +23,43 @@ async function scrollTo(y: number) {
 const now = () => Number(w!.attributes('aria-valuenow'))
 const bar = () => w!.find('[data-slot="scroll-progress-bar"]').attributes('style')
 
+describe('ScrollProgress target', () => {
+  function scroller(scrollHeight: number, clientHeight: number) {
+    const el = document.createElement('div')
+    el.id = 'sp-target'
+    Object.defineProperty(el, 'scrollHeight', { value: scrollHeight, configurable: true })
+    Object.defineProperty(el, 'clientHeight', { value: clientHeight, configurable: true })
+    document.body.appendChild(el)
+    return el
+  }
+  afterEach(() => document.getElementById('sp-target')?.remove())
+  it.each([['selector', '#sp-target'], ['element', null]])('follows an inner scroll container given as a %s and ignores the page', async (_kind, selector) => {
+    const el = scroller(600, 200)
+    layout(2000, 1000)
+    w = mount(ScrollProgress, { props: { target: selector ?? el } })
+    el.scrollTop = 100
+    el.dispatchEvent(new Event('scroll'))
+    await nextTick()
+    expect(now()).toBe(25)
+    await scrollTo(1000)
+    expect(now()).toBe(25)
+  })
+  it('falls back to the page when the selector matches nothing', async () => {
+    layout(2000, 1000)
+    w = mount(ScrollProgress, { props: { target: '#nope' } })
+    await scrollTo(500)
+    expect(now()).toBe(50)
+  })
+  it('removes the target listener on unmount', () => {
+    const el = scroller(600, 200)
+    const off = vi.spyOn(el, 'removeEventListener')
+    w = mount(ScrollProgress, { props: { target: el } })
+    w.unmount()
+    w = undefined
+    expect(off).toHaveBeenCalledWith('scroll', expect.any(Function))
+  })
+})
+
 describe('ScrollProgress', () => {
   describe('good path', () => {
     it('renders a labelled progressbar at 0', () => {

@@ -137,7 +137,7 @@ describe('ResizableHandle forced colours', () => {
   it('the bar draws a CanvasText border instead of a fill, so it stays an outlined track', async () => {
     for (const size of resizableHandleSizes) {
       const classes = handle(await build({ variant: 'bar', size })).classes()
-      expect(classes).toEqual(expect.arrayContaining(['bg-muted', 'forced-colors:border', 'forced-colors:border-[CanvasText]', 'forced-colors:not-focus-visible:outline-0']))
+      expect(classes).toEqual(expect.arrayContaining(['bg-input', 'forced-colors:border', 'forced-colors:border-[CanvasText]', 'forced-colors:not-focus-visible:outline-0']))
       expect(classes).not.toContain('forced-colors:bg-[CanvasText]')
     }
   })

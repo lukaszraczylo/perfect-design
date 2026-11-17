@@ -169,13 +169,13 @@ const avatarOf = (r: LeaderboardRow) => avatarParts(r.entry.avatar)
           <th v-if="showRank" scope="col" :class="cn(cellClasses, 'w-px whitespace-nowrap text-end font-medium')">{{ labels.rank }}</th>
           <th scope="col" :class="cn(cellClasses, 'text-start font-medium')">{{ labels.name }}</th>
           <th scope="col" :class="cn(cellClasses, 'whitespace-nowrap text-end font-medium')">{{ labels.value }}</th>
-          <th v-if="hasDelta" scope="col" :class="cn(cellClasses, 'whitespace-nowrap text-end font-medium')">{{ labels.delta }}</th>
+          <th v-if="hasDelta" scope="col" :class="cn(cellClasses, 'text-end font-medium')">{{ labels.delta }}</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="r in rows" :key="r.key" data-slot="leaderboard-item" :data-rank="r.rank ?? undefined" :data-tied="r.tied ? '' : undefined" :aria-current="isHighlighted(r) ? 'true' : undefined" :class="cn('border-b last:border-b-0', isHighlighted(r) && 'bg-muted')">
           <td v-if="showRank" data-slot="leaderboard-rank" :class="cn(cellClasses, rankClasses)">{{ r.rank ?? '-' }}</td>
-          <th scope="row" :class="cn(cellClasses, 'w-full max-w-0 text-start font-normal')">
+          <th scope="row" :class="cn(cellClasses, 'w-full min-w-32 max-w-0 text-start font-normal')">
             <span class="flex min-w-0 flex-col gap-1">
               <span class="flex min-w-0 items-center gap-2">
                 <span v-if="avatarOf(r)" aria-hidden="true" class="shrink-0"><Avatar alt="" :src="avatarOf(r)!.src" :fallback="avatarOf(r)!.fallback || getInitials(r.entry.label)" :size="LIST_AVATAR[size]" /></span>

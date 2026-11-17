@@ -37,8 +37,8 @@ const base = cva('block min-h-8 w-full min-w-0 rounded-md border border-transpar
     // outline: a visible border at rest; the hover fill is not needed because the border already says "field".
     { variant: 'outline', state: 'preview', class: 'border-input hover:bg-transparent forced-colors:border-[ButtonText] data-[readonly]:hover:border-input' },
     // filled: a muted fill at rest (muted-foreground placeholder on muted is a tested pair).
-    { variant: 'filled', state: 'preview', class: 'bg-muted hover:border-input hover:bg-muted forced-colors:border-[ButtonText] data-[readonly]:hover:bg-muted' },
-    { variant: 'filled', state: 'editing', class: 'border-transparent bg-muted shadow-none dark:bg-muted' },
+    { variant: 'filled', state: 'preview', class: 'bg-muted text-foreground hover:border-input hover:bg-muted forced-colors:border-[ButtonText] data-[readonly]:hover:bg-muted' },
+    { variant: 'filled', state: 'editing', class: 'border-transparent bg-muted text-foreground shadow-none dark:bg-muted' },
     // underline: only the bottom rule; editing thickens it instead of ringing the box.
     {
       variant: 'underline',

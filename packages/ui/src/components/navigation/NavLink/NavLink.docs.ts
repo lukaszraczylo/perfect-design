@@ -63,9 +63,18 @@ const doc: ComponentDoc = {
       code: `<div class="w-56 max-w-full space-y-1 rounded-lg bg-sidebar p-2" @click.prevent>
   <NavLink href="/components" variant="sidebar" :icon="faHouse" active>Overview</NavLink>
   <NavLink href="/components/feedback" variant="sidebar" :icon="faBell" badge="3">Alerts</NavLink>
-  <NavLink href="/guides/customisation" variant="sidebar" :icon="faGear" collapsed title="Settings">Settings</NavLink>
+  <NavLink href="/guides/customisation" variant="sidebar" :icon="faGear">Settings</NavLink>
 </div>`,
       state: () => ({ faHouse, faBell, faGear }),
+    },
+    {
+      title: 'Collapsed, icon only',
+      description: '`collapsed` hides the label visually and keeps it for screen readers; add a `title` for the tooltip.',
+      code: `<div class="w-14 space-y-1 rounded-lg bg-sidebar p-2" @click.prevent>
+  <NavLink href="/components" variant="sidebar" :icon="faHouse" collapsed title="Overview">Overview</NavLink>
+  <NavLink href="/guides/customisation" variant="sidebar" :icon="faGear" collapsed title="Settings">Settings</NavLink>
+</div>`,
+      state: () => ({ faHouse, faGear }),
     },
     {
       title: 'Active from an injected predicate',

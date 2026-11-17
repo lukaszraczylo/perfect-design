@@ -25,7 +25,7 @@ export const TAGS_INPUT_TEXT: Record<FieldSize, string> = {
 
 export const TAGS_INPUT_VARIANT_CLASSES: Record<FieldVariant, string> = {
   outline: '',
-  filled: 'bg-muted shadow-none dark:bg-card',
+  filled: 'bg-muted text-foreground shadow-none dark:bg-card',
   underline:
     'rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-within:border-b-2 focus-within:ring-0 dark:bg-transparent forced-colors:border-b-[ButtonText]',
   ghost: 'border-transparent bg-transparent shadow-none hover:border-input focus-within:bg-background dark:bg-transparent forced-colors:border-[ButtonText]',

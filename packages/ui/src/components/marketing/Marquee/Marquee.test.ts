@@ -294,3 +294,13 @@ describe('Marquee', () => {
     })
   })
 })
+
+describe('Marquee vertical alignment', () => {
+  it('vertical copies align items to a common start edge; horizontal copies keep centring', () => {
+    const v = mount(Marquee, { props: { items, direction: 'up' } })
+    const copy = v.find('[data-slot="marquee-content"]').classes()
+    expect(copy).toContain('items-start')
+    expect(copy).not.toContain('items-center')
+    expect(mount(Marquee, { props: { items } }).find('[data-slot="marquee-content"]').classes()).toContain('items-center')
+  })
+})

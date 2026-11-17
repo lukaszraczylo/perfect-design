@@ -5,7 +5,7 @@ import { focusRing } from '../../../lib/styles'
  * Menubar bar and trigger sizes. `md` (default) is the original 36px bar. Size classes conflict with the base on
  * purpose: pass the result through `cn()` (the components do).
  */
-export const menubarVariants = cva('flex h-9 max-w-full items-center gap-1 overflow-x-auto rounded-md border bg-background p-1 shadow-xs', {
+export const menubarVariants = cva('flex h-9 max-w-full items-center gap-1 overflow-x-auto rounded-md border bg-background p-1 text-foreground shadow-xs', {
   variants: { size: { sm: 'h-8', md: '', lg: 'h-11' } },
   defaultVariants: { size: 'md' },
 })

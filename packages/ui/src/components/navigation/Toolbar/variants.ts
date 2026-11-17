@@ -39,8 +39,8 @@ export const toolbarVariants = cva('flex w-fit max-w-full min-w-0', {
   variants: {
     variant: {
       plain: 'rounded-md',
-      outline: 'rounded-md border bg-background',
-      filled: 'rounded-md bg-muted forced-colors:border',
+      outline: 'rounded-md border bg-background text-foreground',
+      filled: 'rounded-md bg-muted text-foreground forced-colors:border',
       floating: 'rounded-lg border bg-popover text-popover-foreground shadow-md',
     },
     orientation: {

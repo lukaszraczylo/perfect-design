@@ -258,3 +258,13 @@ describe('NewsletterSignup variations', () => {
     })
   })
 })
+
+describe('NewsletterSignup field growth', () => {
+  it('grows only in row layouts so a column field keeps the control height', () => {
+    for (const v of ['inline', 'split'] as const) expect(input(signup({ variant: v })).classes()).toContain('flex-1')
+    for (const v of ['stacked', 'card'] as const) expect(input(signup({ variant: v })).classes()).not.toContain('flex-1')
+  })
+  it('lets the field shrink inside a narrow container', () => {
+    expect(input(signup()).classes()).toContain('min-w-0')
+  })
+})

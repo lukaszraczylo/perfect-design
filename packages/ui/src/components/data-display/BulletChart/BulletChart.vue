@@ -154,6 +154,7 @@ const geometry = computed(() => {
   let rowsEnd = 0
   let H = 0
   let contentW = W
+  let axisGap = 0
   const labelMax = 18
   if (horiz) {
     const labelW = Math.min(Math.max(0, ...list.map((b) => estimateTextWidth(truncateLabel(b.label, labelMax), FONT))), W * 0.35) + 8
@@ -161,7 +162,9 @@ const geometry = computed(() => {
     left = Math.round(labelW)
     right = Math.round(Math.max(valueW, axisOn.value ? 20 : 14))
     top = props.showTarget ? 8 : 3
-    const axisH = axisOn.value ? 22 : 4
+    // Range labels sit just under the last band, so the axis labels drop one text line below them.
+    axisGap = axisOn.value && extra ? 14 : 0
+    const axisH = (axisOn.value ? 22 : 4) + axisGap
     pitch = m.pitch + extra * 14
     rowsEnd = top + n * pitch - (pitch - band)
     if (isFiniteNumber(props.height) && props.height > 0) {
@@ -273,7 +276,7 @@ const geometry = computed(() => {
         const sc = horiz ? scaleSafe(shared.lo, shared.hi, plotStart, plotEnd) : scaleSafe(shared.lo, shared.hi, plotEnd, plotStart)
         const p = r2(sc(clamp(t, shared.lo, shared.hi)))
         return horiz
-          ? { key: t, line: { x1: p, x2: p, y1: top, y2: r2(rowsEnd) }, text: { x: p, y: r2(rowsEnd + 14), anchor: 'middle' }, label: fmtAxis(t) }
+          ? { key: t, line: { x1: p, x2: p, y1: top, y2: r2(rowsEnd) }, text: { x: p, y: r2(rowsEnd + 14 + axisGap), anchor: 'middle' }, label: fmtAxis(t) }
           : { key: t, line: { x1: left, x2: r2(left + n * pitch), y1: p, y2: p }, text: { x: r2(left - 6), y: p, anchor: 'end' }, label: fmtAxis(t) }
       })
     : []

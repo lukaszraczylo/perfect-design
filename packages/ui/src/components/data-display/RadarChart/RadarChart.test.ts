@@ -285,4 +285,27 @@ describe('RadarChart: loading', () => {
     expect(m({ ...base, loading: true }).text()).toBe('Loading chart')
     expect(w.find('svg').exists()).toBe(false)
   })
+
+  it('keeps the outer ring label clear of the top axis label', () => {
+    const w = m(base)
+    const axisY = Number(w.find('[data-slot="radar-chart-axis"]').attributes('y'))
+    const outer = w.findAll('[data-slot="radar-chart-ring-label"]').at(-1)!
+    expect(Number(outer.attributes('y')) - axisY).toBeGreaterThanOrEqual(18)
+  })
+
+  it('keeps value labels off the ring labels (no overlap, with a margin)', () => {
+    const w = m({ label: 'S', axes: ['Plan', 'Build', 'Test', 'Ship', 'Run'], series: [{ name: 'Team', data: [72, 55, 88, 64, 91] }], showValues: true, showScale: true, min: 0, max: 100, levels: 5, valueFormatter: (n: number) => `${n}%` })
+    const box = (el: ReturnType<typeof w.find>, anchor: string) => {
+      const x = Number(el.attributes('x'))
+      const y = Number(el.attributes('y'))
+      const wd = el.text().length * 7
+      const x0 = anchor === 'end' ? x - wd : anchor === 'middle' ? x - wd / 2 : x
+      return { x0, x1: x0 + wd, y0: y - 6, y1: y + 6 }
+    }
+    const rings = w.findAll('[data-slot="radar-chart-ring-label"]').map((r) => box(r, 'start'))
+    for (const v of w.findAll('[data-slot="radar-chart-value"]')) {
+      const b = box(v, v.attributes('text-anchor') ?? 'start')
+      for (const r of rings) expect(b.x1 <= r.x0 || b.x0 >= r.x1 || b.y1 <= r.y0 || b.y0 >= r.y1).toBe(true)
+    }
+  })
 })

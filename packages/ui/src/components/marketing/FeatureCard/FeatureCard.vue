@@ -78,7 +78,7 @@ const linkClasses = computed(() =>
   cn('mt-auto inline-flex min-h-6 w-fit items-center gap-1.5 rounded-sm text-sm font-medium text-primary underline-offset-4 hover:underline pointer-coarse:min-h-11', featureCardLinkVariants({ tone: tone.value }), focusRing),
 )
 const linkText = computed(() => props.linkLabel || (props.title ? `Read about ${props.title}` : 'Read more'))
-const iconClasses = computed(() => featureCardIconVariants({ variant: variant.value, tone: tone.value, shape: shape.value }))
+const iconClasses = computed(() => featureCardIconVariants({ variant: variant.value, tone: tone.value, shape: shape.value, align: align.value }))
 const bodyClasses = computed(() => featureCardBodyVariants({ variant: variant.value, align: align.value }))
 </script>
 

@@ -1,5 +1,8 @@
 import type { ComponentDoc } from '../../../docs-types'
-import { sampleImage } from '../shared/sample'
+
+/** Neutral textless landscape sample (docs only). */
+const sampleScene = (bg = '#e4e4e7', mid = '#d4d4d8', fg = '#a1a1aa') =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice"><rect width="640" height="360" fill="${bg}"/><circle cx="470" cy="110" r="42" fill="${mid}"/><path d="M0 300 170 150 300 260 410 180 640 330V360H0z" fill="${mid}"/><path d="M0 360 220 230 380 360z" fill="${fg}"/></svg>`)}`
 
 const doc: ComponentDoc = {
   name: 'MediaFrame',
@@ -28,7 +31,7 @@ const doc: ComponentDoc = {
       description: 'The image is a flat placeholder; swap `shot` for a real capture and write the alt text from it.',
       code: `<MediaFrame variant="browser" title="localhost:5173/dashboard" :src="shot" alt="Dashboard with a sidebar and a table of components" />`,
       script: `const shot = '/screenshots/dashboard.png'`,
-      state: () => ({ shot: sampleImage('16/9') }),
+      state: () => ({ shot: sampleScene() }),
     },
     {
       title: 'Window with code',
@@ -41,13 +44,13 @@ const doc: ComponentDoc = {
       title: 'Phone',
       code: `<MediaFrame variant="phone" :src="shot" alt="Mobile layout of the settings page" />`,
       script: `const shot = '/screenshots/settings-mobile.png'`,
-      state: () => ({ shot: sampleImage('1/1') }),
+      state: () => ({ shot: sampleScene() }),
     },
     {
       title: 'Plain with a shadow',
       code: `<MediaFrame variant="plain" elevated :src="shot" alt="Component catalogue with nine groups" />`,
       script: `const shot = '/screenshots/catalogue.png'`,
-      state: () => ({ shot: sampleImage('4/3') }),
+      state: () => ({ shot: sampleScene() }),
     },
     {
       title: 'Size gallery: sm, md, lg',
@@ -58,7 +61,7 @@ const doc: ComponentDoc = {
   <MediaFrame size="lg" title="localhost:5173/large" :src="shot" alt="Sample capture in a large browser frame" />
 </div>`,
       script: `const shot = '/screenshots/dashboard.png'`,
-      state: () => ({ shot: sampleImage('16/9') }),
+      state: () => ({ shot: sampleScene() }),
     },
     {
       title: 'Phone size gallery: sm, md, lg',
@@ -69,7 +72,7 @@ const doc: ComponentDoc = {
   <MediaFrame variant="phone" size="lg" :src="shot" alt="Sample capture in a large phone frame" />
 </div>`,
       script: `const shot = '/screenshots/settings-mobile.png'`,
-      state: () => ({ shot: sampleImage('1/1') }),
+      state: () => ({ shot: sampleScene() }),
     },
     {
       title: 'Shape gallery: rounded, square',
@@ -79,7 +82,7 @@ const doc: ComponentDoc = {
   <MediaFrame shape="square" title="localhost:5173/square" :src="shot" alt="Sample capture in a square frame" />
 </div>`,
       script: `const shot = '/screenshots/dashboard.png'`,
-      state: () => ({ shot: sampleImage('4/3') }),
+      state: () => ({ shot: sampleScene() }),
     },
     {
       title: 'Appearance gallery: bordered, borderless',
@@ -89,7 +92,7 @@ const doc: ComponentDoc = {
   <MediaFrame appearance="borderless" variant="plain" :src="shot" alt="Sample capture without an outline" />
 </div>`,
       script: `const shot = '/screenshots/catalogue.png'`,
-      state: () => ({ shot: sampleImage('4/3') }),
+      state: () => ({ shot: sampleScene() }),
     },
   ],
   a11y: [

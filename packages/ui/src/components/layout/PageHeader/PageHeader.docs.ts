@@ -1,6 +1,10 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import type { ComponentDoc } from '../../../docs-types'
 
+/** Offline sample scene for the example (flat panels, no text); `%23` is an encoded `#` so the data URI stays valid. */
+const sampleScene = () =>
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360' preserveAspectRatio='xMidYMid slice'><rect width='640' height='360' fill='%23e4e4e7'/><circle cx='470' cy='110' r='42' fill='%23d4d4d8'/><path d='M0 300 170 150 300 260 410 180 640 330V360H0z' fill='%23d4d4d8'/><path d='M0 360 220 230 380 360z' fill='%23a1a1aa'/></svg>"
+
 const doc: ComponentDoc = {
   name: 'PageHeader',
   group: 'layout',
@@ -101,11 +105,13 @@ const doc: ComponentDoc = {
     },
     {
       title: 'Hero with image or primary background',
-      description: '`background-image` places an image under a readable overlay; `background="primary"` uses the solid primary token.',
+      description: '`background-image` places an image under a readable overlay; `background="primary"` uses the solid primary token. The image is a generated sample scene.',
+      script: 'const scene = sampleScene()',
       code: `<div class="flex flex-col gap-6">
-  <PageHeader variant="hero" background-image="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" title-as="h4" title="Image banner" description="Text stays readable over the overlay." />
+  <PageHeader variant="hero" :background-image="scene" title-as="h4" title="Image banner" description="Text stays readable over the overlay." />
   <PageHeader variant="hero" background="primary" title-as="h4" title="Primary banner" description="Solid primary colour." />
 </div>`,
+      state: () => ({ scene: sampleScene() }),
     },
     {
       title: 'Sticky',

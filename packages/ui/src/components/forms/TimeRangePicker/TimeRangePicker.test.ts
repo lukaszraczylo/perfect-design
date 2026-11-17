@@ -716,6 +716,12 @@ describe('TimeRangePicker: bad and hostile input', () => {
     expect(trigger(mountPicker({ modelValue: VALUE, format: { dateStyle: 'bogus' } })).text()).toBe('May 1, 2024, 10:00 AM – May 1, 2024, 11:30 AM UTC')
   })
 
+  it('lets the trigger wrap to two lines below md so the end time stays readable', () => {
+    const w = mountPicker({ modelValue: VALUE })
+    expect(trigger(w).classes()).toEqual(expect.arrayContaining(['max-md:h-auto', 'max-md:min-h-9']))
+    expect(w.find('[data-slot="time-range-picker-value"]').classes()).toEqual(expect.arrayContaining(['max-md:whitespace-normal', 'max-md:break-words']))
+  })
+
   it('huge and markup text stays text and is truncated by CSS, not injected', async () => {
     const huge = 'W'.repeat(100_000)
     const w = mountPicker({ placeholder: huge, presetLabels: { today: '<img src=x onerror=alert(1)>' }, applyLabel: '<b>Go</b>' })

@@ -31,7 +31,7 @@ const errorStateRoot = cva('flex flex-col items-center justify-center gap-3 px-6
     { variant: [...BLOCK], size: 'lg', class: 'gap-4 px-8 py-20' },
     { variant: [...STACKED], layout: 'start', class: 'items-start text-start' },
     { variant: 'inline', tone: 'warning', class: 'border-warning/50 bg-warning/10' },
-    { variant: 'inline', tone: 'neutral', class: 'border-border bg-muted/40' },
+    { variant: 'inline', tone: 'neutral', class: 'border-border bg-muted/40 text-foreground' },
   ],
   defaultVariants: { variant: 'default', size: 'md', layout: 'center', tone: 'danger' },
 })
@@ -93,8 +93,13 @@ const actions = cva('mt-1 flex flex-wrap items-center justify-center gap-2', {
 export const errorStateActionsVariants = (props?: Parameters<typeof actions>[0]): string => cn(actions(props))
 
 const details = cva('w-full max-w-xl text-left', {
-  variants: { variant: variantMap({ default: '', card: '', inline: 'col-span-full mt-1 max-w-none', page: '' }) },
-  defaultVariants: { variant: 'default' },
+  variants: {
+    variant: variantMap({ default: '', card: '', inline: 'col-span-full mt-1 max-w-none', page: '' }),
+    layout: { center: '', start: '' },
+  },
+  // In the centred layout the disclosure follows the block: its summary sits on the centre line, its content stays left-aligned.
+  compoundVariants: [{ variant: [...STACKED], layout: 'center', class: 'text-center [&>summary]:mx-auto' }],
+  defaultVariants: { variant: 'default', layout: 'center' },
 })
 export const errorStateDetailsVariants = (props?: Parameters<typeof details>[0]): string => cn(details(props))
 

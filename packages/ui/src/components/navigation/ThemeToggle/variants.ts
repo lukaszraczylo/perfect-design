@@ -42,7 +42,7 @@ export const themeSwitchThumbVariants = cva(
 )
 
 /** Track holding the three radios of the `segmented` variant. */
-export const themeSegmentedVariants = cva('inline-flex items-center gap-0.5 rounded-lg bg-muted p-0.5', {
+export const themeSegmentedVariants = cva('inline-flex items-center gap-0.5 rounded-lg bg-muted p-0.5 text-foreground', {
   variants: { size: { sm: '', md: '', lg: '' } },
   defaultVariants: { size: 'md' },
 })

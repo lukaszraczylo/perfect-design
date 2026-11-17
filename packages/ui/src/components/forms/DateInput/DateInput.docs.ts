@@ -85,7 +85,6 @@ const month = ref('2024-05')`,
       code: `<div class="flex w-56 flex-col gap-3">
   <DateInput v-model="time" type="time" min="08:00" max="18:00" aria-label="Meeting time" />
   <DateInput v-model="month" type="month" aria-label="Billing month" />
-  <DateInput model-value="2024-01-01" readonly aria-label="Locked date" />
 </div>`,
       state: () => ({ time: ref('09:30'), month: ref('2024-05') }),
     },

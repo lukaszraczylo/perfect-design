@@ -82,7 +82,7 @@ describe('NetworkGraph variants: variant', () => {
   it('labelled adds node labels and connection labels', () => {
     const w = m({ variant: 'labelled' })
     expect(w.attributes('data-variant')).toBe('labelled')
-    expect(w.findAll('[data-slot="network-graph-node-label"]').map((t) => t.text())).toEqual(['Kestrel Fre…', 'Orchard Mill', 'Brightwater…', 'Quarry Row'])
+    expect(w.findAll('[data-slot="network-graph-node-label"]').map((t) => t.text())).toEqual(['Kestrel Freight', 'Orchard Mill', 'Brightwater Co', 'Quarry Row'])
     expect(w.findAll('[data-slot="network-graph-edge-label"]').map((t) => t.text())).toEqual(['Supplies'])
     expect(w.find('[data-slot="network-graph-hulls"]').exists()).toBe(false)
   })

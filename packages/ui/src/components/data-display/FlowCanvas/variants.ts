@@ -20,7 +20,7 @@ export const flowCanvasViewportVariants = cva(
   {
     variants: {
       size: { sm: 'h-72', md: 'h-96', lg: 'h-128' },
-      variant: { plain: 'bg-card', dots: 'bg-background', grid: 'bg-background' },
+      variant: { plain: 'bg-card text-card-foreground', dots: 'bg-background text-foreground', grid: 'bg-background text-foreground' },
     },
     defaultVariants: { size: 'md', variant: 'plain' },
   },

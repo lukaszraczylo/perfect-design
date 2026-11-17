@@ -87,6 +87,8 @@ const deltaClass = computed(() => (inverted.value ? 'text-background' : { good: 
 const progressValue = computed(() => (typeof props.progress === 'number' && Number.isFinite(props.progress) ? Math.min(100, Math.max(0, props.progress)) : null))
 const progressFill = computed(() => (inverted.value ? 'bg-background' : (kpiProgressFill[props.tone] ?? kpiProgressFill.primary)))
 const sparkTone = computed(() => kpiSparklineTone[props.tone] ?? 'primary')
+// The tone colours are tuned for the card surface; on the foreground surface the trend uses the surface text colour.
+const sparkInvertedClass = '[&_[data-slot=sparkline-line]]:stroke-background [&_[data-slot=sparkline-area]]:fill-background/20 [&_[data-slot=sparkline-dot]]:fill-background [&_[data-slot=sparkline-last]]:fill-background'
 const hasSparkline = computed(() => (Array.isArray(props.sparkline) && props.sparkline.length > 0))
 const trendWord = computed(() => ({ up: 'Increase', down: 'Decrease', flat: 'No change' })[props.trend] ?? '')
 const classes = computed(() => cn(kpiTileVariants({ size: size.value, layout: layout.value, variant: surface.value, tone: props.tone }), props.class))
@@ -133,7 +135,7 @@ const classes = computed(() => cn(kpiTileVariants({ size: size.value, layout: la
       </div>
       <div v-if="hasSparkline || $slots.sparkline" data-slot="kpi-tile-sparkline" :class="cn(fullRow, centered && 'w-full')">
         <slot name="sparkline">
-          <Sparkline :data="sparkline!" :tone="sparkTone" :width="240" :height="40" area :label="`${label} trend`" class="h-10 w-full" />
+          <Sparkline :data="sparkline!" :tone="sparkTone" :width="240" :height="40" area :label="`${label} trend`" :class="cn('h-10 w-full', inverted && sparkInvertedClass)" />
         </slot>
       </div>
       <div

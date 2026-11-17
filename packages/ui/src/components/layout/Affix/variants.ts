@@ -5,8 +5,8 @@ export const affixVariants = cva('transition-shadow motion-reduce:transition-non
   variants: {
     variant: {
       plain: '',
-      elevated: 'data-[stuck]:bg-background data-[stuck]:shadow-md forced-colors:data-[stuck]:border',
-      bordered: 'data-[stuck]:bg-background',
+      elevated: 'data-[stuck]:bg-background data-[stuck]:text-foreground data-[stuck]:shadow-md forced-colors:data-[stuck]:border',
+      bordered: 'data-[stuck]:bg-background data-[stuck]:text-foreground',
     },
     position: {
       top: '',

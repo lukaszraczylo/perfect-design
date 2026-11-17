@@ -1,12 +1,15 @@
 import type { ComponentDoc } from '../../../docs-types'
-import { sampleImage } from '../shared/sample'
+
+/** Neutral textless landscape sample (docs only). */
+const sampleScene = (bg = '#e4e4e7', mid = '#d4d4d8', fg = '#a1a1aa') =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice"><rect width="640" height="360" fill="${bg}"/><circle cx="470" cy="110" r="42" fill="${mid}"/><path d="M0 300 170 150 300 260 410 180 640 330V360H0z" fill="${mid}"/><path d="M0 360 220 230 380 360z" fill="${fg}"/></svg>`)}`
 
 const steps = [
   { title: 'Install the package', description: 'Add @perfect-design/ui with pnpm.' },
   { title: 'Import the theme', description: 'One CSS import wires up the tokens.' },
   { title: 'Register the source path', description: 'Tailwind needs the library path in an @source line to see the component classes.' },
 ]
-const shot = sampleImage('16/9')
+const shot = sampleScene()
 const mediaSteps = [
   { title: 'Open the catalogue', description: 'Each component page has live examples.', media: shot, mediaAlt: 'Placeholder for a screenshot of the catalogue' },
   { title: 'Copy an example', description: 'The code next to each example mounts as shown.', media: shot, mediaAlt: 'Placeholder for a screenshot of a copied example' },
@@ -46,7 +49,7 @@ const doc: ComponentDoc = {
     {
       title: 'Default: vertical, padded numbers, custom step',
       code: `<NumberedSteps :columns="1" pad :steps="steps">
-  <template #step="{ step, number }"><span class="font-semibold text-primary">{{ number }}</span><span>{{ step.title }}</span></template>
+  <template #step="{ step, number }"><div class="flex items-baseline gap-3"><span class="font-semibold tabular-nums text-primary">{{ number }}</span><span>{{ step.title }}</span></div></template>
 </NumberedSteps>`,
       state: () => ({ steps: [{ title: 'Install the package' }, { title: 'Import the theme' }] }),
     },
@@ -91,10 +94,10 @@ const doc: ComponentDoc = {
       title: 'With-media variant using the media slot',
       code: `<NumberedSteps variant="with-media" :steps="steps">
   <template #media="{ step, index }">
-    <div class="flex aspect-video items-center justify-center bg-muted text-sm text-muted-foreground">Placeholder {{ index + 1 }}: {{ step.title }}</div>
+    <img :src="scene" :alt="'Sample image for step ' + (index + 1)" class="aspect-video w-full object-cover" />
   </template>
 </NumberedSteps>`,
-      state: () => ({ steps: [{ title: 'Open the page' }, { title: 'Copy the code' }] }),
+      state: () => ({ scene: sampleScene(), steps: [{ title: 'Open the page' }, { title: 'Copy the code' }] }),
     },
     {
       title: 'Sizes',

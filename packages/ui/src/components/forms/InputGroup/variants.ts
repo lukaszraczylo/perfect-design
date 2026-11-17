@@ -23,7 +23,7 @@ export const inputGroupVariants = cva('relative flex w-full min-w-0 items-center
     },
     variant: {
       outline: '',
-      filled: 'bg-muted dark:bg-card',
+      filled: 'bg-muted text-foreground dark:bg-card',
       underline: 'rounded-none border-0 border-b bg-transparent px-0 shadow-none has-[input:focus-visible,textarea:focus-visible,select:focus-visible]:border-b-2 has-[input:focus-visible,textarea:focus-visible,select:focus-visible]:ring-0 dark:bg-transparent forced-colors:border-b-[ButtonText]',
       ghost: 'border-transparent bg-transparent shadow-none hover:border-input has-[input:focus-visible,textarea:focus-visible,select:focus-visible]:bg-background dark:bg-transparent forced-colors:border-[ButtonText]',
     },
@@ -67,7 +67,7 @@ export const inputGroupAddonVariants = cva('flex shrink-0 items-center gap-1.5 t
   variants: {
     layout: {
       inset: 'has-[>button]:-mx-2',
-      joined: 'border border-input bg-muted px-3 dark:bg-input/30',
+      joined: 'border border-input bg-muted px-3 text-foreground dark:bg-input/30',
     },
   },
   defaultVariants: { layout: 'inset' },

@@ -459,6 +459,14 @@ describe('DataGrid virtualization', () => {
     expect(w.find('[data-slot=data-grid-body]').attributes('style')).toContain('height: 360000px')
     expect(w.find('[role=grid]').attributes('style')).toContain('height: 480px')
   })
+  it('bounds the scroll container with its own height: it must not flex from a zero basis, which grows it to the full content', () => {
+    const w = mnt({ rows: makeRows(10000), height: 320 })
+    const grid = w.find('[role=grid]')
+    expect(grid.attributes('style')).toContain('height: 320px')
+    expect(grid.classes()).toContain('overflow-auto')
+    expect(grid.classes()).not.toContain('flex-1')
+    expect(w.findAll('[data-slot=data-grid-row]').length).toBeLessThan(100)
+  })
   it('windows around the scroll position and keeps row positions consistent', async () => {
     const w = mnt({ rows: makeRows(10000) })
     await scrollTo(w, 36 * 5000)

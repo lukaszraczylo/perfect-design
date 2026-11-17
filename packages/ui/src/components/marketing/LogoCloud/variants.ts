@@ -93,9 +93,9 @@ export const logoCloudLogoVariants = cva('flex items-center justify-center text-
     // `plain` is the original borderless logo. The other shapes draw a bordered tile on the card surface.
     shape: {
       plain: 'rounded-sm',
-      rounded: 'rounded-md border bg-card px-4 py-1',
-      square: 'rounded-none border bg-card px-4 py-1',
-      pill: 'rounded-full border bg-card px-5 py-1',
+      rounded: 'rounded-md border bg-card px-4 py-1 text-muted-foreground',
+      square: 'rounded-none border bg-card px-4 py-1 text-muted-foreground',
+      pill: 'rounded-full border bg-card px-5 py-1 text-muted-foreground',
     },
     // Dim the picture only, never the text fallback: opacity on text breaks the 4.5:1 contrast requirement.
     tone: {

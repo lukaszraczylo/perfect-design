@@ -97,7 +97,7 @@ function cardVariant(index: number): BlogCardVariant {
         v-for="(post, i) in posts"
         :key="`${i}-${post.title}`"
         data-slot="blog-grid-item"
-        :class="layout === 'featured' && i === 0 ? 'col-span-full' : undefined"
+        :class="cn(layout === 'featured' && i === 0 && 'col-span-full', !post.image && 'self-start')"
       >
         <ItemsChecked><BlogCard v-bind="cardProps(post)" :variant="cardVariant(i)" :level="level" :locale="locale" class="h-full" /></ItemsChecked>
       </li>

@@ -12,14 +12,14 @@ const UNBOXED = ['icon-badge', 'minimal'] as const
 const featureCardBase = cva('relative flex text-card-foreground', {
   variants: {
     variant: {
-      card: 'flex-col gap-3 rounded-lg border bg-card p-6',
+      card: 'flex-col gap-3 rounded-lg border bg-card p-6 text-card-foreground',
       bordered: 'flex-col gap-3 rounded-lg border-2 border-border bg-transparent p-6',
-      flat: 'flex-col gap-3 rounded-lg bg-muted p-6',
-      'icon-left': 'flex-row items-start gap-4 rounded-lg border bg-card p-6',
-      'icon-top': 'flex-col gap-4 rounded-lg border bg-card p-6',
+      flat: 'flex-col gap-3 rounded-lg bg-muted p-6 text-foreground',
+      'icon-left': 'flex-row items-start gap-4 rounded-lg border bg-card p-6 text-card-foreground',
+      'icon-top': 'flex-col gap-4 rounded-lg border bg-card p-6 text-card-foreground',
       'icon-badge': 'flex-col gap-4 p-2',
       minimal: 'flex-col gap-2',
-      highlight: 'flex-col gap-3 rounded-lg border-2 border-primary bg-card p-6',
+      highlight: 'flex-col gap-3 rounded-lg border-2 border-primary bg-card p-6 text-card-foreground',
     },
     align: {
       left: '',
@@ -110,12 +110,14 @@ const featureCardIconBase = cva('flex shrink-0 items-center justify-center text-
     },
     tone: { default: '', muted: '', primary: 'text-primary-foreground', inverted: 'text-background' },
     shape: { rounded: '', square: '' },
+    // Left-aligned columns would otherwise stretch the icon box and centre the glyph above start-aligned text.
+    align: { left: 'self-start', center: '' },
   },
   compoundVariants: [
     { tone: ['primary', 'inverted'], variant: 'icon-badge', class: 'bg-transparent' },
     { shape: 'square', variant: 'icon-badge', class: 'rounded-none' },
   ],
-  defaultVariants: { variant: 'card', tone: 'default', shape: 'rounded' },
+  defaultVariants: { variant: 'card', tone: 'default', shape: 'rounded', align: 'left' },
 })
 
 /** Icon wrapper; conflict-free output (see `featureCardVariants`). */

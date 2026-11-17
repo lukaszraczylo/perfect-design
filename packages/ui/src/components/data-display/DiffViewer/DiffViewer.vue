@@ -321,7 +321,7 @@ const regionStyle = computed(() => ({ height: px(props.height), maxHeight: props
 const classes = computed(() => cn(diffViewerVariants({ variant: variant.value, size: size.value }), props.class))
 
 const rowStyle = computed(() => (props.wrap ? { minHeight: `${rowPx.value}px`, lineHeight: `${rowPx.value}px` } : { height: `${rowPx.value}px`, lineHeight: `${rowPx.value}px` }))
-const codeClass = computed(() => cn('min-w-0 px-2 font-mono [tab-size:4]', props.wrap ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'))
+const codeClass = computed(() => cn('min-w-0 px-2 font-mono [tab-size:4]', props.wrap ? 'whitespace-pre-wrap break-words' : 'whitespace-pre max-sm:whitespace-pre-wrap max-sm:[overflow-wrap:anywhere]'))
 const numClass = 'select-none bg-muted px-2 text-end font-mono tabular-nums text-muted-foreground'
 const MARK: Record<string, string> = { ctx: ' ', add: '+', del: '-', change: '~', empty: '' }
 const WORD: Record<string, string> = { ctx: 'Unchanged', add: 'Added', del: 'Removed', change: 'Changed', empty: '' }
@@ -373,7 +373,7 @@ const ariaRow = (index: number) => (windowed.value ? index + 1 : undefined)
         ref="table"
         data-slot="diff-viewer-table"
         :aria-rowcount="windowed ? rows.length : undefined"
-        :class="cn('border-separate border-spacing-0 text-start', wrap ? 'w-full table-fixed' : 'w-max min-w-full')"
+        :class="cn('border-separate border-spacing-0 text-start', wrap ? 'w-full table-fixed' : 'w-max min-w-full max-sm:w-full')"
       >
         <caption class="sr-only">{{ regionName || 'Diff' }}</caption>
         <colgroup>

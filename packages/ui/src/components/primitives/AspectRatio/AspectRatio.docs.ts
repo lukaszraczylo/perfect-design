@@ -64,17 +64,17 @@ const doc: ComponentDoc = {
       code: `<div class="flex flex-wrap items-start gap-4">
   <div class="w-40">
     <AspectRatio :ratio="1" variant="bordered" rounded="md" fit="cover">
-      <img alt="Sample image, cover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
+      <img alt="Sample image, cover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
     </AspectRatio>
   </div>
   <div class="w-40">
     <AspectRatio :ratio="1" variant="bordered" rounded="md" fit="contain">
-      <img alt="Sample image, contain" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
+      <img alt="Sample image, contain" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
     </AspectRatio>
   </div>
   <div class="w-40">
     <AspectRatio :ratio="1" variant="bordered" rounded="md" fit="fill">
-      <img alt="Sample image, fill" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
+      <img alt="Sample image, fill" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
     </AspectRatio>
   </div>
 </div>`,

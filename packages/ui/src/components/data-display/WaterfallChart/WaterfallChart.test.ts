@@ -123,12 +123,24 @@ describe('WaterfallChart: showValues', () => {
 
 describe('WaterfallChart: category labels', () => {
   it('wraps a label onto two lines when the bars are narrow and keeps the full text as a tooltip when it is cut', () => {
-    const w = m({ label: 'S', width: 320, items: [{ label: 'Net sales', value: 5 }, { label: 'Hosting costs for August', value: -3 }, { label: 'Closing', type: 'total' }, { label: 'x', value: 2 }, { label: 'y', value: 2 }, { label: 'z', value: 1 }] })
+    const w = m({ label: 'S', width: 320, items: [{ label: 'Net sales', value: 5 }, { label: 'Ad costs for the month of August', value: -3 }, { label: 'Closing', type: 'total' }, { label: 'x', value: 2 }, { label: 'y', value: 2 }, { label: 'z', value: 1 }] })
     const first = w.find('[data-slot="waterfall-chart-category"]')
     expect(first.findAll('tspan').map((t) => t.text())).toEqual(['Net', 'sales'])
     expect(first.find('title').exists()).toBe(false)
-    expect(w.findAll('[data-slot="waterfall-chart-category"]')[1]!.find('title').text()).toBe('Hosting costs for August')
+    expect(w.findAll('[data-slot="waterfall-chart-category"]')[1]!.find('title').text()).toBe('Ad costs for the month of August')
     expect(Number(first.findAll('tspan')[1]!.attributes('y'))).toBe(Number(first.findAll('tspan')[0]!.attributes('y')) + 14)
+  })
+  it('turns labels 45 degrees, keeping every word whole, when a single word is wider than its bar', () => {
+    const w = m({ label: 'S', width: 320, items })
+    const cats = w.findAll('[data-slot="waterfall-chart-category"]')
+    expect(cats.length).toBeGreaterThan(1)
+    expect(cats[0]!.attributes('transform')).toMatch(/^rotate\(-45 /)
+    expect(cats[0]!.attributes('text-anchor')).toBe('end')
+    expect(cats[0]!.text()).toBe('Opening')
+    const flat = m({ label: 'S', width: 320, items: items.map((i) => ({ ...i, label: i.label.slice(0, 3) })) })
+    expect(flat.find('[data-slot="waterfall-chart-category"]').attributes('transform')).toBeUndefined()
+    const y = (c: ReturnType<typeof m>) => Number(c.find('[data-slot="waterfall-chart-baseline"]').attributes('y1'))
+    expect(y(w)).toBeLessThan(y(flat))
   })
   it('keeps one line and no tooltip for short labels, and gives two lines more room at the bottom', () => {
     const short = m({ label: 'S', items: [{ label: 'A', value: 5 }, { label: 'B', value: 2 }] })

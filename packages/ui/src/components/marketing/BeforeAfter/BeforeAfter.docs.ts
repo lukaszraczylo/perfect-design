@@ -1,11 +1,12 @@
 import { ref } from 'vue'
 import type { ComponentDoc } from '../../../docs-types'
 
-/** Flat sample image as an inline SVG data URI (no network, no gradient). */
-const sample = (fill: string, label: string) =>
-  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><rect width="160" height="90" fill="${fill}"/><text x="80" y="50" font-size="10" text-anchor="middle" fill="#fff" font-family="sans-serif">${label}</text></svg>`)}`
-const before = sample('#52525b', 'Sample image: before')
-const after = sample('#0f766e', 'Sample image: after')
+/** Neutral textless landscape sample (docs only). */
+const sampleScene = (bg = '#e4e4e7', mid = '#d4d4d8', fg = '#a1a1aa') =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice"><rect width="640" height="360" fill="${bg}"/><circle cx="470" cy="110" r="42" fill="${mid}"/><path d="M0 300 170 150 300 260 410 180 640 330V360H0z" fill="${mid}"/><path d="M0 360 220 230 380 360z" fill="${fg}"/></svg>`)}`
+
+const before = sampleScene('#e4e4e7', '#d4d4d8', '#a1a1aa')
+const after = sampleScene('#d6e4e6', '#a9c8cc', '#5f8f96')
 
 const doc: ComponentDoc = {
   name: 'BeforeAfter',

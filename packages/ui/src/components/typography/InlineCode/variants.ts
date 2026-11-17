@@ -11,7 +11,7 @@ import { cva, type VariantProps } from '../../../lib/cva'
 export const inlineCodeVariants = cva('rounded-sm py-0.5 font-mono font-medium break-words', {
   variants: {
     variant: {
-      default: 'bg-muted px-1',
+      default: 'bg-muted px-1 text-foreground',
       outline: 'border border-border bg-transparent px-1',
       plain: 'bg-transparent px-0',
     },

@@ -110,9 +110,13 @@ const statGridValueBase = cva('m-0 font-semibold tracking-tight tabular-nums', {
 /** Figure. `tone: primary` colours it with the accent (text-primary on the page and card surfaces is covered by the contrast test). */
 export const statGridValueVariants = merged(statGridValueBase)
 
-export const statGridTrendVariants = cva('mt-1 inline-flex items-center gap-1 text-sm font-medium tracking-normal', {
-  variants: { trend: { up: 'text-success', down: 'text-destructive', flat: 'text-muted-foreground', none: 'text-muted-foreground' } },
-  defaultVariants: { trend: 'none' },
+export const statGridTrendVariants = cva('mt-1 flex items-center gap-1 text-sm font-medium tracking-normal', {
+  variants: {
+    trend: { up: 'text-success', down: 'text-destructive', flat: 'text-muted-foreground', none: 'text-muted-foreground' },
+    // A block row, so the trend sits under the figure whatever its width; `center` keeps it under a centred figure.
+    align: { left: '', center: 'justify-center' },
+  },
+  defaultVariants: { trend: 'none', align: 'left' },
 })
 
 export type StatGridVariants = VariantProps<typeof statGridBase>

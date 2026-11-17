@@ -13,9 +13,9 @@ export type CodeViewerSize = (typeof CODE_VIEWER_SIZES)[number]
 export const codeViewerVariants = cva('flex min-w-0 max-w-full flex-col overflow-hidden text-sm text-foreground', {
   variants: {
     variant: {
-      bordered: 'rounded-md border bg-card',
+      bordered: 'rounded-md border bg-card text-card-foreground',
       plain: '',
-      flush: 'rounded-none border-x-0 border-y bg-card',
+      flush: 'rounded-none border-x-0 border-y bg-card text-card-foreground',
     },
     size: {
       sm: 'text-xs',

@@ -190,8 +190,12 @@ describe('SiteHeader variants', () => {
     it('puts the logo in the centre column, nav left and actions right', () => {
       w = mount(SiteHeader, { props: { variant: 'centered', links, brand: 'A' }, slots: { cta: '<b>x</b>' } })
       expect(w.find('[data-slot="site-header-bar"]').classes()).toContain('grid-cols-3')
+      expect(w.find('[data-slot="site-header-bar"]').attributes('style')).toContain('grid-template-columns: minmax(0px, 1fr) auto minmax(0px, 1fr)')
       expect(w.find('[data-slot="site-header-logo"]').classes()).toEqual(expect.arrayContaining(['col-start-2', 'justify-self-center']))
       expect(w.find('[data-slot="site-header-nav"]').classes()).toContain('col-start-1')
+      // links beside the centred logo stay on one line and the side columns share the space the logo leaves
+      expect(w.find('[data-slot="site-header-nav"]').classes()).toContain('flex-nowrap')
+      expect(w.find('[data-slot="site-header-nav"]').classes()).not.toContain('flex-wrap')
       expect(w.find('[data-slot="site-header-cta"]').element.parentElement!.classList.contains('col-start-3')).toBe(true)
     })
     it('works with no links or cta', () => {

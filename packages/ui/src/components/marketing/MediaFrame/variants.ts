@@ -48,7 +48,7 @@ export const mediaFrameVariants = cva('relative flex min-w-0 flex-col overflow-h
 export type MediaFrameVariants = VariantProps<typeof mediaFrameVariants>
 
 /** Chrome bar of the browser and window variants. */
-export const mediaFrameBarVariants = cva('flex items-center gap-3 border-b bg-muted', {
+export const mediaFrameBarVariants = cva('flex items-center gap-3 border-b bg-muted text-foreground', {
   variants: { size: { sm: 'px-2 py-1.5', md: 'px-3 py-2', lg: 'px-4 py-3' } },
   defaultVariants: { size: 'md' },
 })
@@ -63,7 +63,7 @@ export const mediaFrameDotVariants = cva('rounded-full bg-muted-foreground/40', 
 export const mediaFrameTitleVariants = cva('min-w-0 flex-1 truncate text-muted-foreground', {
   variants: {
     variant: {
-      browser: 'rounded-md border bg-background px-3 py-1 text-center',
+      browser: 'rounded-md border bg-background px-3 py-1 text-center text-muted-foreground',
       window: 'text-center font-mono',
       phone: '',
       plain: '',

@@ -6,7 +6,7 @@ const mk = (props: Record<string, unknown> = {}) => mount(JsonViewer, { props: {
 
 describe('JsonViewer variant and size dimensions', () => {
   it('keeps the default class string', () => {
-    expect(mk().attributes('class')).toBe('font-mono text-foreground rounded-md border bg-card p-2 text-sm')
+    expect(mk().attributes('class')).toBe('font-mono rounded-md border bg-card p-2 text-card-foreground text-sm')
   })
   it('lists the values', () => {
     expect([...JSON_VIEWER_VARIANTS]).toEqual(['default', 'plain', 'flush'])

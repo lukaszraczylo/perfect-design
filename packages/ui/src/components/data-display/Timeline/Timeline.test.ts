@@ -138,8 +138,8 @@ describe('Timeline', () => {
       const li = w.find('li')
       expect(li.classes()).toContain('ps-9')
       expect(li.classes()).toContain('md:w-1/2')
-      expect(li.classes()).toContain('md:group-odd/item:text-end')
-      expect(li.classes()).toContain('md:group-even/item:self-end')
+      expect(li.classes()).toContain('md:odd:text-end')
+      expect(li.classes()).toContain('md:even:self-end')
       expect(w.find('[data-slot="timeline-marker"]').classes()).toContain('md:group-odd/item:-end-3')
       expect(w.find('[data-slot="timeline-marker"]').classes()).toContain('md:group-even/item:-start-3')
       const conn = w.find('[data-slot="timeline-connector"]')
@@ -244,6 +244,14 @@ describe('Timeline', () => {
       expect(h.classes()).toEqual(expect.arrayContaining(['overflow-x-auto', 'focus-visible:ring-inset']))
       expect(mount(Timeline).attributes('tabindex')).toBeUndefined()
       expect(mount(Timeline, { props: { layout: 'alternating' } }).attributes('tabindex')).toBeUndefined()
+    })
+
+    it('alternating item places itself with odd:/even: (group-odd/item only reaches descendants, never the item)', () => {
+      const li = timelineItemVariants({ layout: 'alternating', size: 'default' })
+      expect(li).not.toContain('group-odd/item')
+      expect(li).not.toContain('group-even/item')
+      expect(li).toEqual(expect.stringContaining('md:odd:pe-9'))
+      expect(li).toEqual(expect.stringContaining('md:even:ps-9'))
     })
 
     it('uses logical start/end utilities only (RTL mirrors)', () => {

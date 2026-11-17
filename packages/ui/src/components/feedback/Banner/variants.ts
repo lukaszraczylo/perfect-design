@@ -15,8 +15,8 @@ const bannerRoot = cva('relative flex w-full items-center gap-3 px-4 py-2.5 text
     placement: {
       top: '',
       bottom: 'border-t border-foreground/10',
-      floating: 'fixed top-auto bottom-4 left-1/2 z-(--z-sticky) w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 rounded-lg shadow-lg',
-      inline: 'rounded-lg',
+      floating: 'flex-wrap fixed top-auto bottom-4 left-1/2 z-(--z-sticky) w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 rounded-lg shadow-lg',
+      inline: 'flex-wrap rounded-lg',
     },
     /** `solid` is the original filled look and adds no classes. */
     appearance: {

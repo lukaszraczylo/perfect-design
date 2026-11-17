@@ -1,7 +1,10 @@
 import type { ComponentDoc } from '../../../docs-types'
 
-/** Flat sample portrait as an inline SVG data URI (no network, no gradient). */
-const portrait = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="#52525b"/></svg>')}`
+/** Neutral textless avatar sample (docs only). */
+const samplePortrait = (bg = '#e4e4e7', fg = '#a1a1aa') =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="${bg}"/><circle cx="40" cy="31" r="14" fill="${fg}"/><path d="M12 80c2-17 14-26 28-26s26 9 28 26z" fill="${fg}"/></svg>`)}`
+
+const portrait = samplePortrait()
 
 const doc: ComponentDoc = {
   name: 'Testimonial',

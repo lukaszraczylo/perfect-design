@@ -275,3 +275,14 @@ describe('Banner', () => {
     expect(w.find('[data-slot="banner-cta"]').classes()).toContain('pointer-coarse:h-10')
   })
 })
+
+describe('Banner narrow layout', () => {
+  it('lets card placements wrap the action under the text, leaving the default strip unchanged', () => {
+    for (const placement of ['floating', 'inline'] as const) {
+      const w = mount(Banner, { props: { placement, actionLabel: 'Open settings' }, slots: { default: 'Sample notice' } })
+      expect(w.classes()).toContain('flex-wrap')
+      expect(w.find('[data-slot=banner-content]').classes()).toContain('basis-48')
+    }
+    expect(mount(Banner, { slots: { default: 'Sample notice' } }).classes()).not.toContain('flex-wrap')
+  })
+})

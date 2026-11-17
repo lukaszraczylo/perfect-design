@@ -30,7 +30,7 @@ describe('Menubar size', () => {
   it('md is the default and keeps today\'s classes', () => {
     make()
     expect(bar().dataset.size).toBe('md')
-    expect(bar().className).toBe('flex h-9 max-w-full items-center gap-1 overflow-x-auto rounded-md border bg-background p-1 shadow-xs')
+    expect(bar().className).toBe('flex h-9 max-w-full items-center gap-1 overflow-x-auto rounded-md border bg-background p-1 text-foreground shadow-xs')
     expect(menubarVariants()).toBe(bar().className)
     expect(triggers()[0].className).toContain('px-2 py-1 text-sm')
     expect(menubarTriggerVariants({ size: 'md' })).toBe(menubarTriggerVariants())

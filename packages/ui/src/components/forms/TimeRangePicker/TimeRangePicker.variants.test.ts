@@ -74,11 +74,11 @@ describe('TimeRangePicker variations: variant', () => {
       const summary = w.find('[data-slot="time-range-picker-summary"]')
       expect(summary.text()).toBe('Pick a time range')
       expect(summary.attributes('data-placeholder')).toBeDefined()
-      expect(w.find('[data-slot="time-range-picker-presets"]').classes()).not.toContain('sm:flex-col')
+      expect(w.find('[data-slot="time-range-picker-presets"]').classes()).not.toContain('@lg:flex-col')
       expect(custom(w).exists()).toBe(false)
       await preset(w, 'custom').trigger('click')
       expect(custom(w).exists()).toBe(true)
-      expect(w.find('[data-slot="time-range-picker-presets"]').classes()).toEqual(expect.arrayContaining(['sm:flex-col', 'sm:border-e']))
+      expect(w.find('[data-slot="time-range-picker-presets"]').classes()).toEqual(expect.arrayContaining(['@lg:flex-col', '@lg:border-e']))
     })
     it('picking a preset emits and keeps the panel in place', async () => {
       const w = mountPicker({ variant: 'inline' })

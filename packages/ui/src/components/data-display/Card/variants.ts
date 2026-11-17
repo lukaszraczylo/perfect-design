@@ -11,19 +11,19 @@ const base = cva('flex flex-col gap-6 rounded-xl py-6 text-card-foreground', {
       lg: 'gap-8 py-8',
     },
     variant: {
-      default: 'border bg-card shadow-sm',
+      default: 'border bg-card shadow-sm text-card-foreground',
       outline: 'border bg-transparent',
-      elevated: 'border border-transparent bg-card shadow-lg',
+      elevated: 'border border-transparent bg-card shadow-lg text-card-foreground',
       interactive: [
-        'cursor-pointer border bg-card shadow-sm transition-[box-shadow,border-color] hover:border-ring/50 hover:shadow-md',
+        'cursor-pointer border bg-card text-card-foreground shadow-sm transition-[box-shadow,border-color] hover:border-ring/50 hover:shadow-md',
         focusRing,
       ],
       /** No surface at all: keeps the border box (transparent) so it aligns with bordered cards. */
       ghost: 'border border-transparent bg-transparent',
       /** Muted flat surface, no shadow. */
-      filled: 'border border-transparent bg-muted',
+      filled: 'border border-transparent bg-muted text-foreground',
       /** Flush image on top: no top padding and overflow clipped so the media follows the rounded corners. */
-      'with-image-header': 'overflow-hidden border bg-card pt-0 shadow-sm',
+      'with-image-header': 'overflow-hidden border bg-card pt-0 shadow-sm text-card-foreground',
     },
     layout: {
       vertical: '',

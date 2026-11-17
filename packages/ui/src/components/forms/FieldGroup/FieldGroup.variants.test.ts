@@ -8,8 +8,8 @@ describe('FieldGroup gap', () => {
   it('md keeps the default class strings for stack, row and grids', () => {
     expect(m().attributes('class')).toBe('w-full flex flex-col gap-5')
     expect(m({ orientation: 'horizontal' }).attributes('class')).toBe('w-full flex flex-row flex-wrap items-start gap-4 *:min-w-0 *:grow *:basis-48')
-    expect(m({ columns: 2 }).attributes('class')).toBe('w-full grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2')
-    expect(m({ columns: 3 }).attributes('class')).toBe('w-full grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2 lg:grid-cols-3')
+    expect(m({ columns: 2 }).attributes('class')).toBe('w-full grid grid-cols-1 items-start gap-x-4 gap-y-5 sm:grid-cols-2')
+    expect(m({ columns: 3 }).attributes('class')).toBe('w-full grid grid-cols-1 items-start gap-x-4 gap-y-5 sm:grid-cols-2 lg:grid-cols-3')
     expect(m().attributes('data-gap')).toBe('md')
   })
   it.each([
@@ -35,5 +35,12 @@ describe('FieldGroup gap', () => {
     expect(w.classes()).not.toContain('gap-y-8')
     expect(w.attributes('role')).toBe('group')
     expect(w.attributes('aria-label')).toBe('Address')
+  })
+})
+
+describe('FieldGroup grid alignment', () => {
+  it('does not stretch grid items, so a hint under one field does not move the control next to it', () => {
+    expect(m({ columns: 2 }).classes()).toContain('items-start')
+    expect(m({ columns: 3 }).classes()).toContain('items-start')
   })
 })

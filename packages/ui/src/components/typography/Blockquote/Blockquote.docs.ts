@@ -51,8 +51,8 @@ const doc: ComponentDoc = {
     },
     {
       title: 'Variant: card with author row',
-      description: 'Author, role and avatar render an author row.',
-      code: `<Blockquote variant="card" author="Sample author" author-role="Sample role" avatar="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+      description: 'Author and role render an author row under the quote, aligned with its text. Add `avatar` (an image URL) or the `avatar` slot to put a picture before it.',
+      code: `<Blockquote variant="card" author="Sample author" author-role="Sample role">
   Sample quotation text inside a card.
 </Blockquote>`,
     },

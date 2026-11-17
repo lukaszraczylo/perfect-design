@@ -4,8 +4,8 @@ import { cva, type VariantProps } from '../../../lib/cva'
 export const boardColumnVariants = cva('flex min-w-0 flex-col rounded-lg border transition-[background-color,border-color,box-shadow] motion-reduce:transition-none', {
   variants: {
     variant: {
-      default: 'border-border bg-muted/50',
-      muted: 'border-transparent bg-muted',
+      default: 'border-border bg-muted/50 text-foreground',
+      muted: 'border-transparent bg-muted text-foreground',
       outline: 'border-border bg-transparent',
     },
     size: {

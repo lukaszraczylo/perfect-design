@@ -1,6 +1,10 @@
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import type { ComponentDoc } from '../../../docs-types'
 
+/** Offline sample portrait (head and shoulders, no text); `%23` is an encoded `#` so the data URI stays valid. */
+const samplePortrait = () =>
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><rect width='80' height='80' fill='%23e4e4e7'/><circle cx='40' cy='31' r='14' fill='%23a1a1aa'/><path d='M12 80c2-17 14-26 28-26s26 9 28 26z' fill='%23a1a1aa'/></svg>"
+
 const doc: ComponentDoc = {
   name: 'Avatar',
   group: 'primitives',
@@ -27,14 +31,17 @@ const doc: ComponentDoc = {
   examples: [
     {
       title: 'Image, initials and sizes',
+      description: 'The first and fourth avatars load a generated sample portrait; the others show initials; the last has a broken `src` and falls back to initials.',
+      script: 'const portrait = samplePortrait()',
       code: `<div class="flex flex-wrap items-center gap-3">
-  <Avatar name="Author One" size="xs" />
+  <Avatar :src="portrait" name="Author One" size="xs" />
   <Avatar name="Author Two" size="sm" />
   <Avatar name="Author Five" />
-  <Avatar name="Author Three" size="lg" />
+  <Avatar :src="portrait" name="Author Three" size="lg" />
   <Avatar name="Author Four" size="xl" shape="square" />
   <Avatar src="data:," name="Broken Image" />
 </div>`,
+      state: () => ({ portrait: samplePortrait() }),
     },
     {
       title: 'Shapes',

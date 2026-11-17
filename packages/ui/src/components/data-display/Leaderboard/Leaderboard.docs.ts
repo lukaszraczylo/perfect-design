@@ -60,9 +60,10 @@ const doc: ComponentDoc = {
     },
     {
       title: 'Podium',
-      description: 'Sample data. The top three stand as 2-1-3; the rest follow in a list. Initials come from the label; one entry uses an inline SVG image.',
+      description: 'Sample data. The top three stand as 2-1-3; the rest follow in a list. Initials come from the label; one entry uses an inline SVG sample portrait.',
       code: `<div class="max-w-lg"><Leaderboard variant="podium" label="Suite pass rate (sample)" :entries="entries" :value-format="{ format: 'percent', maximumFractionDigits: 1 }" /></div>`,
-      script: `const svg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8'/%3E%3C/svg%3E"
+      script: `const portrait = (bg: string, fg: string) => \`data:image/svg+xml;utf8,\${encodeURIComponent(\`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="\${bg}"/><circle cx="40" cy="31" r="14" fill="\${fg}"/><path d="M12 80c2-17 14-26 28-26s26 9 28 26z" fill="\${fg}"/></svg>\`)}\`
+const svg = portrait('#e4e4e7', '#a1a1aa')
 const entries = [
   { id: 'a', label: 'Suite A', value: 0.992, avatar: svg },
   { id: 'b', label: 'Suite B', value: 0.981, avatar: { fallback: 'SB' } },
@@ -71,7 +72,8 @@ const entries = [
   { id: 'e', label: 'Suite E', value: 0.9 },
 ]`,
       state: () => {
-        const svg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8'/%3E%3C/svg%3E"
+        const portrait = (bg: string, fg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="${bg}"/><circle cx="40" cy="31" r="14" fill="${fg}"/><path d="M12 80c2-17 14-26 28-26s26 9 28 26z" fill="${fg}"/></svg>`)}`
+        const svg = portrait('#e4e4e7', '#a1a1aa')
         return {
           entries: [
             { id: 'a', label: 'Suite A', value: 0.992, avatar: svg },

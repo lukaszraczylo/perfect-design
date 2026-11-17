@@ -229,7 +229,8 @@ const ctaClass = computed(() => (hasNav.value ? 'hidden items-center gap-2 sm:fl
         >
       </slot>
     </div>
-    <div data-slot="site-header-bar" :class="barClass">
+    <!-- The side columns share what the centred logo leaves, instead of a fixed third each. -->
+    <div data-slot="site-header-bar" :class="barClass" :style="centered ? { gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)' } : undefined">
       <div data-slot="site-header-logo" :class="cn('flex min-w-0 shrink-0 items-center', centered && 'col-start-2 row-start-1 justify-self-center')">
         <slot name="logo">
           <a v-if="brand" :href="brandHref" :class="brandClass">{{ brand }}</a>
@@ -239,7 +240,7 @@ const ctaClass = computed(() => (hasNav.value ? 'hidden items-center gap-2 sm:fl
         v-if="hasNav && !collapsed"
         data-slot="site-header-nav"
         :aria-label="navLabel"
-        :class="cn('hidden min-w-0 flex-wrap items-center gap-1 md:flex', centered && 'col-start-1 row-start-1 justify-self-start', stacked && cn('order-3 w-full border-t pt-1', rule))"
+        :class="cn('hidden min-w-0 flex-wrap items-center gap-1 md:flex', centered && 'col-start-1 row-start-1 flex-nowrap justify-self-start', stacked && cn('order-3 w-full border-t pt-1', rule))"
       >
         <slot name="links">
           <div

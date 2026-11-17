@@ -49,8 +49,8 @@ export const marqueeTrackVariants = cva('pd-marquee-track flex shrink-0', {
   defaultVariants: { axis: 'horizontal' },
 })
 
-export const marqueeCopyVariants = cva('pd-marquee-copy flex shrink-0 items-center', {
-  variants: { axis: { horizontal: '', vertical: 'flex-col' } },
+export const marqueeCopyVariants = cva('pd-marquee-copy flex shrink-0', {
+  variants: { axis: { horizontal: 'items-center', vertical: 'flex-col items-start' } },
   defaultVariants: { axis: 'horizontal' },
 })
 

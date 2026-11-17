@@ -37,9 +37,18 @@ const doc: ComponentDoc = {
     },
     {
       title: 'Offset below a header and a bottom bar',
-      code: `<div class="grid gap-4">
-  <Affix :offset-top="64" :z-index="30" class="rounded-md border bg-card p-3 text-sm">Pins 64px from the top</Affix>
-  <Affix :offset-bottom="16" variant="bordered" class="p-3 text-sm">Pins 16px from the bottom</Affix>
+      description: 'Scroll the box: the first card stops 48px from the top, under the header; the second stops 40px from the bottom, above the bar.',
+      code: `<div id="affix-offset-scroll" class="relative h-64 overflow-auto rounded-md border" tabindex="0" role="region" aria-label="Offset demo">
+  <div class="sticky top-0 z-40 flex h-12 items-center border-b bg-card px-3 text-sm text-card-foreground">Header, 48px</div>
+  <Affix root="#affix-offset-scroll" :offset-top="48" :z-index="30" variant="bordered" class="px-3 py-2 text-sm">Pins 48px from the top</Affix>
+  <div class="grid gap-2 p-3">
+    <p v-for="n in 8" :key="n" class="text-sm">Paragraph {{ n }}</p>
+  </div>
+  <Affix root="#affix-offset-scroll" :offset-bottom="40" :z-index="30" variant="bordered" class="px-3 py-2 text-sm">Pins 40px from the bottom</Affix>
+  <div class="grid gap-2 p-3">
+    <p v-for="n in 8" :key="n" class="text-sm">Paragraph {{ n + 8 }}</p>
+  </div>
+  <div class="sticky bottom-0 z-40 flex h-10 items-center border-t bg-card px-3 text-sm text-card-foreground">Bottom bar, 40px</div>
 </div>`,
     },
     {

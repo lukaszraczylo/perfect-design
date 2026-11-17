@@ -52,8 +52,9 @@ const doc: ComponentDoc = {
       code: `<Marquee direction="up" class="h-40 max-w-xs" size="sm" gap="sm" :items="['First sample item', 'Second sample item', 'Third sample item', 'Fourth sample item']" />`,
     },
     {
-      title: 'Vertical: down, no pause',
-      code: `<Marquee direction="down" :pause-on-hover="false" :duration="20" class="h-32 max-w-xs" :items="['One', 'Two', 'Three']" />`,
+      title: 'Vertical: down, no pause on hover',
+      description: 'The strip keeps scrolling under the pointer; the pause button stays because a moving strip must be pausable.',
+      code: `<Marquee direction="down" :pause-on-hover="false" :duration="20" class="h-48 max-w-xs" size="sm" gap="sm" :items="['One sample item', 'Two sample item', 'Three sample item', 'Four sample item']" />`,
     },
     {
       title: 'Custom duration beats speed',

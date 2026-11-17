@@ -61,7 +61,7 @@ describe('Timeline variations', () => {
     it('alternating layout keeps the centre line placement with a larger offset', () => {
       const w = make({ size: 'large', layout: 'alternating' })
       expect(marker(w).classes()).toEqual(expect.arrayContaining(['md:group-odd/item:-end-4', 'md:group-even/item:-start-4']))
-      expect(w.find('li').classes()).toEqual(expect.arrayContaining(['md:w-1/2', 'md:group-odd/item:pe-11', 'md:group-even/item:ps-11']))
+      expect(w.find('li').classes()).toEqual(expect.arrayContaining(['md:w-1/2', 'md:odd:pe-11', 'md:even:ps-11']))
     })
     it('items outside a Timeline keep the default size', () => {
       expect(mount(TimelineItem, { props: { title: 'x' } }).classes()).toEqual(expect.arrayContaining(['pb-6', 'ps-9']))

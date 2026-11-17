@@ -77,7 +77,7 @@ export const tableCellVariants = cva(
 
 const rowBase = 'border-b border-border transition-colors'
 const rowHover = 'hover:bg-muted/50'
-const rowSelected = 'data-[state=selected]:bg-muted'
+const rowSelected = 'data-[state=selected]:bg-muted data-[state=selected]:text-foreground'
 
 export const tableRowClasses = `${rowBase} ${rowHover} ${rowSelected}`
 /** Row classes when the table is not `hoverable`: no hover tint, selection styling unchanged. */

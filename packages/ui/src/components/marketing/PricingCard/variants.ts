@@ -6,11 +6,11 @@ export const PRICING_CARD_VARIANTS = ['default', 'highlighted', 'outline', 'mini
 const pricingCardBase = cva('relative flex flex-col text-card-foreground', {
   variants: {
     variant: {
-      default: 'gap-6 rounded-lg border bg-card p-6',
-      highlighted: 'gap-6 rounded-lg border bg-card p-6',
+      default: 'gap-6 rounded-lg border bg-card p-6 text-card-foreground',
+      highlighted: 'gap-6 rounded-lg border bg-card p-6 text-card-foreground',
       outline: 'gap-6 rounded-lg border-2 border-border bg-transparent p-6',
       minimal: 'gap-5 py-2',
-      compact: 'gap-4 rounded-lg border bg-card p-4 text-sm',
+      compact: 'gap-4 rounded-lg border bg-card p-4 text-sm text-card-foreground',
     },
     highlighted: {
       true: 'border-primary ring-1 ring-primary',
@@ -24,7 +24,7 @@ const pricingCardBase = cva('relative flex flex-col text-card-foreground', {
     // plus a 1px ring of the same colour: no glow, no coloured shadow, and it survives forced-colors mode as a border.
     { variant: 'highlighted', class: 'border-primary ring-1 ring-primary' },
     // minimal has no frame of its own: when emphasised it gets one.
-    { variant: 'minimal', highlighted: true, class: 'rounded-lg border bg-card p-6' },
+    { variant: 'minimal', highlighted: true, class: 'rounded-lg border bg-card p-6 text-card-foreground' },
     // `md` keeps the original padding and gap of every variant.
     { variant: ['default', 'highlighted', 'outline'], size: 'sm', class: 'gap-4 p-4' },
     { variant: ['default', 'highlighted', 'outline'], size: 'lg', class: 'gap-8 p-8' },

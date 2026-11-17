@@ -117,7 +117,7 @@ const changeOf = (item: StatItem): string => (typeof item.change === 'string' ? 
           v-if="trendOf(item) || changeOf(item)"
           data-slot="stat-grid-trend"
           :data-trend="trendOf(item)"
-          :class="statGridTrendVariants({ trend: trendOf(item) ?? 'none' })"
+          :class="statGridTrendVariants({ trend: trendOf(item) ?? 'none', align })"
         >
           <svg
             v-if="trendOf(item)"

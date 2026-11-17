@@ -455,15 +455,25 @@ onMounted(async () => {
 
 // --- classes -------------------------------------------------------------------------------------------------------------------
 const rootClasses = computed(() => cn(timeRangePickerVariants({ variant: variant.value, status: status.value }), props.class))
+/** Below `md` the trigger grows with its text (two lines) instead of cutting the end time off. */
+const TRIGGER_WRAP = { xs: 'max-md:h-auto max-md:min-h-7', sm: 'max-md:h-auto max-md:min-h-8', md: 'max-md:h-auto max-md:min-h-9', lg: 'max-md:h-auto max-md:min-h-11' } as const
 const triggerClasses = computed(() =>
   cn(
     timeRangeTriggerVariants({ size: DATE_PICKER_SIZES.includes(props.size) ? props.size : 'md', shape: shape.value, status: status.value }),
+    TRIGGER_WRAP[DATE_PICKER_SIZES.includes(props.size) ? props.size : 'md'],
     showClear.value ? 'pe-16' : status.value !== 'default' && FIELD_STATUS_PAD,
   ),
 )
 const panelClasses = computed(() =>
-  isPopover.value ? cn(floatingSurface, 'absolute top-full mt-1 w-full min-w-69 bg-card p-3 text-card-foreground sm:w-max', props.align === 'end' ? 'end-0' : 'start-0') : 'min-w-0',
+  isPopover.value ? cn(floatingSurface, 'absolute top-full mt-1 w-full min-w-69 bg-card p-3 text-card-foreground sm:w-max', props.align === 'end' ? 'end-0' : 'start-0') : '@container min-w-0',
 )
+// The inline panel sits in a column of any width, so it lays presets beside the calendar by its own width, not the viewport's.
+const paneRow = computed(() => (isPopover.value ? 'sm:flex-row' : '@lg:flex-row'))
+const presetsColumn = computed(() => {
+  if (isPopover.value) return 'sm:w-40 sm:shrink-0 sm:flex-col sm:flex-nowrap'
+  return paneVisible.value ? '@lg:w-40 @lg:shrink-0 @lg:flex-col @lg:flex-nowrap' : ''
+})
+const presetsDivider = computed(() => (!paneVisible.value ? '' : isPopover.value ? 'sm:border-e sm:pe-3' : '@lg:border-e @lg:pe-3'))
 const MESSAGE = 'mt-1 flex items-start gap-1.5 text-sm font-medium text-destructive'
 const PRESET =
   'inline-flex h-8 max-w-full shrink-0 items-center rounded-md px-2 text-start text-sm transition-colors hover:bg-accent hover:text-accent-foreground aria-pressed:bg-accent aria-pressed:font-medium aria-pressed:text-accent-foreground disabled:pointer-events-none disabled:opacity-40 pointer-coarse:min-h-11 motion-reduce:transition-none forced-colors:aria-pressed:border-2 ' +
@@ -488,7 +498,7 @@ const dropdownRole = computed(() => (isPopover.value ? 'dialog' : undefined))
     @keydown="onKeydown"
     @focusout="onFocusout"
   >
-    <template v-if="isPopover">
+    <div v-if="isPopover" data-slot="time-range-picker-control" class="relative min-w-0">
       <button
         ref="triggerRef"
         type="button"
@@ -505,7 +515,7 @@ const dropdownRole = computed(() => (isPopover.value ? 'dialog' : undefined))
         @click="toggle"
         @keydown.down.prevent="setOpen(true)"
       >
-        <span :id="valueId" data-slot="time-range-picker-value" class="min-w-0 truncate tabular-nums">{{ text || placeholder }}</span>
+        <span :id="valueId" data-slot="time-range-picker-value" class="min-w-0 truncate tabular-nums max-md:break-words max-md:whitespace-normal">{{ text || placeholder }}</span>
         <svg
           data-slot="time-range-picker-icon"
           xmlns="http://www.w3.org/2000/svg"
@@ -526,7 +536,7 @@ const dropdownRole = computed(() => (isPopover.value ? 'dialog' : undefined))
       <button v-if="showClear" type="button" data-slot="time-range-picker-clear" :aria-label="clearLabel" :class="CLEAR" @click="clear">
         <Icon :icon="faXmark" size="sm" />
       </button>
-    </template>
+    </div>
     <p v-else data-slot="time-range-picker-summary" class="min-w-0 text-sm tabular-nums wrap-anywhere" :data-placeholder="text ? undefined : ''">{{ text || placeholder }}</p>
     <template v-if="name || control.required.value">
       <PickerFormInput
@@ -550,7 +560,7 @@ const dropdownRole = computed(() => (isPopover.value ? 'dialog' : undefined))
       :aria-label="isPopover ? dialogLabel : undefined"
       :class="panelClasses"
     >
-      <div :class="cn('flex min-w-0 flex-col gap-3', paneVisible && variant !== 'segmented' && 'sm:flex-row')">
+      <div :class="cn('flex min-w-0 flex-col gap-3', paneVisible && variant !== 'segmented' && paneRow)">
         <div v-if="variant === 'segmented'" data-slot="time-range-picker-presets" class="min-w-0">
           <SegmentedControl
             :aria-label="presetsLabel"
@@ -567,7 +577,7 @@ const dropdownRole = computed(() => (isPopover.value ? 'dialog' : undefined))
           role="group"
           data-slot="time-range-picker-presets"
           :aria-label="presetsLabel"
-          :class="cn('flex flex-wrap gap-1', (isPopover || paneVisible) && 'sm:w-40 sm:shrink-0 sm:flex-col sm:flex-nowrap', paneVisible && 'sm:border-e sm:pe-3')"
+          :class="cn('flex flex-wrap gap-1', presetsColumn, presetsDivider)"
         >
           <button
             v-for="p in presetItems"

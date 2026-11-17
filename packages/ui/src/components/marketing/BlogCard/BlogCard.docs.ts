@@ -1,14 +1,16 @@
 import type { ComponentDoc } from '../../../docs-types'
 
-/** Flat sample cover as an inline SVG data URI (no network, no gradient). */
-const cover = (fill: string) =>
-  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 9"><rect width="16" height="9" fill="${fill}"/></svg>`)}`
+/** Neutral textless landscape sample (docs only). */
+const sampleScene = (bg = '#e4e4e7', mid = '#d4d4d8', fg = '#a1a1aa') =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice"><rect width="640" height="360" fill="${bg}"/><circle cx="470" cy="110" r="42" fill="${mid}"/><path d="M0 300 170 150 300 260 410 180 640 330V360H0z" fill="${mid}"/><path d="M0 360 220 230 380 360z" fill="${fg}"/></svg>`)}`
+
+const cover = (mid = '#d4d4d8', fg = '#a1a1aa') => sampleScene('#e4e4e7', mid, fg)
 
 const post = {
   title: 'Install the package and import the theme',
   excerpt: 'Two CSS imports and one @source line. This sample teaser links to the getting started guide.',
   href: '/guides/getting-started',
-  image: cover('#71717a'),
+  image: cover(),
   imageAlt: '',
   category: 'Guide',
   author: 'Author name',

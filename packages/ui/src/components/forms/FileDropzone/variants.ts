@@ -25,7 +25,7 @@ export const FILE_DROPZONE_ICON_SIZES = { xs: 'md', sm: 'lg', md: 'xl', lg: 'xl'
 export const FILE_DROPZONE_VARIANT_CLASSES: Record<FileDropzoneVariant, string> = {
   outline: '',
   solid: 'border-solid',
-  filled: 'border-solid border-transparent bg-muted hover:bg-muted disabled:hover:border-transparent disabled:hover:bg-muted forced-colors:border-[ButtonText]',
+  filled: 'border-solid border-transparent bg-muted text-foreground hover:bg-muted disabled:hover:border-transparent disabled:hover:bg-muted forced-colors:border-[ButtonText]',
   ghost: 'border-transparent hover:bg-transparent disabled:hover:border-transparent forced-colors:border-[ButtonText]',
 }
 

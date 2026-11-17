@@ -144,6 +144,8 @@ const ticks = computed(() => {
 })
 
 const MAX_CAT_CHARS = 14
+const ROTATE_DEG = 45
+const ROTATE_SIN = Math.sin((ROTATE_DEG * Math.PI) / 180)
 const LINE = 14
 /** Horizontal extent of the plot; it does not depend on the height, so the category labels can be wrapped from it. */
 const extentX = computed(() => {
@@ -161,20 +163,26 @@ const extentX = computed(() => {
   return { x0, x1: Math.max(x0 + 1, w - right) }
 })
 
-/** Category labels: wrapped onto two lines when the bars are narrow (vertical), thinned only when even that is too wide. */
+/** Category labels: wrapped onto two lines when the bars are narrow (vertical), turned 45 degrees when even a single word is wider than its bar, thinned only when the turned labels would still touch. */
 const catWrap = computed(() => {
   const labels = bars.value.map((b) => b.label)
-  if (horizontal.value) return { step: labelStep((H.value - 28) / Math.max(1, labels.length), FONT + 2), lines: labels.map((l) => [truncateLabel(l, MAX_CAT_CHARS)]), labels }
+  if (horizontal.value) return { step: labelStep((H.value - 28) / Math.max(1, labels.length), FONT + 2), lines: labels.map((l) => [truncateLabel(l, MAX_CAT_CHARS)]), labels, rotated: false, rotatedPx: 0 }
   const slot = (extentX.value.x1 - extentX.value.x0) / Math.max(1, labels.length)
+  const longestWord = Math.max(0, ...labels.map((l) => Math.max(0, ...l.trim().split(/\s+/).map((w) => estimateTextWidth(truncateLabel(w, MAX_CAT_CHARS), FONT)))))
+  if (props.showAxis && longestWord > slot - 2) {
+    const full = labels.map((l) => truncateLabel(l.trim(), MAX_CAT_CHARS))
+    const widest = Math.max(0, ...full.map((l) => estimateTextWidth(l, FONT)))
+    return { step: labelStep(slot, FONT + 4), lines: full.map((l) => [l]), labels, rotated: true, rotatedPx: Math.ceil(widest * ROTATE_SIN) }
+  }
   const step = slot >= 30 ? 1 : labelStep(slot, 30)
   const maxChars = Math.max(3, Math.floor((slot * step) / (FONT * 0.58)))
-  return { step, lines: labels.map((l) => wrapLabel(l, maxChars)), labels }
+  return { step, lines: labels.map((l) => wrapLabel(l, maxChars)), labels, rotated: false, rotatedPx: 0 }
 })
 const catRows = computed(() => (props.showAxis && !horizontal.value ? Math.max(1, ...catWrap.value.lines.filter((_, i) => i % catWrap.value.step === 0).map((l) => l.length)) : 1))
 
 const layout = computed(() => {
   const axis = props.showAxis
-  const bottom = axis ? (horizontal.value ? 20 : 8 + LINE * catRows.value) : 4
+  const bottom = axis ? (horizontal.value ? 20 : catWrap.value.rotated ? 14 + catWrap.value.rotatedPx : 8 + LINE * catRows.value) : 4
   return { x0: extentX.value.x0, x1: extentX.value.x1, y0: axis ? 8 : 4, y1: Math.max(9, H.value - bottom) }
 })
 
@@ -284,15 +292,16 @@ const zero = computed(() => {
 
 const catLabels = computed(() => {
   const { x0, y0, y1 } = layout.value
-  const { step, lines, labels } = catWrap.value
-  const out: { i: number; x: number; y: number; anchor: string; lines: { text: string; y: number }[]; full: string | null }[] = []
+  const { step, lines, labels, rotated } = catWrap.value
+  const out: { i: number; x: number; y: number; anchor: string; rotate: string | undefined; lines: { text: string; y: number }[]; full: string | null }[] = []
   for (let i = 0; i < labels.length; i += step) {
     const mid = (horizontal.value ? y0 : x0) + (i + 0.5) * band.value
     const own = lines[i]!
-    const x = r2(horizontal.value ? x0 - 6 : mid)
-    const y = horizontal.value ? mid : y1 + 14
+    const x = r2(horizontal.value ? x0 - 6 : rotated ? mid + 4 : mid)
+    const y = horizontal.value ? mid : y1 + (rotated ? 10 : 14)
     out.push({
-      i, x, y: r2(y), anchor: horizontal.value ? 'end' : 'middle',
+      i, x, y: r2(y), anchor: horizontal.value || rotated ? 'end' : 'middle',
+      rotate: rotated ? `rotate(-${ROTATE_DEG} ${r2(x)} ${r2(y)})` : undefined,
       lines: own.map((text, k) => ({ text, y: r2(y + k * LINE) })),
       full: own.join(' ') === labels[i]!.trim() ? null : labels[i]!,
     })
@@ -413,7 +422,7 @@ const patternFill = computed(() => `url(#${ids.pattern})`)
           v-for="l in catLabels"
           :key="`c${l.i}`"
           data-slot="waterfall-chart-category"
-          :x="l.x" :y="l.y" :text-anchor="l.anchor" dominant-baseline="middle"
+          :x="l.x" :y="l.y" :text-anchor="l.anchor" dominant-baseline="middle" :transform="l.rotate"
         ><tspan v-for="(line, k) in l.lines" :key="k" :x="l.x" :y="line.y">{{ line.text }}</tspan><title v-if="l.full">{{ l.full }}</title></text>
       </g>
       <g v-if="connectors.length" data-slot="waterfall-chart-connectors" class="stroke-muted-foreground" stroke-width="1" stroke-dasharray="2 2" fill="none">

@@ -100,21 +100,21 @@ const item = cva('group/item relative', {
     { layout: 'horizontal', size: 'default', class: 'min-w-40 flex-1 pe-6 pt-9 last:pe-0' },
     { layout: 'horizontal', size: 'compact', class: 'min-w-32 flex-1 pe-4 pt-7 last:pe-0' },
     { layout: 'horizontal', size: 'large', class: 'min-w-48 flex-1 pe-8 pt-11 last:pe-0' },
-    // Alternating (md+): each row takes half the width; odd rows hug the left, even rows the right of the centre line.
+    // Alternating (md+): each row takes half the width; odd rows hug the start side, even rows the end side of the centre line. `odd:`/`even:` act on the item itself (a `group-odd/item:` variant only reaches its descendants).
     {
       layout: 'alternating',
       size: 'default',
-      class: 'md:w-1/2 md:group-odd/item:self-start md:group-odd/item:ps-0 md:group-odd/item:pe-9 md:group-odd/item:text-end md:group-even/item:self-end md:group-even/item:ps-9',
+      class: 'md:w-1/2 md:odd:self-start md:odd:ps-0 md:odd:pe-9 md:odd:text-end md:even:self-end md:even:ps-9',
     },
     {
       layout: 'alternating',
       size: 'compact',
-      class: 'md:w-1/2 md:group-odd/item:self-start md:group-odd/item:ps-0 md:group-odd/item:pe-7 md:group-odd/item:text-end md:group-even/item:self-end md:group-even/item:ps-7',
+      class: 'md:w-1/2 md:odd:self-start md:odd:ps-0 md:odd:pe-7 md:odd:text-end md:even:self-end md:even:ps-7',
     },
     {
       layout: 'alternating',
       size: 'large',
-      class: 'md:w-1/2 md:group-odd/item:self-start md:group-odd/item:ps-0 md:group-odd/item:pe-11 md:group-odd/item:text-end md:group-even/item:self-end md:group-even/item:ps-11',
+      class: 'md:w-1/2 md:odd:self-start md:odd:ps-0 md:odd:pe-11 md:odd:text-end md:even:self-end md:even:ps-11',
     },
   ],
   defaultVariants: { size: 'default', layout: 'vertical' },

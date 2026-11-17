@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRequireAccessibleName } from '../../../lib/contract'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
@@ -29,28 +29,52 @@ export interface ScrollProgressProps extends BaseProps {
   tone?: ScrollProgressTone
   /** Accessible name of the progress bar. */
   label?: string
+  /** Track the scroll position of this element (or the first element matching this CSS selector) instead of the page. A selector that matches nothing falls back to the page. */
+  target?: string | HTMLElement | null
 }
 
-const props = withDefaults(defineProps<ScrollProgressProps>(), { position: 'top', variant: 'bar', size: 'md', tone: 'primary', label: 'Reading progress' })
+const props = withDefaults(defineProps<ScrollProgressProps>(), { position: 'top', variant: 'bar', size: 'md', tone: 'primary', label: 'Reading progress', target: undefined })
 
 const progress = ref(0)
 const root = ref<HTMLElement | null>(null)
 useRequireAccessibleName('ScrollProgress', () => root.value, 'Keep the default `label`, or set `label`, `aria-label` or `aria-labelledby`; a progress bar without a name is announced as an unlabelled "progress bar".')
 
+let source: HTMLElement | null = null
+
+function resolveTarget(): HTMLElement | null {
+  const t = props.target
+  if (typeof t === 'string') return t ? document.querySelector<HTMLElement>(t) : null
+  return t ?? null
+}
+
 function measure() {
+  const el = source
   const doc = document.documentElement
-  const range = doc.scrollHeight - doc.clientHeight
+  const range = el ? el.scrollHeight - el.clientHeight : doc.scrollHeight - doc.clientHeight
+  const offset = el ? el.scrollTop : window.scrollY || doc.scrollTop
   // No scrollable range (short page, or jsdom): 0 rather than NaN/Infinity.
-  progress.value = range > 0 ? clampNumber((window.scrollY || doc.scrollTop) / range, 0, 1, 0) : 0
+  progress.value = range > 0 ? clampNumber(offset / range, 0, 1, 0) : 0
+}
+
+function detach() {
+  ;(source ?? window).removeEventListener('scroll', measure)
+}
+function attach() {
+  detach()
+  source = resolveTarget()
+  ;(source ?? window).addEventListener('scroll', measure, { passive: true })
+  measure()
 }
 
 onMounted(() => {
-  measure()
-  window.addEventListener('scroll', measure, { passive: true })
+  attach()
   window.addEventListener('resize', measure, { passive: true })
 })
+watch(() => props.target, () => {
+  if (root.value) attach()
+})
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', measure)
+  detach()
   window.removeEventListener('resize', measure)
 })
 

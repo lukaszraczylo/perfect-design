@@ -77,7 +77,7 @@ describe('KpiTile', () => {
 
     it('default output is unchanged', () => {
       const w = root({})
-      expect(w.classes().join(' ')).toBe('flex flex-col rounded-xl text-card-foreground border bg-card shadow-sm gap-2 p-4')
+      expect(w.classes().join(' ')).toBe('flex flex-col rounded-xl border bg-card shadow-sm text-card-foreground gap-2 p-4')
       expect(w.attributes('data-tile-variant')).toBeUndefined()
       expect(w.attributes('data-size')).toBeUndefined()
       expect(w.find('[data-slot="kpi-tile-sparkline"]').exists()).toBe(false)
@@ -165,6 +165,11 @@ describe('KpiTile', () => {
       expect(root({ progress }).find('[data-slot="kpi-tile-progress"]').exists()).toBe(false)
     })
 
+    it('inverted sparkline draws in the surface text colour, not a tone that vanishes on it', () => {
+      const w = root({ variant: 'inverted', sparkline: [1, 3, 2], tone: 'info' })
+      expect(w.find('[data-slot="sparkline"]').classes().join(' ')).toContain('[&_[data-slot=sparkline-line]]:stroke-background')
+      expect(root({ sparkline: [1, 3, 2] }).find('[data-slot="sparkline"]').classes().join(' ')).not.toContain('stroke-background')
+    })
     it('inverted progress uses light track and fill', () => {
       const w = root({ variant: 'inverted', progress: 50 })
       expect(w.find('[data-slot="kpi-tile-progress"]').classes()).toContain('bg-background/20')

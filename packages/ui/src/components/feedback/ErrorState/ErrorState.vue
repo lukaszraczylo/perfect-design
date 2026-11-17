@@ -136,7 +136,7 @@ function retry() {
       </Button>
       <slot name="actions" />
     </div>
-    <details v-if="hasDetails" data-slot="error-state-details" :class="errorStateDetailsVariants({ variant: resolvedVariant })">
+    <details v-if="hasDetails" data-slot="error-state-details" :class="errorStateDetailsVariants({ variant: resolvedVariant, layout: resolvedLayout })">
       <summary :class="cn('w-fit cursor-pointer rounded-sm text-xs font-medium text-muted-foreground select-none hover:text-foreground', focusRing)">
         {{ detailsLabel }}
       </summary>
@@ -144,7 +144,7 @@ function retry() {
         tabindex="0"
         role="region"
         :aria-label="detailsLabel"
-        :class="cn('mt-2 max-h-64 overflow-auto rounded-md border bg-muted p-3 text-xs break-words whitespace-pre-wrap text-foreground', focusRing)"
+        :class="cn('mt-2 max-h-64 overflow-auto rounded-md border bg-muted p-3 text-start text-xs break-words whitespace-pre-wrap text-foreground', focusRing)"
       >{{ details }}</pre>
     </details>
   </div>

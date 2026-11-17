@@ -20,7 +20,7 @@ describe('FeatureCard size, tone and shape', () => {
   describe('defaults keep the original output', () => {
     it('card root, title, description and link class strings are unchanged', () => {
       const w = mountCard()
-      expect(w.classes().join(' ')).toBe('relative flex text-card-foreground flex-col gap-3 rounded-lg border bg-card p-6')
+      expect(w.classes().join(' ')).toBe('relative flex flex-col gap-3 rounded-lg border bg-card p-6 text-card-foreground')
       expect(w.find('h3').attributes('class')).toBe('text-lg font-semibold tracking-tight')
       expect(w.find('[data-slot="feature-card-description"]').attributes('class')).toBe('text-sm text-muted-foreground')
       expect(w.find('a').classes()).toEqual(expect.arrayContaining(['mt-auto', 'text-primary', 'text-sm', 'font-medium', 'hover:underline']))
@@ -30,7 +30,7 @@ describe('FeatureCard size, tone and shape', () => {
       expect(w.attributes('data-shape')).toBe('rounded')
     })
     it('exported cva with no props equals the component default', () => {
-      expect(featureCardVariants()).toBe('relative flex text-card-foreground flex-col gap-3 rounded-lg border bg-card p-6')
+      expect(featureCardVariants()).toBe('relative flex flex-col gap-3 rounded-lg border bg-card p-6 text-card-foreground')
     })
   })
 

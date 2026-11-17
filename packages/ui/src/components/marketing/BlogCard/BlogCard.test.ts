@@ -113,6 +113,19 @@ describe('BlogCard', () => {
       expect(w.classes()).toContain('rounded-lg')
       expect(w.html()).not.toMatch(/shadow-|hover:(scale|shadow|-translate)|group-hover|rounded-xl|rounded-2xl|backdrop-blur/)
     })
+    it('separators never end a line: each sits inside the no-wrap item it precedes', () => {
+      const w = mount(BlogCard, { props: post })
+      const meta = w.find('[data-slot="blog-card-meta"]')
+      expect(meta.findAll(':scope > [data-slot="blog-card-sep"]')).toHaveLength(0)
+      const seps = meta.findAll('[data-slot="blog-card-sep"]')
+      expect(seps).toHaveLength(2)
+      seps.forEach((s) => {
+        const part = s.element.parentElement!
+        expect(part.getAttribute('data-slot')).toBe('blog-card-meta-part')
+        expect(part.classList.contains('whitespace-nowrap')).toBe(true)
+        expect(part.firstElementChild).toBe(s.element)
+      })
+    })
     it('separators are decorative aria-hidden shapes, not glyphs', () => {
       const w = mount(BlogCard, { props: post })
       const seps = w.findAll('[data-slot="blog-card-sep"]')

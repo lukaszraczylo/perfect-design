@@ -124,6 +124,19 @@ describe('Table', () => {
     const body = (w: ReturnType<typeof rows>) => w.findAll('tbody tr')
     const head = (w: ReturnType<typeof rows>) => w.find('thead tr')
 
+    it('filled bands the column header only; a body row header keeps the row surface', () => {
+      const w = mount(Table, {
+        props: { variant: 'filled' },
+        slots: {
+          default: () => [
+            h(TableHeader, null, () => h(TableRow, null, () => h(TableHead, null, () => 'Name'))),
+            h(TableBody, null, () => h(TableRow, null, () => h(TableHead, { scope: 'row' }, () => 'Item A'))),
+          ],
+        },
+      })
+      expect(w.find('thead th').classes()).toContain('bg-muted')
+      expect(w.find('tbody th').classes()).not.toContain('bg-muted')
+    })
     it('default output is unchanged: same row classes, no extra attrs', () => {
       const w = rows()
       expect(body(w)[0]!.classes().join(' ')).toBe(tableRowClasses)

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Gauge from './Gauge.vue'
-import { gaugeVariants } from './variants'
+import { gaugeDialFontClass, gaugeVariants } from './variants'
 
 const make = (props: Record<string, unknown> = {}, slots?: Record<string, unknown>) => mount(Gauge, { props, slots: slots as never })
 const arc = (w: ReturnType<typeof make>) => w.find('[data-slot="gauge-arc"]')
@@ -188,6 +188,32 @@ describe('Gauge', () => {
       const w = make({ value: 20 })
       expect(arc(w).attributes('stroke-dasharray')).toBe('20 100')
       w.unmount()
+    })
+  })
+
+  describe('value label fit', () => {
+    it.each(['semicircle', 'arc'] as const)('keeps a long %s value on one line and shrinks it to fit the dial', (variant) => {
+      const long = make({ value: 35, label: 'Load', valueText: '35% normal', size: 'sm', variant, animated: false }).find('[data-slot="gauge-value"]')
+      const short = make({ value: 35, label: 'Load', size: 'sm', variant, animated: false }).find('[data-slot="gauge-value"]')
+      expect(long.classes()).toContain('whitespace-nowrap')
+      expect(long.classes()).toContain('max-w-full')
+      expect(short.classes()).toContain('text-xs')
+      expect(long.classes()).not.toContain('text-xs')
+    })
+    it('scales text by length, never above the size text and never below 8px', () => {
+      expect(gaugeDialFontClass('md', 2)).toBe('text-xl')
+      expect(gaugeDialFontClass('lg', 3)).toBe('text-3xl')
+      expect(gaugeDialFontClass('md', 10)).toBe('text-xs')
+      expect(gaugeDialFontClass('sm', 200)).toBe('text-[8px]')
+      expect(gaugeDialFontClass('sm', 0)).toBe('text-xs')
+    })
+    it('fits every size: the estimated text width stays inside half the dial width', () => {
+      const width = { sm: 96, md: 160, lg: 224 } as const
+      const px: Record<string, number> = { 'text-[8px]': 8, 'text-[9px]': 9, 'text-[10px]': 10, 'text-[11px]': 11, 'text-xs': 12, 'text-sm': 14, 'text-base': 16, 'text-lg': 18, 'text-xl': 20, 'text-2xl': 24, 'text-3xl': 30 }
+      for (const size of ['sm', 'md', 'lg'] as const) for (const len of [3, 6, 10, 11]) {
+        const fs = px[gaugeDialFontClass(size, len)]!
+        expect(len * fs * 0.58).toBeLessThanOrEqual(width[size] * 0.5 + 6)
+      }
     })
   })
 })

@@ -17,7 +17,7 @@ export const leaderboardVariants = cva('min-w-0 max-w-full text-foreground', {
 export const leaderboardRowVariants = cva('flex min-w-0 items-center gap-3 border-b px-2 last:border-b-0', {
   variants: {
     density: { comfortable: 'py-3', compact: 'py-1.5' },
-    highlighted: { true: 'bg-muted', false: '' },
+    highlighted: { true: 'bg-muted text-foreground', false: '' },
   },
   defaultVariants: { density: 'comfortable', highlighted: false },
 })
@@ -32,7 +32,7 @@ export const leaderboardCellVariants = cva('px-3 align-middle', {
 export const leaderboardPodiumVariants = cva('flex min-w-0 flex-1 flex-col items-center justify-end gap-2 rounded-md border p-3 text-center', {
   variants: {
     place: { first: 'order-2 min-h-40', second: 'order-1 min-h-32', third: 'order-3 min-h-28' },
-    highlighted: { true: 'bg-muted', false: 'bg-card' },
+    highlighted: { true: 'bg-muted text-foreground', false: 'bg-card text-card-foreground' },
   },
   defaultVariants: { place: 'first', highlighted: false },
 })

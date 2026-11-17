@@ -453,6 +453,8 @@ const monthsClasses = computed(() => calendarMonthsVariants({ orientation: props
 const dayClasses = computed(() => (CALENDAR_DAY_SHAPES[props.shape] ? cn(DAY, CALENDAR_DAY_SHAPES[props.shape]) : DAY))
 const showWeeks = computed(() => props.weekNumbers === true)
 
+// Stacked months share one nav pair on the first header; side by side, next sits on the last.
+const nextNavIndex = computed(() => (props.orientation === 'vertical' ? 0 : months.value.length - 1))
 const NAV =
   'absolute top-0 inline-flex size-(--calendar-cell) items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-40 aria-disabled:opacity-40 aria-disabled:hover:bg-transparent motion-reduce:transition-none ' +
   focusRing
@@ -493,7 +495,7 @@ const DAY =
             {{ m.label }}
           </div>
           <button
-            v-if="mi === months.length - 1"
+            v-if="mi === nextNavIndex"
             type="button"
             data-slot="calendar-next"
             :class="cn(NAV, 'end-0')"

@@ -109,11 +109,12 @@ const widths = computed(() => edgeWidths(graph.value))
 const labelsOn = computed(() => variantName.value === 'labelled' && graph.value.nodes.length <= 120)
 
 const FONT = 12
+const LABEL_MAX = 18
 const points = computed(() => {
   const g = graph.value
   const rMax = radiusRange(g.nodes.length).max
   const hasSelf = g.edges.some((e) => e.self)
-  const padX = rMax + (labelsOn.value ? 40 : 8)
+  const padX = rMax + (labelsOn.value ? 56 : 8)
   const padTop = rMax + (hasSelf ? 50 : 6)
   const padBottom = rMax + (labelsOn.value ? 20 : 6)
   const w = Math.max(1, W.value - 2 * padX)
@@ -182,7 +183,7 @@ const nodeViews = computed(() =>
       d: marker === 'circle' ? '' : markerPath(marker, p.x, p.y, r),
       stroke: r < 4 ? 1 : 2,
       label: n.label,
-      text: truncateLabel(n.label, 12),
+      text: truncateLabel(n.label, LABEL_MAX),
       aria,
       group: n.group,
     }
@@ -194,7 +195,7 @@ const edgeViews = computed(() =>
     const a = points.value[e.from]!
     const b = points.value[e.to]!
     const shape = edgeShape({ ...a, r: radii.value[e.from]! }, { ...b, r: radii.value[e.to]! }, { curved: edgeStyleName.value === 'curved', directed: e.directed, self: e.self })
-    return { k, from: e.from, to: e.to, d: shape.d, arrow: shape.arrow, mid: shape.mid, width: widths.value[k]!, label: truncateLabel(e.label, 12) }
+    return { k, from: e.from, to: e.to, d: shape.d, arrow: shape.arrow, mid: shape.mid, width: widths.value[k]!, label: truncateLabel(e.label, LABEL_MAX) }
   }),
 )
 
@@ -334,18 +335,22 @@ const rootClass = computed(() => cn(networkGraphVariants({ size: sizeName.value 
         >
           <path :d="e.d" fill="none" :stroke-width="e.width" stroke-linecap="round" :class="active === e.from || active === e.to ? 'stroke-foreground' : 'stroke-muted-foreground/60'" />
           <polygon v-if="e.arrow" data-slot="network-graph-arrow" :points="e.arrow" :class="active === e.from || active === e.to ? 'fill-foreground' : 'fill-muted-foreground/60'" />
+        </g>
+      </g>
+      <g v-if="labelsOn" data-slot="network-graph-edge-labels">
+        <template v-for="e in edgeViews" :key="e.k">
           <text
-            v-if="labelsOn && e.label"
+            v-if="e.label"
             data-slot="network-graph-edge-label"
             :x="e.mid.x"
             :y="e.mid.y"
             text-anchor="middle"
             dominant-baseline="middle"
-            stroke-width="3"
+            stroke-width="4"
             stroke-linejoin="round"
-            class="fill-muted-foreground stroke-background text-xs [paint-order:stroke]"
+            :class="['fill-foreground stroke-background text-xs [paint-order:stroke] motion-safe:transition-opacity', keep && active !== e.from && active !== e.to ? 'opacity-30' : '']"
           >{{ e.label }}</text>
-        </g>
+        </template>
       </g>
       <g data-slot="network-graph-nodes" class="text-xs tabular-nums">
         <g
@@ -373,7 +378,7 @@ const rootClass = computed(() => cn(networkGraphVariants({ size: sizeName.value 
             :x="n.x"
             :y="r2(n.y + n.r + FONT + 2)"
             text-anchor="middle"
-            stroke-width="3"
+            stroke-width="4"
             stroke-linejoin="round"
             class="fill-foreground stroke-background [paint-order:stroke]"
           >{{ n.text }}</text>

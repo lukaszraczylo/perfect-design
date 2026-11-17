@@ -1,9 +1,13 @@
 import type { ComponentDoc } from '../../../docs-types'
 
+/** Neutral textless avatar sample (docs only). */
+const samplePortrait = (bg = '#e4e4e7', fg = '#a1a1aa') =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="${bg}"/><circle cx="40" cy="31" r="14" fill="${fg}"/><path d="M12 80c2-17 14-26 28-26s26 9 28 26z" fill="${fg}"/></svg>`)}`
+
 const items = [
-  { quote: 'Sample quote.', author: 'Customer name', role: 'Role, Company' },
-  { quote: 'A longer sample quote that runs over several lines, so the masonry layout has something to balance against the short ones.', author: 'Second customer', role: 'Role' },
-  { quote: 'Medium-length sample quote.', author: 'Third customer', role: 'Role', rating: 4 },
+  { quote: 'Sample quote.', author: 'Customer name', role: 'Role, Company', avatar: samplePortrait(), avatarAlt: 'Sample portrait' },
+  { quote: 'A longer sample quote that runs over several lines, so the masonry layout has something to balance against the short ones.', author: 'Second customer', role: 'Role', avatar: samplePortrait('#d4d4d8', '#71717a'), avatarAlt: 'Sample portrait' },
+  { quote: 'Medium-length sample quote.', author: 'Third customer', role: 'Role', rating: 4, avatar: samplePortrait('#e7e5e4', '#a8a29e'), avatarAlt: 'Sample portrait' },
   { quote: 'Sample quote without a role.', author: 'Fourth customer' },
 ]
 

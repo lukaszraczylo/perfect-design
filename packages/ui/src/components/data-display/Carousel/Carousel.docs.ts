@@ -108,7 +108,8 @@ const tips = ['Press the arrow keys to move.', 'Hover to pause the rotation.', '
     },
     {
       title: 'Several slides per view',
-      code: `<Carousel class="mx-auto max-w-lg" label="Cards">
+      description: 'Previous and next float over the carousel edges; side padding keeps them off the slides when each slide is narrow.',
+      code: `<Carousel class="mx-auto max-w-lg px-12" label="Cards">
   <CarouselContent class="gap-2">
     <CarouselItem v-for="n in 6" :key="n" class="basis-1/3">
       <div class="flex h-24 items-center justify-center rounded-md border bg-card">{{ n }}</div>

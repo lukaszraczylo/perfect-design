@@ -31,7 +31,7 @@ describe('MediaFrame variations', () => {
     it('browser keeps the original frame, bar, dots and title classes', () => {
       mountWith()
       expect([...w!.classes()].sort()).toEqual(['bg-card', 'border', 'flex', 'flex-col', 'min-w-0', 'overflow-hidden', 'relative', 'rounded-lg', 'text-card-foreground'])
-      expect([...bar().classes()].sort()).toEqual(['bg-muted', 'border-b', 'flex', 'gap-3', 'items-center', 'px-3', 'py-2'])
+      expect([...bar().classes()].sort()).toEqual(['bg-muted', 'border-b', 'flex', 'gap-3', 'items-center', 'px-3', 'py-2', 'text-foreground'])
       expect(dots()).toHaveLength(3)
       expect([...dots()[0].classes()].sort()).toEqual(['bg-muted-foreground/40', 'rounded-full', 'size-2.5'])
       expect([...title().classes()].sort()).toEqual(['bg-background', 'border', 'flex-1', 'min-w-0', 'px-3', 'py-1', 'rounded-md', 'text-center', 'text-muted-foreground', 'text-xs', 'truncate'])

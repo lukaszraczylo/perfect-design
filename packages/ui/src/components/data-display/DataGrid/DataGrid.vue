@@ -579,7 +579,7 @@ defineExpose({
       :aria-multiselectable="selectable ? 'true' : undefined"
       :aria-readonly="hasEditable ? undefined : 'true'"
       :style="containerStyle"
-      class="relative min-w-0 flex-1 overflow-auto overscroll-contain"
+      class="relative min-w-0 flex-auto overflow-auto overscroll-contain"
       @keydown="onKeydown"
       @focusin="onFocusin"
       @scroll.passive="onScroll"

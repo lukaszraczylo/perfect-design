@@ -40,7 +40,7 @@ describe('Rating variations', () => {
     it('keeps the original root classes, the star glyph and the warning fill', () => {
       const w = mount(Rating, { props: { modelValue: 3 }, attrs: named })
       expect(root(w).classes().join(' ')).toBe(
-        'inline-flex max-w-full flex-wrap items-center rounded-md border border-transparent align-middle select-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50 outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 gap-0.5 [&_svg]:size-5',
+        'inline-flex w-fit max-w-full flex-wrap items-center rounded-md border border-transparent align-middle select-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50 outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 gap-0.5 [&_svg]:size-5',
       )
       expect(outline(w).attributes('viewBox')).toBe('0 0 24 24')
       expect(outline(w).find('path').attributes('d')).toBe(RATING_PATHS.star)
@@ -331,5 +331,11 @@ describe('Rating variations', () => {
       expect(ratingVariants()).toContain('[&_svg]:size-5')
       expect(ratingVariants({ size: 'lg', class: 'gap-2' })).toContain('gap-2')
     })
+  })
+})
+
+describe('Rating width', () => {
+  it('hugs its icons so the invalid outline is not drawn across a grid or column parent', () => {
+    expect(ratingVariants({ size: 'md' })).toContain('w-fit')
   })
 })

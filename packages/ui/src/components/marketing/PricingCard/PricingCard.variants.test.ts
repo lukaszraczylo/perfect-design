@@ -9,7 +9,7 @@ const amount = (w: ReturnType<typeof m>) => w.find('[data-slot="pricing-card-amo
 describe('PricingCard size and shape', () => {
   it('defaults keep the original classes and report md / rounded', () => {
     const w = m()
-    expect(w.classes().join(' ')).toBe('relative flex flex-col text-card-foreground gap-6 rounded-lg border bg-card p-6')
+    expect(w.classes().join(' ')).toBe('relative flex flex-col gap-6 rounded-lg border bg-card p-6 text-card-foreground')
     expect(amount(w).attributes('class')).toBe('font-bold tracking-tight text-4xl')
     expect([w.attributes('data-size'), w.attributes('data-shape')]).toEqual(['md', 'rounded'])
   })

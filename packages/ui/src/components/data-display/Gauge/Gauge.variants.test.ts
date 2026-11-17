@@ -20,7 +20,7 @@ describe('Gauge variants: defaults are unchanged', () => {
     expect(part(w, 'track').attributes('d')).toBe('M 10 50 A 40 40 0 0 1 90 50')
     expect(part(w, 'track').attributes('stroke-width')).toBe('10')
     expect(part(w, 'svg').attributes('class')).toBe('block w-full')
-    expect(part(w, 'content').attributes('class')).toBe('absolute flex flex-col items-center leading-none inset-x-0 bottom-0')
+    expect(part(w, 'content').attributes('class')).toBe('absolute flex flex-col items-center px-[15%] text-center leading-none inset-x-0 bottom-0')
   })
   it('explicit default values render exactly like omitted ones', () => {
     expect(make({ variant: 'semicircle', size: 'md' }).html()).toBe(make().html())
