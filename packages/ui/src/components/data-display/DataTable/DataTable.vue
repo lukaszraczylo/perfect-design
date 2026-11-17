@@ -294,9 +294,10 @@ const alignOf = (column: DataTableColumn<T>) => column.align ?? (column.numeric 
 // Row header cells (`th scope=row`) keep their own padding; comfortable density and the cards layout adjust it.
 const rowHeaderClasses = computed(() =>
   cn(
-    'h-auto p-3 font-medium whitespace-normal text-foreground',
+    // The compact density rules on the table group outrank plain utilities, so the row header restates its own height.
+    'h-auto group-data-[density=compact]/table:h-auto p-3 font-medium whitespace-normal text-foreground',
     props.density === 'comfortable' && 'p-4',
-    props.layout === 'cards' && 'max-sm:p-0 max-sm:pb-1 max-sm:text-base',
+    props.layout === 'cards' && 'max-sm:p-0 max-sm:pb-2 max-sm:text-base max-sm:group-data-[density=compact]/table:px-0',
   ),
 )
 // A column flagged `actions` has no "Header:" label in a card; its controls close the card.

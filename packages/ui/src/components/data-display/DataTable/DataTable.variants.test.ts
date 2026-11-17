@@ -135,7 +135,7 @@ describe('DataTable variations', () => {
     it('turns the row header into the card title', () => {
       const w = mnt({ layout: 'cards' })
       const c = w.find('tbody th').classes()
-      expect(c).toEqual(expect.arrayContaining(['max-sm:p-0', 'max-sm:pb-1', 'max-sm:text-base', 'max-sm:block']))
+      expect(c).toEqual(expect.arrayContaining(['max-sm:p-0', 'max-sm:pb-2', 'max-sm:text-base', 'max-sm:block']))
     })
     it('labels the selection cell and lets it size to content in cards', () => {
       const w = mnt({ layout: 'cards', selectable: true })
@@ -269,5 +269,15 @@ describe('DataTable: actions column in cards', () => {
     const labels = w.find('[data-slot=data-table-skeleton-row]').findAll('[data-slot=table-cell-label]').map((l) => l.text())
     expect(labels).not.toContain('Actions')
     expect(labels).toContain('Plan')
+  })
+})
+
+describe('DataTable cards row header in compact density', () => {
+  it('drops the compact side padding and fixed height so it lines up with the field labels', () => {
+    const w = mount(DataTable, {
+      props: { layout: 'cards', density: 'compact', rows: [{ id: 1, name: 'Sample row' }], rowKey: 'id', columns: [{ key: 'name', header: 'Name', rowHeader: true }, { key: 'id', header: 'Id' }] },
+    })
+    const th = w.find('th[scope=row]')
+    expect(th.classes()).toEqual(expect.arrayContaining(['max-sm:group-data-[density=compact]/table:px-0', 'group-data-[density=compact]/table:h-auto', 'max-sm:pb-2']))
   })
 })
