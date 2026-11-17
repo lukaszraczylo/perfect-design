@@ -233,3 +233,41 @@ describe('DataTable variations', () => {
     })
   })
 })
+
+describe('DataTable: actions column in cards', () => {
+  const cols: DataTableColumn<Row>[] = [...columns, { key: 'actions', header: 'Actions', actions: true, accessor: () => null }]
+  const withSlot = (props: Record<string, unknown> = {}) =>
+    mount(DataTable as any, {
+      props: { columns: cols, rows: rows(), label: 'Sample data', ...props },
+      slots: { 'cell-actions': '<button type="button">Rename</button>' },
+    }) as W
+  const lastCell = (w: W) => w.find('[data-slot=data-table-row]').findAll('td').at(-1)!
+
+  it('cards: no "Actions" label, the control stays, and the cell closes the card with a rule', () => {
+    const w = withSlot({ layout: 'cards' })
+    const cell = lastCell(w)
+    expect(cell.find('[data-slot=table-cell-label]').exists()).toBe(false)
+    expect(cell.text()).toBe('Rename')
+    expect(cell.classes()).toEqual(expect.arrayContaining(['max-sm:justify-end', 'max-sm:border-t', 'max-sm:pt-2.5']))
+    const first = w.find('[data-slot=data-table-row]')
+    expect(first.findAll('[data-slot=table-cell-label]').map((l) => l.text())).toEqual(['Plan', 'Seats'])
+  })
+  it('the header stays in the table header for assistive tech', () => {
+    expect(withSlot({ layout: 'cards' }).findAll('thead th').map((th) => th.text())).toContain('Actions')
+  })
+  it('table layout is unchanged: no label, no card classes', () => {
+    const cell = lastCell(withSlot())
+    expect(cell.find('[data-slot=table-cell-label]').exists()).toBe(false)
+    expect(cell.classes().some((c) => c.startsWith('max-sm:'))).toBe(false)
+  })
+  it('without the flag the cards layout still labels the column (default unchanged)', () => {
+    const w = mount(DataTable as any, { props: { columns: [...columns, { key: 'x', header: 'Extra', accessor: () => 'v' }], rows: rows(), label: 'S', layout: 'cards' } }) as W
+    expect(w.find('[data-slot=data-table-row]').findAll('[data-slot=table-cell-label]').map((l) => l.text())).toContain('Extra')
+  })
+  it('loading skeleton rows do not label the actions column either', () => {
+    const w = withSlot({ layout: 'cards', loading: true, loadingRows: 1 })
+    const labels = w.find('[data-slot=data-table-skeleton-row]').findAll('[data-slot=table-cell-label]').map((l) => l.text())
+    expect(labels).not.toContain('Actions')
+    expect(labels).toContain('Plan')
+  })
+})

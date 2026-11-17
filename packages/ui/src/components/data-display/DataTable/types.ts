@@ -21,6 +21,8 @@ export interface DataTableColumn<T = unknown> {
   numeric?: boolean
   /** Render this column's body cells as row headers (`<th scope="row">`); the row checkbox is named after it. */
   rowHeader?: boolean
+  /** Row actions column (buttons, a menu). With `layout="cards"` below `sm` the cell has no label and sits at the end of the card, separated by a rule. Has no effect on the table layout. */
+  actions?: boolean
   /** CSS width of the column, e.g. `'8rem'` or `'20%'`. */
   width?: string
   /** Read the cell value from a row. Defaults to `row[key]`. Also used for sorting. */

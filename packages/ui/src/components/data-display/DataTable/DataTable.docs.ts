@@ -34,7 +34,7 @@ const doc: ComponentDoc = {
     'Give `columns` and `rows`; the table renders them with `Table` parts. Sorting cycles none → asc → desc → none (stable; null/NaN/Invalid Date always last), selection is per page (header checkbox selects the visible page and keeps other pages), pagination is a built-in simple pager. `v-model:sort`, `v-model:selected` and `v-model:page` work controlled or uncontrolled. All work is client-side: for server-side paging/sorting use `Table` parts or pass pre-sorted rows without `sortable`. Without `selectable`, duplicate or missing row keys are tolerated (rendering uses a unique internal key). With `selectable`, selection stores the id from `rowKey`, so every row needs a unique string or number id: a missing or repeated one throws a ContractError, because those rows would be selected together. Name the table with `caption` or `label`. Look props (all combinable): `density`, `size`, `variant`, `striped`, `bordered`, `stickyHeader`; `layout="cards"` turns rows into cards on narrow screens. The header row is hidden visually there, so below 640px a visible control bar appears above the cards: a "Sort by" select with a direction button for the sortable columns, and a "Select all" checkbox when `selectable` is set. It writes the same `v-model:sort` and `v-model:selected` values as the header (one source of truth). Relabel it with `sortByLabel`, `sortDirectionLabel`, `sortDefaultLabel`, `sortAscendingLabel`, `sortDescendingLabel` and `selectAllLabel`, or hide it with `:card-controls="false"`.',
   status: 'stable',
   props: [
-    { name: 'columns', type: 'DataTableColumn<T>[]', required: true, description: '`{ key, header, sortable?, align?, numeric?, rowHeader?, width?, accessor?, class? }`. `accessor(row)` defaults to `row[key]`; `width` is an inline CSS width; `numeric` right-aligns with tabular figures; `rowHeader` renders the column as `<th scope="row">` and names the row checkbox.' },
+    { name: 'columns', type: 'DataTableColumn<T>[]', required: true, description: '`{ key, header, sortable?, align?, numeric?, rowHeader?, actions?, width?, accessor?, class? }`. `accessor(row)` defaults to `row[key]`; `width` is an inline CSS width; `numeric` right-aligns with tabular figures; `rowHeader` renders the column as `<th scope="row">` and names the row checkbox; `actions` marks a row-actions column, which in `layout="cards"` has no "Actions:" label and closes the card at the end with a rule.' },
     { name: 'rows', type: 'T[]', required: true, description: 'Source rows (never mutated).' },
     { name: 'rowKey', type: "keyof T | ((row: T, index: number) => string | number)", default: "'id'", description: 'Row property name or function giving a unique string or number id, used for selection. Required to resolve for every row when `selectable` is set; otherwise missing ids fall back to the row index.' },
     { name: 'sort', type: '{ key: string; direction: "asc" | "desc" } | null', default: 'null', description: 'v-model:sort. Controlled or uncontrolled.' },
@@ -181,6 +181,16 @@ const selected = ref([])`,
   <Badge variant="secondary" class="tabular-nums">{{ sort ? sort.key + ' ' + sort.direction : 'default order' }}, {{ selected.length }} selected</Badge>
 </div>`,
       state: () => ({ columns, rows: makeRows(), sort: ref<{ key: string; direction: 'asc' | 'desc' } | null>(null), selected: ref<(string | number)[]>([]) }),
+    },
+    {
+      title: 'Cards layout: actions column',
+      description: 'A column with `actions: true` shows no label in a card and sits at the end of it; in the table layout it is an ordinary column. Narrow the window to see it. Sample data.',
+      script: `${rowsScript}
+const actionColumns = [...columns, { key: 'actions', header: 'Actions', actions: true, accessor: () => null }]`,
+      code: `<DataTable :columns="actionColumns" :rows="rows" layout="cards" label="Sample data: row actions in cards">
+  <template #cell-actions="{ row }"><Button size="sm" variant="outline">Rename</Button></template>
+</DataTable>`,
+      state: () => ({ columns, rows: makeRows(), actionColumns: [...columns, { key: 'actions', header: 'Actions', actions: true, accessor: () => null }] }),
     },
     {
       title: 'Cards layout: relabelled controls',

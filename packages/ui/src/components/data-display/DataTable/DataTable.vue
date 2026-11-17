@@ -299,6 +299,10 @@ const rowHeaderClasses = computed(() =>
     props.layout === 'cards' && 'max-sm:p-0 max-sm:pb-1 max-sm:text-base',
   ),
 )
+// A column flagged `actions` has no "Header:" label in a card; its controls close the card.
+const ACTIONS_CARD_CLASSES = 'max-sm:justify-end max-sm:border-t max-sm:border-border max-sm:mt-1.5 max-sm:pt-2.5'
+const cellLabel = (column: DataTableColumn<T>) => (column.actions && props.layout === 'cards' ? undefined : column.header)
+const cellExtra = (column: DataTableColumn<T>) => (column.actions && props.layout === 'cards' ? ACTIONS_CARD_CLASSES : undefined)
 const selectCellClasses = computed(() => cn('w-10', props.layout === 'cards' && 'max-sm:w-auto'))
 // ---- cards layout: below `sm` the header row is hidden, so the same sort and select-all state is offered as visible controls
 const cardSortOptions = computed(() => safeColumns.value.filter((c) => c.sortable && hasText(c.header)).map((c) => ({ key: c.key, label: c.header })))
@@ -384,7 +388,7 @@ const rowClasses = computed(() =>
         <template v-if="loading">
           <TableRow v-for="n in skeletonRows" :key="`skeleton-${n}`" data-slot="data-table-skeleton-row">
             <TableCell v-if="selectable" label="Select" :class="selectCellClasses"><div class="h-4 w-4 rounded bg-muted motion-safe:animate-pulse" /></TableCell>
-            <TableCell v-for="column in safeColumns" :key="column.key" :label="column.header" :class="column.class">
+            <TableCell v-for="column in safeColumns" :key="column.key" :label="cellLabel(column)" :class="cn(column.class, cellExtra(column))">
               <div data-slot="data-table-skeleton" class="h-4 rounded bg-muted motion-safe:animate-pulse" />
             </TableCell>
           </TableRow>
@@ -416,9 +420,9 @@ const rowClasses = computed(() =>
             <template v-for="cell in entry.cells" :key="cell.column.key">
               <component
                 :is="cell.column.rowHeader ? TableHead : TableCell"
-                v-bind="cell.column.rowHeader ? { scope: 'row' } : { numeric: isNumeric(cell.column), label: cell.column.header }"
+                v-bind="cell.column.rowHeader ? { scope: 'row' } : { numeric: isNumeric(cell.column), label: cellLabel(cell.column) }"
                 :align="alignOf(cell.column)"
-                :class="cn(cell.column.rowHeader && rowHeaderClasses, cell.column.class)"
+                :class="cn(cell.column.rowHeader && rowHeaderClasses, cell.column.class, cellExtra(cell.column))"
               >
                 <slot
                   :name="`cell-${cell.column.key}`"
