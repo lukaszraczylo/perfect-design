@@ -834,6 +834,7 @@ Props:
 - statusPosition: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' = 'bottom-right' - Corner of the status dot. Unknown values fall back to bottom-right.
 - statusLabel: string - Accessible label of the dot; defaults to the status name.
 - as: string | Component = 'span' - Element to render.
+- blurred: boolean - Privacy blur for screen sharing, demos and sensitive uploads. Blurs the image and the initials (they identify the person too); the status dot stays sharp. Wins over `ConfigProvider blurMedia` and over an AvatarGroup, true or false. Undefined (default) inherits, then falls back to false. There is no reveal control: the avatar is too small.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
 Slots:
@@ -843,12 +844,14 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when an Avatar has neither `name` nor `alt` (`alt=""` marks it decorative and is accepted).
 
 Rules:
+- Use `blurred` (or `ConfigProvider blurMedia`) for privacy, never as decoration. It blurs the initials as well as the image.
 - Always pass `name` (even with `src`) so the fallback and label work.
 - Do not hard-code size via width/height classes; use the `size` prop.
 - Use `statusPosition` and `ring` instead of absolutely positioning your own dots or ring classes.
 - Do not nest Avatars manually for stacks; use AvatarGroup.
 
 Accessibility:
+- Blur is visual only: the `alt`, the accessible name and the status text are unchanged, and the root gets `data-blurred` as a styling and test hook. Do not rely on it to hide a name from assistive technology; pass `alt=""` or omit `name` where the person must not be named.
 - With an image: renders `<img alt>` (alt falls back to name).
 - Without an image the root gets role="img" with aria-label = alt or name; the initials are aria-hidden so they are not read as letters.
 - The status dot is decorative (aria-hidden). Because role="img" hides its children from assistive tech, the status text is folded into the avatar's own name ("Author One, online"; override the text with `statusLabel`), so colour is never the only signal.
@@ -923,6 +926,19 @@ Example: Status and custom fallback
 </div>
 ```
 
+Example: Privacy blur
+```vue
+<script setup lang="ts">
+const portrait = samplePortrait()
+</script>
+
+<div class="flex flex-wrap items-center gap-3">
+  <Avatar :src="portrait" name="Author One" blurred />
+  <Avatar name="Author Two" status="success" blurred />
+  <Avatar :src="portrait" name="Author Three" />
+</div>
+```
+
 ---
 
 # AvatarGroup
@@ -943,6 +959,7 @@ Props:
 - layout: 'stacked' | 'spaced' = 'stacked' - stacked overlaps the avatars with a background ring between them; spaced places them side by side with a gap and wraps. Unknown values fall back to stacked.
 - density: 'compact' | 'default' | 'loose' = 'default' - Stacked: overlap amount (compact overlaps more, loose less). Spaced: gap of 4px, 8px or 12px. Unknown values fall back to default.
 - as: string | Component = 'div' - Element to render.
+- blurred: boolean - Privacy blur on every avatar (image and initials). The `+N` count is not blurred. Wins over `ConfigProvider blurMedia`; an Avatar with its own `blurred` keeps it, true or false.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
 Slots:
@@ -952,12 +969,14 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when an item (or a slotted Avatar) has neither `name` nor `alt`, because every avatar must say who it is.
 
 Rules:
+- Use `blurred` for privacy (screen sharing, demos). The `+N` bubble stays readable.
 - Prefer `items` for data-driven lists, slot children when avatars need extra props.
 - Set `max` so long lists do not overflow the layout.
 - Give the group an aria-label.
 - Use layout="spaced" when avatars carry status dots or rings, or in narrow containers; keep the default stacked layout for compact "who is here" rows.
 
 Accessibility:
+- Blur is visual only: names, alt text and the `+N` label are unchanged; the root gets `data-blurred`.
 - Root has role="group"; add `aria-label` (e.g. "Project members").
 - The overflow bubble is role="img" with aria-label "N more".
 - `layout` and `density` change spacing only; the group role, names and the +N bubble stay the same. `spaced` uses `flex-wrap`, so the group reflows at 320px instead of overflowing, and it draws no overlap ring.
@@ -1016,6 +1035,18 @@ Example: Density
   <AvatarGroup density="loose" aria-label="Loose stack" :items="[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }]" />
   <AvatarGroup layout="spaced" density="compact" aria-label="Compact gap" :items="[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }]" />
   <AvatarGroup layout="spaced" density="loose" size="sm" aria-label="Loose gap" :items="[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }]" />
+</div>
+```
+
+Example: Privacy blur
+```vue
+<div class="flex flex-col gap-4">
+  <AvatarGroup blurred :max="3" aria-label="Meeting participants, blurred" :items="[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }, { name: 'Author Three' }, { name: 'Author Four' }]" />
+  <AvatarGroup blurred layout="spaced" aria-label="Presenter stays visible">
+    <Avatar name="Author One" :blurred="false" />
+    <Avatar name="Author Two" />
+    <Avatar name="Author Five" />
+  </AvatarGroup>
 </div>
 ```
 
@@ -3343,6 +3374,7 @@ Slots:
 - avatar - Avatar element (e.g. `<Avatar>`); overrides the `avatar` URL.
 
 Rules:
+- The author avatar image blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.
 - Put the quote in the default slot and the author in `citation`.
 - Use `cite` only for a real URL.
 - Use `author` (+ `authorRole`, `avatar`; `role` is a deprecated alias) for attributed quotes, `citation` for plain sources; do not pass both.
@@ -4243,7 +4275,7 @@ Example: Larger sizes
 group: layout / Configuration
 Sets text direction, locale, time zone, motion override, default size and density, and translated built-in strings for everything inside it.
 
-Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`. Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox and ModelPicker read them today. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. Use `asChild` to render no extra element, or `class="contents"` to keep layout unchanged.
+Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`. Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox and ModelPicker read them today. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. `blurMedia` is the privacy switch: it blurs avatars and photos in the subtree, and each component's own `blurred` prop wins. Use `asChild` to render no extra element, or `class="contents"` to keep layout unchanged.
 
 import { ConfigProvider } from '@perfect-design/ui'
 
@@ -4257,12 +4289,14 @@ Props:
 - labels: Record<string, string> - Translations of built-in strings keyed `<component>.<string>`. Merged per key with outer providers. Non-string, blank and unknown-key entries are ignored.
 - as: string | Component = 'div' - Element to render.
 - asChild: boolean = false - Render no wrapper: attributes go onto the single child element.
+- blurMedia: boolean - Privacy blur for every avatar and photo in the subtree (Avatar, AvatarGroup, TeamGrid, ImageGrid, Lightbox, MediaFrame, BeforeAfter, and the images of BlogCard, Blockquote, Testimonial and ChatMessage). A component's own `blurred` prop wins, true or false. Unset keeps the surrounding value, then false. Exposed as `useConfig().blurMedia`.
 - class: string | object | array - Merged last.
 
 Slots:
 - default - Content that receives the configuration.
 
 Rules:
+- `blurMedia` is for privacy (screen sharing, demos, sensitive uploads), not decoration. A component prop `blurred` still wins.
 - Put one ConfigProvider near the root for `dir`, `locale` and `labels`; nest another only where a region differs.
 - Label keys are `<component>.<string>`: pagination.*, datePicker.*, confirmDialog.*. Unknown keys are harmless and ignored by the components.
 - A prop on the component still beats the provider: use the prop for one-off text, the provider for the whole app.
@@ -4271,6 +4305,7 @@ Rules:
 - Use `asChild` or `class="contents"` when the wrapper div would disturb a flex or grid layout.
 
 Accessibility:
+- `blurMedia` is visual only: alt text, names and roles are unchanged and nothing is removed from the accessibility tree. The affected elements get `data-blurred`.
 - Renders a plain element with no role or name; it does not change the accessibility tree except through `dir` and `lang`.
 - `lang` lets screen readers pick the right voice and lets the browser hyphenate correctly; set `locale` on the part of the page that is in another language.
 - Translated labels replace the accessible names of the navigation landmark, the page and arrow buttons, the clear button and the dialog. A blank label is ignored, so a name never disappears.
@@ -4358,6 +4393,23 @@ Example: No wrapper element
   <section aria-label="Sample region" class="rounded-lg border p-4">
     <p class="text-sm">Language, direction and the motion override are set on this section.</p>
   </section>
+</ConfigProvider>
+```
+
+Example: Blur media in a region
+```vue
+<script setup lang="ts">
+const blur = ref(false)
+</script>
+
+<ConfigProvider :blur-media="blur" class="space-y-4 rounded-lg border p-4">
+  <Switch v-model="blur" label="Blur people and photos" />
+  <AvatarGroup aria-label="Meeting participants">
+    <Avatar name="Author One" />
+    <Avatar name="Author Two" :blurred="false" />
+    <Avatar name="Author Five" />
+  </AvatarGroup>
+  <ImageGrid :images="images" :columns="3" :lightbox="false" />
 </ConfigProvider>
 ```
 
@@ -19187,6 +19239,7 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when a button, link or `role="button"` element in the `actions` slot has no accessible name (give icon-only buttons an `aria-label`).
 
 Rules:
+- Inline images blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.
 - Use `role` for who wrote it and keep the default `role-label` unless a name reads better ("Ada said"); never rely on alignment or colour to say who spoke.
 - Give every icon-only control in the `actions` slot an `aria-label`; use `IconButton` with `label`.
 - Pass streamed Markdown through `markdown` with `status="streaming"`; do not build HTML strings and never use `v-html`.
@@ -22099,6 +22152,7 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when an event has a blank `action`.
 
 Rules:
+- Actor avatars blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.
 - Always set `label`; give every event a unique, stable `id` and a non-blank `action`.
 - Pass `now` (and `time-zone`) for server-rendered pages so the output matches on the client.
 - Use generic actors ("Deploy bot", "Reviewer 1"); never invent real people. Put the outcome in `action` or `tone`, not only in colour.
@@ -23076,6 +23130,7 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when an entry has a blank `label`.
 
 Rules:
+- Entry avatars blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.
 - Always pass `label` (or `aria-label`) and give every entry a unique `id`.
 - Pass raw numbers in `value` and set `valueFormat` (and `locale`) instead of pre-formatting strings.
 - Use `highlight` plus `highlightLabel` to mark the current user or team; never mark it with colour only.
@@ -24587,6 +24642,7 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when `image` is set without an `imageAlt` string (and no `image` slot). An empty string marks the cover decorative.
 
 Rules:
+- The cover image blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.
 - Pass dates as ISO strings (`2024-03-01`) so `<time datetime>` is emitted.
 - Do not nest interactive elements in the card: the title link is stretched over it.
 - Use `vertical` in grids, `horizontal` for list-style indexes, `featured` once at the top of an index.
@@ -26163,9 +26219,15 @@ Props:
 - step: number = 2 - Keyboard step in percent; invalid falls back to 2.
 - aspect: string = '16 / 9' - CSS aspect ratio "w / h"; invalid falls back to 16 / 9.
 - label: string = 'Image comparison slider' - Accessible name of the slider.
+- blurred: boolean - Privacy blur on both images; the labels and the slider stay sharp. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false.
+- defaultBlurred: boolean - Starting blur when `blurred` is not bound.
+- revealable: boolean = false - When blurred, show a button that unblurs, then a toggle that blurs again. The button is an action whose name says what it does next ("Show image", "Hide image"), with a 24px minimum target (44px on coarse pointers) and does not appear while the media was never blurred.
+- revealLabel: string = 'Show image' - Name of the reveal button (translate it).
+- hideLabel: string = 'Hide image' - Name of the button that blurs again (translate it).
 - class: string | object | array - Merged last on the root; wins over internal classes.
 
 Events:
+- update:blurred [value: boolean] - The reveal button changed the blur.
 - update:modelValue [value: number] - Position changed by pointer or keyboard.
 
 Enforced requirements (a ContractError is thrown when missing):
@@ -26173,12 +26235,14 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when `label` is an empty string: the slider needs an accessible name.
 
 Rules:
+- Use `blurred` for privacy, not decoration.
 - Use `orientation="vertical"` for portrait/tall images or narrow columns; keep horizontal for landscape images.
 - Both images must share the same crop/aspect ratio.
 - Always set beforeAlt/afterAlt describing the content.
 - Do not rely on drag only; the slider is keyboard operable by design.
 
 Accessibility:
+- Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.
 - The divider handle is role="slider" (tabindex 0) with aria-valuemin 0, aria-valuemax 100, aria-valuenow, aria-valuetext ("40% Before, 60% After") and an aria-label (`label`).
 - Keyboard map: ArrowRight/ArrowUp/PageUp add "before" and ArrowLeft/ArrowDown/PageDown remove it (horizontal); vertical follows the arrow (Down/Right/PageDown move the divider down). Shift multiplies the step by 5; PageUp/PageDown always move 5 steps; Home = 0, End = 100.
 - Focus is shown as an inset outline around the whole handle and as a ring on the round knob (and, in forced-colors mode, an outline). The handle hit area is 40px wide (a 36px knob) so it exceeds the 24px target size; the page can still scroll over the image on the cross axis (`touch-pan-y` / `touch-pan-x`).
@@ -26307,6 +26371,16 @@ const pos = ref(60)
 </div>
 ```
 
+Example: Blurred, revealable
+```vue
+<script setup lang="ts">
+const before = '/screenshots/before.png'
+const after = '/screenshots/after.png'
+</script>
+
+<BeforeAfter class="max-w-xl" aspect="4 / 3" revealable default-blurred :before="before" :after="after" before-alt="Sample image: before" after-alt="Sample image: after" />
+```
+
 ---
 
 # ImageGrid
@@ -26327,15 +26401,21 @@ Props:
 - ratio: 'square' | 'video' | 'auto' - Legacy alias of `aspect` kept for compatibility; used when `aspect` is not set. Default `square` (`auto` for masonry).
 - lightbox: boolean = true - Open a Lightbox on click.
 - viewLabel: string = 'View image' - Prefix of each button's accessible name (localise here).
+- blurred: boolean - Privacy blur on every image, also inside the Lightbox. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false. Changing it clears the per-image reveals.
+- revealable: boolean = false - Offer a reveal button per image (and inside the Lightbox). Revealing one image leaves the others blurred; a revealed image gets a hide toggle. Buttons are actions whose names say what they do next ("Show image", "Hide image"), with a 24px minimum target (44px on coarse pointers).
+- revealLabel: string = 'Show image' - Name of the reveal button (translate it).
+- hideLabel: string = 'Hide image' - Name of the button that blurs an image again (translate it).
 - class: string | object | array - Merged last on the root; wins over internal classes.
 
 Events:
+- reveal [index: number, revealed: boolean] - An image was revealed or blurred again, from the grid or from the Lightbox.
 - open [index: number] - A thumbnail was activated.
 
 Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when an entry of `images` has no `alt` string (with `lightbox` on, a non-empty `caption` also satisfies it). The message names the first failing index. The internal Lightbox is bound to `open`, so its own contract holds.
 
 Rules:
+- Use `blurred` for privacy, not decoration. With `revealable` each image has its own button; the grid-wide `blurred` is the default for all of them.
 - Always provide meaningful `alt` (it becomes the button label); never remote placeholder URLs in examples.
 - Provide `thumb` for large originals.
 - Choose `variant`: grid for uniform screenshots, masonry for mixed-orientation photography, featured to spotlight one hero image among 4-7 others.
@@ -26344,6 +26424,7 @@ Rules:
 - Do not nest ImageGrid inside a link.
 
 Accessibility:
+- Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.
 - The root is a native `<ul>` and each tile an `<li>`. With the lightbox on, a tile is a `<button type="button" aria-haspopup="dialog">` named "View image: <alt>" (the alt text, else the caption, else the position); its image is decorative so the name is not announced twice. Tiles are at least 44px tall (`min-h-11`) even before the image loads, which keeps lazy images above the 24px target size.
 - Keyboard: Tab moves through the thumbnails, Enter or Space opens the Lightbox (see Lightbox: Esc closes, Left/Right arrows and Home/End navigate, focus returns to the thumbnail). With `lightbox=false` the tiles are plain images with their `alt`.
 - Masonry fills column by column, so the visual order differs from the DOM and tab order across columns; use it for galleries whose order does not matter.
@@ -26397,6 +26478,16 @@ Example: Square tiles in a featured layout
 <ImageGrid variant="featured" shape="square" gap="sm" :columns="3" :images="images" />
 ```
 
+Example: Blurred, reveal per image
+```vue
+<script setup lang="ts">
+const last = ref(null)
+</script>
+
+<ImageGrid blurred revealable :images="images" :columns="3" @reveal="(i, on) => (last = { i, on })" />
+<p class="mt-2 text-sm text-muted-foreground" role="status">{{ last ? 'Image ' + (last.i + 1) + (last.on ? ' revealed' : ' blurred again') : 'All images blurred' }}</p>
+```
+
 ---
 
 # Lightbox
@@ -26417,9 +26508,15 @@ Props:
 - closeLabel: string = 'Close' - aria-label of the close button.
 - prevLabel: string = 'Previous image' - aria-label of the previous button.
 - nextLabel: string = 'Next image' - aria-label of the next button.
+- blurred: boolean - Privacy blur on the open image. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false. The reveal button sits in the header, never over the picture.
+- defaultBlurred: boolean - Starting blur when `blurred` is not bound.
+- revealable: boolean = false - When blurred, show a button that unblurs, then a toggle that blurs again. The button is an action whose name says what it does next ("Show image", "Hide image"), with a 24px minimum target (44px on coarse pointers) and does not appear while the media was never blurred.
+- revealLabel: string = 'Show image' - Name of the reveal button (translate it).
+- hideLabel: string = 'Hide image' - Name of the button that blurs again (translate it).
 - class: string | object | array - Merged last onto the overlay; wins over internal classes.
 
 Events:
+- update:blurred [value: boolean] - The reveal button changed the blur.
 - update:open [open: boolean] - Requested open state change.
 - update:index [index: number] - Visible image changed.
 - close - Closed by Esc, close button or backdrop.
@@ -26429,11 +26526,13 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when an entry of `images` has no `alt` string and no non-empty `caption`. The message names the first failing index.
 
 Rules:
+- Use `blurred` for privacy, not decoration. `revealable` puts the button in the header; ImageGrid passes its own blur state down.
 - Always bind `v-model:open`; the component never opens itself.
 - Supply `alt` for each image.
 - Prefer ImageGrid unless you need a custom trigger.
 
 Accessibility:
+- Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.
 - role="dialog" aria-modal="true" with an aria-label (`label`); focus moves to Close on open and is restored to the opener on close.
 - Keyboard map: Tab/Shift+Tab stay inside the dialog (no trap escape); Escape closes; ArrowLeft/ArrowRight move to the previous/next image (swapped in RTL); Home/End jump to the first/last image. Close, previous and next are real buttons with accessible names (`closeLabel`, `prevLabel`, `nextLabel`). At the ends with `loop=false` they use aria-disabled so a focused button keeps focus.
 - The counter ("2 / 5") is a polite live region. Body scroll is locked while open and restored afterwards (including on unmount).
@@ -26460,6 +26559,16 @@ const index = ref(2)
 
 <Button variant="outline" @click="open = true">Start at third</Button>
 <Lightbox v-model:open="open" v-model:index="index" :loop="false" :images="images" />
+```
+
+Example: Blurred, revealable
+```vue
+<script setup lang="ts">
+const open = ref(false)
+</script>
+
+<Button variant="outline" @click="open = true">Open blurred viewer</Button>
+<Lightbox v-model:open="open" revealable default-blurred :images="images" />
 ```
 
 ---
@@ -27940,15 +28049,24 @@ Props:
 - alt: string - Alt text for `src`. Required with `src` (and no default slot). Describe what the screenshot shows. An empty string marks the image decorative; only do that when the caption already says it.
 - elevated: boolean = false - Neutral `shadow-md` under the frame. Off by default because only floating surfaces cast shadows.
 - contentClass: string | object | array - Classes for the content area (padding, background, font).
+- blurred: boolean - Privacy blur on the content area (the image or whatever is in the slot); the chrome bar stays sharp. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false.
+- defaultBlurred: boolean - Starting blur when `blurred` is not bound.
+- revealable: boolean = false - When blurred, show a button that unblurs, then a toggle that blurs again. The button is an action whose name says what it does next ("Show image", "Hide image"), with a 24px minimum target (44px on coarse pointers) and does not appear while the media was never blurred.
+- revealLabel: string = 'Show image' - Name of the reveal button (translate it).
+- hideLabel: string = 'Hide image' - Name of the button that blurs again (translate it).
 - class: string | object | array - Merged last on the frame root; wins over internal classes.
 
 Slots:
 - default - Frame content (image, video, code). Overrides `src`. Wide code needs its own scroll container (see the code example).
 
+Events:
+- update:blurred [value: boolean] - The reveal button changed the blur.
+
 Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when `src` is set without an `alt` string (and no default slot content). An empty string marks the image decorative.
 
 Rules:
+- Use `blurred` for privacy (screen sharing, demos, sensitive uploads), never as decoration. Add `revealable` when the viewer may look.
 - Wrap real screenshots only. Never recreate a dashboard in markup inside a frame.
 - Use `size` for chrome density, `shape="square"` and `appearance="borderless"` for flush layouts; never add chrome with custom classes.
 - Use `browser` for web screenshots, `window` for terminal and code, `phone` for mobile screens, `plain` for no chrome.
@@ -27958,6 +28076,7 @@ Rules:
 - In Hero prefer the `mediaFrame` prop instead of wrapping the media slot by hand.
 
 Accessibility:
+- Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.
 - The frame is a `figure`. Add `aria-label` or a `figcaption` when the capture needs a name; the chrome dots and notch are aria-hidden decoration and the address bar text is plain text.
 - Give `src` images a meaningful `alt`. Empty alt is for decoration only.
 - Scrollable code inside the frame must be focusable and labelled: `tabindex="0"`, `role="region"` and `aria-label` on the scrolling element (Hero does this for its `code` prop).
@@ -28046,6 +28165,16 @@ const shot = '/screenshots/catalogue.png'
   <MediaFrame appearance="bordered" variant="plain" :src="shot" alt="Sample capture with an outline" />
   <MediaFrame appearance="borderless" variant="plain" :src="shot" alt="Sample capture without an outline" />
 </div>
+```
+
+Example: Blurred, revealable
+```vue
+<script setup lang="ts">
+const blurred = ref(true)
+const shot = '/screenshots/dashboard.png'
+</script>
+
+<MediaFrame v-model:blurred="blurred" revealable title="localhost:5173/dashboard" :src="shot" alt="Dashboard with a sidebar and a table of components" />
 ```
 
 ---
@@ -28815,6 +28944,7 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when there is neither a non-empty `author` nor an `author` slot.
 
 Rules:
+- The avatar blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.
 - Pass `quote` without surrounding quotation marks.
 - Use real names, roles and ratings only; never fabricate testimonials. Examples use visibly sample text.
 - Leave `avatarAlt` empty unless the image conveys extra information.
@@ -29344,6 +29474,7 @@ Props:
 - align: 'start' | 'center' = 'start' - Text alignment forwarded to the generated `card` and `minimal` cards; a member's own `align` wins. `centered` is always centred and `horizontal` always start-aligned. Unknown values fall back to `start`.
 - items: TeamGridItem[] = [] - Members: `{ name, role?, bio?, avatar?, avatarAlt?, links?: { label, href, icon?, external? }[], size?, shape?, align? }`. Non-array values and null entries are ignored. `name` is required and every link needs a `label` and an `href`.
 - level: 1 | 2 | 3 | 4 | 5 | 6 = 3 - Heading level of member names; invalid values fall back to 3.
+- blurred: boolean - Privacy blur on every generated member photo (and the initials). Names, roles, bios and links stay readable. Wins over `ConfigProvider blurMedia`, true or false. Cards in the default slot keep their own props.
 - class: string | object | array - Merged last; wins over internal classes.
 
 Parts:
@@ -29359,6 +29490,7 @@ Parts:
     - shape: 'circle' | 'rounded' | 'square' = 'circle' - Avatar shape, forwarded to Avatar. The `name` and `avatarAlt` contract is the same in every shape. Unknown values fall back to `circle`.
     - align: 'start' | 'center' = 'start' - `center` centres the avatar, text and links of the `card` and `minimal` layouts. Ignored by `centered` (already centred) and `horizontal`. Unknown values fall back to `start`.
     - level: 1 | 2 | 3 | 4 | 5 | 6 = 3 - Heading level of the name.
+    - blurred: boolean - Privacy blur on the photo and the initials; text stays readable. Wins over `ConfigProvider blurMedia`, true or false.
     - class: string | object | array - Merged last.
 
 Slots:
@@ -29369,6 +29501,7 @@ Enforced requirements (a ContractError is thrown when missing):
 - Throws a ContractError when a member has no non-empty `name`, or a link has no non-empty `label` (the accessible name of an icon-only link) or `href`. Applies to `items` (the message names the first failing index) and to `TeamMemberCard`.
 
 Rules:
+- Use `blurred` for privacy, not decoration; text stays readable.
 - Use `items` unless cards need custom content; pass icons as FontAwesome IconDefinition objects.
 - Use real names only with permission; never invent people. Pick `variant="card"` by default, `centered` for leadership with big photos, `minimal` on already-carded pages, `horizontal` with `columns=2` and long bios.
 - Keep one `size` and one `shape` per grid. `align="center"` only moves `card` and `minimal`.
@@ -29377,6 +29510,7 @@ Rules:
 - Pair with SectionHeading above it.
 
 Accessibility:
+- Blur is visual only: names, roles and the avatar alt text are unchanged; the avatar root gets `data-blurred`.
 - With `items` the root is a native `<ul>` and each member an `<li>` (role="listitem" is never put on the card: `role` is the job-title prop). With the default slot, or when empty, the root is a plain `<div>`; wrap your cards in `<li>` inside your own `<ul>` for list semantics.
 - Names render as headings (`level`, default 3); keep levels consistent with the surrounding section.
 - Icon-only links use `label` as aria-label; the avatar is labelled with `avatarAlt` or the name (initials fallback is exposed as an image with the name). Every link is at least 24px square and 44px on coarse pointers, with the shared focus ring.
@@ -29491,6 +29625,15 @@ const links = [{ label: 'Email sample person A', href: 'mailto:name@example.com'
     <TeamMemberCard name="Sample person B" role="Role title" variant="centered" />
   </TeamGrid>
 </section>
+```
+
+Example: Blurred photos
+```vue
+<script setup lang="ts">
+const team = [{ name: 'Sample person A', role: 'Role title', avatar: '/sample-a.png' }, ...]
+</script>
+
+<TeamGrid blurred :columns="3" :items="team" />
 ```
 
 ---

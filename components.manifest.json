@@ -717,6 +717,11 @@
           "description": "Element to render."
         },
         {
+          "name": "blurred",
+          "type": "boolean",
+          "description": "Privacy blur for screen sharing, demos and sensitive uploads. Blurs the image and the initials (they identify the person too); the status dot stays sharp. Wins over `ConfigProvider blurMedia` and over an AvatarGroup, true or false. Undefined (default) inherits, then falls back to false. There is no reveal control: the avatar is too small."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged last with tailwind-merge; wins over internal classes."
@@ -755,9 +760,16 @@
         {
           "title": "Status and custom fallback",
           "code": "<div class=\"flex flex-wrap items-center gap-3\">\n  <Avatar name=\"Author One\" status=\"success\" status-label=\"Online\" />\n  <Avatar name=\"Author Two\" status=\"warning\" />\n  <Avatar name=\"Author Five\" status=\"danger\" />\n  <Avatar name=\"Bot\" status=\"info\"><Icon :icon=\"faUser\" /></Avatar>\n</div>"
+        },
+        {
+          "title": "Privacy blur",
+          "description": "The image and the initials are blurred, the status dot stays sharp. The accessible name is unchanged. Use it while sharing a screen, not as decoration.",
+          "code": "<div class=\"flex flex-wrap items-center gap-3\">\n  <Avatar :src=\"portrait\" name=\"Author One\" blurred />\n  <Avatar name=\"Author Two\" status=\"success\" blurred />\n  <Avatar :src=\"portrait\" name=\"Author Three\" />\n</div>",
+          "script": "const portrait = samplePortrait()"
         }
       ],
       "a11y": [
+        "Blur is visual only: the `alt`, the accessible name and the status text are unchanged, and the root gets `data-blurred` as a styling and test hook. Do not rely on it to hide a name from assistive technology; pass `alt=\"\"` or omit `name` where the person must not be named.",
         "With an image: renders `<img alt>` (alt falls back to name).",
         "Without an image the root gets role=\"img\" with aria-label = alt or name; the initials are aria-hidden so they are not read as letters.",
         "The status dot is decorative (aria-hidden). Because role=\"img\" hides its children from assistive tech, the status text is folded into the avatar's own name (\"Author One, online\"; override the text with `statusLabel`), so colour is never the only signal.",
@@ -772,6 +784,7 @@
         "Throws a ContractError when an Avatar has neither `name` nor `alt` (`alt=\"\"` marks it decorative and is accepted)."
       ],
       "llmNotes": [
+        "Use `blurred` (or `ConfigProvider blurMedia`) for privacy, never as decoration. It blurs the initials as well as the image.",
         "Always pass `name` (even with `src`) so the fallback and label work.",
         "Do not hard-code size via width/height classes; use the `size` prop.",
         "Use `statusPosition` and `ring` instead of absolutely positioning your own dots or ring classes.",
@@ -832,6 +845,11 @@
           "description": "Element to render."
         },
         {
+          "name": "blurred",
+          "type": "boolean",
+          "description": "Privacy blur on every avatar (image and initials). The `+N` count is not blurred. Wins over `ConfigProvider blurMedia`; an Avatar with its own `blurred` keeps it, true or false."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged last with tailwind-merge; wins over internal classes."
@@ -865,9 +883,15 @@
           "title": "Density",
           "description": "compact, default and loose, stacked and spaced.",
           "code": "<div class=\"flex flex-col gap-4\">\n  <AvatarGroup density=\"compact\" aria-label=\"Compact stack\" :items=\"[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }]\" />\n  <AvatarGroup density=\"default\" aria-label=\"Default stack\" :items=\"[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }]\" />\n  <AvatarGroup density=\"loose\" aria-label=\"Loose stack\" :items=\"[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }]\" />\n  <AvatarGroup layout=\"spaced\" density=\"compact\" aria-label=\"Compact gap\" :items=\"[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }]\" />\n  <AvatarGroup layout=\"spaced\" density=\"loose\" size=\"sm\" aria-label=\"Loose gap\" :items=\"[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }]\" />\n</div>"
+        },
+        {
+          "title": "Privacy blur",
+          "description": "Every avatar is blurred; the overflow count stays readable. One slotted Avatar opts out with `:blurred=\"false\"`.",
+          "code": "<div class=\"flex flex-col gap-4\">\n  <AvatarGroup blurred :max=\"3\" aria-label=\"Meeting participants, blurred\" :items=\"[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }, { name: 'Author Three' }, { name: 'Author Four' }]\" />\n  <AvatarGroup blurred layout=\"spaced\" aria-label=\"Presenter stays visible\">\n    <Avatar name=\"Author One\" :blurred=\"false\" />\n    <Avatar name=\"Author Two\" />\n    <Avatar name=\"Author Five\" />\n  </AvatarGroup>\n</div>"
         }
       ],
       "a11y": [
+        "Blur is visual only: names, alt text and the `+N` label are unchanged; the root gets `data-blurred`.",
         "Root has role=\"group\"; add `aria-label` (e.g. \"Project members\").",
         "The overflow bubble is role=\"img\" with aria-label \"N more\".",
         "`layout` and `density` change spacing only; the group role, names and the +N bubble stay the same. `spaced` uses `flex-wrap`, so the group reflows at 320px instead of overflowing, and it draws no overlap ring.",
@@ -881,6 +905,7 @@
         "Throws a ContractError when an item (or a slotted Avatar) has neither `name` nor `alt`, because every avatar must say who it is."
       ],
       "llmNotes": [
+        "Use `blurred` for privacy (screen sharing, demos). The `+N` bubble stays readable.",
         "Prefer `items` for data-driven lists, slot children when avatars need extra props.",
         "Set `max` so long lists do not overflow the layout.",
         "Give the group an aria-label.",
@@ -3611,6 +3636,7 @@
         "Lead"
       ],
       "llmNotes": [
+        "The author avatar image blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.",
         "Put the quote in the default slot and the author in `citation`.",
         "Use `cite` only for a real URL.",
         "Use `author` (+ `authorRole`, `avatar`; `role` is a deprecated alias) for attributed quotes, `citation` for plain sources; do not pass both.",
@@ -4728,7 +4754,7 @@
       "group": "layout",
       "subgroup": "Configuration",
       "summary": "Sets text direction, locale, time zone, motion override, default size and density, and translated built-in strings for everything inside it.",
-      "description": "Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`. Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox and ModelPicker read them today. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. Use `asChild` to render no extra element, or `class=\"contents\"` to keep layout unchanged.",
+      "description": "Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`. Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox and ModelPicker read them today. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. `blurMedia` is the privacy switch: it blurs avatars and photos in the subtree, and each component's own `blurred` prop wins. Use `asChild` to render no extra element, or `class=\"contents\"` to keep layout unchanged.",
       "status": "stable",
       "props": [
         {
@@ -4778,6 +4804,11 @@
           "type": "boolean",
           "default": "false",
           "description": "Render no wrapper: attributes go onto the single child element."
+        },
+        {
+          "name": "blurMedia",
+          "type": "boolean",
+          "description": "Privacy blur for every avatar and photo in the subtree (Avatar, AvatarGroup, TeamGrid, ImageGrid, Lightbox, MediaFrame, BeforeAfter, and the images of BlogCard, Blockquote, Testimonial and ChatMessage). A component's own `blurred` prop wins, true or false. Unset keeps the surrounding value, then false. Exposed as `useConfig().blurMedia`."
         },
         {
           "name": "class",
@@ -4831,9 +4862,16 @@
           "title": "No wrapper element",
           "description": "With `asChild` the attributes land on your own element, so the layout is untouched.",
           "code": "<ConfigProvider as-child dir=\"ltr\" locale=\"en-GB\" reduced-motion=\"reduce\">\n  <section aria-label=\"Sample region\" class=\"rounded-lg border p-4\">\n    <p class=\"text-sm\">Language, direction and the motion override are set on this section.</p>\n  </section>\n</ConfigProvider>"
+        },
+        {
+          "title": "Blur media in a region",
+          "description": "One switch blurs every avatar and photo below it, for screen sharing or a demo. The second avatar sets `blurred` false and stays sharp. Use it for privacy, not decoration.",
+          "script": "const blur = ref(false)",
+          "code": "<ConfigProvider :blur-media=\"blur\" class=\"space-y-4 rounded-lg border p-4\">\n  <Switch v-model=\"blur\" label=\"Blur people and photos\" />\n  <AvatarGroup aria-label=\"Meeting participants\">\n    <Avatar name=\"Author One\" />\n    <Avatar name=\"Author Two\" :blurred=\"false\" />\n    <Avatar name=\"Author Five\" />\n  </AvatarGroup>\n  <ImageGrid :images=\"images\" :columns=\"3\" :lightbox=\"false\" />\n</ConfigProvider>"
         }
       ],
       "a11y": [
+        "`blurMedia` is visual only: alt text, names and roles are unchanged and nothing is removed from the accessibility tree. The affected elements get `data-blurred`.",
         "Renders a plain element with no role or name; it does not change the accessibility tree except through `dir` and `lang`.",
         "`lang` lets screen readers pick the right voice and lets the browser hyphenate correctly; set `locale` on the part of the page that is in another language.",
         "Translated labels replace the accessible names of the navigation landmark, the page and arrow buttons, the clear button and the dialog. A blank label is ignored, so a name never disappears.",
@@ -4847,6 +4885,7 @@
         "ConfirmDialog"
       ],
       "llmNotes": [
+        "`blurMedia` is for privacy (screen sharing, demos, sensitive uploads), not decoration. A component prop `blurred` still wins.",
         "Put one ConfigProvider near the root for `dir`, `locale` and `labels`; nest another only where a region differs.",
         "Label keys are `<component>.<string>`: pagination.*, datePicker.*, confirmDialog.*. Unknown keys are harmless and ignored by the components.",
         "A prop on the component still beats the provider: use the prop for one-off text, the provider for the whole app.",
@@ -25627,6 +25666,7 @@
         "Throws a ContractError when a button, link or `role=\"button\"` element in the `actions` slot has no accessible name (give icon-only buttons an `aria-label`)."
       ],
       "llmNotes": [
+        "Inline images blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.",
         "Use `role` for who wrote it and keep the default `role-label` unless a name reads better (\"Ada said\"); never rely on alignment or colour to say who spoke.",
         "Give every icon-only control in the `actions` slot an `aria-label`; use `IconButton` with `label`.",
         "Pass streamed Markdown through `markdown` with `status=\"streaming\"`; do not build HTML strings and never use `v-html`.",
@@ -28486,6 +28526,7 @@
         "Throws a ContractError when an event has a blank `action`."
       ],
       "llmNotes": [
+        "Actor avatars blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.",
         "Always set `label`; give every event a unique, stable `id` and a non-blank `action`.",
         "Pass `now` (and `time-zone`) for server-rendered pages so the output matches on the client.",
         "Use generic actors (\"Deploy bot\", \"Reviewer 1\"); never invent real people. Put the outcome in `action` or `tone`, not only in colour.",
@@ -29710,6 +29751,7 @@
         "Throws a ContractError when an entry has a blank `label`."
       ],
       "llmNotes": [
+        "Entry avatars blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.",
         "Always pass `label` (or `aria-label`) and give every entry a unique `id`.",
         "Pass raw numbers in `value` and set `valueFormat` (and `locale`) instead of pre-formatting strings.",
         "Use `highlight` plus `highlightLabel` to mark the current user or team; never mark it with colour only.",
@@ -31543,6 +31585,7 @@
         "Testimonial"
       ],
       "llmNotes": [
+        "The cover image blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.",
         "Pass dates as ISO strings (`2024-03-01`) so `<time datetime>` is emitted.",
         "Do not nest interactive elements in the card: the title link is stretched over it.",
         "Use `vertical` in grids, `horizontal` for list-style indexes, `featured` once at the top of an index.",
@@ -33396,12 +33439,45 @@
           "description": "Accessible name of the slider."
         },
         {
+          "name": "blurred",
+          "type": "boolean",
+          "description": "Privacy blur on both images; the labels and the slider stay sharp. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false."
+        },
+        {
+          "name": "defaultBlurred",
+          "type": "boolean",
+          "description": "Starting blur when `blurred` is not bound."
+        },
+        {
+          "name": "revealable",
+          "type": "boolean",
+          "default": "false",
+          "description": "When blurred, show a button that unblurs, then a toggle that blurs again. The button is an action whose name says what it does next (\"Show image\", \"Hide image\"), with a 24px minimum target (44px on coarse pointers) and does not appear while the media was never blurred."
+        },
+        {
+          "name": "revealLabel",
+          "type": "string",
+          "default": "'Show image'",
+          "description": "Name of the reveal button (translate it)."
+        },
+        {
+          "name": "hideLabel",
+          "type": "string",
+          "default": "'Hide image'",
+          "description": "Name of the button that blurs again (translate it)."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged last on the root; wins over internal classes."
         }
       ],
       "emits": [
+        {
+          "name": "update:blurred",
+          "payload": "[value: boolean]",
+          "description": "The reveal button changed the blur."
+        },
         {
           "name": "update:modelValue",
           "payload": "[value: number]",
@@ -33469,9 +33545,16 @@
           "title": "Vertical with v-model and custom labels",
           "code": "<div class=\"max-w-sm space-y-2\">\n  <BeforeAfter v-model=\"pos\" orientation=\"vertical\" aspect=\"4 / 5\" before-label=\"Draft\" after-label=\"Final\" label=\"Compare draft and final\" />\n  <p class=\"text-sm text-muted-foreground\">Divider at {{ Math.round(pos) }}% from the top</p>\n</div>",
           "script": "const pos = ref(60)"
+        },
+        {
+          "title": "Blurred, revealable",
+          "description": "Both images are blurred; the slider still works. Dragging the divider never triggers the button.",
+          "code": "<BeforeAfter class=\"max-w-xl\" aspect=\"4 / 3\" revealable default-blurred :before=\"before\" :after=\"after\" before-alt=\"Sample image: before\" after-alt=\"Sample image: after\" />",
+          "script": "const before = '/screenshots/before.png'\nconst after = '/screenshots/after.png'"
         }
       ],
       "a11y": [
+        "Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.",
         "The divider handle is role=\"slider\" (tabindex 0) with aria-valuemin 0, aria-valuemax 100, aria-valuenow, aria-valuetext (\"40% Before, 60% After\") and an aria-label (`label`).",
         "Keyboard map: ArrowRight/ArrowUp/PageUp add \"before\" and ArrowLeft/ArrowDown/PageDown remove it (horizontal); vertical follows the arrow (Down/Right/PageDown move the divider down). Shift multiplies the step by 5; PageUp/PageDown always move 5 steps; Home = 0, End = 100.",
         "Focus is shown as an inset outline around the whole handle and as a ring on the round knob (and, in forced-colors mode, an outline). The handle hit area is 40px wide (a 36px knob) so it exceeds the 24px target size; the page can still scroll over the image on the cross axis (`touch-pan-y` / `touch-pan-x`).",
@@ -33489,6 +33572,7 @@
         "Lightbox"
       ],
       "llmNotes": [
+        "Use `blurred` for privacy, not decoration.",
         "Use `orientation=\"vertical\"` for portrait/tall images or narrow columns; keep horizontal for landscape images.",
         "Both images must share the same crop/aspect ratio.",
         "Always set beforeAlt/afterAlt describing the content.",
@@ -33559,12 +33643,40 @@
           "description": "Prefix of each button's accessible name (localise here)."
         },
         {
+          "name": "blurred",
+          "type": "boolean",
+          "description": "Privacy blur on every image, also inside the Lightbox. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false. Changing it clears the per-image reveals."
+        },
+        {
+          "name": "revealable",
+          "type": "boolean",
+          "default": "false",
+          "description": "Offer a reveal button per image (and inside the Lightbox). Revealing one image leaves the others blurred; a revealed image gets a hide toggle. Buttons are actions whose names say what they do next (\"Show image\", \"Hide image\"), with a 24px minimum target (44px on coarse pointers)."
+        },
+        {
+          "name": "revealLabel",
+          "type": "string",
+          "default": "'Show image'",
+          "description": "Name of the reveal button (translate it)."
+        },
+        {
+          "name": "hideLabel",
+          "type": "string",
+          "default": "'Hide image'",
+          "description": "Name of the button that blurs an image again (translate it)."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged last on the root; wins over internal classes."
         }
       ],
       "emits": [
+        {
+          "name": "reveal",
+          "payload": "[index: number, revealed: boolean]",
+          "description": "An image was revealed or blurred again, from the grid or from the Lightbox."
+        },
         {
           "name": "open",
           "payload": "[index: number]",
@@ -33608,9 +33720,16 @@
         {
           "title": "Square tiles in a featured layout",
           "code": "<ImageGrid variant=\"featured\" shape=\"square\" gap=\"sm\" :columns=\"3\" :images=\"images\" />"
+        },
+        {
+          "title": "Blurred, reveal per image",
+          "description": "Every image is blurred. Revealing one leaves the others blurred; the Lightbox respects the same state.",
+          "code": "<ImageGrid blurred revealable :images=\"images\" :columns=\"3\" @reveal=\"(i, on) => (last = { i, on })\" />\n<p class=\"mt-2 text-sm text-muted-foreground\" role=\"status\">{{ last ? 'Image ' + (last.i + 1) + (last.on ? ' revealed' : ' blurred again') : 'All images blurred' }}</p>",
+          "script": "const last = ref(null)"
         }
       ],
       "a11y": [
+        "Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.",
         "The root is a native `<ul>` and each tile an `<li>`. With the lightbox on, a tile is a `<button type=\"button\" aria-haspopup=\"dialog\">` named \"View image: <alt>\" (the alt text, else the caption, else the position); its image is decorative so the name is not announced twice. Tiles are at least 44px tall (`min-h-11`) even before the image loads, which keeps lazy images above the 24px target size.",
         "Keyboard: Tab moves through the thumbnails, Enter or Space opens the Lightbox (see Lightbox: Esc closes, Left/Right arrows and Home/End navigate, focus returns to the thumbnail). With `lightbox=false` the tiles are plain images with their `alt`.",
         "Masonry fills column by column, so the visual order differs from the DOM and tab order across columns; use it for galleries whose order does not matter.",
@@ -33626,6 +33745,7 @@
         "MediaFrame"
       ],
       "llmNotes": [
+        "Use `blurred` for privacy, not decoration. With `revealable` each image has its own button; the grid-wide `blurred` is the default for all of them.",
         "Always provide meaningful `alt` (it becomes the button label); never remote placeholder URLs in examples.",
         "Provide `thumb` for large originals.",
         "Choose `variant`: grid for uniform screenshots, masonry for mixed-orientation photography, featured to spotlight one hero image among 4-7 others.",
@@ -33699,12 +33819,45 @@
           "description": "aria-label of the next button."
         },
         {
+          "name": "blurred",
+          "type": "boolean",
+          "description": "Privacy blur on the open image. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false. The reveal button sits in the header, never over the picture."
+        },
+        {
+          "name": "defaultBlurred",
+          "type": "boolean",
+          "description": "Starting blur when `blurred` is not bound."
+        },
+        {
+          "name": "revealable",
+          "type": "boolean",
+          "default": "false",
+          "description": "When blurred, show a button that unblurs, then a toggle that blurs again. The button is an action whose name says what it does next (\"Show image\", \"Hide image\"), with a 24px minimum target (44px on coarse pointers) and does not appear while the media was never blurred."
+        },
+        {
+          "name": "revealLabel",
+          "type": "string",
+          "default": "'Show image'",
+          "description": "Name of the reveal button (translate it)."
+        },
+        {
+          "name": "hideLabel",
+          "type": "string",
+          "default": "'Hide image'",
+          "description": "Name of the button that blurs again (translate it)."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged last onto the overlay; wins over internal classes."
         }
       ],
       "emits": [
+        {
+          "name": "update:blurred",
+          "payload": "[value: boolean]",
+          "description": "The reveal button changed the blur."
+        },
         {
           "name": "update:open",
           "payload": "[open: boolean]",
@@ -33730,9 +33883,16 @@
           "title": "Controlled index, no looping",
           "code": "<Button variant=\"outline\" @click=\"open = true\">Start at third</Button>\n<Lightbox v-model:open=\"open\" v-model:index=\"index\" :loop=\"false\" :images=\"images\" />",
           "script": "const open = ref(false)\nconst index = ref(2)"
+        },
+        {
+          "title": "Blurred, revealable",
+          "description": "The open image is blurred; the header offers Show image and Hide image.",
+          "code": "<Button variant=\"outline\" @click=\"open = true\">Open blurred viewer</Button>\n<Lightbox v-model:open=\"open\" revealable default-blurred :images=\"images\" />",
+          "script": "const open = ref(false)"
         }
       ],
       "a11y": [
+        "Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.",
         "role=\"dialog\" aria-modal=\"true\" with an aria-label (`label`); focus moves to Close on open and is restored to the opener on close.",
         "Keyboard map: Tab/Shift+Tab stay inside the dialog (no trap escape); Escape closes; ArrowLeft/ArrowRight move to the previous/next image (swapped in RTL); Home/End jump to the first/last image. Close, previous and next are real buttons with accessible names (`closeLabel`, `prevLabel`, `nextLabel`). At the ends with `loop=false` they use aria-disabled so a focused button keeps focus.",
         "The counter (\"2 / 5\") is a polite live region. Body scroll is locked while open and restored afterwards (including on unmount).",
@@ -33749,6 +33909,7 @@
         "Dialog"
       ],
       "llmNotes": [
+        "Use `blurred` for privacy, not decoration. `revealable` puts the button in the header; ImageGrid passes its own blur state down.",
         "Always bind `v-model:open`; the component never opens itself.",
         "Supply `alt` for each image.",
         "Prefer ImageGrid unless you need a custom trigger."
@@ -35763,6 +35924,34 @@
           "description": "Classes for the content area (padding, background, font)."
         },
         {
+          "name": "blurred",
+          "type": "boolean",
+          "description": "Privacy blur on the content area (the image or whatever is in the slot); the chrome bar stays sharp. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false."
+        },
+        {
+          "name": "defaultBlurred",
+          "type": "boolean",
+          "description": "Starting blur when `blurred` is not bound."
+        },
+        {
+          "name": "revealable",
+          "type": "boolean",
+          "default": "false",
+          "description": "When blurred, show a button that unblurs, then a toggle that blurs again. The button is an action whose name says what it does next (\"Show image\", \"Hide image\"), with a 24px minimum target (44px on coarse pointers) and does not appear while the media was never blurred."
+        },
+        {
+          "name": "revealLabel",
+          "type": "string",
+          "default": "'Show image'",
+          "description": "Name of the reveal button (translate it)."
+        },
+        {
+          "name": "hideLabel",
+          "type": "string",
+          "default": "'Hide image'",
+          "description": "Name of the button that blurs again (translate it)."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged last on the frame root; wins over internal classes."
@@ -35772,6 +35961,13 @@
         {
           "name": "default",
           "description": "Frame content (image, video, code). Overrides `src`. Wide code needs its own scroll container (see the code example)."
+        }
+      ],
+      "emits": [
+        {
+          "name": "update:blurred",
+          "payload": "[value: boolean]",
+          "description": "The reveal button changed the blur."
         }
       ],
       "examples": [
@@ -35819,9 +36015,16 @@
           "description": "The outline of the frame. A borderless frame suits a section that already has a surface; in forced-colors mode the border returns.",
           "code": "<div class=\"grid gap-4 bg-muted p-4 sm:grid-cols-2\">\n  <MediaFrame appearance=\"bordered\" variant=\"plain\" :src=\"shot\" alt=\"Sample capture with an outline\" />\n  <MediaFrame appearance=\"borderless\" variant=\"plain\" :src=\"shot\" alt=\"Sample capture without an outline\" />\n</div>",
           "script": "const shot = '/screenshots/catalogue.png'"
+        },
+        {
+          "title": "Blurred, revealable",
+          "description": "Content is blurred for a demo or screen share. The button reveals it and hides it again.",
+          "code": "<MediaFrame v-model:blurred=\"blurred\" revealable title=\"localhost:5173/dashboard\" :src=\"shot\" alt=\"Dashboard with a sidebar and a table of components\" />",
+          "script": "const blurred = ref(true)\nconst shot = '/screenshots/dashboard.png'"
         }
       ],
       "a11y": [
+        "Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.",
         "The frame is a `figure`. Add `aria-label` or a `figcaption` when the capture needs a name; the chrome dots and notch are aria-hidden decoration and the address bar text is plain text.",
         "Give `src` images a meaningful `alt`. Empty alt is for decoration only.",
         "Scrollable code inside the frame must be focusable and labelled: `tabindex=\"0\"`, `role=\"region\"` and `aria-label` on the scrolling element (Hero does this for its `code` prop).",
@@ -35837,6 +36040,7 @@
         "AspectRatio"
       ],
       "llmNotes": [
+        "Use `blurred` for privacy (screen sharing, demos, sensitive uploads), never as decoration. Add `revealable` when the viewer may look.",
         "Wrap real screenshots only. Never recreate a dashboard in markup inside a frame.",
         "Use `size` for chrome density, `shape=\"square\"` and `appearance=\"borderless\"` for flush layouts; never add chrome with custom classes.",
         "Use `browser` for web screenshots, `window` for terminal and code, `phone` for mobile screens, `plain` for no chrome.",
@@ -36788,6 +36992,7 @@
         "StatGrid"
       ],
       "llmNotes": [
+        "The avatar blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.",
         "Pass `quote` without surrounding quotation marks.",
         "Use real names, roles and ratings only; never fabricate testimonials. Examples use visibly sample text.",
         "Leave `avatarAlt` empty unless the image conveys extra information.",
@@ -37412,6 +37617,11 @@
           "description": "Heading level of member names; invalid values fall back to 3."
         },
         {
+          "name": "blurred",
+          "type": "boolean",
+          "description": "Privacy blur on every generated member photo (and the initials). Names, roles, bios and links stay readable. Wins over `ConfigProvider blurMedia`, true or false. Cards in the default slot keep their own props."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged last; wins over internal classes."
@@ -37484,6 +37694,11 @@
               "type": "1 | 2 | 3 | 4 | 5 | 6",
               "default": "3",
               "description": "Heading level of the name."
+            },
+            {
+              "name": "blurred",
+              "type": "boolean",
+              "description": "Privacy blur on the photo and the initials; text stays readable. Wins over `ConfigProvider blurMedia`, true or false."
             },
             {
               "name": "class",
@@ -37565,9 +37780,16 @@
           "title": "Realistic: section with heading and custom cards",
           "code": "<section class=\"space-y-10\">\n  <SectionHeading title=\"Replace this heading with a claim about the team\" description=\"One sentence of supporting context.\" />\n  <TeamGrid :columns=\"3\">\n    <TeamMemberCard name=\"Sample person A\" role=\"Role title\" bio=\"One or two sentences about this person.\" variant=\"centered\" :links=\"links\" />\n    <TeamMemberCard name=\"Sample person B\" role=\"Role title\" variant=\"centered\" />\n  </TeamGrid>\n</section>",
           "script": "const links = [{ label: 'Email sample person A', href: 'mailto:name@example.com', icon: faEnvelope }]"
+        },
+        {
+          "title": "Blurred photos",
+          "description": "Photos are blurred for a demo or screen share; names and roles stay readable.",
+          "code": "<TeamGrid blurred :columns=\"3\" :items=\"team\" />",
+          "script": "const team = [{ name: 'Sample person A', role: 'Role title', avatar: '/sample-a.png' }, ...]"
         }
       ],
       "a11y": [
+        "Blur is visual only: names, roles and the avatar alt text are unchanged; the avatar root gets `data-blurred`.",
         "With `items` the root is a native `<ul>` and each member an `<li>` (role=\"listitem\" is never put on the card: `role` is the job-title prop). With the default slot, or when empty, the root is a plain `<div>`; wrap your cards in `<li>` inside your own `<ul>` for list semantics.",
         "Names render as headings (`level`, default 3); keep levels consistent with the surrounding section.",
         "Icon-only links use `label` as aria-label; the avatar is labelled with `avatarAlt` or the name (initials fallback is exposed as an image with the name). Every link is at least 24px square and 44px on coarse pointers, with the shared focus ring.",
@@ -37584,6 +37806,7 @@
         "SocialLinks"
       ],
       "llmNotes": [
+        "Use `blurred` for privacy, not decoration; text stays readable.",
         "Use `items` unless cards need custom content; pass icons as FontAwesome IconDefinition objects.",
         "Use real names only with permission; never invent people. Pick `variant=\"card\"` by default, `centered` for leadership with big photos, `minimal` on already-carded pages, `horizontal` with `columns=2` and long bios.",
         "Keep one `size` and one `shape` per grid. `align=\"center\"` only moves `card` and `minimal`.",
