@@ -51,6 +51,7 @@
 - [Heading](/components/typography/heading): Semantic h1-h6 heading with independent visual size, underline/divider decoration and optional eyebrow and description. (Text)
 - [InlineCode](/components/typography/inline-code): Inline <code> snippet with a muted background and monospace font. (Text)
 - [Lead](/components/typography/lead): Large muted intro paragraph that follows a page or section title. (Text)
+- [Price](/components/typography/price): A locale-aware price with an optional period, a struck-through previous price and a label for free or missing amounts. (Text)
 - [RelativeTime](/components/typography/relative-time): A `<time>` element that writes a moment as relative text ("3 minutes ago", "in 2 days") with the absolute date in the tooltip, optionally kept fresh by one shared timer. (Text)
 - [Text](/components/typography/text): Body text with variant presets, size, tone, weight, leading, transform, wrapping, alignment and truncation or line clamping. (Text)
 
@@ -75,6 +76,7 @@
 - [Checkbox](/components/forms/checkbox): Boolean (or indeterminate) checkbox with optional label and description, sizes, tones, shapes, invalid state and Field wiring. (Choice)
 - [CheckboxCard](/components/forms/checkbox-card): Selectable card tile backed by a native checkbox, with title, description, icon slots, variants, tones, a stacked layout and a group for multi-select lists. (Choice)
 - [MultiSelect](/components/forms/multi-select): Dropdown checkbox list with chips summary, search filter, select all / clear, max selections and full keyboard support. (Choice)
+- [PlanPicker](/components/forms/plan-picker): One column of selectable plans with the price at the end, for checkout, upgrade and settings screens. (Choice)
 - [RadioCard](/components/forms/radio-card): Selectable card tile backed by a native radio input, used inside RadioCardGroup for single-choice options with tones, a stacked layout and roving arrow-key navigation. (Choice)
 - [RadioGroup](/components/forms/radio-group): Single-choice group of radio items with roving keyboard focus, labels, descriptions, sizes, tones and Field wiring. (Choice)
 - [SegmentedControl](/components/forms/segmented-control): Compact single choice (view switcher, range picker) built on a radiogroup, in pill, underline, outline or filled looks, horizontal or vertical. (Choice)
@@ -97,6 +99,7 @@
 - [NativeSelect](/components/forms/native-select): Styled native <select> with chevron, options array or slot content, placeholder, variants, sizes, shapes, status and Field wiring. (Selection)
 - [Select](/components/forms/select): Custom single-select dropdown with groups, labels, keyboard typeahead and Field wiring. (Selection)
 - [Slider](/components/forms/slider): Pick a number or a numeric range by dragging a thumb or using the keyboard. (Selection)
+- [UsageEstimator](/components/forms/usage-estimator): Usage-based cost calculator: a slider and number field per metered dimension, a live cost per line and an estimated total. (Selection)
 - [CopyField](/components/forms/copy-field): Read-only value (API key, URL, token) with a joined copy-to-clipboard button, copied feedback, variants, sizes, shapes and status. (Text fields)
 - [DateInput](/components/forms/date-input): Styled native date, time, datetime-local or month input with min/max validation messaging, variants, sizes, shapes and status. (Text fields)
 - [Editable](/components/forms/editable): Inline editable text: click to edit, Enter saves, Escape cancels, blur saves (configurable). (Text fields)
@@ -113,6 +116,7 @@
 
 ## feedback
 - [ConfirmDialog](/components/feedback/confirm-dialog): Confirm / cancel dialog with destructive styling and async-aware confirm, plus a promise-based useConfirm() host. (Confirmation)
+- [PageLoadingBar](/components/feedback/page-loading-bar): A thin bar fixed to the top of the viewport that shows a route change or page load, with a delay so fast navigations never flash. (Loading)
 - [Alert](/components/feedback/alert): Inline, in-flow status message with optional icon, title, description and dismiss button. (Messages)
 - [Banner](/components/feedback/banner): Full-width, page-level notice with optional sticky position, action slot and remembered dismissal. (Messages)
 - [Callout](/components/feedback/callout): Documentation-style note, tip, important, warning, caution, danger, success, quote or example block with a tinted surface and a status icon. (Messages)
@@ -124,6 +128,7 @@
 - [LoadingState](/components/feedback/loading-state): Loading placeholder: spinner with label, or text / card / table / list / avatar-text / kpi-grid / form skeletons; optional full-page layout. (States)
 - [OfflineIndicator](/components/feedback/offline-indicator): Shows a warning message while the browser is offline; renders nothing visible when online. (States)
 - [StaleNotice](/components/feedback/stale-notice): Shows when data was last updated, turns into a warning once it is stale, with optional refresh button. (States)
+- [TypingIndicator](/components/feedback/typing-indicator): Three softly pulsing dots in a compact bubble that show someone or something is writing, with the label announced once. (States)
 - [Toaster](/components/feedback/toaster): Fixed-position, screen-reader-announced stack that renders the global toast store. (Toasts)
 - [ToastItem](/components/feedback/toast-item): Presentational toast card: icon, title, description, optional action and dismiss button. (Toasts)
 
@@ -158,6 +163,9 @@
 - [Collapsible](/components/navigation/collapsible): A single show/hide region with an animated reveal. Built on reka-ui. (Tabs & disclosure)
 - [Tabs](/components/navigation/tabs): Switch between related panels of content without leaving the page. Compound component built on reka-ui. (Tabs & disclosure)
 - [AccentPicker](/components/navigation/accent-picker): Radio group of colour swatches that switches the accent preset (`data-theme`). (Theme)
+- [CodeThemePicker](/components/navigation/code-theme-picker): Radio group that switches the colours of code viewers and code blocks (`data-code-theme`). (Theme)
+- [FontPicker](/components/navigation/font-picker): Radio group that switches the font family (`data-font`) of the whole page. (Theme)
+- [PalettePicker](/components/navigation/palette-picker): Radio group that switches the whole-interface palette (`data-palette`) of the page. (Theme)
 - [StylePicker](/components/navigation/style-picker): Radio group that switches the style pack (`data-style`) of the whole page. (Theme)
 - [ThemeToggle](/components/navigation/theme-toggle): Button that cycles the colour mode light → dark → system and shows the matching icon. (Theme)
 - [Breadcrumb](/components/navigation/breadcrumb): Shows the path to the current page. Items-array API or compound parts, with middle-item truncation. (Wayfinding)
@@ -231,6 +239,8 @@
 - [PricingCard](/components/marketing/pricing-card): Single pricing plan: name, monthly/yearly price, feature checklist, badge and CTA slot, in five variants. (Pricing)
 - [PricingGrid](/components/marketing/pricing-grid): Responsive grid of PricingCards from a plans array, with a per-plan CTA slot and an optional monthly/yearly billing toggle. (Pricing)
 - [PricingTable](/components/marketing/pricing-table): Pricing comparison table: plans as columns (price, badge, CTA), features as rows with check/cross/text cells and an optional billing toggle. (Pricing)
+- [RateCard](/components/marketing/rate-card): A dense, metered price list: one row per billable unit with its rate, what is included and what happens beyond it. (Pricing)
+- [TieredPricing](/components/marketing/tiered-pricing): Graduated or volume price tiers with an optional usage marker and a computed total. (Pricing)
 - [CtaBand](/components/marketing/cta-band): Call-to-action section in 5 layouts (band, card, split, inline, newsletter) and 3 flat tones. (Sections)
 - [Hero](/components/marketing/hero): Page-top hero with 14 layouts, 4 backgrounds, 3 sizes, media frames, stats, logos, a form slot and bento tiles. (Sections)
 - [MediaFrame](/components/marketing/media-frame): Browser, window, phone or plain frame around a real screenshot or code block. (Sections)
@@ -274,6 +284,7 @@ Props:
 - asChild: boolean = false - Render the single slot child instead of a wrapper (reka-ui).
 - type: 'button' | 'submit' | 'reset' = 'button' - Native button type. Defaults to button so it never submits forms by accident.
 - disabled: boolean = false - Disables interaction.
+- loadingIndicator: 'ring' | 'dots' | 'bars' | 'pulse' | 'orbit' = 'ring' - Spinner shape shown while `loading` (see `Spinner` `variant`). The spinner stays decorative; the label stays the accessible name. Unknown values fall back to `ring`.
 - loading: boolean = false - Shows a decorative spinner, sets aria-busy, blocks clicks, keeps width. The label stays in the accessible name.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
@@ -366,6 +377,15 @@ Example: Icon placement
 </div>
 ```
 
+Example: Loading indicator
+```vue
+<div class="flex flex-wrap gap-2">
+  <Button loading loading-indicator="dots">Saving</Button>
+  <Button loading loading-indicator="bars" variant="outline">Exporting</Button>
+  <Button loading loading-indicator="orbit" variant="secondary">Syncing</Button>
+</div>
+```
+
 Example: Loading
 ```vue
 <script setup lang="ts">
@@ -397,6 +417,7 @@ Props:
 - as: string | Component = 'button' - Element to render.
 - type: 'button' | 'submit' | 'reset' = 'button' - Native button type.
 - disabled: boolean = false - Disables interaction.
+- loadingIndicator: 'ring' | 'dots' | 'bars' | 'pulse' | 'orbit' = 'ring' - Spinner shape shown while `loading` (see `Spinner` `variant`). Unknown values fall back to `ring`.
 - loading: boolean = false - Replaces the icon with a spinner, sets aria-busy, blocks clicks.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
@@ -426,6 +447,14 @@ Example: Variants and sizes
   <IconButton label="Add" :icon="faPlus" variant="default" size="sm" />
   <IconButton label="Delete" :icon="faTrash" variant="destructive" size="lg" />
   <IconButton label="Unavailable" :icon="faGear" disabled />
+</div>
+```
+
+Example: Loading indicator
+```vue
+<div class="flex gap-2">
+  <IconButton label="Save" :icon="faPlus" variant="outline" loading loading-indicator="dots" />
+  <IconButton label="Refresh" :icon="faPlus" variant="outline" loading loading-indicator="orbit" />
 </div>
 ```
 
@@ -827,11 +856,15 @@ Accessibility:
 
 Example: Image, initials and sizes
 ```vue
+<script setup lang="ts">
+const portrait = samplePortrait()
+</script>
+
 <div class="flex flex-wrap items-center gap-3">
-  <Avatar name="Author One" size="xs" />
+  <Avatar :src="portrait" name="Author One" size="xs" />
   <Avatar name="Author Two" size="sm" />
   <Avatar name="Author Five" />
-  <Avatar name="Author Three" size="lg" />
+  <Avatar :src="portrait" name="Author Three" size="lg" />
   <Avatar name="Author Four" size="xl" shape="square" />
   <Avatar src="data:," name="Broken Image" />
 </div>
@@ -1291,9 +1324,11 @@ Use `Skeleton` to reserve layout space while data loads. Size it with classes (`
 
 **Shapes**: `text` (one text line, h-4), `circle` and `avatar` (round size-10; `avatar` never shrinks in flex rows), `rect` (default block), `rounded` (block with large radius for cards and images), `pill` (h-6 w-24 for badges, chips and buttons) and `lines` (a paragraph of `lines` text lines, the last one shorter).
 
+**Presets**: `SkeletonText` (paragraph), `SkeletonAvatar` (sm to xl, circle or square), `SkeletonCard` (media + title + lines) and `SkeletonTable` (rows x columns) are ready-made compositions of `Skeleton`, so apps do not hand-build them. They are compound parts rather than a `preset` prop because each has its own props (`rows`, `columns`, `size`) that would not apply to the other shapes. Each part is `aria-hidden`; announce the loading state once from the caller (a region with `aria-busy="true"`, or `LoadingState`).
+
 **Animation**: `pulse` (default), `shimmer` (deprecated alias: it pulses, because a moving highlight needs a gradient) or `none` (static placeholder, e.g. dense tables or when many skeletons would be noisy). The pulse stops under prefers-reduced-motion. The older boolean `shimmer` still works and is ignored when `animation` is set.
 
-import { Skeleton } from '@perfect-design/ui'
+import { Skeleton, SkeletonText, SkeletonAvatar, SkeletonCard, SkeletonTable } from '@perfect-design/ui'
 
 Props:
 - shape: 'text' | 'circle' | 'rect' | 'rounded' | 'pill' | 'avatar' | 'lines' = 'rect' - text = h-4 full-width line, circle/avatar = size-10 round, rect = h-20 block, rounded = h-20 block with rounded-xl, pill = h-6 w-24 fully rounded, lines = paragraph wrapper. Unknown values fall back to rect.
@@ -1303,11 +1338,31 @@ Props:
 - as: string | Component = 'div' - Element to render (the wrapper, for shape="lines"; its lines are divs).
 - class: string | object | array - Merged last with tailwind-merge; use it to set the size. For shape="lines" it applies to the wrapper (e.g. max-w-sm, gap-3).
 
+Parts:
+- SkeletonText - A paragraph placeholder: `lines` text lines, the last one shorter. Same output as `Skeleton shape="lines"` with the part slot name.
+    - lines: number = 3 - Line count (floored, 1..20; invalid values give 3).
+    - animation: 'none' | 'pulse' | 'shimmer' = 'pulse' - Same as Skeleton.
+    - as: string | Component = 'div' - Wrapper element.
+- SkeletonAvatar - A round or square avatar placeholder that never shrinks in a flex row.
+    - size: 'sm' | 'md' | 'lg' | 'xl' = 'md' - 32px, 40px, 48px, 64px. Unknown values fall back to md.
+    - shape: 'circle' | 'square' = 'circle' - square is rounded-md, for logos and app icons.
+    - animation: 'none' | 'pulse' | 'shimmer' = 'pulse' - Same as Skeleton.
+- SkeletonCard - A card placeholder: optional media block, a title line and body lines, inside a bordered card.
+    - media: boolean = true - Show the media block above the text.
+    - lines: number = 3 - Body lines (0..20); 0 or invalid values drop the body.
+    - animation: 'none' | 'pulse' | 'shimmer' = 'pulse' - Same as Skeleton.
+- SkeletonTable - A table placeholder: an optional header row and `rows` rows of `columns` cells on a grid.
+    - rows: number = 5 - Body rows (floored, 1..50; invalid values give 5).
+    - columns: number = 4 - Columns (floored, 1..12; invalid values give 4).
+    - header: boolean = true - Render a header row.
+    - animation: 'none' | 'pulse' | 'shimmer' = 'pulse' - Same as Skeleton.
+
 Rules:
 - Mirror the final layout dimensions to avoid layout shift.
 - Put aria-busy on the loading region; the skeleton itself is aria-hidden.
 - Do not hard-code colours; the component uses `bg-muted`.
 - Use shape="lines" for paragraphs instead of stacking text skeletons; set class on the wrapper.
+- Use SkeletonText, SkeletonAvatar, SkeletonCard and SkeletonTable for common shapes instead of hand-building them.
 - Use animation="none" for static placeholders; do not use the deprecated `shimmer` flag.
 
 Accessibility:
@@ -1368,6 +1423,41 @@ Example: Loading card
 </div>
 ```
 
+Example: SkeletonText
+```vue
+<div class="max-w-sm space-y-4" aria-busy="true">
+  <SkeletonText />
+  <SkeletonText :lines="5" />
+  <SkeletonText :lines="2" animation="none" />
+</div>
+```
+
+Example: SkeletonAvatar
+```vue
+<div class="flex items-center gap-3" aria-busy="true">
+  <SkeletonAvatar size="sm" />
+  <SkeletonAvatar />
+  <SkeletonAvatar size="lg" />
+  <SkeletonAvatar size="xl" shape="square" />
+</div>
+```
+
+Example: SkeletonCard
+```vue
+<div class="grid max-w-2xl gap-4 sm:grid-cols-2" aria-busy="true">
+  <SkeletonCard />
+  <SkeletonCard :media="false" :lines="2" />
+</div>
+```
+
+Example: SkeletonTable
+```vue
+<div class="max-w-xl space-y-6" aria-busy="true">
+  <SkeletonTable :rows="3" :columns="3" />
+  <SkeletonTable :rows="2" :columns="5" :header="false" animation="none" />
+</div>
+```
+
 ---
 
 # Spinner
@@ -1384,9 +1474,11 @@ Props:
 - label: string = 'Loading' - Accessible name of the spinner. Ignored when `decorative`.
 - decorative: boolean = false - Hide the spinner from assistive tech (`aria-hidden`, no role). Use it when a parent already announces the busy state.
 - size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md' - Diameter: 12, 16, 20, 24 or 32px. Unknown values fall back to md.
+- variant: 'ring' | 'dots' | 'bars' | 'pulse' | 'orbit' = 'ring' - Animation shape. `ring` is a rotating arc, `dots` three dots fading in turn, `bars` an equaliser of four bars, `pulse` a solid dot with an expanding ring, `orbit` two arcs turning in opposite directions. Unknown values fall back to `ring`. Non-default values add `data-variant`. The names are exported as `SPINNER_VARIANTS`.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes. The spinner uses `currentColor`.
 
 Rules:
+- Choose `variant` for the look only (`ring`, `dots`, `bars`, `pulse`, `orbit`); semantics and sizes do not change.
 - Pass `decorative` when the spinner sits inside a button or a status region that already announces the wait.
 - Give a specific `label` when the spinner stands alone.
 - Use `ProgressRing` or `Progress` when the amount done is known.
@@ -1394,7 +1486,8 @@ Rules:
 Accessibility:
 - Not decorative: `role="progressbar"` with `aria-label` from `label`. Give it a label that says what is loading, not just "Loading".
 - Decorative: `aria-hidden="true"` and no role. The parent must announce the busy state, for example with `role="status"` text.
-- Rotation slows to a pulse under `prefers-reduced-motion`.
+- Every variant keeps the same role, label and `decorative` behaviour.
+- Under `prefers-reduced-motion` no variant moves: the ring, dots, bars and orbit fade gently, and `pulse` shows a static dot with a faint ring.
 
 Example: Sizes
 ```vue
@@ -1412,6 +1505,25 @@ Example: Next to a label
 <div class="flex flex-col gap-3 text-sm">
   <span class="inline-flex items-center gap-2"><Spinner label="Saving changes" class="text-primary" /></span>
   <span role="status" class="inline-flex items-center gap-2 text-muted-foreground"><Spinner decorative size="sm" /> Syncing the sample catalogue</span>
+</div>
+```
+
+Example: Variants
+```vue
+<div class="flex items-center gap-6 text-primary">
+  <Spinner variant="ring" size="lg" label="Loading ring" />
+  <Spinner variant="dots" size="lg" label="Loading dots" />
+  <Spinner variant="bars" size="lg" label="Loading bars" />
+  <Spinner variant="pulse" size="lg" label="Loading pulse" />
+  <Spinner variant="orbit" size="lg" label="Loading orbit" />
+</div>
+```
+
+Example: Inline next to text
+```vue
+<div class="flex flex-col gap-2 text-sm text-muted-foreground">
+  <p role="status" class="inline-flex items-center gap-2"><Spinner variant="dots" decorative size="sm" /> Fetching the sample report</p>
+  <p role="status" class="inline-flex items-center gap-2"><Spinner variant="bars" decorative size="sm" /> Transcribing the sample recording</p>
 </div>
 ```
 
@@ -1495,17 +1607,17 @@ Example: Fit
 <div class="flex flex-wrap items-start gap-4">
   <div class="w-40">
     <AspectRatio :ratio="1" variant="bordered" rounded="md" fit="cover">
-      <img alt="Sample image, cover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
+      <img alt="Sample image, cover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
     </AspectRatio>
   </div>
   <div class="w-40">
     <AspectRatio :ratio="1" variant="bordered" rounded="md" fit="contain">
-      <img alt="Sample image, contain" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
+      <img alt="Sample image, contain" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
     </AspectRatio>
   </div>
   <div class="w-40">
     <AspectRatio :ratio="1" variant="bordered" rounded="md" fit="fill">
-      <img alt="Sample image, fill" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
+      <img alt="Sample image, fill" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E" />
     </AspectRatio>
   </div>
 </div>
@@ -1881,7 +1993,7 @@ Variations:
 
 - `tone`: `neutral | primary | success | warning | danger | info`.
 - `appearance`: `solid` (default), `soft` (tinted) or `outline` (border on the page background, readable over other elements).
-- `size`: `sm` 16px, `md` 20px (default), `lg` 24px tall.
+- `size`: `sm` 16px, `md` 20px (default), `lg` 28px tall.
 - `shape`: `pill` (grows with the text), `circle` (round for one or two digits), `square` (control radius).
 - `dot`: a marker without a number. With `count` it hides at 0, without `count` it always shows.
 - `max` and `showZero`: the cap before `max+`, and whether `0` is rendered.
@@ -1899,7 +2011,7 @@ Props:
 - dot: boolean = false - Small marker without a number. Still needs `label`. With `count` it hides at 0 (unless `showZero`).
 - label: string - Accessible text, read instead of the visible number (visually hidden). Required whenever the badge renders. Example: `3 unread messages`.
 - tone: 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info' = 'primary' - Semantic colour. Unknown values fall back to primary.
-- size: 'sm' | 'md' | 'lg' = 'md' - Height and text size (16px, 20px, 24px); a 6px, 8px or 10px dot in `dot` mode. Unknown values fall back to md.
+- size: 'sm' | 'md' | 'lg' = 'md' - Height and text size (16px, 20px, 28px); a 6px, 8px or 10px dot in `dot` mode. Unknown values fall back to md.
 - shape: 'pill' | 'circle' | 'square' = 'pill' - Corner shape. `circle` stays round up to two digits and widens for `99+`. Unknown values fall back to pill.
 - appearance: 'solid' | 'soft' | 'outline' = 'solid' - Fill style. `outline` has a page-background fill so it stays readable over other elements. Unknown values fall back to solid.
 - as: string | Component = 'span' - Element to render.
@@ -2049,7 +2161,7 @@ Horizontal progress bar with determinate and indeterminate modes, tones, sizes, 
 
 Use `Progress` to show how far a known task has come (`modelValue` 0..`max`) or that something is working with no known end (omit `modelValue` or pass `null`). Values are clamped: NaN and negatives become 0, values above `max` become `max`, an invalid `max` falls back to 100. Unknown `size`/`tone`/`valuePosition` values fall back to the defaults.
 
-Variations: **size** `xs` (2px) to `xl` (20px); **tone** for meaning (primary, success, warning, danger, info, neutral); **animated** pulses the filled bar (a busy but determinate task; static under prefers-reduced-motion). `striped` is deprecated and draws nothing, because stripes need a gradient and the design system uses none; **valuePosition** `end` (percentage beside the bar, default), `inside` (percentage inside the filled bar, needs size `lg`/`xl`, clipped when the value is very small) or `top` (header row with the visible `label` on the left and the percentage on the right); **segments** splits the bar into N steps for wizards, password strength or quotas (each segment fills proportionally). For a circular meter use `ProgressRing`; for tiny inline waits use `Spinner`.
+Variations: **size** `xs` (2px) to `xl` (20px); **tone** for meaning (primary, success, warning, danger, info, neutral); **animated** pulses the filled bar (a busy but determinate task; static under prefers-reduced-motion). **variant** picks the indeterminate look: `slide` or `sweep` (two-phase: grows, travels, shrinks). A moving stripe look is not offered because stripes need a gradient. `striped` is deprecated and draws nothing, because stripes need a gradient and the design system uses none; **valuePosition** `end` (percentage beside the bar, default), `inside` (percentage inside the filled bar, needs size `lg`/`xl`, clipped when the value is very small) or `top` (header row with the visible `label` on the left and the percentage on the right); **segments** splits the bar into N steps for wizards, password strength or quotas (each segment fills proportionally). For a circular meter use `ProgressRing`; for tiny inline waits use `Spinner`.
 
 import { Progress } from '@perfect-design/ui'
 
@@ -2061,8 +2173,9 @@ Props:
 - label: string - Accessible name (aria-label). Required unless `aria-label` or `aria-labelledby` is set. Also rendered as visible text when `valuePosition="top"`.
 - showValue: boolean = false - Show the rounded percentage as text (determinate only). Placement set by `valuePosition`.
 - valuePosition: 'end' | 'inside' | 'top' = 'end' - end = beside the bar; inside = in the filled bar (use size lg/xl; segmented bars fall back to end); top = header row above the bar with label + percentage.
-- striped: boolean = false - Diagonal stripes on the filled bar (static).
-- animated: boolean = false - Moving stripes; implies `striped`. Static under prefers-reduced-motion and ignored while indeterminate.
+- variant: 'slide' | 'sweep' = 'slide' - Indeterminate look: slide = the bar travels across the track; sweep = the bar grows, travels and shrinks. Static half-opacity full bar under prefers-reduced-motion. No effect when determinate or segmented. Unknown values fall back to slide.
+- striped: boolean = false - Deprecated, no visual effect (stripes need a gradient).
+- animated: boolean = false - Pulses the filled bar; implies nothing else. Static under prefers-reduced-motion and ignored while indeterminate.
 - segments: number = 0 - Split the bar into N segments (2..50, floored). Values below 2 or non-finite render a normal bar. Each segment fills proportionally to the value.
 - as: string | Component - Root element (default div).
 - class: string | object | array - Merged last onto the root wrapper (set width here, e.g. `w-64`).
@@ -2106,6 +2219,15 @@ const value = ref(30)
     <Button size="sm" variant="outline" @click="value = Math.max(0, value - 10)">-10</Button>
     <Button size="sm" @click="value = Math.min(100, value + 10)">+10</Button>
   </div>
+</div>
+```
+
+Example: Indeterminate looks
+```vue
+<div class="w-full max-w-72 space-y-3">
+  <Progress label="Sample slide" />
+  <Progress variant="sweep" label="Sample sweep" />
+  <Progress variant="sweep" tone="success" size="lg" label="Sample large sweep" />
 </div>
 ```
 
@@ -3253,7 +3375,7 @@ Example: Variant: tinted
 
 Example: Variant: card with author row
 ```vue
-<Blockquote variant="card" author="Sample author" author-role="Sample role" avatar="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+<Blockquote variant="card" author="Sample author" author-role="Sample role">
   Sample quotation text inside a card.
 </Blockquote>
 ```
@@ -3731,6 +3853,114 @@ Example: Extra large with actions
   <Lead size="xl">Sample introduction in the extra large size.</Lead>
   <Button>Open the component list</Button>
 </div>
+```
+
+---
+
+# Price
+group: typography / Text
+A locale-aware price with an optional period, a struck-through previous price and a label for free or missing amounts.
+
+Use `Price` wherever an amount of money is shown: plan cards, rate lists, order summaries. It formats with `Intl.NumberFormat` (through `formatPrice`), uses tabular figures, and never throws on bad input.
+
+Digits: whole amounts show no fraction digits, other amounts show two, unless `minimumFractionDigits` or `maximumFractionDigits` say otherwise. `locale` defaults to the `ConfigProvider` locale, else `en-US`, never the browser locale, so server and client render the same text.
+
+Safe fallbacks: a missing, NaN or infinite `amount` renders `fallback` (default a dash, announced as "No price"); an invalid `currency` code renders a plain number; a malformed `locale` falls back to `en-US`. `freeLabel` replaces a zero amount ("Free"). With `compareAt` the old price is struck through for sighted users and screen readers hear "Was X, now Y". The default slot replaces the amount text. For plain strings (chart labels, `aria-label`) use `formatPrice(amount, options)` exported next to the component; `significantFractionDigits` picks the digits for metered rates such as 0.0004.
+
+Not for percentages or counts: use `FormattedNumber`. Not for a whole plan: use `PricingCard`.
+
+import { Price } from '@perfect-design/ui'
+
+Props:
+- amount: number | null - Amount in major units (49.5 is 49.50). null, undefined, NaN and Infinity render `fallback`.
+- currency: string = 'USD' - ISO 4217 code (any case). An invalid code renders a plain number instead of throwing.
+- locale: string = ConfigProvider locale, else 'en-US' - BCP 47 tag such as `de-DE`. Malformed tags fall back to `en-US`.
+- period: string - Text after the amount, smaller and muted, such as "/month".
+- compareAt: number - Previous price. Struck through before the amount; screen readers read "Was X, now Y". Ignored when `amount` is missing or `compareAt` is not finite.
+- notation: 'standard' | 'compact' = 'standard' - `compact` shortens large amounts ("$1.2M"). Unknown values mean `standard`.
+- minimumFractionDigits: number - Fewest fraction digits. Default 0 for whole amounts and 2 otherwise.
+- maximumFractionDigits: number - Most fraction digits. Default 0 for whole amounts and 2 otherwise.
+- freeLabel: string - Text shown when `amount` is exactly 0, such as "Free". Unset formats the zero.
+- fallback: string = '—' - Text for a missing or non-finite amount. The default dash is announced as "No price".
+- size: 'sm' | 'md' | 'lg' | 'xl' = 'md' - Amount scale; the period and previous price scale with it. Unknown values fall back to `md`.
+- tone: 'default' | 'muted' | 'primary' = 'default' - Amount colour. Unknown values fall back to `default`.
+- as: string = 'span' - Root element tag.
+- class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
+
+Slots:
+- default - Replaces the formatted amount text, for example a range such as "from" plus a number. The period and previous price still render.
+
+Rules:
+- Pass the amount as a number in major units; never pre-format it, `Price` formats it.
+- Pass `locale` from app state, or wrap the app in `ConfigProvider`; the fallback is `en-US`, not the browser locale.
+- Use `free-label` for zero amounts and `:compare-at` for a previous price; never hand-roll a strike-through.
+- Use `period` for "/month" style suffixes instead of a sibling span.
+- For metered rates under one cent pass `minimum-fraction-digits` and `maximum-fraction-digits` (or `significantFractionDigits`), otherwise 0.0004 renders as $0.00.
+- Use `formatPrice()` for strings such as chart labels and `aria-label`.
+
+Accessibility:
+- Renders plain text, so screen readers read the formatted string. With `compareAt` they read "Was $30, now $20"; the visual strike-through is `aria-hidden`.
+- A missing amount with the default dash is exposed as an image named "No price" so the dash is not read as "dash" or skipped.
+- Strike-through is not the only signal: the "Was" text exists for assistive technology, and the previous price is also muted.
+- Tabular figures change width only. Colours are `text-foreground`, `text-muted-foreground` and `text-primary`, covered by the contrast tests.
+- Use `locale` that matches the page language so digits and separators read correctly.
+
+Example: Minimal
+```vue
+<div class="flex items-center gap-2">
+  <span class="text-sm text-muted-foreground">Sample plan A</span>
+  <Price :amount="20" period="/month" />
+</div>
+```
+
+Example: Previous price and free label
+```vue
+<div class="flex flex-wrap items-baseline gap-6">
+  <Price :amount="20" :compare-at="30" period="/month" />
+  <Price :amount="0" free-label="Free" />
+  <Price :amount="null" />
+</div>
+```
+
+Example: Size
+```vue
+<div class="flex flex-wrap items-baseline gap-6">
+  <Price :amount="12" size="sm" period="/month" />
+  <Price :amount="12" size="md" period="/month" />
+  <Price :amount="12" size="lg" period="/month" />
+  <Price :amount="12" size="xl" period="/month" />
+</div>
+```
+
+Example: Tone
+```vue
+<div class="flex flex-wrap items-baseline gap-6">
+  <Price :amount="40" tone="default" />
+  <Price :amount="40" tone="muted" />
+  <Price :amount="40" tone="primary" />
+</div>
+```
+
+Example: Locales and currencies
+```vue
+<dl class="grid grid-cols-[max-content_auto] gap-x-4 gap-y-1">
+  <dt>en-US, USD</dt><dd><Price :amount="1234.5" size="sm" /></dd>
+  <dt>de-DE, EUR</dt><dd><Price :amount="1234.5" currency="EUR" locale="de-DE" size="sm" /></dd>
+  <dt>ja-JP, JPY</dt><dd><Price :amount="1500" currency="JPY" locale="ja-JP" size="sm" /></dd>
+</dl>
+```
+
+Example: Compact notation and metered digits
+```vue
+<div class="flex flex-wrap items-baseline gap-6">
+  <Price :amount="1200000" notation="compact" size="sm" />
+  <Price :amount="0.0004" :minimum-fraction-digits="4" :maximum-fraction-digits="4" size="sm" period="per sample unit" />
+</div>
+```
+
+Example: Slot override
+```vue
+<Price :amount="20" period="/month"><span>From $20</span></Price>
 ```
 
 ---
@@ -4723,8 +4953,12 @@ Example: Hero banner
 
 Example: Hero with image or primary background
 ```vue
+<script setup lang="ts">
+const scene = sampleScene()
+</script>
+
 <div class="flex flex-col gap-6">
-  <PageHeader variant="hero" background-image="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" title-as="h4" title="Image banner" description="Text stays readable over the overlay." />
+  <PageHeader variant="hero" :background-image="scene" title-as="h4" title="Image banner" description="Text stays readable over the overlay." />
   <PageHeader variant="hero" background="primary" title-as="h4" title="Primary banner" description="Solid primary colour." />
 </div>
 ```
@@ -5050,9 +5284,17 @@ const stuck = ref(false)
 
 Example: Offset below a header and a bottom bar
 ```vue
-<div class="grid gap-4">
-  <Affix :offset-top="64" :z-index="30" class="rounded-md border bg-card p-3 text-sm">Pins 64px from the top</Affix>
-  <Affix :offset-bottom="16" variant="bordered" class="p-3 text-sm">Pins 16px from the bottom</Affix>
+<div id="affix-offset-scroll" class="relative h-64 overflow-auto rounded-md border" tabindex="0" role="region" aria-label="Offset demo">
+  <div class="sticky top-0 z-40 flex h-12 items-center border-b bg-card px-3 text-sm text-card-foreground">Header, 48px</div>
+  <Affix root="#affix-offset-scroll" :offset-top="48" :z-index="30" variant="bordered" class="px-3 py-2 text-sm">Pins 48px from the top</Affix>
+  <div class="grid gap-2 p-3">
+    <p v-for="n in 8" :key="n" class="text-sm">Paragraph {{ n }}</p>
+  </div>
+  <Affix root="#affix-offset-scroll" :offset-bottom="40" :z-index="30" variant="bordered" class="px-3 py-2 text-sm">Pins 40px from the bottom</Affix>
+  <div class="grid gap-2 p-3">
+    <p v-for="n in 8" :key="n" class="text-sm">Paragraph {{ n + 8 }}</p>
+  </div>
+  <div class="sticky bottom-0 z-40 flex h-10 items-center border-t bg-card px-3 text-sm text-card-foreground">Bottom bar, 40px</div>
 </div>
 ```
 
@@ -5647,7 +5889,7 @@ function publish() {
 
 <form @submit.prevent="publish">
   <FormActions align="between" aria-label="Publish actions">
-    <Button variant="ghost" type="button" @click="result = 'Draft deleted'">Delete draft</Button>
+    <Button variant="outline" class="text-destructive" type="button" @click="result = 'Draft deleted'">Delete draft</Button>
     <div class="flex flex-wrap gap-2">
       <Button variant="outline" type="button" @click="result = 'Draft saved'">Save draft</Button>
       <Button type="submit" :loading="saving">Publish</Button>
@@ -6131,6 +6373,145 @@ Example: In a Field: invalid and disabled
   </Field>
   <MultiSelect :options="fruit" disabled :default-value="['fig']" aria-label="Disabled" />
 </div>
+```
+
+---
+
+# PlanPicker
+group: forms / Choice
+One column of selectable plans with the price at the end, for checkout, upgrade and settings screens.
+
+Use `PlanPicker` when a person chooses one plan inside a form or a settings page: each plan is a radio card with a name, an optional description and a few short points, and its price at the end of the row. It is built on a reka-ui radio group, so the arrow keys move and select, and the whole group is one tab stop. Use `PricingGrid` or `PricingCard` for the marketing page that compares plans side by side, `RadioCardGroup` when the options are not priced, and `UsageEstimator` for usage-based pricing. The model is the selected plan `id`. Set `name` to submit the id in a native form. Prices render through `Price`; a `price` of `null` shows `customLabel`. `billing` switches every plan between `price` and `yearlyPrice` (a plan without `yearlyPrice` keeps its monthly price), and `showBillingToggle` adds the toggle.
+
+import { PlanPicker } from '@perfect-design/ui'
+
+Props:
+- plans*: PlanPickerPlan[] - Plans in display order: `{ id, name, description?, price, yearlyPrice?, period?, yearlyPeriod?, badge?, disabled?, features? }`. `id` is a unique non-empty string, `price` is in major units or `null`. Keep `features` to about three short points. A value that is not an array renders no plans.
+- modelValue: string - v-model: the selected plan `id`. Uncontrolled when omitted.
+- defaultValue: string - Initial plan `id` when uncontrolled.
+- billing: 'monthly' | 'yearly' - v-model:billing. Uncontrolled when omitted. Unknown values count as `monthly`.
+- defaultBilling: 'monthly' | 'yearly' = 'monthly' - Initial billing when uncontrolled.
+- showBillingToggle: boolean = false - Show the monthly and yearly toggle above the plans.
+- billingLabels: { group?: string; monthly?: string; yearly?: string } - Text of the toggle and its accessible name. Defaults are "Billing period", "Monthly" and "Yearly".
+- yearlyNote: string = 'Billed yearly' - Small text under a price that is a yearly price. An empty string hides it.
+- customLabel: string = 'Custom' - Shown instead of the price when `price` is `null`.
+- currency: string - ISO 4217 currency code. Default `USD`. An invalid code renders a plain number.
+- locale: string - BCP 47 locale for prices, such as `de-DE`. Defaults to the ConfigProvider locale, else `en-US`.
+- name: string - Form field name. A hidden input with the selected `id` is rendered while a plan is selected, so a native form submits it.
+- required: boolean = false - Sets `aria-required` on the group. Also inherited from a Field. Native form validation does not check it.
+- disabled: boolean = false - Disables every plan and the toggle. Also inherited from a Field.
+- invalid: boolean = false - Sets `aria-invalid` on the group and a destructive border on every plan. Also set by a Field with an error.
+- size: 'sm' | 'md' | 'lg' = 'md' - Padding, gap and text size of the plans. Unknown values fall back to `md`.
+- variant: 'cards' | 'list' = 'cards' - `cards` are separate bordered radio cards; `list` is one bordered list with dividers between rows. Unknown values fall back to `cards`.
+- class: string | object | array - Merged last on the root element; wins over internal classes.
+
+Events:
+- update:modelValue [value: string] - Emitted when the user selects a plan.
+- update:billing [value: 'monthly' | 'yearly'] - Emitted when the user switches the billing toggle.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when the picker has no accessible name (no Field label, Fieldset legend, `aria-label` or `aria-labelledby`).
+- Throws a ContractError when a plan has an empty `id` or two plans share an `id`.
+- Throws a ContractError when a plan has an empty `name`.
+
+Rules:
+- Use PlanPicker for choosing a plan inside a form or settings screen; use PricingGrid for the marketing comparison.
+- Always name the picker: wrap it in Field with a label, or set `aria-label`.
+- Give every plan a unique non-empty `id` and a `name`; the model is the plan `id`.
+- Pass prices as numbers in major units and set `currency` and `locale`; never pass formatted strings.
+- Keep `features` to about three short points; put the full comparison on a pricing page.
+- Use `v-model:billing` with `show-billing-toggle` for monthly and yearly prices; give `yearlyPrice` and `yearlyPeriod` on each plan that has them.
+- Set `name` when the selected plan must be submitted by a native form.
+- In examples, label plans as samples ("Sample plan A") and use round numbers.
+
+Accessibility:
+- The group has `role="radiogroup"` and each plan `role="radio"`. Name the group with a Field label, a Fieldset legend, `aria-label` or `aria-labelledby`. Each plan is named by its `name`, and described by its description, points and price.
+- Keyboard: Tab enters the group at the selected plan (or the first one) and leaves it; the arrow keys move to the next enabled plan and select it; Space selects the focused plan. Disabled plans are skipped.
+- The selected plan shows a filled radio dot as well as a primary border and tint, so selection never relies on colour. The focus ring uses `focusRing` and an outline in forced-colors mode.
+- Each row stacks no further than one column, so the layout reflows at 320px: the name wraps, and the price stays at the end of the row.
+- The billing toggle is a named radio group of its own. Prices are tabular figures.
+
+Example: Basic
+```vue
+<script setup lang="ts">
+const plans = [
+  { id: 'a', name: 'Sample plan A', description: 'Sample description for the smallest plan.', price: 0, period: '/month' },
+  { id: 'b', name: 'Sample plan B', description: 'Sample description for the middle plan.', price: 10, yearlyPrice: 100, period: '/month', yearlyPeriod: '/year', features: ['Sample feature one', 'Sample feature two'] },
+  { id: 'c', name: 'Sample plan C', description: 'Sample description for the largest plan.', price: 40, yearlyPrice: 400, period: '/month', yearlyPeriod: '/year', badge: 'Sample badge' },
+]
+const plan = ref('b')
+</script>
+
+<div class="grid max-w-lg gap-3">
+  <PlanPicker v-model="plan" :plans="plans" aria-label="Plan" />
+  <p class="text-sm text-muted-foreground">Selected: {{ plan }}</p>
+</div>
+```
+
+Example: In a Field, with billing toggle and form value
+```vue
+<script setup lang="ts">
+const plans = [
+  { id: 'a', name: 'Sample plan A', description: 'Sample description for the smallest plan.', price: 0, period: '/month' },
+  { id: 'b', name: 'Sample plan B', description: 'Sample description for the middle plan.', price: 10, yearlyPrice: 100, period: '/month', yearlyPeriod: '/year', features: ['Sample feature one', 'Sample feature two'] },
+  { id: 'c', name: 'Sample plan C', description: 'Sample description for the largest plan.', price: 40, yearlyPrice: 400, period: '/month', yearlyPeriod: '/year', badge: 'Sample badge' },
+]
+const plan = ref('b')
+const billing = ref('monthly')
+</script>
+
+<form class="grid max-w-lg gap-4" @submit.prevent>
+  <Field label="Plan" hint="Sample plans. You can change plan later." required>
+    <PlanPicker v-model="plan" v-model:billing="billing" name="plan" show-billing-toggle :plans="plans" />
+  </Field>
+  <p class="text-sm text-muted-foreground tabular-nums">Selected: {{ plan }}, billed {{ billing }}</p>
+  <div><Button type="submit">Continue to payment</Button></div>
+</form>
+```
+
+Example: List variant
+```vue
+<script setup lang="ts">
+const plan = ref('a')
+const plans = [
+  { id: 'a', name: 'Sample plan A', price: 0, period: '/month' },
+  { id: 'b', name: 'Sample plan B', price: 10, period: '/month' },
+  { id: 'c', name: 'Sample plan C', price: null, disabled: true, badge: 'Unavailable' },
+]
+</script>
+
+<PlanPicker v-model="plan" variant="list" :plans="plans" aria-label="Plan" class="max-w-lg" />
+```
+
+Example: Sizes
+```vue
+<script setup lang="ts">
+const plans = [
+  { id: 'a', name: 'Sample plan A', description: 'Sample description for the smallest plan.', price: 0, period: '/month' },
+  { id: 'b', name: 'Sample plan B', description: 'Sample description for the middle plan.', price: 10, yearlyPrice: 100, period: '/month', yearlyPeriod: '/year', features: ['Sample feature one', 'Sample feature two'] },
+  { id: 'c', name: 'Sample plan C', description: 'Sample description for the largest plan.', price: 40, yearlyPrice: 400, period: '/month', yearlyPeriod: '/year', badge: 'Sample badge' },
+]
+</script>
+
+<div class="grid max-w-lg gap-6">
+  <PlanPicker size="sm" default-value="a" :plans="plans" aria-label="Small plans" />
+  <PlanPicker default-value="a" :plans="plans" aria-label="Medium plans" />
+  <PlanPicker size="lg" default-value="a" :plans="plans" aria-label="Large plans" />
+</div>
+```
+
+Example: Yearly billing and German prices
+```vue
+<script setup lang="ts">
+const plans = [
+  { id: 'a', name: 'Sample plan A', description: 'Sample description for the smallest plan.', price: 0, period: '/month' },
+  { id: 'b', name: 'Sample plan B', description: 'Sample description for the middle plan.', price: 10, yearlyPrice: 100, period: '/month', yearlyPeriod: '/year', features: ['Sample feature one', 'Sample feature two'] },
+  { id: 'c', name: 'Sample plan C', description: 'Sample description for the largest plan.', price: 40, yearlyPrice: 400, period: '/month', yearlyPeriod: '/year', badge: 'Sample badge' },
+]
+const billing = ref('yearly')
+</script>
+
+<PlanPicker v-model:billing="billing" show-billing-toggle locale="de-DE" currency="EUR" yearly-note="Jährlich abgerechnet" :billing-labels="{ group: 'Abrechnung', monthly: 'Monatlich', yearly: 'Jährlich' }" :plans="plans" aria-label="Tarif" class="max-w-lg" />
 ```
 
 ---
@@ -9057,6 +9438,128 @@ Example: Disabled and invalid
 
 ---
 
+# UsageEstimator
+group: forms / Selection
+Usage-based cost calculator: a slider and number field per metered dimension, a live cost per line and an estimated total.
+
+Use `UsageEstimator` on a pricing page or a plan screen when the price depends on how much is used. Each dimension has a `rate` per unit (or per `per` units), optional free `included` units, bounds, and optionally graduated `tiers` that replace the flat rate. The estimate is computed by the exported pure helpers `lineCost` and `estimateTotal`, which never round: amounts are rounded only when displayed. Quantities are clamped to `min` and `max`; NaN and negative values count as 0. Tier bounds `upTo` count billable units (after `included`), and units above the last bounded tier are billed at that tier rate. Use `PlanPicker` to choose a plan and `RateCard` or `TieredPricing` to show the rates as a table. Always say that the figures are an estimate with `note`.
+
+import { UsageEstimator } from '@perfect-design/ui'
+
+Props:
+- dimensions*: UsageDimension[] - Metered dimensions, one row each: `{ id, label, unit, rate, per?, included?, min?, max, step?, tiers? }`. `id` and `label` are required and unique, `max` is a finite number above `min`, `rate` is at least 0. `tiers` is `{ upTo: number | null, rate: number }[]` in ascending order.
+- modelValue: Record<string, number> - v-model: quantity per dimension id. A missing id counts as that dimension's `min` (or 0). Uncontrolled when omitted.
+- defaultValue: Record<string, number> - Initial quantities when uncontrolled.
+- currency: string - ISO 4217 currency code. Default `USD`.
+- locale: string - BCP 47 locale for money and quantities. Defaults to the ConfigProvider locale, else `en-US`.
+- period: string - Text after the total, such as "/month". It is also spoken with the total.
+- input: 'slider' | 'number' | 'both' = 'both' - Controls in each row. With `slider` alone the quantity is shown as text. Unknown values fall back to `both`.
+- showBreakdown: boolean = true - Show the cost of each row and its rate hint. The total is always shown.
+- totalLabel: string = 'Estimated total' - Label of the total line, also used in the spoken update.
+- note: string - Disclaimer under the total, such as "Sample rates. Estimate only." Use the `note` slot for rich content.
+- size: 'sm' | 'md' | 'lg' = 'md' - Spacing, text size and control size. Unknown values fall back to `md`.
+- variant: 'card' | 'plain' = 'card' - `card` is a bordered panel; `plain` has no surface. Unknown values fall back to `card`.
+- class: string | object | array - Merged last on the root element; wins over internal classes.
+
+Slots:
+- note - Rich disclaimer under the total. Overrides the `note` prop.
+
+Events:
+- update:modelValue [value: Record<string, number>] - Emitted with the full quantity map when a slider or number field changes a quantity.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when a dimension has an empty `id` or two dimensions share an `id`.
+- Throws a ContractError when a dimension has an empty `label`, which names its controls.
+- Throws a ContractError when a dimension `max` is not a finite number above its `min`.
+- Throws a ContractError when a dimension `rate` (or a tier `rate`) is not a finite number of at least 0.
+
+Rules:
+- Use UsageEstimator for usage-based pricing; use PlanPicker to choose a plan and RateCard or TieredPricing to list the rates.
+- Give every dimension a unique `id`, a `label`, a `unit`, a `rate` and a `max`; set `step` so the slider moves in useful jumps.
+- Use `per` for rates quoted per 1,000 units and `included` for free units; use `tiers` for graduated pricing (`upTo` counts billable units, `null` means no limit).
+- Compute the figure with `lineCost` and `estimateTotal`, never by hand; they do not round.
+- Always set `note` to say the figure is an estimate, and `period` for the billing period.
+- In examples, use labelled sample rates and round numbers ("Sample requests"), never real prices.
+
+Accessibility:
+- Every slider thumb and number field is named from the dimension `label` and `unit` ("Sample requests, requests"). The visible label is contained in that name.
+- Keyboard: the slider takes the arrow keys, Home, End and Page Up/Down; the number field takes the arrow keys and typed digits, and commits on Enter or blur.
+- The total is announced through one polite `role="status"` region, once the quantities stop changing (about 600ms), not on every slider step.
+- Rows stack at 375px: the label and cost on one line, the slider above the number field. Numbers use tabular figures and logical properties, so right-to-left layouts mirror.
+
+Example: Basic
+```vue
+<script setup lang="ts">
+const dimensions = [{ id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.5, per: 1000, max: 100000, step: 1000 }]
+</script>
+
+<UsageEstimator :dimensions="dimensions" :default-value="{ requests: 20000 }" period="/month" note="Sample rate. Estimate only." class="max-w-xl" />
+```
+
+Example: Included units, tiers and a shown model
+```vue
+<script setup lang="ts">
+const dimensions = [
+  { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },
+  { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },
+  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },
+]
+const usage = ref({ requests: 250000, storage: 400, seats: 5 })
+</script>
+
+<div class="grid max-w-xl gap-3">
+  <UsageEstimator v-model="usage" :dimensions="dimensions" period="/month" note="Sample rates. Estimate only." />
+  <p class="text-sm text-muted-foreground tabular-nums">Model: {{ usage }}</p>
+</div>
+```
+
+Example: Inputs and breakdown
+```vue
+<script setup lang="ts">
+const dimensions = [
+  { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },
+  { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },
+  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },
+]
+</script>
+
+<div class="grid max-w-xl gap-8">
+  <UsageEstimator input="slider" :dimensions="dimensions" :default-value="{ requests: 120000, storage: 50, seats: 4 }" />
+  <UsageEstimator input="number" :show-breakdown="false" :dimensions="dimensions" :default-value="{ requests: 120000, storage: 50, seats: 4 }" />
+</div>
+```
+
+Example: Variant and sizes
+```vue
+<script setup lang="ts">
+const dimensions = [
+  { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },
+  { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },
+  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },
+]
+</script>
+
+<div class="grid max-w-xl gap-8">
+  <UsageEstimator variant="plain" size="sm" :dimensions="dimensions" />
+  <UsageEstimator size="lg" :dimensions="dimensions" />
+</div>
+```
+
+Example: German locale and currency
+```vue
+<script setup lang="ts">
+const dimensions = [
+  { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },
+  { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },
+  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },
+]
+</script>
+
+<UsageEstimator locale="de-DE" currency="EUR" period="/Monat" total-label="Geschätzter Gesamtbetrag" note="Beispielpreise. Nur eine Schätzung." :dimensions="dimensions" :default-value="{ requests: 50000, storage: 120, seats: 4 }" class="max-w-xl" />
+```
+
+---
+
 # CopyField
 group: forms / Text fields
 Read-only value (API key, URL, token) with a joined copy-to-clipboard button, copied feedback, variants, sizes, shapes and status.
@@ -9260,7 +9763,6 @@ const month = ref('2024-05')
 <div class="flex w-56 flex-col gap-3">
   <DateInput v-model="time" type="time" min="08:00" max="18:00" aria-label="Meeting time" />
   <DateInput v-model="month" type="month" aria-label="Billing month" />
-  <DateInput model-value="2024-01-01" readonly aria-label="Locked date" />
 </div>
 ```
 
@@ -10080,7 +10582,7 @@ const text = ref('')
 
 <PromptInput v-model="text" class="max-w-xl" aria-label="Message">
   <template #header><Badge variant="outline">notes.txt</Badge></template>
-  <template #attach><IconButton label="Attach a file" variant="ghost" :icon="faPlus" /></template>
+  <template #attach><IconButton label="Attach a file" variant="outline" shape="circle" :icon="faPlus" /></template>
   <template #actions><Badge variant="secondary">Draft - fast</Badge></template>
   <template #footer>Enter sends, Shift+Enter adds a line.</template>
 </PromptInput>
@@ -10697,6 +11199,71 @@ async function run() { if (await confirm({ title: 'Reset settings?', destructive
 <Button variant="outline" @click="run">Reset settings</Button>
 <span class="ml-2 text-sm text-muted-foreground">{{ result }}</span>
 <ConfirmHost />
+```
+
+---
+
+# PageLoadingBar
+group: feedback / Loading
+A thin bar fixed to the top of the viewport that shows a route change or page load, with a delay so fast navigations never flash.
+
+Mount `PageLoadingBar` once in the app shell and drive `active` from your router. While `active` is true it shows an indeterminate sweep; when `active` turns false it fills to 100% and fades. `delay` (default 150ms) keeps navigations that finish quickly from flashing the bar, and `minDuration` (default 300ms) keeps a bar that did show from blinking away. Turning `active` back on during the finish or fade resumes the sweep without a flash.
+
+The bar is `position: fixed` at `z-(--z-toast)` and ignores the pointer. It is idle and `aria-hidden` until it shows; then it is a `progressbar` named by `label` (default "Loading page") with no value while loading. Under prefers-reduced-motion the sweep becomes a static full-width bar while active and the fade is instant.
+
+Use it for route and page level waits. For a bar inside a layout use `Progress`; for a region use `LoadingState`.
+
+vue-router:
+
+```ts
+const loading = ref(false)
+router.beforeEach(() => { loading.value = true })
+router.afterEach(() => { loading.value = false })
+router.onError(() => { loading.value = false })
+```
+
+```vue
+<PageLoadingBar :active="loading" />
+```
+
+import { PageLoadingBar } from '@perfect-design/ui'
+
+Props:
+- active: boolean = false - True while a navigation or load is in flight.
+- delay: number = 150 - Milliseconds before the bar shows. 0 shows at once. Negative or invalid values give 150.
+- minDuration: number = 300 - Minimum milliseconds the bar stays once shown. Negative or invalid values give 300.
+- tone: 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info' = 'primary' - Colour of the bar. Unknown values fall back to primary.
+- size: 'xs' | 'sm' | 'md' = 'sm' - Thickness: 2px, 4px, 6px. Unknown values fall back to sm.
+- label: string = 'Loading page' - Accessible name of the progressbar while it is visible.
+- class: string | object | array - Merged last onto the fixed root; use it to move the bar or change its stacking.
+
+Rules:
+- Mount one PageLoadingBar in the app shell; drive `active` from router.beforeEach / afterEach / onError.
+- Keep the default `delay`; do not set it to 0 outside demos.
+- Do not use it for in-component loading; use Progress, Spinner or LoadingState.
+- Announce route changes separately (focus or title); the bar is visual only.
+
+Accessibility:
+- Idle: `aria-hidden="true"` and invisible, so it adds nothing to the accessibility tree.
+- Visible: `role="progressbar"` with `aria-label` (default "Loading page"); no `aria-valuenow` while loading (indeterminate), `aria-valuenow="100"` while it finishes.
+- A progress bar is not announced on its own. For a route change also move focus or update the document title; this bar is a visual cue.
+- prefers-reduced-motion: a static full-width bar while active, no sweep, no fade.
+- The bar never takes pointer events and is not focusable.
+
+Example: Toggle with a button
+```vue
+<div class="space-y-3">
+  <Button size="sm" variant="outline" @click="loading = !loading">{{ loading ? 'Finish loading' : 'Start loading' }}</Button>
+  <PageLoadingBar :active="loading" :delay="0" :min-duration="600" label="Loading sample page" />
+</div>
+```
+
+Example: Tone and thickness
+```vue
+<div>
+  <PageLoadingBar active :delay="0" size="xs" tone="info" label="Loading sample xs" />
+  <p class="text-sm text-muted-foreground">The info-toned bar sits at the top of the viewport.</p>
+</div>
 ```
 
 ---
@@ -11505,7 +12072,7 @@ const hostile = '<img src=x onerror=alert(1)> ' + 'long text '.repeat(80)
 
 Example: Variants and sizes
 ```vue
-<div class="grid gap-4 md:grid-cols-2">
+<div class="grid items-start gap-4 md:grid-cols-2">
   <AsyncBoundary variant="card" state="success" :retryable="false"><p>Content on a card surface.</p></AsyncBoundary>
   <AsyncBoundary variant="card" size="sm" state="empty" empty-title="No sample items" :retryable="false"><p>Items</p></AsyncBoundary>
   <AsyncBoundary variant="compact" state="loading" loading-label="Loading sample items" :retryable="false"><p>Items</p></AsyncBoundary>
@@ -11799,6 +12366,7 @@ Props:
 - size: 'sm' | 'md' | 'lg' = 'md' - Scale of the `spinner` variant: spinner, label and padding. Skeleton variants ignore it. Unknown values fall back to `md`. Non-default values add `data-size`.
 - layout: 'stacked' | 'inline' = 'stacked' - `inline` puts the spinner and the label in one start-aligned row (buttons-adjacent status, table footers, toolbars). Spinner variant only. Unknown values fall back to `stacked`. Non-default values add `data-layout`.
 - shape: 'rounded' | 'square' | 'pill' = 'rounded' - Corner shape of the skeleton placeholders: small radius, none, or fully rounded. Match the shape of the content that will replace them. The spinner variant ignores it. Unknown values fall back to `rounded`. Non-default values add `data-shape`.
+- indicator: 'ring' | 'dots' | 'bars' | 'pulse' | 'orbit' = 'ring' - Spinner shape of the `spinner` variant (see `Spinner` `variant`). Skeleton variants ignore it. Unknown values fall back to `ring`.
 - fullPage: boolean = false - Fill the viewport height and centre the content.
 - rows: number = 3 - Skeleton text lines, table body rows, list rows, avatar rows or form fields, clamped to 1-50.
 - columns: number = 4 - Skeleton table columns, or the number of `kpi-grid` tiles, clamped to 1-12.
@@ -11832,6 +12400,15 @@ Example: Skeletons
   <LoadingState variant="text" :rows="4" label="Loading article" />
   <LoadingState variant="card" :rows="2" label="Loading card" />
   <LoadingState variant="table" :rows="4" :columns="3" label="Loading table" />
+</div>
+```
+
+Example: Indicator shapes
+```vue
+<div class="grid gap-2">
+  <LoadingState layout="inline" size="sm" indicator="dots" label="Loading comments" />
+  <LoadingState layout="inline" size="sm" indicator="bars" label="Loading charts" />
+  <LoadingState layout="inline" size="sm" indicator="orbit" label="Loading files" />
 </div>
 ```
 
@@ -12003,6 +12580,49 @@ const fresh = Date.now() - 60_000
   <StaleNotice :timestamp="updated" variant="inline" />
   <StaleNotice :timestamp="fresh" tone="info" />
   <StaleNotice :timestamp="updated" tone="danger" stale-label="Data could not be refreshed." />
+</div>
+```
+
+---
+
+# TypingIndicator
+group: feedback / States
+Three softly pulsing dots in a compact bubble that show someone or something is writing, with the label announced once.
+
+Use `TypingIndicator` at the end of a conversation while a person or an assistant is composing a reply. It is a polite `role="status"` whose visually hidden `label` ("Mira is typing") is the only thing a screen reader announces; the dots are decoration. `ChatThread` draws one for its `typing` prop. Use `Spinner` or `LoadingState` for a wait that is not a reply being written, and `Progress` when the amount done is known.
+
+import { TypingIndicator } from '@perfect-design/ui'
+
+Props:
+- label: string = 'Typing' - Visually hidden text announced politely once. Name who is typing when it is known. Empty or blank falls back to `Typing`.
+- size: 'sm' | 'md' = 'md' - Dot size and padding: 4px or 6px dots. Unknown values fall back to `md`. Non-default values add `data-size`.
+- variant: 'bubble' | 'plain' = 'bubble' - `bubble` is a muted rounded chip; `plain` is the dots only, in the surrounding text colour. Unknown values fall back to `bubble`. Non-default values add `data-variant`.
+- decorative: boolean = false - Hide it from assistive tech (no role, no label text). Use when a parent region already announces the state, as `ChatThread` does.
+- class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
+
+Rules:
+- Put one at the end of a conversation while a reply is being written; in `ChatThread` set `typing` instead of placing it by hand.
+- Set `label` to say who is typing ("Mira is typing"); do not leave generic text when the name is known.
+- Use `decorative` only when a parent already announces the state.
+- Use `Spinner` or `LoadingState` for waits that are not a reply being composed.
+
+Accessibility:
+- `role="status"` (polite live region) with a visually hidden label; the three dots are `aria-hidden`, so the label is announced once and the animation is never read.
+- Under `prefers-reduced-motion` the dots are static and slightly faded: nothing moves.
+- The dots use `currentColor` on the muted token pair, so contrast follows the theme. State is never colour alone: the label carries the meaning.
+- With `decorative` it has no role and no text; give the surrounding region the announcement.
+
+Example: Default
+```vue
+<TypingIndicator />
+```
+
+Example: Named, sizes and looks
+```vue
+<div class="flex flex-col items-start gap-3">
+  <TypingIndicator label="Mira is typing" />
+  <TypingIndicator size="sm" label="Sample assistant is writing" />
+  <p class="flex items-center gap-2 text-sm text-muted-foreground">Sample assistant <TypingIndicator variant="plain" size="sm" label="Sample assistant is typing" /></p>
 </div>
 ```
 
@@ -12649,9 +13269,9 @@ const steps = [
 ]
 </script>
 
-<div class="flex items-center gap-3">
+<div class="flex flex-wrap items-center gap-3">
   <Button size="sm" @click="open = true">Take the tour</Button>
-  <input id="tour-demo-search" class="rounded-md border px-2 py-1 text-sm" placeholder="Search" aria-label="Search" />
+  <input id="tour-demo-search" class="min-w-0 rounded-md border px-2 py-1 text-sm" placeholder="Search" aria-label="Search" />
   <Button id="tour-demo-create" size="sm" variant="outline">Create</Button>
 </div>
 <Tour v-model:open="open" v-model:step="step" :steps="steps" />
@@ -14472,6 +15092,14 @@ Example: Icon and badge, sidebar style
 <div class="w-56 max-w-full space-y-1 rounded-lg bg-sidebar p-2" @click.prevent>
   <NavLink href="/components" variant="sidebar" :icon="faHouse" active>Overview</NavLink>
   <NavLink href="/components/feedback" variant="sidebar" :icon="faBell" badge="3">Alerts</NavLink>
+  <NavLink href="/guides/customisation" variant="sidebar" :icon="faGear">Settings</NavLink>
+</div>
+```
+
+Example: Collapsed, icon only
+```vue
+<div class="w-14 space-y-1 rounded-lg bg-sidebar p-2" @click.prevent>
+  <NavLink href="/components" variant="sidebar" :icon="faHouse" collapsed title="Overview">Overview</NavLink>
   <NavLink href="/guides/customisation" variant="sidebar" :icon="faGear" collapsed title="Settings">Settings</NavLink>
 </div>
 ```
@@ -15711,6 +16339,124 @@ Example: Grid and list layouts
 Example: Subset
 ```vue
 <AccentPicker :accents="subset" label="Brand colour" />
+```
+
+---
+
+# CodeThemePicker
+group: navigation / Theme
+Radio group that switches the colours of code viewers and code blocks (`data-code-theme`).
+
+Offers "Follow palette" (`default`) and the ten code themes of `THEME_CODE_THEMES` (or the `themes` you pass), dark ones first, and stores the choice with `useThemeStore().setCodeTheme()`, which sets `data-code-theme` on `<html>` and persists it. The theme mode (dark or light) is shown as text after each name, and each option has a small code swatch drawn with that theme. `default` follows the active palette, or the core tokens when no palette is set. The CSS (`@perfect-design/ui/code-themes.css`) must be imported by the app. It is a single tab stop; arrow keys, Home and End move the selection. Pair with `PalettePicker`.
+
+import { CodeThemePicker } from '@perfect-design/ui'
+
+Props:
+- themes: ThemeCodeTheme[] = THEME_CODE_THEMES - Code themes to offer, in order. Unknown names are ignored.
+- label: string = 'Code theme' - aria-label of the radiogroup.
+- class: string | object | array - Merged last.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when no Pinia instance is active (`app.use(createPinia())`).
+- Throws a ContractError when `label` is blank, or `themes` has no known code theme.
+
+Rules:
+- Requires an active Pinia instance and the `code-themes.css` import.
+- A code theme overrides the palette code colours; leave it on `default` unless users should choose.
+
+Accessibility:
+- `role="radiogroup"` with `role="radio"` options and aria-checked; the group has an aria-label (`label`).
+- Roving tabindex: Tab enters once on the selected option; Arrow keys, Home and End change the selection and move focus (Left and Right swap in RTL).
+- Each option has visible text including its mode; the code swatch is decorative (`aria-hidden`). Selection is shown by fill plus aria-checked, never by colour alone. Options are 32px high (44px on coarse pointers) and wrap at narrow widths.
+- Every code theme meets 4.5:1 text contrast on its own background.
+
+Example: All code themes
+```vue
+<CodeThemePicker />
+```
+
+Example: Subset
+```vue
+<CodeThemePicker :themes="subset" label="Syntax colours" />
+```
+
+---
+
+# FontPicker
+group: navigation / Theme
+Radio group that switches the font family (`data-font`) of the whole page.
+
+Offers every family in `THEME_FONTS` (or the `fonts` you pass) and stores the choice with `useThemeStore().setFont()`, which sets `data-font` on `<html>` and persists it. Each option is drawn in its own family, so the choice previews itself. The font CSS (`@perfect-design/ui/fonts.css`) must be imported by the app, after `theme.css` and any packs. Every family is a platform font stack, so no font file ships; point a family at a loaded web font by overriding `--font-sans` in your own `[data-font]` rule. It is a single tab stop; arrow keys, Home and End move the selection. The font is independent of the style pack, accent and colour mode. Pair with `StylePicker`, `AccentPicker` and `ThemeToggle`.
+
+import { FontPicker } from '@perfect-design/ui'
+
+Props:
+- fonts: ThemeFont[] = THEME_FONTS - Font families to offer, in order. Unknown names are ignored.
+- label: string = 'Font' - aria-label of the radiogroup.
+- class: string | object | array - Merged last.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when no Pinia instance is active (`app.use(createPinia())`).
+- Throws a ContractError when `label` is blank, or `fonts` has no known family.
+
+Rules:
+- Requires an active Pinia instance and the `fonts.css` import.
+- Offer it only when users should choose; most products pick one family in code.
+
+Accessibility:
+- `role="radiogroup"` with `role="radio"` options and aria-checked; the group has an aria-label (`label`).
+- Roving tabindex: Tab enters once on the selected option; Arrow keys, Home and End change the selection and move focus (Left and Right swap in RTL).
+- Each option has visible text in its own family; selection is shown by fill plus aria-checked, never by colour alone. Options are 32px high (44px on coarse pointers) and wrap at narrow widths.
+- The shipped stacks are all readable text faces; users who need a specific face (for example for dyslexia) can set it with their own `[data-font]` rule or browser override.
+
+Example: All families
+```vue
+<FontPicker />
+```
+
+Example: Subset
+```vue
+<FontPicker :fonts="subset" label="Typeface" />
+```
+
+---
+
+# PalettePicker
+group: navigation / Theme
+Radio group that switches the whole-interface palette (`data-palette`) of the page.
+
+Offers every palette in `THEME_PALETTES` (or the `palettes` you pass) and stores the choice with `useThemeStore().setPalette()`, which sets `data-palette` on `<html>` and persists it. The palettes adapt the GitHub, Ayu, Winter is Coming, Night Owl and Tokyo Night VS Code themes (all MIT-licensed). They follow the light/dark colour mode, and choosing one replaces the accent preset, because both set the primary colour. `default` is the core petrol look. The palette CSS (`@perfect-design/ui/palettes.css`) must be imported by the app, after `theme.css` and the accent presets and before `packs.css`. Each option shows a small swatch strip beside its name. It is a single tab stop; arrow keys, Home and End move the selection. Pair with `CodeThemePicker`, `StylePicker`, `FontPicker` and `ThemeToggle`.
+
+import { PalettePicker } from '@perfect-design/ui'
+
+Props:
+- palettes: ThemePalette[] = THEME_PALETTES - Palettes to offer, in order. Unknown names are ignored.
+- label: string = 'Palette' - aria-label of the radiogroup.
+- class: string | object | array - Merged last.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when no Pinia instance is active (`app.use(createPinia())`).
+- Throws a ContractError when `label` is blank, or `palettes` has no known palette.
+
+Rules:
+- Requires an active Pinia instance and the `palettes.css` import.
+- A palette replaces the accent preset; do not offer both pickers for the same choice.
+- Offer it only when users should choose; most products pick one palette in code.
+
+Accessibility:
+- `role="radiogroup"` with `role="radio"` options and aria-checked; the group has an aria-label (`label`).
+- Roving tabindex: Tab enters once on the selected option; Arrow keys, Home and End change the selection and move focus (Left and Right swap in RTL).
+- Each option has visible text; the swatch strip is decorative (`aria-hidden`). Selection is shown by fill plus aria-checked, never by colour alone. Options are 32px high (44px on coarse pointers) and wrap at narrow widths.
+- Every palette is checked for WCAG contrast in light and dark by the contrast tests.
+
+Example: All palettes
+```vue
+<PalettePicker />
+```
+
+Example: Subset
+```vue
+<PalettePicker :palettes="subset" label="Colour set" />
 ```
 
 ---
@@ -18548,7 +19294,7 @@ Props:
 - itemDate: string | ((item: T, index: number) => string | number | Date) - When a message was sent, for day separators (property name or function). Items without a valid date join the day before them. Without it there are no separators.
 - label: string - Accessible name of the log. Required: set `label`, `aria-label` or `aria-labelledby`.
 - follow: boolean = true - Stay at the bottom while the reader is at the bottom; scrolling up stops it and shows the jump button. Off makes a plain scrolling list with no button.
-- typing: boolean = false - Show the typing or streaming indicator (text plus a dot that pulses only without reduced motion). Sets `aria-busy` and announces once when it appears.
+- typing: boolean | string = false - Show the typing or streaming indicator at the end (a `TypingIndicator` plus its text). A string names who is typing ("Mira" reads "Mira is typing"). Sets `aria-busy` and announces once when it appears.
 - density: 'compact' | 'default' | 'relaxed' = 'default' - Spacing between messages and around the thread. Unknown values fall back to `default`.
 - canLoadOlder: boolean = false - More history exists: shows the load-older control above the first message.
 - loadingOlder: boolean = false - A load is running: disables the control and blocks repeated requests.
@@ -18557,7 +19303,7 @@ Props:
 - timeZone: string - IANA time zone that decides which day a message belongs to (Falls back to `ConfigProvider`, then `UTC` (not the runtime zone).).
 - now: string | number | Date - The current time, for "Today" and "Yesterday". Defaults to the clock after mount (so a server render prints plain dates); pass it for tests or server rendering.
 - announcement: string - Text to announce politely (collected for one second) instead of the automatic "N new messages". Use it with the default slot, which cannot be counted.
-- labels: Partial<ChatThreadLabels> - Replace any built-in text: `jump`, `unread(count)`, `loadOlder`, `loadingOlder`, `typing`, `empty`, `newMessages(count)`. Use it to translate.
+- labels: Partial<ChatThreadLabels> - Replace any built-in text: `jump`, `unread(count)`, `loadOlder`, `loadingOlder`, `typing`, `typingBy(name)`, `empty`, `newMessages(count)`. Use it to translate.
 - class: string | object | array - Merged last with tailwind-merge on the root; wins over internal classes.
 
 Slots:
@@ -18588,7 +19334,7 @@ Accessibility:
 - The log is one element with `role="log"`, `tabindex="0"` and a required accessible name, so keyboard users can scroll it: arrow keys, Page Up and Page Down scroll natively; Home and End jump to the first and last message (and End resumes following).
 - `aria-live="off"` keeps screen readers from reading the log as it grows. One sibling `role="status"` region announces a short summary at most once per second ("2 new messages", the typing label, or `announcement`), is cleared after a few seconds, and never contains message text.
 - The jump button is an ordinary focusable button after the log. Pressing it scrolls to the latest message, resumes following and returns focus to the log, so focus is never lost when the button disappears.
-- Day separators are text (`<time datetime>` with a localised label) between two rules drawn as borders, so they survive forced-colors mode. The typing indicator is text; its dot pulses only under `prefers-reduced-motion: no-preference` and only while the indicator is shown.
+- Day separators are text (`<time datetime>` with a localised label) between two rules drawn as borders, so they survive forced-colors mode. The typing indicator is text beside decorative `TypingIndicator` dots (hidden from assistive tech, so the thread status region is the only announcement); the dots stay still under `prefers-reduced-motion`.
 - Scrolling is instant, with no smooth-scroll animation. The thread is `min-w-0` and wraps, so it reflows at 320px; spacing uses logical properties and mirrors in right-to-left.
 - Message actions inside the log are ordinary buttons in the tab order; the log does not trap focus.
 
@@ -18610,7 +19356,7 @@ const messages = [
 ]
 </script>
 
-<ChatThread :messages="messages" item-key="id" item-date="at" label="Export conversation" time-zone="UTC" locale="en" now="2026-03-02T12:00:00Z" class="h-72 rounded-md border">
+<ChatThread :messages="messages" item-key="id" item-date="at" label="Export conversation" time-zone="UTC" locale="en" now="2026-03-02T12:00:00Z" class="h-96 rounded-md border">
     <template #message="{ message }">
       <ChatMessage :role="message.role" :datetime="message.at" time-zone="UTC" locale="en">{{ message.text }}</ChatMessage>
     </template>
@@ -18642,6 +19388,13 @@ Example: Typing and streaming
 </ChatThread>
 ```
 
+Example: Who is typing
+```vue
+<ChatThread label="Support chat" typing="Mira" class="h-56 rounded-md border">
+  <ChatMessage role="user">Is the Orchard Mill export ready?</ChatMessage>
+</ChatThread>
+```
+
 Example: Load older messages
 ```vue
 <script setup lang="ts">
@@ -18650,7 +19403,7 @@ const loading = ref(false)
 const older = () => { /* fetch, then prepend with new ids */ }
 </script>
 
-<ChatThread :messages="messages" item-key="id" label="History" can-load-older :loading-older="loading" class="h-64 rounded-md border" @load-older="older">
+<ChatThread :messages="messages" item-key="id" label="History" can-load-older :loading-older="loading" class="h-96 rounded-md border" @load-older="older">
     <template #message="{ message }">
       <ChatMessage :role="message.role" :datetime="message.at" time-zone="UTC" locale="en">{{ message.text }}</ChatMessage>
     </template>
@@ -20458,10 +21211,10 @@ const edges = ref([
 ])
 </script>
 
-<div class="grid gap-4 lg:grid-cols-3">
-  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, plain background" size="sm" variant="plain" :toolbar="false" readonly />
-  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, dots background" size="sm" variant="dots" :toolbar="false" readonly />
-  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, grid background" size="sm" variant="grid" :toolbar="false" readonly />
+<div class="grid gap-4 xl:grid-cols-2">
+  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, plain background" size="md" variant="plain" :toolbar="false" readonly />
+  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, dots background" size="md" variant="dots" :toolbar="false" readonly />
+  <FlowCanvas v-model:nodes="nodes" v-model:edges="edges" label="Sample, grid background" size="md" variant="grid" :toolbar="false" readonly />
 </div>
 ```
 
@@ -22156,7 +22909,7 @@ const tips = ['Press the arrow keys to move.', 'Hover to pause the rotation.', '
 
 Example: Several slides per view
 ```vue
-<Carousel class="mx-auto max-w-lg" label="Cards">
+<Carousel class="mx-auto max-w-lg px-12" label="Cards">
   <CarouselContent class="gap-2">
     <CarouselItem v-for="n in 6" :key="n" class="basis-1/3">
       <div class="flex h-24 items-center justify-center rounded-md border bg-card">{{ n }}</div>
@@ -22327,7 +23080,8 @@ Example: Table
 Example: Podium
 ```vue
 <script setup lang="ts">
-const svg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8'/%3E%3C/svg%3E"
+const portrait = (bg: string, fg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="${bg}"/><circle cx="40" cy="31" r="14" fill="${fg}"/><path d="M12 80c2-17 14-26 28-26s26 9 28 26z" fill="${fg}"/></svg>`)}`
+const svg = portrait('#e4e4e7', '#a1a1aa')
 const entries = [
   { id: 'a', label: 'Suite A', value: 0.992, avatar: svg },
   { id: 'b', label: 'Suite B', value: 0.981, avatar: { fallback: 'SB' } },
@@ -22460,7 +23214,7 @@ Accessibility:
 
 Example: Basic gauge
 ```vue
-<div class="flex items-end gap-6">
+<div class="flex flex-wrap items-end gap-6">
   <Gauge :value="42" label="CPU" size="sm" />
   <Gauge :value="68" label="Memory" />
   <Gauge :value="91" label="Disk" size="lg" />
@@ -22495,8 +23249,8 @@ const thresholds = [
 ]
 </script>
 
-<div class="flex items-end gap-6">
-  <Gauge v-for="v in [35, 78, 96]" :key="v" :value="v" :label="'Load ' + v" :value-text="v + '% ' + (v >= 90 ? 'high' : v >= 70 ? 'raised' : 'normal')" :thresholds="thresholds" size="sm" />
+<div class="flex flex-wrap items-end gap-6">
+  <Gauge v-for="v in [35, 78, 96]" :key="v" :value="v" :label="'Load ' + v" :value-text="v + '% ' + (v >= 90 ? 'high' : v >= 70 ? 'raised' : 'normal')" :thresholds="thresholds" />
 </div>
 ```
 
@@ -23964,6 +24718,7 @@ Props:
 - size: 'sm' | 'md' | 'lg' = 'md' - Thickness: 2px, 4px or 6px. Unknown values fall back to `md`. Reflected as `data-size`.
 - tone: 'primary' | 'neutral' | 'success' | 'info' = 'primary' - Fill colour: `primary`, `neutral` (the foreground colour), `success` or `info`. Unknown values fall back to `primary`. Reflected as `data-tone`.
 - label: string = 'Reading progress' - Accessible name (localise here).
+- target: string | HTMLElement | null - Follow this scroll container (an element or a CSS selector) instead of the page. A selector that matches nothing falls back to the page.
 - class: string | object | array - Merged last; wins over internal classes. Pass `static` to render the strip in the page flow, as the galleries below do.
 
 Enforced requirements (a ContractError is thrown when missing):
@@ -23972,7 +24727,7 @@ Enforced requirements (a ContractError is thrown when missing):
 Rules:
 - Mount once per page, not per section.
 - Do not use for form or upload progress; use Progress from feedback.
-- It tracks the whole document, not an inner scroll container.
+- It tracks the whole document unless `target` names an inner scroll container.
 
 Accessibility:
 - role="progressbar" with aria-valuemin/max (0-100), aria-valuenow, aria-valuetext ("42%") and an aria-label (`label`, default "Reading progress"). It is not focusable, has no keyboard map and never takes pointer events.
@@ -23982,47 +24737,48 @@ Accessibility:
 - The bar fills from the start edge, so it mirrors in right-to-left pages (`rtl:origin-right`).
 - It is a 4px bar fixed to the viewport edge (2px to 6px with `size`; `inset` sits 0.5rem from the edge), so it never affects reflow at 320px and does not cover content that scrolls into view (it is thinner than any focus indicator).
 
-Example: Top bar (contained preview)
+Example: Tracking a scroll box
 ```vue
-<ScrollProgress />
-```
-
-Example: Bottom, thicker
-```vue
-<ScrollProgress position="bottom" size="lg" label="Progress through the article" />
+<div class="flex flex-col gap-2">
+  <ScrollProgress target="#sp-basic" class="static bg-muted" label="Progress through the sample article" />
+  <div id="sp-basic" role="region" aria-label="Sample article" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
+</div>
 ```
 
 Example: Size gallery: sm, md, lg
 ```vue
-<div class="flex flex-col gap-4">
-  <ScrollProgress size="sm" class="static bg-muted" label="Reading progress, small" />
-  <ScrollProgress size="md" class="static bg-muted" label="Reading progress, medium" />
-  <ScrollProgress size="lg" class="static bg-muted" label="Reading progress, large" />
+<div class="flex flex-col gap-3">
+  <ScrollProgress size="sm" target="#sp-size" class="static bg-muted" label="Reading progress, small" />
+  <ScrollProgress size="md" target="#sp-size" class="static bg-muted" label="Reading progress, medium" />
+  <ScrollProgress size="lg" target="#sp-size" class="static bg-muted" label="Reading progress, large" />
+  <div id="sp-size" role="region" aria-label="Sample article" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
 </div>
 ```
 
 Example: Tone gallery: primary, neutral, success, info
 ```vue
-<div class="flex flex-col gap-4">
-  <ScrollProgress tone="primary" size="lg" class="static bg-muted" label="Reading progress, primary" />
-  <ScrollProgress tone="neutral" size="lg" class="static bg-muted" label="Reading progress, neutral" />
-  <ScrollProgress tone="success" size="lg" class="static bg-muted" label="Reading progress, success" />
-  <ScrollProgress tone="info" size="lg" class="static bg-muted" label="Reading progress, info" />
+<div class="flex flex-col gap-3">
+  <ScrollProgress tone="primary" size="lg" target="#sp-tone" class="static bg-muted" label="Reading progress, primary" />
+  <ScrollProgress tone="neutral" size="lg" target="#sp-tone" class="static bg-muted" label="Reading progress, neutral" />
+  <ScrollProgress tone="success" size="lg" target="#sp-tone" class="static bg-muted" label="Reading progress, success" />
+  <ScrollProgress tone="info" size="lg" target="#sp-tone" class="static bg-muted" label="Reading progress, info" />
+  <div id="sp-tone" role="region" aria-label="Sample article" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
 </div>
 ```
 
 Example: Variant gallery: bar, rounded, inset
 ```vue
-<div class="flex flex-col gap-4">
-  <ScrollProgress variant="bar" size="lg" class="static bg-muted" label="Reading progress, bar" />
-  <ScrollProgress variant="rounded" size="lg" class="static bg-muted" label="Reading progress, rounded" />
-  <ScrollProgress variant="inset" size="lg" class="static" label="Reading progress, inset" />
+<div class="flex flex-col gap-3">
+  <ScrollProgress variant="bar" size="lg" target="#sp-variant" class="static bg-muted" label="Reading progress, bar" />
+  <ScrollProgress variant="rounded" size="lg" target="#sp-variant" class="static bg-muted" label="Reading progress, rounded" />
+  <ScrollProgress variant="inset" size="lg" target="#sp-variant" class="static" label="Reading progress, inset" />
+  <div id="sp-variant" role="region" aria-label="Sample article" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
 </div>
 ```
 
-Example: Inset at the bottom, neutral
+Example: Page-level bar, bottom edge
 ```vue
-<ScrollProgress variant="inset" position="bottom" tone="neutral" label="Progress through the article" />
+<ScrollProgress position="bottom" variant="inset" tone="neutral" label="Progress through the article" />
 ```
 
 ---
@@ -24479,7 +25235,7 @@ const last = ref(null)
 </script>
 
 <FaqList single :default-open="[0]" :items="items" @toggle="last = $event" />
-<p class="mt-2 text-sm text-muted-foreground">Last: {{ last }}</p>
+<p class="mt-2 text-sm text-muted-foreground">Last: {{ last ?? 'none yet' }}</p>
 ```
 
 Example: Variant bordered
@@ -24694,7 +25450,7 @@ Example: Basic: how it works
 Example: Default: vertical, padded numbers, custom step
 ```vue
 <NumberedSteps :columns="1" pad :steps="steps">
-  <template #step="{ step, number }"><span class="font-semibold text-primary">{{ number }}</span><span>{{ step.title }}</span></template>
+  <template #step="{ step, number }"><div class="flex items-baseline gap-3"><span class="font-semibold tabular-nums text-primary">{{ number }}</span><span>{{ step.title }}</span></div></template>
 </NumberedSteps>
 ```
 
@@ -24727,7 +25483,7 @@ Example: With-media variant using the media slot
 ```vue
 <NumberedSteps variant="with-media" :steps="steps">
   <template #media="{ step, index }">
-    <div class="flex aspect-video items-center justify-center bg-muted text-sm text-muted-foreground">Placeholder {{ index + 1 }}: {{ step.title }}</div>
+    <img :src="scene" :alt="'Sample image for step ' + (index + 1)" class="aspect-video w-full object-cover" />
   </template>
 </NumberedSteps>
 ```
@@ -25701,9 +26457,9 @@ Example: Vertical: up
 <Marquee direction="up" class="h-40 max-w-xs" size="sm" gap="sm" :items="['First sample item', 'Second sample item', 'Third sample item', 'Fourth sample item']" />
 ```
 
-Example: Vertical: down, no pause
+Example: Vertical: down, no pause on hover
 ```vue
-<Marquee direction="down" :pause-on-hover="false" :duration="20" class="h-32 max-w-xs" :items="['One', 'Two', 'Three']" />
+<Marquee direction="down" :pause-on-hover="false" :duration="20" class="h-48 max-w-xs" size="sm" gap="sm" :items="['One sample item', 'Two sample item', 'Three sample item', 'Four sample item']" />
 ```
 
 Example: Custom duration beats speed
@@ -26491,6 +27247,228 @@ Example: Sticky first column (default)
 
 ---
 
+# RateCard
+group: marketing / Pricing
+A dense, metered price list: one row per billable unit with its rate, what is included and what happens beyond it.
+
+Use `RateCard` for developer and infrastructure products that bill by usage, where a grid of plan cards would hide the numbers. Each item has a name, the unit the rate is per, and a rate. A numeric `rate` is formatted with `Price` (small rates such as 0.0004 keep the digits they need); a string rate ("Custom") is shown as written. `included` and `overage` columns appear only when at least one item has them.
+
+`variant="table"` (default) is a semantic table inside a focusable, named scroll region, so at 375px it scrolls sideways instead of overflowing the page. `variant="list"` stacks every rate as a definition row and reflows with no horizontal scroll. `size` sets the density.
+
+Group rows: give items a `group` name and optionally list `groups` to set the order and add a description. Ungrouped items come first without a heading; groups without items are skipped.
+
+Pass a `caption` (or `aria-label` / `aria-labelledby`): the list must have a name. Sample rates in these docs are labelled samples, not offers. For plan comparison use `PricingTable` or `ComparisonTable`; for graduated or volume tiers use `TieredPricing`.
+
+import { RateCard } from '@perfect-design/ui'
+
+Props:
+- items*: RateCardItem[] - Rates: `{ id?, name, description?, unit, rate, included?, overage?, badge?, group? }`. `rate` is a number (formatted as a price) or text. Items without a name or a rate are skipped.
+- currency: string = 'USD' - ISO 4217 code. An invalid code renders plain numbers.
+- locale: string = ConfigProvider locale, else 'en-US' - BCP 47 tag such as `de-DE`.
+- caption: string - Accessible name of the table or list. Required unless `aria-label` or `aria-labelledby` is set.
+- variant: 'table' | 'list' = 'table' - `table` is a semantic table in a scroll region; `list` stacks the rates. Unknown values fall back to `table`. Exposed as `data-variant`.
+- size: 'sm' | 'md' | 'lg' = 'md' - Text size and row padding. Unknown values fall back to `md`. Exposed as `data-size`.
+- groups: { group: string; description?: string }[] - Heading rows and their order. Items join a group through `item.group`; other group names follow in order of first appearance.
+- class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when none of `caption`, `aria-label` or `aria-labelledby` names the rate list.
+
+Rules:
+- Always pass `caption`; the list needs a name.
+- Pass numeric rates as numbers in major units (0.0004), not formatted strings; use a string only for text such as "Custom".
+- Put the unit in `unit` ("per 1,000 requests"), not in the name.
+- Use `variant="list"` where a wide table would scroll in a narrow column.
+- Use `group` on items for heading rows; do not render several RateCards to fake groups.
+- Only invented, labelled sample rates in examples ("Sample requests"); never real prices or real company names.
+
+Accessibility:
+- The table variant is a real `<table>` with a `<caption>`, column headers (`scope="col"`), row headers (`scope="row"`) and group headers (`scope="rowgroup"`), wrapped in a `role="region"` scroll area that is focusable (`tabindex="0"`) and named, so keyboard users can scroll it with the arrow keys.
+- At 375px the table scrolls inside its region and the page never scrolls sideways. The list variant has no horizontal scroll at 320px.
+- The list variant is a `role="group"` of definition lists; each group heading names its list. The included and overage text carries hidden "Included" and "Beyond included" labels for screen readers.
+- Badges are text, never colour alone. Rates use `Price` with tabular figures.
+- Use a `caption` that names what the rates are for; when several rate lists share a page the names must differ.
+
+Example: Minimal
+```vue
+<RateCard caption="Sample usage rates" :items="[
+  { name: 'Sample requests', unit: 'per 1,000 requests', rate: 0.4, included: 'First 10,000 free' },
+  { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free' },
+  { name: 'Sample egress', unit: 'per GB', rate: 0.1, included: 'First 10 GB free' },
+]" />
+```
+
+Example: Grouped with overage
+```vue
+<RateCard
+  caption="Kestrel Freight sample rates"
+  :groups="[{ group: 'Compute', description: 'Sample rates' }, { group: 'Data' }]"
+  :items="[
+    { name: 'Sample workers', description: 'Sample unit', unit: 'per 1,000 requests', rate: 0.5, included: 'First 100,000 free', overage: 'Billed at the rate shown', group: 'Compute', badge: 'Sample' },
+    { name: 'Sample queues', unit: 'per 1,000 messages', rate: 0.0004, included: 'First 1,000,000 free', overage: 'Billed at the rate shown', group: 'Compute' },
+    { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free', overage: 'Billed at the rate shown', group: 'Data' },
+    { name: 'Sample support', unit: 'per month', rate: 'Custom', group: 'Data' },
+  ]"
+/>
+```
+
+Example: Variant: list
+```vue
+<RateCard variant="list" caption="Sample usage rates (list)" :items="[
+  { name: 'Sample requests', unit: 'per 1,000 requests', rate: 0.4, included: 'First 10,000 free' },
+  { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free' },
+  { name: 'Sample egress', unit: 'per GB', rate: 0.1, included: 'First 10 GB free' },
+]" />
+```
+
+Example: Size
+```vue
+<div class="flex flex-col gap-6">
+  <RateCard size="sm" caption="Sample rates, small" :items="[
+  { name: 'Sample requests', unit: 'per 1,000 requests', rate: 0.4, included: 'First 10,000 free' },
+  { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free' },
+  { name: 'Sample egress', unit: 'per GB', rate: 0.1, included: 'First 10 GB free' },
+]" />
+  <RateCard size="lg" caption="Sample rates, large" :items="[
+  { name: 'Sample requests', unit: 'per 1,000 requests', rate: 0.4, included: 'First 10,000 free' },
+  { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free' },
+  { name: 'Sample egress', unit: 'per GB', rate: 0.1, included: 'First 10 GB free' },
+]" />
+</div>
+```
+
+Example: Currency and locale
+```vue
+<RateCard currency="EUR" locale="de-DE" caption="Sample rates in euro" :items="[{ name: 'Sample requests', unit: 'per 1.000 Anfragen', rate: 0.4 }, { name: 'Sample storage', unit: 'pro GB-Monat', rate: 0.02 }]" />
+```
+
+---
+
+# TieredPricing
+group: marketing / Pricing
+Graduated or volume price tiers with an optional usage marker and a computed total.
+
+Use `TieredPricing` to explain how a per-unit rate falls as usage grows. Each tier is `{ upTo, rate, flat? }`; `upTo: null` means "and above" and `upTo` is inclusive. Tiers can come in any order and invalid ones are skipped.
+
+`mode="graduated"` (default) prices the units inside each tier at that tier's rate. `mode="volume"` prices every unit at the rate of the tier the total reaches. A visible note states which one applies. A `flat` fee is charged once when the tier applies (graduated: when it holds any units; volume: for the tier reached).
+
+Pass `usage` to mark the tier(s) it reaches with a "Your usage" marker (icon plus text) and to show the computed total in one polite status region, so a changing usage value is announced. Usage above the last tier continues at the last tier's rate; 0 and negative usage cost nothing; a non-finite usage shows nothing. The same arithmetic is exported as `tierTotal(tiers, usage, mode)`.
+
+`variant="table"` (default) is a semantic table in a focusable, named scroll region. `variant="steps"` is a ladder that runs side by side from `sm` and stacks below it. Pass a `caption` (or `aria-label` / `aria-labelledby`). Examples use labelled sample rates, not offers.
+
+import { TieredPricing } from '@perfect-design/ui'
+
+Props:
+- tiers*: PricingTier[] - `{ upTo: number | null; rate: number; flat?: number }`. `upTo` is inclusive; `null` means and above. Any order; tiers with a non-finite rate or a bad `upTo` are skipped.
+- mode: 'graduated' | 'volume' = 'graduated' - `graduated`: each tier prices its own units. `volume`: all units use the rate of the tier reached. Unknown values mean `graduated`. Exposed as `data-mode`.
+- usage: number - Units to price. Marks the tier(s) reached and shows the total. Negative counts as 0; NaN and Infinity show nothing.
+- unit: string - Plural unit name such as "requests", used in the column header, marker and total.
+- currency: string = 'USD' - ISO 4217 code. An invalid code renders plain numbers.
+- locale: string = ConfigProvider locale, else 'en-US' - BCP 47 tag such as `de-DE`.
+- caption: string - Accessible name of the table or list. Required unless `aria-label` or `aria-labelledby` is set.
+- variant: 'table' | 'steps' = 'table' - `table` is a semantic table; `steps` is a ladder that stacks below `sm`. Unknown values fall back to `table`. Exposed as `data-variant`.
+- size: 'sm' | 'md' | 'lg' = 'md' - Text size and spacing. Unknown values fall back to `md`. Exposed as `data-size`.
+- class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when none of `caption`, `aria-label` or `aria-labelledby` names the tiers.
+
+Rules:
+- Always pass `caption`; the tiers need a name.
+- Set `mode` on purpose: `graduated` prices each tier's own units, `volume` prices all units at the tier reached.
+- `upTo` is inclusive and `null` means and above; do not pass a huge number for the last tier.
+- Use `tierTotal(tiers, usage, mode)` when you need the number outside the component.
+- Pass `usage` to get the marker and total; do not render your own total next to the component.
+- Only invented, labelled sample rates in examples; never real prices.
+
+Accessibility:
+- The table variant is a real `<table>` with a `<caption>`, column headers and row headers, inside a `role="region"` scroll area that is focusable (`tabindex="0"`) and named, so it scrolls with the keyboard and never overflows the page at 375px.
+- The steps variant is an ordered list named by `caption`; below `sm` the steps stack vertically.
+- The tier(s) a usage reaches carry a "Your usage" marker with a check icon and text, plus `data-active`; the highlight colour is never the only signal.
+- One polite `role="status"` region holds the computed total, so changing `usage` announces the new total once. There are no other live regions.
+- The mode note ("Each tier prices only the units that fall inside it.") is visible text above the tiers.
+
+Example: Minimal
+```vue
+<TieredPricing caption="Sample request tiers" unit="requests" :tiers="[
+  { upTo: 1000, rate: 0.5 },
+  { upTo: 10000, rate: 0.4 },
+  { upTo: null, rate: 0.3 },
+]" />
+```
+
+Example: Usage and total
+```vue
+<script setup lang="ts">
+const usage = ref('12500')
+</script>
+
+<div class="flex flex-col gap-3">
+  <Field label="Sample usage (requests)">
+    <Input v-model="usage" type="number" min="0" />
+  </Field>
+  <TieredPricing caption="Sample request tiers with usage" unit="requests" :usage="Number(usage)" :tiers="[
+    { upTo: 1000, rate: 0.5 },
+    { upTo: 10000, rate: 0.4 },
+    { upTo: null, rate: 0.3 },
+  ]" />
+</div>
+```
+
+Example: Mode: volume
+```vue
+<TieredPricing mode="volume" caption="Sample volume tiers" unit="requests" :usage="12500" :tiers="[
+  { upTo: 1000, rate: 0.5 },
+  { upTo: 10000, rate: 0.4 },
+  { upTo: null, rate: 0.3 },
+]" />
+```
+
+Example: Flat fees
+```vue
+<TieredPricing caption="Sample tiers with flat fees" unit="seats" :usage="30" :tiers="[
+  { upTo: 10, rate: 5, flat: 20 },
+  { upTo: 50, rate: 4, flat: 20 },
+  { upTo: null, rate: 3, flat: 20 },
+]" />
+```
+
+Example: Variant: steps
+```vue
+<TieredPricing variant="steps" caption="Sample request tiers (steps)" unit="requests" :usage="5000" :tiers="[
+  { upTo: 1000, rate: 0.5 },
+  { upTo: 10000, rate: 0.4 },
+  { upTo: null, rate: 0.3 },
+]" />
+```
+
+Example: Size
+```vue
+<div class="flex flex-col gap-6">
+  <TieredPricing size="sm" caption="Sample tiers, small" :tiers="[
+  { upTo: 1000, rate: 0.5 },
+  { upTo: 10000, rate: 0.4 },
+  { upTo: null, rate: 0.3 },
+]" />
+  <TieredPricing size="lg" caption="Sample tiers, large" :tiers="[
+  { upTo: 1000, rate: 0.5 },
+  { upTo: 10000, rate: 0.4 },
+  { upTo: null, rate: 0.3 },
+]" />
+</div>
+```
+
+Example: Currency and locale
+```vue
+<TieredPricing currency="EUR" locale="de-DE" caption="Sample tiers in euro" unit="Anfragen" :usage="2500" :tiers="[
+  { upTo: 1000, rate: 0.5 },
+  { upTo: 10000, rate: 0.4 },
+  { upTo: null, rate: 0.3 },
+]" />
+```
+
+---
+
 # CtaBand
 group: marketing / Sections
 Call-to-action section in 5 layouts (band, card, split, inline, newsletter) and 3 flat tones.
@@ -26522,7 +27500,7 @@ Props:
 Slots:
 - headline - Replaces the headline text.
 - subtext - Replaces the subtext.
-- actions - Buttons row. On `primary` use `variant="secondary"` Buttons, on `inverted` use `outline`, on `muted` the default Button.
+- actions - Buttons row. On `primary` use `variant="secondary"` Buttons, on `inverted` use a default Button with `class="bg-background text-foreground hover:bg-background/90"`, on `muted` the default Button.
 - form - `newsletter`: email form under the subtext. `split`: form shown beside the copy. Ignored by other variants.
 - media - `split` only: real screenshot beside the copy.
 
@@ -26533,7 +27511,7 @@ Rules:
 - One main CtaBand per page, placed before the footer; `inline` may be used additionally mid-page.
 - Choose by content: card = default, band = full-bleed layouts, split = needs a real screenshot or form, inline = small nudge, newsletter = email capture.
 - Label the action with what happens ("Open the catalogue"), never a generic invitation.
-- On `primary` use a `secondary` Button (a default Button would blend in); on `inverted` use `outline`.
+- On `primary` use a `secondary` Button (a default Button would blend in); on `inverted` use a default Button with `bg-background text-foreground` (an `outline` Button turns grey on the light panel in dark mode).
 - There is no gradient tone. Do not fade text with opacity utilities inside the band.
 - The `form` slot renders only in `newsletter` and `split`; `media` only in `split`.
 - Do not invent customer counts or claims in the headline or subtext.
@@ -26561,7 +27539,7 @@ Example: Band (full width)
 Example: Split with media
 ```vue
 <CtaBand variant="split" tone="inverted" headline="See the table with real data" subtext="Swap the placeholder for a screenshot of your own screen.">
-  <template #actions><Button variant="outline">Open the table docs</Button></template>
+  <template #actions><Button class="bg-background text-foreground hover:bg-background/90">Open the table docs</Button></template>
   <template #media>
     <div class="flex aspect-video items-center justify-center rounded-lg border border-background text-sm">Screenshot placeholder</div>
   </template>
@@ -26603,7 +27581,7 @@ Example: Sizes and square corners
 ```vue
 <div class="grid gap-6">
   <CtaBand size="sm" tone="muted" :level="3" headline="Small"><template #actions><Button>Action</Button></template></CtaBand>
-  <CtaBand size="lg" shape="square" tone="inverted" :level="3" headline="Large and square"><template #actions><Button variant="outline">Action</Button></template></CtaBand>
+  <CtaBand size="lg" shape="square" tone="inverted" :level="3" headline="Large and square"><template #actions><Button class="bg-background text-foreground hover:bg-background/90">Action</Button></template></CtaBand>
 </div>
 ```
 
@@ -26612,7 +27590,7 @@ Example: Tones
 <div class="grid gap-6">
   <CtaBand tone="primary" :level="3" headline="Primary"><template #actions><Button variant="secondary">Action</Button></template></CtaBand>
   <CtaBand tone="muted" :level="3" headline="Muted"><template #actions><Button>Action</Button></template></CtaBand>
-  <CtaBand tone="inverted" :level="3" headline="Inverted"><template #actions><Button variant="outline">Action</Button></template></CtaBand>
+  <CtaBand tone="inverted" :level="3" headline="Inverted"><template #actions><Button class="bg-background text-foreground hover:bg-background/90">Action</Button></template></CtaBand>
 </div>
 ```
 
@@ -27211,8 +28189,8 @@ Example: Newsletter column
 <SiteFooter variant="newsletter" nav-label="Newsletter footer" :legal="`© ${year} Perfect Design`" description="Vue components and design tokens." :columns="columns" newsletter-title="Release notes by email" newsletter-description="Sent when a version ships.">
   <template #brand><span class="text-lg font-semibold">Perfect Design</span></template>
   <template #newsletter>
-    <form class="flex flex-col gap-2 sm:flex-row" @submit.prevent>
-      <Input type="email" autocomplete="email" placeholder="name@example.com" aria-label="Email address" />
+    <form class="flex flex-col gap-2" @submit.prevent>
+      <Input type="email" autocomplete="email" placeholder="name@example.com" aria-label="Email address" class="min-w-0" />
       <Button type="submit">Send release notes</Button>
     </form>
   </template>

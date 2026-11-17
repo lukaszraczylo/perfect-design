@@ -51,6 +51,7 @@
 - [Heading](/components/typography/heading): Semantic h1-h6 heading with independent visual size, underline/divider decoration and optional eyebrow and description. (Text)
 - [InlineCode](/components/typography/inline-code): Inline <code> snippet with a muted background and monospace font. (Text)
 - [Lead](/components/typography/lead): Large muted intro paragraph that follows a page or section title. (Text)
+- [Price](/components/typography/price): A locale-aware price with an optional period, a struck-through previous price and a label for free or missing amounts. (Text)
 - [RelativeTime](/components/typography/relative-time): A `<time>` element that writes a moment as relative text ("3 minutes ago", "in 2 days") with the absolute date in the tooltip, optionally kept fresh by one shared timer. (Text)
 - [Text](/components/typography/text): Body text with variant presets, size, tone, weight, leading, transform, wrapping, alignment and truncation or line clamping. (Text)
 
@@ -75,6 +76,7 @@
 - [Checkbox](/components/forms/checkbox): Boolean (or indeterminate) checkbox with optional label and description, sizes, tones, shapes, invalid state and Field wiring. (Choice)
 - [CheckboxCard](/components/forms/checkbox-card): Selectable card tile backed by a native checkbox, with title, description, icon slots, variants, tones, a stacked layout and a group for multi-select lists. (Choice)
 - [MultiSelect](/components/forms/multi-select): Dropdown checkbox list with chips summary, search filter, select all / clear, max selections and full keyboard support. (Choice)
+- [PlanPicker](/components/forms/plan-picker): One column of selectable plans with the price at the end, for checkout, upgrade and settings screens. (Choice)
 - [RadioCard](/components/forms/radio-card): Selectable card tile backed by a native radio input, used inside RadioCardGroup for single-choice options with tones, a stacked layout and roving arrow-key navigation. (Choice)
 - [RadioGroup](/components/forms/radio-group): Single-choice group of radio items with roving keyboard focus, labels, descriptions, sizes, tones and Field wiring. (Choice)
 - [SegmentedControl](/components/forms/segmented-control): Compact single choice (view switcher, range picker) built on a radiogroup, in pill, underline, outline or filled looks, horizontal or vertical. (Choice)
@@ -97,6 +99,7 @@
 - [NativeSelect](/components/forms/native-select): Styled native <select> with chevron, options array or slot content, placeholder, variants, sizes, shapes, status and Field wiring. (Selection)
 - [Select](/components/forms/select): Custom single-select dropdown with groups, labels, keyboard typeahead and Field wiring. (Selection)
 - [Slider](/components/forms/slider): Pick a number or a numeric range by dragging a thumb or using the keyboard. (Selection)
+- [UsageEstimator](/components/forms/usage-estimator): Usage-based cost calculator: a slider and number field per metered dimension, a live cost per line and an estimated total. (Selection)
 - [CopyField](/components/forms/copy-field): Read-only value (API key, URL, token) with a joined copy-to-clipboard button, copied feedback, variants, sizes, shapes and status. (Text fields)
 - [DateInput](/components/forms/date-input): Styled native date, time, datetime-local or month input with min/max validation messaging, variants, sizes, shapes and status. (Text fields)
 - [Editable](/components/forms/editable): Inline editable text: click to edit, Enter saves, Escape cancels, blur saves (configurable). (Text fields)
@@ -113,6 +116,7 @@
 
 ## feedback
 - [ConfirmDialog](/components/feedback/confirm-dialog): Confirm / cancel dialog with destructive styling and async-aware confirm, plus a promise-based useConfirm() host. (Confirmation)
+- [PageLoadingBar](/components/feedback/page-loading-bar): A thin bar fixed to the top of the viewport that shows a route change or page load, with a delay so fast navigations never flash. (Loading)
 - [Alert](/components/feedback/alert): Inline, in-flow status message with optional icon, title, description and dismiss button. (Messages)
 - [Banner](/components/feedback/banner): Full-width, page-level notice with optional sticky position, action slot and remembered dismissal. (Messages)
 - [Callout](/components/feedback/callout): Documentation-style note, tip, important, warning, caution, danger, success, quote or example block with a tinted surface and a status icon. (Messages)
@@ -124,6 +128,7 @@
 - [LoadingState](/components/feedback/loading-state): Loading placeholder: spinner with label, or text / card / table / list / avatar-text / kpi-grid / form skeletons; optional full-page layout. (States)
 - [OfflineIndicator](/components/feedback/offline-indicator): Shows a warning message while the browser is offline; renders nothing visible when online. (States)
 - [StaleNotice](/components/feedback/stale-notice): Shows when data was last updated, turns into a warning once it is stale, with optional refresh button. (States)
+- [TypingIndicator](/components/feedback/typing-indicator): Three softly pulsing dots in a compact bubble that show someone or something is writing, with the label announced once. (States)
 - [Toaster](/components/feedback/toaster): Fixed-position, screen-reader-announced stack that renders the global toast store. (Toasts)
 - [ToastItem](/components/feedback/toast-item): Presentational toast card: icon, title, description, optional action and dismiss button. (Toasts)
 
@@ -158,6 +163,9 @@
 - [Collapsible](/components/navigation/collapsible): A single show/hide region with an animated reveal. Built on reka-ui. (Tabs & disclosure)
 - [Tabs](/components/navigation/tabs): Switch between related panels of content without leaving the page. Compound component built on reka-ui. (Tabs & disclosure)
 - [AccentPicker](/components/navigation/accent-picker): Radio group of colour swatches that switches the accent preset (`data-theme`). (Theme)
+- [CodeThemePicker](/components/navigation/code-theme-picker): Radio group that switches the colours of code viewers and code blocks (`data-code-theme`). (Theme)
+- [FontPicker](/components/navigation/font-picker): Radio group that switches the font family (`data-font`) of the whole page. (Theme)
+- [PalettePicker](/components/navigation/palette-picker): Radio group that switches the whole-interface palette (`data-palette`) of the page. (Theme)
 - [StylePicker](/components/navigation/style-picker): Radio group that switches the style pack (`data-style`) of the whole page. (Theme)
 - [ThemeToggle](/components/navigation/theme-toggle): Button that cycles the colour mode light → dark → system and shows the matching icon. (Theme)
 - [Breadcrumb](/components/navigation/breadcrumb): Shows the path to the current page. Items-array API or compound parts, with middle-item truncation. (Wayfinding)
@@ -231,6 +239,8 @@
 - [PricingCard](/components/marketing/pricing-card): Single pricing plan: name, monthly/yearly price, feature checklist, badge and CTA slot, in five variants. (Pricing)
 - [PricingGrid](/components/marketing/pricing-grid): Responsive grid of PricingCards from a plans array, with a per-plan CTA slot and an optional monthly/yearly billing toggle. (Pricing)
 - [PricingTable](/components/marketing/pricing-table): Pricing comparison table: plans as columns (price, badge, CTA), features as rows with check/cross/text cells and an optional billing toggle. (Pricing)
+- [RateCard](/components/marketing/rate-card): A dense, metered price list: one row per billable unit with its rate, what is included and what happens beyond it. (Pricing)
+- [TieredPricing](/components/marketing/tiered-pricing): Graduated or volume price tiers with an optional usage marker and a computed total. (Pricing)
 - [CtaBand](/components/marketing/cta-band): Call-to-action section in 5 layouts (band, card, split, inline, newsletter) and 3 flat tones. (Sections)
 - [Hero](/components/marketing/hero): Page-top hero with 14 layouts, 4 backgrounds, 3 sizes, media frames, stats, logos, a form slot and bento tiles. (Sections)
 - [MediaFrame](/components/marketing/media-frame): Browser, window, phone or plain frame around a real screenshot or code block. (Sections)

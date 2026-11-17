@@ -1,7 +1,7 @@
 {
   "name": "@perfect-design/ui",
   "generatedFrom": "packages/ui/src/components/**/*.docs.ts",
-  "count": 210,
+  "count": 220,
   "components": [
     {
       "name": "Button",
@@ -70,6 +70,12 @@
           "description": "Disables interaction."
         },
         {
+          "name": "loadingIndicator",
+          "type": "'ring' | 'dots' | 'bars' | 'pulse' | 'orbit'",
+          "default": "'ring'",
+          "description": "Spinner shape shown while `loading` (see `Spinner` `variant`). The spinner stays decorative; the label stays the accessible name. Unknown values fall back to `ring`."
+        },
+        {
           "name": "loading",
           "type": "boolean",
           "default": "false",
@@ -121,6 +127,11 @@
           "title": "Icon placement",
           "description": "Pass an icon definition with `iconStart` / `iconEnd`, or use the `icon-start` / `icon-end` slots for custom content.",
           "code": "<div class=\"flex flex-wrap items-center gap-2\">\n  <Button :icon-start=\"faPlus\">New item</Button>\n  <Button variant=\"outline\" :icon-end=\"faArrowRight\">Next</Button>\n  <Button variant=\"secondary\" :icon-start=\"faDownload\" :icon-end=\"faArrowRight\">Both</Button>\n  <Button variant=\"soft\">\n    <template #icon-start><Icon :icon=\"faPlus\" size=\"sm\" /></template>\n    Slot icon\n  </Button>\n</div>"
+        },
+        {
+          "title": "Loading indicator",
+          "description": "`loadingIndicator` changes only the spinner shape.",
+          "code": "<div class=\"flex flex-wrap gap-2\">\n  <Button loading loading-indicator=\"dots\">Saving</Button>\n  <Button loading loading-indicator=\"bars\" variant=\"outline\">Exporting</Button>\n  <Button loading loading-indicator=\"orbit\" variant=\"secondary\">Syncing</Button>\n</div>"
         },
         {
           "title": "Loading",
@@ -211,6 +222,12 @@
           "description": "Disables interaction."
         },
         {
+          "name": "loadingIndicator",
+          "type": "'ring' | 'dots' | 'bars' | 'pulse' | 'orbit'",
+          "default": "'ring'",
+          "description": "Spinner shape shown while `loading` (see `Spinner` `variant`). Unknown values fall back to `ring`."
+        },
+        {
           "name": "loading",
           "type": "boolean",
           "default": "false",
@@ -232,6 +249,10 @@
         {
           "title": "Variants and sizes",
           "code": "<div class=\"flex flex-wrap items-center gap-2\">\n  <IconButton label=\"Add\" :icon=\"faPlus\" />\n  <IconButton label=\"Settings\" :icon=\"faGear\" variant=\"outline\" />\n  <IconButton label=\"Add\" :icon=\"faPlus\" variant=\"default\" size=\"sm\" />\n  <IconButton label=\"Delete\" :icon=\"faTrash\" variant=\"destructive\" size=\"lg\" />\n  <IconButton label=\"Unavailable\" :icon=\"faGear\" disabled />\n</div>"
+        },
+        {
+          "title": "Loading indicator",
+          "code": "<div class=\"flex gap-2\">\n  <IconButton label=\"Save\" :icon=\"faPlus\" variant=\"outline\" loading loading-indicator=\"dots\" />\n  <IconButton label=\"Refresh\" :icon=\"faPlus\" variant=\"outline\" loading loading-indicator=\"orbit\" />\n</div>"
         },
         {
           "title": "Loading",
@@ -710,7 +731,9 @@
       "examples": [
         {
           "title": "Image, initials and sizes",
-          "code": "<div class=\"flex flex-wrap items-center gap-3\">\n  <Avatar name=\"Author One\" size=\"xs\" />\n  <Avatar name=\"Author Two\" size=\"sm\" />\n  <Avatar name=\"Author Five\" />\n  <Avatar name=\"Author Three\" size=\"lg\" />\n  <Avatar name=\"Author Four\" size=\"xl\" shape=\"square\" />\n  <Avatar src=\"data:,\" name=\"Broken Image\" />\n</div>"
+          "description": "The first and fourth avatars load a generated sample portrait; the others show initials; the last has a broken `src` and falls back to initials.",
+          "script": "const portrait = samplePortrait()",
+          "code": "<div class=\"flex flex-wrap items-center gap-3\">\n  <Avatar :src=\"portrait\" name=\"Author One\" size=\"xs\" />\n  <Avatar name=\"Author Two\" size=\"sm\" />\n  <Avatar name=\"Author Five\" />\n  <Avatar :src=\"portrait\" name=\"Author Three\" size=\"lg\" />\n  <Avatar name=\"Author Four\" size=\"xl\" shape=\"square\" />\n  <Avatar src=\"data:,\" name=\"Broken Image\" />\n</div>"
         },
         {
           "title": "Shapes",
@@ -1219,8 +1242,112 @@
       "group": "primitives",
       "subgroup": "Display",
       "summary": "Placeholder block shown while content loads: text, circle, avatar, pill, rounded, rect and paragraph shapes with a pulse or no animation.",
-      "description": "Use `Skeleton` to reserve layout space while data loads. Size it with classes (`h-4 w-40`, `size-12`) and compose several to mimic the final layout. Unknown `shape` / `animation` values fall back to `rect` / `pulse`. Do not use it for in-progress actions (use `Spinner`).\n\n**Shapes**: `text` (one text line, h-4), `circle` and `avatar` (round size-10; `avatar` never shrinks in flex rows), `rect` (default block), `rounded` (block with large radius for cards and images), `pill` (h-6 w-24 for badges, chips and buttons) and `lines` (a paragraph of `lines` text lines, the last one shorter).\n\n**Animation**: `pulse` (default), `shimmer` (deprecated alias: it pulses, because a moving highlight needs a gradient) or `none` (static placeholder, e.g. dense tables or when many skeletons would be noisy). The pulse stops under prefers-reduced-motion. The older boolean `shimmer` still works and is ignored when `animation` is set.",
+      "description": "Use `Skeleton` to reserve layout space while data loads. Size it with classes (`h-4 w-40`, `size-12`) and compose several to mimic the final layout. Unknown `shape` / `animation` values fall back to `rect` / `pulse`. Do not use it for in-progress actions (use `Spinner`).\n\n**Shapes**: `text` (one text line, h-4), `circle` and `avatar` (round size-10; `avatar` never shrinks in flex rows), `rect` (default block), `rounded` (block with large radius for cards and images), `pill` (h-6 w-24 for badges, chips and buttons) and `lines` (a paragraph of `lines` text lines, the last one shorter).\n\n**Presets**: `SkeletonText` (paragraph), `SkeletonAvatar` (sm to xl, circle or square), `SkeletonCard` (media + title + lines) and `SkeletonTable` (rows x columns) are ready-made compositions of `Skeleton`, so apps do not hand-build them. They are compound parts rather than a `preset` prop because each has its own props (`rows`, `columns`, `size`) that would not apply to the other shapes. Each part is `aria-hidden`; announce the loading state once from the caller (a region with `aria-busy=\"true\"`, or `LoadingState`).\n\n**Animation**: `pulse` (default), `shimmer` (deprecated alias: it pulses, because a moving highlight needs a gradient) or `none` (static placeholder, e.g. dense tables or when many skeletons would be noisy). The pulse stops under prefers-reduced-motion. The older boolean `shimmer` still works and is ignored when `animation` is set.",
       "status": "stable",
+      "parts": [
+        {
+          "name": "SkeletonText",
+          "description": "A paragraph placeholder: `lines` text lines, the last one shorter. Same output as `Skeleton shape=\"lines\"` with the part slot name.",
+          "props": [
+            {
+              "name": "lines",
+              "type": "number",
+              "default": "3",
+              "description": "Line count (floored, 1..20; invalid values give 3)."
+            },
+            {
+              "name": "animation",
+              "type": "'none' | 'pulse' | 'shimmer'",
+              "default": "'pulse'",
+              "description": "Same as Skeleton."
+            },
+            {
+              "name": "as",
+              "type": "string | Component",
+              "default": "'div'",
+              "description": "Wrapper element."
+            }
+          ]
+        },
+        {
+          "name": "SkeletonAvatar",
+          "description": "A round or square avatar placeholder that never shrinks in a flex row.",
+          "props": [
+            {
+              "name": "size",
+              "type": "'sm' | 'md' | 'lg' | 'xl'",
+              "default": "'md'",
+              "description": "32px, 40px, 48px, 64px. Unknown values fall back to md."
+            },
+            {
+              "name": "shape",
+              "type": "'circle' | 'square'",
+              "default": "'circle'",
+              "description": "square is rounded-md, for logos and app icons."
+            },
+            {
+              "name": "animation",
+              "type": "'none' | 'pulse' | 'shimmer'",
+              "default": "'pulse'",
+              "description": "Same as Skeleton."
+            }
+          ]
+        },
+        {
+          "name": "SkeletonCard",
+          "description": "A card placeholder: optional media block, a title line and body lines, inside a bordered card.",
+          "props": [
+            {
+              "name": "media",
+              "type": "boolean",
+              "default": "true",
+              "description": "Show the media block above the text."
+            },
+            {
+              "name": "lines",
+              "type": "number",
+              "default": "3",
+              "description": "Body lines (0..20); 0 or invalid values drop the body."
+            },
+            {
+              "name": "animation",
+              "type": "'none' | 'pulse' | 'shimmer'",
+              "default": "'pulse'",
+              "description": "Same as Skeleton."
+            }
+          ]
+        },
+        {
+          "name": "SkeletonTable",
+          "description": "A table placeholder: an optional header row and `rows` rows of `columns` cells on a grid.",
+          "props": [
+            {
+              "name": "rows",
+              "type": "number",
+              "default": "5",
+              "description": "Body rows (floored, 1..50; invalid values give 5)."
+            },
+            {
+              "name": "columns",
+              "type": "number",
+              "default": "4",
+              "description": "Columns (floored, 1..12; invalid values give 4)."
+            },
+            {
+              "name": "header",
+              "type": "boolean",
+              "default": "true",
+              "description": "Render a header row."
+            },
+            {
+              "name": "animation",
+              "type": "'none' | 'pulse' | 'shimmer'",
+              "default": "'pulse'",
+              "description": "Same as Skeleton."
+            }
+          ]
+        }
+      ],
       "props": [
         {
           "name": "shape",
@@ -1282,6 +1409,26 @@
           "title": "Loading card",
           "description": "Compose avatar, pill, rounded image and a paragraph into a loading card. `aria-busy` on the container tells assistive tech the region is loading.",
           "code": "<div class=\"max-w-sm space-y-3\" aria-busy=\"true\">\n  <Skeleton shape=\"rounded\" class=\"h-40\" />\n  <div class=\"flex items-center gap-3\">\n    <Skeleton shape=\"avatar\" />\n    <Skeleton shape=\"text\" class=\"w-1/3\" />\n    <Skeleton shape=\"pill\" class=\"ms-auto\" />\n  </div>\n  <Skeleton shape=\"lines\" :lines=\"3\" />\n</div>"
+        },
+        {
+          "title": "SkeletonText",
+          "description": "Paragraph placeholder; the last line is shorter.",
+          "code": "<div class=\"max-w-sm space-y-4\" aria-busy=\"true\">\n  <SkeletonText />\n  <SkeletonText :lines=\"5\" />\n  <SkeletonText :lines=\"2\" animation=\"none\" />\n</div>"
+        },
+        {
+          "title": "SkeletonAvatar",
+          "description": "Sizes and shapes.",
+          "code": "<div class=\"flex items-center gap-3\" aria-busy=\"true\">\n  <SkeletonAvatar size=\"sm\" />\n  <SkeletonAvatar />\n  <SkeletonAvatar size=\"lg\" />\n  <SkeletonAvatar size=\"xl\" shape=\"square\" />\n</div>"
+        },
+        {
+          "title": "SkeletonCard",
+          "description": "With and without the media block.",
+          "code": "<div class=\"grid max-w-2xl gap-4 sm:grid-cols-2\" aria-busy=\"true\">\n  <SkeletonCard />\n  <SkeletonCard :media=\"false\" :lines=\"2\" />\n</div>"
+        },
+        {
+          "title": "SkeletonTable",
+          "description": "Rows and columns, with and without a header.",
+          "code": "<div class=\"max-w-xl space-y-6\" aria-busy=\"true\">\n  <SkeletonTable :rows=\"3\" :columns=\"3\" />\n  <SkeletonTable :rows=\"2\" :columns=\"5\" :header=\"false\" animation=\"none\" />\n</div>"
         }
       ],
       "a11y": [
@@ -1293,13 +1440,15 @@
       "related": [
         "Spinner",
         "Avatar",
-        "Progress"
+        "Progress",
+        "LoadingState"
       ],
       "llmNotes": [
         "Mirror the final layout dimensions to avoid layout shift.",
         "Put aria-busy on the loading region; the skeleton itself is aria-hidden.",
         "Do not hard-code colours; the component uses `bg-muted`.",
         "Use shape=\"lines\" for paragraphs instead of stacking text skeletons; set class on the wrapper.",
+        "Use SkeletonText, SkeletonAvatar, SkeletonCard and SkeletonTable for common shapes instead of hand-building them.",
         "Use animation=\"none\" for static placeholders; do not use the deprecated `shimmer` flag."
       ],
       "replaces": [
@@ -1335,6 +1484,12 @@
           "description": "Diameter: 12, 16, 20, 24 or 32px. Unknown values fall back to md."
         },
         {
+          "name": "variant",
+          "type": "'ring' | 'dots' | 'bars' | 'pulse' | 'orbit'",
+          "default": "'ring'",
+          "description": "Animation shape. `ring` is a rotating arc, `dots` three dots fading in turn, `bars` an equaliser of four bars, `pulse` a solid dot with an expanding ring, `orbit` two arcs turning in opposite directions. Unknown values fall back to `ring`. Non-default values add `data-variant`. The names are exported as `SPINNER_VARIANTS`."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged last with tailwind-merge; wins over internal classes. The spinner uses `currentColor`."
@@ -1350,12 +1505,23 @@
           "title": "Next to a label",
           "description": "A labelled spinner and a decorative one beside text that already says what is happening.",
           "code": "<div class=\"flex flex-col gap-3 text-sm\">\n  <span class=\"inline-flex items-center gap-2\"><Spinner label=\"Saving changes\" class=\"text-primary\" /></span>\n  <span role=\"status\" class=\"inline-flex items-center gap-2 text-muted-foreground\"><Spinner decorative size=\"sm\" /> Syncing the sample catalogue</span>\n</div>"
+        },
+        {
+          "title": "Variants",
+          "description": "The same semantics and sizes for every shape. Pick one per product and use it everywhere.",
+          "code": "<div class=\"flex items-center gap-6 text-primary\">\n  <Spinner variant=\"ring\" size=\"lg\" label=\"Loading ring\" />\n  <Spinner variant=\"dots\" size=\"lg\" label=\"Loading dots\" />\n  <Spinner variant=\"bars\" size=\"lg\" label=\"Loading bars\" />\n  <Spinner variant=\"pulse\" size=\"lg\" label=\"Loading pulse\" />\n  <Spinner variant=\"orbit\" size=\"lg\" label=\"Loading orbit\" />\n</div>"
+        },
+        {
+          "title": "Inline next to text",
+          "description": "A decorative variant beside text inside a status region that announces the wait.",
+          "code": "<div class=\"flex flex-col gap-2 text-sm text-muted-foreground\">\n  <p role=\"status\" class=\"inline-flex items-center gap-2\"><Spinner variant=\"dots\" decorative size=\"sm\" /> Fetching the sample report</p>\n  <p role=\"status\" class=\"inline-flex items-center gap-2\"><Spinner variant=\"bars\" decorative size=\"sm\" /> Transcribing the sample recording</p>\n</div>"
         }
       ],
       "a11y": [
         "Not decorative: `role=\"progressbar\"` with `aria-label` from `label`. Give it a label that says what is loading, not just \"Loading\".",
         "Decorative: `aria-hidden=\"true\"` and no role. The parent must announce the busy state, for example with `role=\"status\"` text.",
-        "Rotation slows to a pulse under `prefers-reduced-motion`."
+        "Every variant keeps the same role, label and `decorative` behaviour.",
+        "Under `prefers-reduced-motion` no variant moves: the ring, dots, bars and orbit fade gently, and `pulse` shows a static dot with a faint ring."
       ],
       "related": [
         "ProgressRing",
@@ -1364,6 +1530,7 @@
         "Skeleton"
       ],
       "llmNotes": [
+        "Choose `variant` for the look only (`ring`, `dots`, `bars`, `pulse`, `orbit`); semantics and sizes do not change.",
         "Pass `decorative` when the spinner sits inside a button or a status region that already announces the wait.",
         "Give a specific `label` when the spinner stands alone.",
         "Use `ProgressRing` or `Progress` when the amount done is known."
@@ -1451,7 +1618,7 @@
         {
           "title": "Fit",
           "description": "cover crops, contain letterboxes and fill stretches a sample image drawn as inline SVG.",
-          "code": "<div class=\"flex flex-wrap items-start gap-4\">\n  <div class=\"w-40\">\n    <AspectRatio :ratio=\"1\" variant=\"bordered\" rounded=\"md\" fit=\"cover\">\n      <img alt=\"Sample image, cover\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E\" />\n    </AspectRatio>\n  </div>\n  <div class=\"w-40\">\n    <AspectRatio :ratio=\"1\" variant=\"bordered\" rounded=\"md\" fit=\"contain\">\n      <img alt=\"Sample image, contain\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E\" />\n    </AspectRatio>\n  </div>\n  <div class=\"w-40\">\n    <AspectRatio :ratio=\"1\" variant=\"bordered\" rounded=\"md\" fit=\"fill\">\n      <img alt=\"Sample image, fill\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E\" />\n    </AspectRatio>\n  </div>\n</div>"
+          "code": "<div class=\"flex flex-wrap items-start gap-4\">\n  <div class=\"w-40\">\n    <AspectRatio :ratio=\"1\" variant=\"bordered\" rounded=\"md\" fit=\"cover\">\n      <img alt=\"Sample image, cover\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E\" />\n    </AspectRatio>\n  </div>\n  <div class=\"w-40\">\n    <AspectRatio :ratio=\"1\" variant=\"bordered\" rounded=\"md\" fit=\"contain\">\n      <img alt=\"Sample image, contain\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E\" />\n    </AspectRatio>\n  </div>\n  <div class=\"w-40\">\n    <AspectRatio :ratio=\"1\" variant=\"bordered\" rounded=\"md\" fit=\"fill\">\n      <img alt=\"Sample image, fill\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Crect width='40' height='20' fill='%23888'/%3E%3Ccircle cx='20' cy='10' r='8' fill='%23ddd'/%3E%3C/svg%3E\" />\n    </AspectRatio>\n  </div>\n</div>"
         }
       ],
       "a11y": [
@@ -1926,7 +2093,7 @@
       "group": "primitives",
       "subgroup": "Status",
       "summary": "Numeric count pill or small dot for unread items and pending work, with a required accessible label.",
-      "description": "Use `CountBadge` for a number that sits next to or on top of another element: unread messages, open tasks, items in a cart. A count of 0 renders nothing, a large count is capped (`99+`), and the visible number is hidden from assistive technology in favour of a `label` such as `3 unread messages`. For a status word (`Paid`, `Draft`) use `Badge`; for a status light without a number use `StatusDot`.\n\nVariations:\n\n- `tone`: `neutral | primary | success | warning | danger | info`.\n- `appearance`: `solid` (default), `soft` (tinted) or `outline` (border on the page background, readable over other elements).\n- `size`: `sm` 16px, `md` 20px (default), `lg` 24px tall.\n- `shape`: `pill` (grows with the text), `circle` (round for one or two digits), `square` (control radius).\n- `dot`: a marker without a number. With `count` it hides at 0, without `count` it always shows.\n- `max` and `showZero`: the cap before `max+`, and whether `0` is rendered.\n\nPlacement: wrap the target and the badge in `CountBadgeAnchor` and put the badge in its `badge` slot. `placement` is `top-end` (default), `top-start`, `bottom-end` or `bottom-start`; start and end flip in right-to-left text. `countBadgePlacement` exposes the same classes for custom wrappers.\n\nBad input is handled, not thrown: a count that is not a number or is NaN or negative counts as 0, a fraction is truncated, `Infinity` shows `max+`, and an invalid `max` falls back to 99. Wrap `countBadgeVariants(...)` in `cn()` when you use it on a plain element, because a few classes override each other.",
+      "description": "Use `CountBadge` for a number that sits next to or on top of another element: unread messages, open tasks, items in a cart. A count of 0 renders nothing, a large count is capped (`99+`), and the visible number is hidden from assistive technology in favour of a `label` such as `3 unread messages`. For a status word (`Paid`, `Draft`) use `Badge`; for a status light without a number use `StatusDot`.\n\nVariations:\n\n- `tone`: `neutral | primary | success | warning | danger | info`.\n- `appearance`: `solid` (default), `soft` (tinted) or `outline` (border on the page background, readable over other elements).\n- `size`: `sm` 16px, `md` 20px (default), `lg` 28px tall.\n- `shape`: `pill` (grows with the text), `circle` (round for one or two digits), `square` (control radius).\n- `dot`: a marker without a number. With `count` it hides at 0, without `count` it always shows.\n- `max` and `showZero`: the cap before `max+`, and whether `0` is rendered.\n\nPlacement: wrap the target and the badge in `CountBadgeAnchor` and put the badge in its `badge` slot. `placement` is `top-end` (default), `top-start`, `bottom-end` or `bottom-start`; start and end flip in right-to-left text. `countBadgePlacement` exposes the same classes for custom wrappers.\n\nBad input is handled, not thrown: a count that is not a number or is NaN or negative counts as 0, a fraction is truncated, `Infinity` shows `max+`, and an invalid `max` falls back to 99. Wrap `countBadgeVariants(...)` in `cn()` when you use it on a plain element, because a few classes override each other.",
       "status": "stable",
       "parts": [
         {
@@ -1992,7 +2159,7 @@
           "name": "size",
           "type": "'sm' | 'md' | 'lg'",
           "default": "'md'",
-          "description": "Height and text size (16px, 20px, 24px); a 6px, 8px or 10px dot in `dot` mode. Unknown values fall back to md."
+          "description": "Height and text size (16px, 20px, 28px); a 6px, 8px or 10px dot in `dot` mode. Unknown values fall back to md."
         },
         {
           "name": "shape",
@@ -2105,7 +2272,7 @@
       "group": "primitives",
       "subgroup": "Status",
       "summary": "Horizontal progress bar with determinate and indeterminate modes, tones, sizes, a pulse animation, inside/top labels and segments.",
-      "description": "Use `Progress` to show how far a known task has come (`modelValue` 0..`max`) or that something is working with no known end (omit `modelValue` or pass `null`). Values are clamped: NaN and negatives become 0, values above `max` become `max`, an invalid `max` falls back to 100. Unknown `size`/`tone`/`valuePosition` values fall back to the defaults.\n\nVariations: **size** `xs` (2px) to `xl` (20px); **tone** for meaning (primary, success, warning, danger, info, neutral); **animated** pulses the filled bar (a busy but determinate task; static under prefers-reduced-motion). `striped` is deprecated and draws nothing, because stripes need a gradient and the design system uses none; **valuePosition** `end` (percentage beside the bar, default), `inside` (percentage inside the filled bar, needs size `lg`/`xl`, clipped when the value is very small) or `top` (header row with the visible `label` on the left and the percentage on the right); **segments** splits the bar into N steps for wizards, password strength or quotas (each segment fills proportionally). For a circular meter use `ProgressRing`; for tiny inline waits use `Spinner`.",
+      "description": "Use `Progress` to show how far a known task has come (`modelValue` 0..`max`) or that something is working with no known end (omit `modelValue` or pass `null`). Values are clamped: NaN and negatives become 0, values above `max` become `max`, an invalid `max` falls back to 100. Unknown `size`/`tone`/`valuePosition` values fall back to the defaults.\n\nVariations: **size** `xs` (2px) to `xl` (20px); **tone** for meaning (primary, success, warning, danger, info, neutral); **animated** pulses the filled bar (a busy but determinate task; static under prefers-reduced-motion). **variant** picks the indeterminate look: `slide` or `sweep` (two-phase: grows, travels, shrinks). A moving stripe look is not offered because stripes need a gradient. `striped` is deprecated and draws nothing, because stripes need a gradient and the design system uses none; **valuePosition** `end` (percentage beside the bar, default), `inside` (percentage inside the filled bar, needs size `lg`/`xl`, clipped when the value is very small) or `top` (header row with the visible `label` on the left and the percentage on the right); **segments** splits the bar into N steps for wizards, password strength or quotas (each segment fills proportionally). For a circular meter use `ProgressRing`; for tiny inline waits use `Spinner`.",
       "status": "stable",
       "props": [
         {
@@ -2149,16 +2316,22 @@
           "description": "end = beside the bar; inside = in the filled bar (use size lg/xl; segmented bars fall back to end); top = header row above the bar with label + percentage."
         },
         {
+          "name": "variant",
+          "type": "'slide' | 'sweep'",
+          "default": "'slide'",
+          "description": "Indeterminate look: slide = the bar travels across the track; sweep = the bar grows, travels and shrinks. Static half-opacity full bar under prefers-reduced-motion. No effect when determinate or segmented. Unknown values fall back to slide."
+        },
+        {
           "name": "striped",
           "type": "boolean",
           "default": "false",
-          "description": "Diagonal stripes on the filled bar (static)."
+          "description": "Deprecated, no visual effect (stripes need a gradient)."
         },
         {
           "name": "animated",
           "type": "boolean",
           "default": "false",
-          "description": "Moving stripes; implies `striped`. Static under prefers-reduced-motion and ignored while indeterminate."
+          "description": "Pulses the filled bar; implies nothing else. Static under prefers-reduced-motion and ignored while indeterminate."
         },
         {
           "name": "segments",
@@ -2187,6 +2360,11 @@
           "title": "Interactive with tones",
           "script": "const value = ref(30)",
           "code": "<div class=\"w-full max-w-72 space-y-3\">\n  <Progress :model-value=\"value\" show-value label=\"Sample quota\" :tone=\"value > 85 ? 'danger' : value > 60 ? 'warning' : 'primary'\" />\n  <div class=\"flex gap-2\">\n    <Button size=\"sm\" variant=\"outline\" @click=\"value = Math.max(0, value - 10)\">-10</Button>\n    <Button size=\"sm\" @click=\"value = Math.min(100, value + 10)\">+10</Button>\n  </div>\n</div>"
+        },
+        {
+          "title": "Indeterminate looks",
+          "description": "slide (default) and sweep. Both stop moving under prefers-reduced-motion.",
+          "code": "<div class=\"w-full max-w-72 space-y-3\">\n  <Progress label=\"Sample slide\" />\n  <Progress variant=\"sweep\" label=\"Sample sweep\" />\n  <Progress variant=\"sweep\" tone=\"success\" size=\"lg\" label=\"Sample large sweep\" />\n</div>"
         },
         {
           "title": "Sizes",
@@ -3403,8 +3581,8 @@
         },
         {
           "title": "Variant: card with author row",
-          "description": "Author, role and avatar render an author row.",
-          "code": "<Blockquote variant=\"card\" author=\"Sample author\" author-role=\"Sample role\" avatar=\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\">\n  Sample quotation text inside a card.\n</Blockquote>"
+          "description": "Author and role render an author row under the quote, aligned with its text. Add `avatar` (an image URL) or the `avatar` slot to put a picture before it.",
+          "code": "<Blockquote variant=\"card\" author=\"Sample author\" author-role=\"Sample role\">\n  Sample quotation text inside a card.\n</Blockquote>"
         },
         {
           "title": "Variant: pull-quote",
@@ -4045,6 +4223,161 @@
       ],
       "replaces": [
         "marketing hero subtitle paragraphs"
+      ]
+    },
+    {
+      "name": "Price",
+      "group": "typography",
+      "subgroup": "Text",
+      "summary": "A locale-aware price with an optional period, a struck-through previous price and a label for free or missing amounts.",
+      "description": "Use `Price` wherever an amount of money is shown: plan cards, rate lists, order summaries. It formats with `Intl.NumberFormat` (through `formatPrice`), uses tabular figures, and never throws on bad input.\n\nDigits: whole amounts show no fraction digits, other amounts show two, unless `minimumFractionDigits` or `maximumFractionDigits` say otherwise. `locale` defaults to the `ConfigProvider` locale, else `en-US`, never the browser locale, so server and client render the same text.\n\nSafe fallbacks: a missing, NaN or infinite `amount` renders `fallback` (default a dash, announced as \"No price\"); an invalid `currency` code renders a plain number; a malformed `locale` falls back to `en-US`. `freeLabel` replaces a zero amount (\"Free\"). With `compareAt` the old price is struck through for sighted users and screen readers hear \"Was X, now Y\". The default slot replaces the amount text. For plain strings (chart labels, `aria-label`) use `formatPrice(amount, options)` exported next to the component; `significantFractionDigits` picks the digits for metered rates such as 0.0004.\n\nNot for percentages or counts: use `FormattedNumber`. Not for a whole plan: use `PricingCard`.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "amount",
+          "type": "number | null",
+          "description": "Amount in major units (49.5 is 49.50). null, undefined, NaN and Infinity render `fallback`."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "default": "'USD'",
+          "description": "ISO 4217 code (any case). An invalid code renders a plain number instead of throwing."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "default": "ConfigProvider locale, else 'en-US'",
+          "description": "BCP 47 tag such as `de-DE`. Malformed tags fall back to `en-US`."
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "description": "Text after the amount, smaller and muted, such as \"/month\"."
+        },
+        {
+          "name": "compareAt",
+          "type": "number",
+          "description": "Previous price. Struck through before the amount; screen readers read \"Was X, now Y\". Ignored when `amount` is missing or `compareAt` is not finite."
+        },
+        {
+          "name": "notation",
+          "type": "'standard' | 'compact'",
+          "default": "'standard'",
+          "description": "`compact` shortens large amounts (\"$1.2M\"). Unknown values mean `standard`."
+        },
+        {
+          "name": "minimumFractionDigits",
+          "type": "number",
+          "description": "Fewest fraction digits. Default 0 for whole amounts and 2 otherwise."
+        },
+        {
+          "name": "maximumFractionDigits",
+          "type": "number",
+          "description": "Most fraction digits. Default 0 for whole amounts and 2 otherwise."
+        },
+        {
+          "name": "freeLabel",
+          "type": "string",
+          "description": "Text shown when `amount` is exactly 0, such as \"Free\". Unset formats the zero."
+        },
+        {
+          "name": "fallback",
+          "type": "string",
+          "default": "'—'",
+          "description": "Text for a missing or non-finite amount. The default dash is announced as \"No price\"."
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg' | 'xl'",
+          "default": "'md'",
+          "description": "Amount scale; the period and previous price scale with it. Unknown values fall back to `md`."
+        },
+        {
+          "name": "tone",
+          "type": "'default' | 'muted' | 'primary'",
+          "default": "'default'",
+          "description": "Amount colour. Unknown values fall back to `default`."
+        },
+        {
+          "name": "as",
+          "type": "string",
+          "default": "'span'",
+          "description": "Root element tag."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last with tailwind-merge; wins over internal classes."
+        }
+      ],
+      "slots": [
+        {
+          "name": "default",
+          "description": "Replaces the formatted amount text, for example a range such as \"from\" plus a number. The period and previous price still render."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Minimal",
+          "description": "A whole amount with a period. Labelled sample value.",
+          "code": "<div class=\"flex items-center gap-2\">\n  <span class=\"text-sm text-muted-foreground\">Sample plan A</span>\n  <Price :amount=\"20\" period=\"/month\" />\n</div>"
+        },
+        {
+          "title": "Previous price and free label",
+          "description": "The struck-through price is hidden from assistive technology, which reads \"Was $30, now $20\".",
+          "code": "<div class=\"flex flex-wrap items-baseline gap-6\">\n  <Price :amount=\"20\" :compare-at=\"30\" period=\"/month\" />\n  <Price :amount=\"0\" free-label=\"Free\" />\n  <Price :amount=\"null\" />\n</div>"
+        },
+        {
+          "title": "Size",
+          "description": "The period and previous price scale with the amount.",
+          "code": "<div class=\"flex flex-wrap items-baseline gap-6\">\n  <Price :amount=\"12\" size=\"sm\" period=\"/month\" />\n  <Price :amount=\"12\" size=\"md\" period=\"/month\" />\n  <Price :amount=\"12\" size=\"lg\" period=\"/month\" />\n  <Price :amount=\"12\" size=\"xl\" period=\"/month\" />\n</div>"
+        },
+        {
+          "title": "Tone",
+          "code": "<div class=\"flex flex-wrap items-baseline gap-6\">\n  <Price :amount=\"40\" tone=\"default\" />\n  <Price :amount=\"40\" tone=\"muted\" />\n  <Price :amount=\"40\" tone=\"primary\" />\n</div>"
+        },
+        {
+          "title": "Locales and currencies",
+          "description": "Separators, symbol position and digits follow the locale. Sample amounts.",
+          "code": "<dl class=\"grid grid-cols-[max-content_auto] gap-x-4 gap-y-1\">\n  <dt>en-US, USD</dt><dd><Price :amount=\"1234.5\" size=\"sm\" /></dd>\n  <dt>de-DE, EUR</dt><dd><Price :amount=\"1234.5\" currency=\"EUR\" locale=\"de-DE\" size=\"sm\" /></dd>\n  <dt>ja-JP, JPY</dt><dd><Price :amount=\"1500\" currency=\"JPY\" locale=\"ja-JP\" size=\"sm\" /></dd>\n</dl>"
+        },
+        {
+          "title": "Compact notation and metered digits",
+          "description": "Compact shortens large amounts. Explicit digits show a small per-unit rate. Sample rate.",
+          "code": "<div class=\"flex flex-wrap items-baseline gap-6\">\n  <Price :amount=\"1200000\" notation=\"compact\" size=\"sm\" />\n  <Price :amount=\"0.0004\" :minimum-fraction-digits=\"4\" :maximum-fraction-digits=\"4\" size=\"sm\" period=\"per sample unit\" />\n</div>"
+        },
+        {
+          "title": "Slot override",
+          "description": "The default slot replaces the amount text; the period still renders.",
+          "code": "<Price :amount=\"20\" period=\"/month\"><span>From $20</span></Price>"
+        }
+      ],
+      "a11y": [
+        "Renders plain text, so screen readers read the formatted string. With `compareAt` they read \"Was $30, now $20\"; the visual strike-through is `aria-hidden`.",
+        "A missing amount with the default dash is exposed as an image named \"No price\" so the dash is not read as \"dash\" or skipped.",
+        "Strike-through is not the only signal: the \"Was\" text exists for assistive technology, and the previous price is also muted.",
+        "Tabular figures change width only. Colours are `text-foreground`, `text-muted-foreground` and `text-primary`, covered by the contrast tests.",
+        "Use `locale` that matches the page language so digits and separators read correctly."
+      ],
+      "llmNotes": [
+        "Pass the amount as a number in major units; never pre-format it, `Price` formats it.",
+        "Pass `locale` from app state, or wrap the app in `ConfigProvider`; the fallback is `en-US`, not the browser locale.",
+        "Use `free-label` for zero amounts and `:compare-at` for a previous price; never hand-roll a strike-through.",
+        "Use `period` for \"/month\" style suffixes instead of a sibling span.",
+        "For metered rates under one cent pass `minimum-fraction-digits` and `maximum-fraction-digits` (or `significantFractionDigits`), otherwise 0.0004 renders as $0.00.",
+        "Use `formatPrice()` for strings such as chart labels and `aria-label`."
+      ],
+      "related": [
+        "FormattedNumber",
+        "PricingCard",
+        "PricingTable",
+        "RateCard",
+        "TieredPricing"
+      ],
+      "replaces": [
+        "hand-rolled Intl.NumberFormat price markup",
+        "value.toLocaleString() currency helpers in templates"
       ]
     },
     {
@@ -5260,8 +5593,9 @@
         },
         {
           "title": "Hero with image or primary background",
-          "description": "`background-image` places an image under a readable overlay; `background=\"primary\"` uses the solid primary token.",
-          "code": "<div class=\"flex flex-col gap-6\">\n  <PageHeader variant=\"hero\" background-image=\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\" title-as=\"h4\" title=\"Image banner\" description=\"Text stays readable over the overlay.\" />\n  <PageHeader variant=\"hero\" background=\"primary\" title-as=\"h4\" title=\"Primary banner\" description=\"Solid primary colour.\" />\n</div>"
+          "description": "`background-image` places an image under a readable overlay; `background=\"primary\"` uses the solid primary token. The image is a generated sample scene.",
+          "script": "const scene = sampleScene()",
+          "code": "<div class=\"flex flex-col gap-6\">\n  <PageHeader variant=\"hero\" :background-image=\"scene\" title-as=\"h4\" title=\"Image banner\" description=\"Text stays readable over the overlay.\" />\n  <PageHeader variant=\"hero\" background=\"primary\" title-as=\"h4\" title=\"Primary banner\" description=\"Solid primary colour.\" />\n</div>"
         },
         {
           "title": "Sticky",
@@ -5706,7 +6040,8 @@
         },
         {
           "title": "Offset below a header and a bottom bar",
-          "code": "<div class=\"grid gap-4\">\n  <Affix :offset-top=\"64\" :z-index=\"30\" class=\"rounded-md border bg-card p-3 text-sm\">Pins 64px from the top</Affix>\n  <Affix :offset-bottom=\"16\" variant=\"bordered\" class=\"p-3 text-sm\">Pins 16px from the bottom</Affix>\n</div>"
+          "description": "Scroll the box: the first card stops 48px from the top, under the header; the second stops 40px from the bottom, above the bar.",
+          "code": "<div id=\"affix-offset-scroll\" class=\"relative h-64 overflow-auto rounded-md border\" tabindex=\"0\" role=\"region\" aria-label=\"Offset demo\">\n  <div class=\"sticky top-0 z-40 flex h-12 items-center border-b bg-card px-3 text-sm text-card-foreground\">Header, 48px</div>\n  <Affix root=\"#affix-offset-scroll\" :offset-top=\"48\" :z-index=\"30\" variant=\"bordered\" class=\"px-3 py-2 text-sm\">Pins 48px from the top</Affix>\n  <div class=\"grid gap-2 p-3\">\n    <p v-for=\"n in 8\" :key=\"n\" class=\"text-sm\">Paragraph {{ n }}</p>\n  </div>\n  <Affix root=\"#affix-offset-scroll\" :offset-bottom=\"40\" :z-index=\"30\" variant=\"bordered\" class=\"px-3 py-2 text-sm\">Pins 40px from the bottom</Affix>\n  <div class=\"grid gap-2 p-3\">\n    <p v-for=\"n in 8\" :key=\"n\" class=\"text-sm\">Paragraph {{ n + 8 }}</p>\n  </div>\n  <div class=\"sticky bottom-0 z-40 flex h-10 items-center border-t bg-card px-3 text-sm text-card-foreground\">Bottom bar, 40px</div>\n</div>"
         },
         {
           "title": "Bordered variant and disabled",
@@ -6504,7 +6839,7 @@
         {
           "title": "Custom slot, spread layout, loading",
           "script": "const saving = ref(false)\nconst result = ref('')\nfunction publish() {\n  saving.value = true\n  result.value = 'Publishing'\n  setTimeout(() => { saving.value = false; result.value = 'Published' }, 600)\n}",
-          "code": "<form @submit.prevent=\"publish\">\n  <FormActions align=\"between\" aria-label=\"Publish actions\">\n    <Button variant=\"ghost\" type=\"button\" @click=\"result = 'Draft deleted'\">Delete draft</Button>\n    <div class=\"flex flex-wrap gap-2\">\n      <Button variant=\"outline\" type=\"button\" @click=\"result = 'Draft saved'\">Save draft</Button>\n      <Button type=\"submit\" :loading=\"saving\">Publish</Button>\n    </div>\n  </FormActions>\n  <p role=\"status\" class=\"mt-2 text-sm text-muted-foreground\">{{ result }}</p>\n</form>"
+          "code": "<form @submit.prevent=\"publish\">\n  <FormActions align=\"between\" aria-label=\"Publish actions\">\n    <Button variant=\"outline\" class=\"text-destructive\" type=\"button\" @click=\"result = 'Draft deleted'\">Delete draft</Button>\n    <div class=\"flex flex-wrap gap-2\">\n      <Button variant=\"outline\" type=\"button\" @click=\"result = 'Draft saved'\">Save draft</Button>\n      <Button type=\"submit\" :loading=\"saving\">Publish</Button>\n    </div>\n  </FormActions>\n  <p role=\"status\" class=\"mt-2 text-sm text-muted-foreground\">{{ result }}</p>\n</form>"
         },
         {
           "title": "Layouts",
@@ -7224,6 +7559,197 @@
       ],
       "replaces": [
         "multi-select dropdowns built from Popover + Checkbox lists"
+      ]
+    },
+    {
+      "name": "PlanPicker",
+      "group": "forms",
+      "subgroup": "Choice",
+      "summary": "One column of selectable plans with the price at the end, for checkout, upgrade and settings screens.",
+      "description": "Use `PlanPicker` when a person chooses one plan inside a form or a settings page: each plan is a radio card with a name, an optional description and a few short points, and its price at the end of the row. It is built on a reka-ui radio group, so the arrow keys move and select, and the whole group is one tab stop. Use `PricingGrid` or `PricingCard` for the marketing page that compares plans side by side, `RadioCardGroup` when the options are not priced, and `UsageEstimator` for usage-based pricing. The model is the selected plan `id`. Set `name` to submit the id in a native form. Prices render through `Price`; a `price` of `null` shows `customLabel`. `billing` switches every plan between `price` and `yearlyPrice` (a plan without `yearlyPrice` keeps its monthly price), and `showBillingToggle` adds the toggle.",
+      "status": "beta",
+      "props": [
+        {
+          "name": "plans",
+          "type": "PlanPickerPlan[]",
+          "required": true,
+          "description": "Plans in display order: `{ id, name, description?, price, yearlyPrice?, period?, yearlyPeriod?, badge?, disabled?, features? }`. `id` is a unique non-empty string, `price` is in major units or `null`. Keep `features` to about three short points. A value that is not an array renders no plans."
+        },
+        {
+          "name": "modelValue",
+          "type": "string",
+          "description": "v-model: the selected plan `id`. Uncontrolled when omitted."
+        },
+        {
+          "name": "defaultValue",
+          "type": "string",
+          "description": "Initial plan `id` when uncontrolled."
+        },
+        {
+          "name": "billing",
+          "type": "'monthly' | 'yearly'",
+          "description": "v-model:billing. Uncontrolled when omitted. Unknown values count as `monthly`."
+        },
+        {
+          "name": "defaultBilling",
+          "type": "'monthly' | 'yearly'",
+          "default": "'monthly'",
+          "description": "Initial billing when uncontrolled."
+        },
+        {
+          "name": "showBillingToggle",
+          "type": "boolean",
+          "default": "false",
+          "description": "Show the monthly and yearly toggle above the plans."
+        },
+        {
+          "name": "billingLabels",
+          "type": "{ group?: string; monthly?: string; yearly?: string }",
+          "description": "Text of the toggle and its accessible name. Defaults are \"Billing period\", \"Monthly\" and \"Yearly\"."
+        },
+        {
+          "name": "yearlyNote",
+          "type": "string",
+          "default": "'Billed yearly'",
+          "description": "Small text under a price that is a yearly price. An empty string hides it."
+        },
+        {
+          "name": "customLabel",
+          "type": "string",
+          "default": "'Custom'",
+          "description": "Shown instead of the price when `price` is `null`."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "description": "ISO 4217 currency code. Default `USD`. An invalid code renders a plain number."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "description": "BCP 47 locale for prices, such as `de-DE`. Defaults to the ConfigProvider locale, else `en-US`."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Form field name. A hidden input with the selected `id` is rendered while a plan is selected, so a native form submits it."
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "default": "false",
+          "description": "Sets `aria-required` on the group. Also inherited from a Field. Native form validation does not check it."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disables every plan and the toggle. Also inherited from a Field."
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false",
+          "description": "Sets `aria-invalid` on the group and a destructive border on every plan. Also set by a Field with an error."
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg'",
+          "default": "'md'",
+          "description": "Padding, gap and text size of the plans. Unknown values fall back to `md`."
+        },
+        {
+          "name": "variant",
+          "type": "'cards' | 'list'",
+          "default": "'cards'",
+          "description": "`cards` are separate bordered radio cards; `list` is one bordered list with dividers between rows. Unknown values fall back to `cards`."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last on the root element; wins over internal classes."
+        }
+      ],
+      "emits": [
+        {
+          "name": "update:modelValue",
+          "payload": "[value: string]",
+          "description": "Emitted when the user selects a plan."
+        },
+        {
+          "name": "update:billing",
+          "payload": "[value: 'monthly' | 'yearly']",
+          "description": "Emitted when the user switches the billing toggle."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Basic",
+          "script": "const plans = [\n  { id: 'a', name: 'Sample plan A', description: 'Sample description for the smallest plan.', price: 0, period: '/month' },\n  { id: 'b', name: 'Sample plan B', description: 'Sample description for the middle plan.', price: 10, yearlyPrice: 100, period: '/month', yearlyPeriod: '/year', features: ['Sample feature one', 'Sample feature two'] },\n  { id: 'c', name: 'Sample plan C', description: 'Sample description for the largest plan.', price: 40, yearlyPrice: 400, period: '/month', yearlyPeriod: '/year', badge: 'Sample badge' },\n]\nconst plan = ref('b')",
+          "code": "<div class=\"grid max-w-lg gap-3\">\n  <PlanPicker v-model=\"plan\" :plans=\"plans\" aria-label=\"Plan\" />\n  <p class=\"text-sm text-muted-foreground\">Selected: {{ plan }}</p>\n</div>"
+        },
+        {
+          "title": "In a Field, with billing toggle and form value",
+          "description": "The Field label names the group and carries the hint. `name` submits the selected id with the form; the toggle switches every plan to its yearly price.",
+          "script": "const plans = [\n  { id: 'a', name: 'Sample plan A', description: 'Sample description for the smallest plan.', price: 0, period: '/month' },\n  { id: 'b', name: 'Sample plan B', description: 'Sample description for the middle plan.', price: 10, yearlyPrice: 100, period: '/month', yearlyPeriod: '/year', features: ['Sample feature one', 'Sample feature two'] },\n  { id: 'c', name: 'Sample plan C', description: 'Sample description for the largest plan.', price: 40, yearlyPrice: 400, period: '/month', yearlyPeriod: '/year', badge: 'Sample badge' },\n]\nconst plan = ref('b')\nconst billing = ref('monthly')",
+          "code": "<form class=\"grid max-w-lg gap-4\" @submit.prevent>\n  <Field label=\"Plan\" hint=\"Sample plans. You can change plan later.\" required>\n    <PlanPicker v-model=\"plan\" v-model:billing=\"billing\" name=\"plan\" show-billing-toggle :plans=\"plans\" />\n  </Field>\n  <p class=\"text-sm text-muted-foreground tabular-nums\">Selected: {{ plan }}, billed {{ billing }}</p>\n  <div><Button type=\"submit\">Continue to payment</Button></div>\n</form>"
+        },
+        {
+          "title": "List variant",
+          "description": "One bordered list with dividers. A disabled plan stays visible and cannot be selected.",
+          "script": "const plan = ref('a')\nconst plans = [\n  { id: 'a', name: 'Sample plan A', price: 0, period: '/month' },\n  { id: 'b', name: 'Sample plan B', price: 10, period: '/month' },\n  { id: 'c', name: 'Sample plan C', price: null, disabled: true, badge: 'Unavailable' },\n]",
+          "code": "<PlanPicker v-model=\"plan\" variant=\"list\" :plans=\"plans\" aria-label=\"Plan\" class=\"max-w-lg\" />"
+        },
+        {
+          "title": "Sizes",
+          "description": "Small, medium (default) and large plans.",
+          "script": "const plans = [\n  { id: 'a', name: 'Sample plan A', description: 'Sample description for the smallest plan.', price: 0, period: '/month' },\n  { id: 'b', name: 'Sample plan B', description: 'Sample description for the middle plan.', price: 10, yearlyPrice: 100, period: '/month', yearlyPeriod: '/year', features: ['Sample feature one', 'Sample feature two'] },\n  { id: 'c', name: 'Sample plan C', description: 'Sample description for the largest plan.', price: 40, yearlyPrice: 400, period: '/month', yearlyPeriod: '/year', badge: 'Sample badge' },\n]",
+          "code": "<div class=\"grid max-w-lg gap-6\">\n  <PlanPicker size=\"sm\" default-value=\"a\" :plans=\"plans\" aria-label=\"Small plans\" />\n  <PlanPicker default-value=\"a\" :plans=\"plans\" aria-label=\"Medium plans\" />\n  <PlanPicker size=\"lg\" default-value=\"a\" :plans=\"plans\" aria-label=\"Large plans\" />\n</div>"
+        },
+        {
+          "title": "Yearly billing and German prices",
+          "description": "A plan without `yearlyPrice` keeps its price in both modes. `locale` and `currency` format the amounts.",
+          "script": "const plans = [\n  { id: 'a', name: 'Sample plan A', description: 'Sample description for the smallest plan.', price: 0, period: '/month' },\n  { id: 'b', name: 'Sample plan B', description: 'Sample description for the middle plan.', price: 10, yearlyPrice: 100, period: '/month', yearlyPeriod: '/year', features: ['Sample feature one', 'Sample feature two'] },\n  { id: 'c', name: 'Sample plan C', description: 'Sample description for the largest plan.', price: 40, yearlyPrice: 400, period: '/month', yearlyPeriod: '/year', badge: 'Sample badge' },\n]\nconst billing = ref('yearly')",
+          "code": "<PlanPicker v-model:billing=\"billing\" show-billing-toggle locale=\"de-DE\" currency=\"EUR\" yearly-note=\"Jährlich abgerechnet\" :billing-labels=\"{ group: 'Abrechnung', monthly: 'Monatlich', yearly: 'Jährlich' }\" :plans=\"plans\" aria-label=\"Tarif\" class=\"max-w-lg\" />"
+        }
+      ],
+      "a11y": [
+        "The group has `role=\"radiogroup\"` and each plan `role=\"radio\"`. Name the group with a Field label, a Fieldset legend, `aria-label` or `aria-labelledby`. Each plan is named by its `name`, and described by its description, points and price.",
+        "Keyboard: Tab enters the group at the selected plan (or the first one) and leaves it; the arrow keys move to the next enabled plan and select it; Space selects the focused plan. Disabled plans are skipped.",
+        "The selected plan shows a filled radio dot as well as a primary border and tint, so selection never relies on colour. The focus ring uses `focusRing` and an outline in forced-colors mode.",
+        "Each row stacks no further than one column, so the layout reflows at 320px: the name wraps, and the price stays at the end of the row.",
+        "The billing toggle is a named radio group of its own. Prices are tabular figures."
+      ],
+      "requires": [
+        "Throws a ContractError when the picker has no accessible name (no Field label, Fieldset legend, `aria-label` or `aria-labelledby`).",
+        "Throws a ContractError when a plan has an empty `id` or two plans share an `id`.",
+        "Throws a ContractError when a plan has an empty `name`."
+      ],
+      "llmNotes": [
+        "Use PlanPicker for choosing a plan inside a form or settings screen; use PricingGrid for the marketing comparison.",
+        "Always name the picker: wrap it in Field with a label, or set `aria-label`.",
+        "Give every plan a unique non-empty `id` and a `name`; the model is the plan `id`.",
+        "Pass prices as numbers in major units and set `currency` and `locale`; never pass formatted strings.",
+        "Keep `features` to about three short points; put the full comparison on a pricing page.",
+        "Use `v-model:billing` with `show-billing-toggle` for monthly and yearly prices; give `yearlyPrice` and `yearlyPeriod` on each plan that has them.",
+        "Set `name` when the selected plan must be submitted by a native form.",
+        "In examples, label plans as samples (\"Sample plan A\") and use round numbers."
+      ],
+      "related": [
+        "Price",
+        "PricingCard",
+        "PricingGrid",
+        "RateCard",
+        "TieredPricing",
+        "UsageEstimator",
+        "RadioCardGroup",
+        "RadioGroup",
+        "SegmentedControl",
+        "Field"
+      ],
+      "replaces": [
+        "hand-rolled radio cards for choosing a plan",
+        "a plan list built from native radio inputs and custom CSS"
       ]
     },
     {
@@ -11459,6 +11985,162 @@
       ]
     },
     {
+      "name": "UsageEstimator",
+      "group": "forms",
+      "subgroup": "Selection",
+      "summary": "Usage-based cost calculator: a slider and number field per metered dimension, a live cost per line and an estimated total.",
+      "description": "Use `UsageEstimator` on a pricing page or a plan screen when the price depends on how much is used. Each dimension has a `rate` per unit (or per `per` units), optional free `included` units, bounds, and optionally graduated `tiers` that replace the flat rate. The estimate is computed by the exported pure helpers `lineCost` and `estimateTotal`, which never round: amounts are rounded only when displayed. Quantities are clamped to `min` and `max`; NaN and negative values count as 0. Tier bounds `upTo` count billable units (after `included`), and units above the last bounded tier are billed at that tier rate. Use `PlanPicker` to choose a plan and `RateCard` or `TieredPricing` to show the rates as a table. Always say that the figures are an estimate with `note`.",
+      "status": "beta",
+      "props": [
+        {
+          "name": "dimensions",
+          "type": "UsageDimension[]",
+          "required": true,
+          "description": "Metered dimensions, one row each: `{ id, label, unit, rate, per?, included?, min?, max, step?, tiers? }`. `id` and `label` are required and unique, `max` is a finite number above `min`, `rate` is at least 0. `tiers` is `{ upTo: number | null, rate: number }[]` in ascending order."
+        },
+        {
+          "name": "modelValue",
+          "type": "Record<string, number>",
+          "description": "v-model: quantity per dimension id. A missing id counts as that dimension's `min` (or 0). Uncontrolled when omitted."
+        },
+        {
+          "name": "defaultValue",
+          "type": "Record<string, number>",
+          "description": "Initial quantities when uncontrolled."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "description": "ISO 4217 currency code. Default `USD`."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "description": "BCP 47 locale for money and quantities. Defaults to the ConfigProvider locale, else `en-US`."
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "description": "Text after the total, such as \"/month\". It is also spoken with the total."
+        },
+        {
+          "name": "input",
+          "type": "'slider' | 'number' | 'both'",
+          "default": "'both'",
+          "description": "Controls in each row. With `slider` alone the quantity is shown as text. Unknown values fall back to `both`."
+        },
+        {
+          "name": "showBreakdown",
+          "type": "boolean",
+          "default": "true",
+          "description": "Show the cost of each row and its rate hint. The total is always shown."
+        },
+        {
+          "name": "totalLabel",
+          "type": "string",
+          "default": "'Estimated total'",
+          "description": "Label of the total line, also used in the spoken update."
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "description": "Disclaimer under the total, such as \"Sample rates. Estimate only.\" Use the `note` slot for rich content."
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg'",
+          "default": "'md'",
+          "description": "Spacing, text size and control size. Unknown values fall back to `md`."
+        },
+        {
+          "name": "variant",
+          "type": "'card' | 'plain'",
+          "default": "'card'",
+          "description": "`card` is a bordered panel; `plain` has no surface. Unknown values fall back to `card`."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last on the root element; wins over internal classes."
+        }
+      ],
+      "slots": [
+        {
+          "name": "note",
+          "description": "Rich disclaimer under the total. Overrides the `note` prop."
+        }
+      ],
+      "emits": [
+        {
+          "name": "update:modelValue",
+          "payload": "[value: Record<string, number>]",
+          "description": "Emitted with the full quantity map when a slider or number field changes a quantity."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Basic",
+          "script": "const dimensions = [{ id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.5, per: 1000, max: 100000, step: 1000 }]",
+          "code": "<UsageEstimator :dimensions=\"dimensions\" :default-value=\"{ requests: 20000 }\" period=\"/month\" note=\"Sample rate. Estimate only.\" class=\"max-w-xl\" />"
+        },
+        {
+          "title": "Included units, tiers and a shown model",
+          "description": "Requests include 10,000 free units and are billed per 1,000. Storage is graduated: the first 100 GB, the next 900 GB, then the rest. Seats include three. The total follows every change.",
+          "script": "const dimensions = [\n  { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },\n  { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },\n  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },\n]\nconst usage = ref({ requests: 250000, storage: 400, seats: 5 })",
+          "code": "<div class=\"grid max-w-xl gap-3\">\n  <UsageEstimator v-model=\"usage\" :dimensions=\"dimensions\" period=\"/month\" note=\"Sample rates. Estimate only.\" />\n  <p class=\"text-sm text-muted-foreground tabular-nums\">Model: {{ usage }}</p>\n</div>"
+        },
+        {
+          "title": "Inputs and breakdown",
+          "description": "`input` chooses the controls and `showBreakdown` hides the per-row costs. A slider alone shows the quantity as text.",
+          "script": "const dimensions = [\n  { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },\n  { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },\n  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },\n]",
+          "code": "<div class=\"grid max-w-xl gap-8\">\n  <UsageEstimator input=\"slider\" :dimensions=\"dimensions\" :default-value=\"{ requests: 120000, storage: 50, seats: 4 }\" />\n  <UsageEstimator input=\"number\" :show-breakdown=\"false\" :dimensions=\"dimensions\" :default-value=\"{ requests: 120000, storage: 50, seats: 4 }\" />\n</div>"
+        },
+        {
+          "title": "Variant and sizes",
+          "description": "`plain` drops the panel. `sm` and `lg` change spacing, text and control size.",
+          "script": "const dimensions = [\n  { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },\n  { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },\n  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },\n]",
+          "code": "<div class=\"grid max-w-xl gap-8\">\n  <UsageEstimator variant=\"plain\" size=\"sm\" :dimensions=\"dimensions\" />\n  <UsageEstimator size=\"lg\" :dimensions=\"dimensions\" />\n</div>"
+        },
+        {
+          "title": "German locale and currency",
+          "script": "const dimensions = [\n  { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },\n  { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },\n  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },\n]",
+          "code": "<UsageEstimator locale=\"de-DE\" currency=\"EUR\" period=\"/Monat\" total-label=\"Geschätzter Gesamtbetrag\" note=\"Beispielpreise. Nur eine Schätzung.\" :dimensions=\"dimensions\" :default-value=\"{ requests: 50000, storage: 120, seats: 4 }\" class=\"max-w-xl\" />"
+        }
+      ],
+      "a11y": [
+        "Every slider thumb and number field is named from the dimension `label` and `unit` (\"Sample requests, requests\"). The visible label is contained in that name.",
+        "Keyboard: the slider takes the arrow keys, Home, End and Page Up/Down; the number field takes the arrow keys and typed digits, and commits on Enter or blur.",
+        "The total is announced through one polite `role=\"status\"` region, once the quantities stop changing (about 600ms), not on every slider step.",
+        "Rows stack at 375px: the label and cost on one line, the slider above the number field. Numbers use tabular figures and logical properties, so right-to-left layouts mirror."
+      ],
+      "requires": [
+        "Throws a ContractError when a dimension has an empty `id` or two dimensions share an `id`.",
+        "Throws a ContractError when a dimension has an empty `label`, which names its controls.",
+        "Throws a ContractError when a dimension `max` is not a finite number above its `min`.",
+        "Throws a ContractError when a dimension `rate` (or a tier `rate`) is not a finite number of at least 0."
+      ],
+      "llmNotes": [
+        "Use UsageEstimator for usage-based pricing; use PlanPicker to choose a plan and RateCard or TieredPricing to list the rates.",
+        "Give every dimension a unique `id`, a `label`, a `unit`, a `rate` and a `max`; set `step` so the slider moves in useful jumps.",
+        "Use `per` for rates quoted per 1,000 units and `included` for free units; use `tiers` for graduated pricing (`upTo` counts billable units, `null` means no limit).",
+        "Compute the figure with `lineCost` and `estimateTotal`, never by hand; they do not round.",
+        "Always set `note` to say the figure is an estimate, and `period` for the billing period.",
+        "In examples, use labelled sample rates and round numbers (\"Sample requests\"), never real prices."
+      ],
+      "related": [
+        "Price",
+        "RateCard",
+        "TieredPricing",
+        "PricingCard",
+        "PlanPicker",
+        "Slider",
+        "NumberInput"
+      ],
+      "replaces": [
+        "a hand-built pricing calculator with a range input and a computed total"
+      ]
+    },
+    {
       "name": "CopyField",
       "group": "forms",
       "subgroup": "Text fields",
@@ -11763,7 +12445,7 @@
         {
           "title": "Time and month",
           "script": "const time = ref('09:30')\nconst month = ref('2024-05')",
-          "code": "<div class=\"flex w-56 flex-col gap-3\">\n  <DateInput v-model=\"time\" type=\"time\" min=\"08:00\" max=\"18:00\" aria-label=\"Meeting time\" />\n  <DateInput v-model=\"month\" type=\"month\" aria-label=\"Billing month\" />\n  <DateInput model-value=\"2024-01-01\" readonly aria-label=\"Locked date\" />\n</div>"
+          "code": "<div class=\"flex w-56 flex-col gap-3\">\n  <DateInput v-model=\"time\" type=\"time\" min=\"08:00\" max=\"18:00\" aria-label=\"Meeting time\" />\n  <DateInput v-model=\"month\" type=\"month\" aria-label=\"Billing month\" />\n</div>"
         }
       ],
       "a11y": [
@@ -12994,7 +13676,7 @@
           "title": "Attach button, actions and footer",
           "description": "The toolbar slots take plain buttons. Icon-only buttons need an `aria-label`.",
           "script": "const text = ref('')",
-          "code": "<PromptInput v-model=\"text\" class=\"max-w-xl\" aria-label=\"Message\">\n  <template #header><Badge variant=\"outline\">notes.txt</Badge></template>\n  <template #attach><IconButton label=\"Attach a file\" variant=\"ghost\" :icon=\"faPlus\" /></template>\n  <template #actions><Badge variant=\"secondary\">Draft - fast</Badge></template>\n  <template #footer>Enter sends, Shift+Enter adds a line.</template>\n</PromptInput>"
+          "code": "<PromptInput v-model=\"text\" class=\"max-w-xl\" aria-label=\"Message\">\n  <template #header><Badge variant=\"outline\">notes.txt</Badge></template>\n  <template #attach><IconButton label=\"Attach a file\" variant=\"outline\" shape=\"circle\" :icon=\"faPlus\" /></template>\n  <template #actions><Badge variant=\"secondary\">Draft - fast</Badge></template>\n  <template #footer>Enter sends, Shift+Enter adds a line.</template>\n</PromptInput>"
         },
         {
           "title": "Variants",
@@ -13950,6 +14632,92 @@
       ],
       "replaces": [
         "window.confirm() calls"
+      ]
+    },
+    {
+      "name": "PageLoadingBar",
+      "group": "feedback",
+      "subgroup": "Loading",
+      "summary": "A thin bar fixed to the top of the viewport that shows a route change or page load, with a delay so fast navigations never flash.",
+      "description": "Mount `PageLoadingBar` once in the app shell and drive `active` from your router. While `active` is true it shows an indeterminate sweep; when `active` turns false it fills to 100% and fades. `delay` (default 150ms) keeps navigations that finish quickly from flashing the bar, and `minDuration` (default 300ms) keeps a bar that did show from blinking away. Turning `active` back on during the finish or fade resumes the sweep without a flash.\n\nThe bar is `position: fixed` at `z-(--z-toast)` and ignores the pointer. It is idle and `aria-hidden` until it shows; then it is a `progressbar` named by `label` (default \"Loading page\") with no value while loading. Under prefers-reduced-motion the sweep becomes a static full-width bar while active and the fade is instant.\n\nUse it for route and page level waits. For a bar inside a layout use `Progress`; for a region use `LoadingState`.\n\nvue-router:\n\n```ts\nconst loading = ref(false)\nrouter.beforeEach(() => { loading.value = true })\nrouter.afterEach(() => { loading.value = false })\nrouter.onError(() => { loading.value = false })\n```\n\n```vue\n<PageLoadingBar :active=\"loading\" />\n```",
+      "status": "stable",
+      "props": [
+        {
+          "name": "active",
+          "type": "boolean",
+          "default": "false",
+          "description": "True while a navigation or load is in flight."
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "default": "150",
+          "description": "Milliseconds before the bar shows. 0 shows at once. Negative or invalid values give 150."
+        },
+        {
+          "name": "minDuration",
+          "type": "number",
+          "default": "300",
+          "description": "Minimum milliseconds the bar stays once shown. Negative or invalid values give 300."
+        },
+        {
+          "name": "tone",
+          "type": "'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'",
+          "default": "'primary'",
+          "description": "Colour of the bar. Unknown values fall back to primary."
+        },
+        {
+          "name": "size",
+          "type": "'xs' | 'sm' | 'md'",
+          "default": "'sm'",
+          "description": "Thickness: 2px, 4px, 6px. Unknown values fall back to sm."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "'Loading page'",
+          "description": "Accessible name of the progressbar while it is visible."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last onto the fixed root; use it to move the bar or change its stacking."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Toggle with a button",
+          "description": "delay 0 and a short minDuration make the bar easy to see in this demo.",
+          "code": "<div class=\"space-y-3\">\n  <Button size=\"sm\" variant=\"outline\" @click=\"loading = !loading\">{{ loading ? 'Finish loading' : 'Start loading' }}</Button>\n  <PageLoadingBar :active=\"loading\" :delay=\"0\" :min-duration=\"600\" label=\"Loading sample page\" />\n</div>"
+        },
+        {
+          "title": "Tone and thickness",
+          "description": "Always active here, so every look is visible; the bars stack at the top of the viewport.",
+          "code": "<div>\n  <PageLoadingBar active :delay=\"0\" size=\"xs\" tone=\"info\" label=\"Loading sample xs\" />\n  <p class=\"text-sm text-muted-foreground\">The info-toned bar sits at the top of the viewport.</p>\n</div>"
+        }
+      ],
+      "a11y": [
+        "Idle: `aria-hidden=\"true\"` and invisible, so it adds nothing to the accessibility tree.",
+        "Visible: `role=\"progressbar\"` with `aria-label` (default \"Loading page\"); no `aria-valuenow` while loading (indeterminate), `aria-valuenow=\"100\"` while it finishes.",
+        "A progress bar is not announced on its own. For a route change also move focus or update the document title; this bar is a visual cue.",
+        "prefers-reduced-motion: a static full-width bar while active, no sweep, no fade.",
+        "The bar never takes pointer events and is not focusable."
+      ],
+      "related": [
+        "Progress",
+        "LoadingState",
+        "Spinner",
+        "Skeleton"
+      ],
+      "llmNotes": [
+        "Mount one PageLoadingBar in the app shell; drive `active` from router.beforeEach / afterEach / onError.",
+        "Keep the default `delay`; do not set it to 0 outside demos.",
+        "Do not use it for in-component loading; use Progress, Spinner or LoadingState.",
+        "Announce route changes separately (focus or title); the bar is visual only."
+      ],
+      "replaces": [
+        "nprogress",
+        "hand-rolled fixed top loading bars"
       ]
     },
     {
@@ -14982,7 +15750,7 @@
         {
           "title": "Variants and sizes",
           "description": "`card` puts the states and the content on one bordered surface. `compact` swaps in the dense forms of the states. `size` scales the built-in states.",
-          "code": "<div class=\"grid gap-4 md:grid-cols-2\">\n  <AsyncBoundary variant=\"card\" state=\"success\" :retryable=\"false\"><p>Content on a card surface.</p></AsyncBoundary>\n  <AsyncBoundary variant=\"card\" size=\"sm\" state=\"empty\" empty-title=\"No sample items\" :retryable=\"false\"><p>Items</p></AsyncBoundary>\n  <AsyncBoundary variant=\"compact\" state=\"loading\" loading-label=\"Loading sample items\" :retryable=\"false\"><p>Items</p></AsyncBoundary>\n  <AsyncBoundary variant=\"compact\" state=\"error\" error=\"The sample list could not be loaded.\" @retry=\"() => {}\"><p>Items</p></AsyncBoundary>\n  <AsyncBoundary variant=\"compact\" state=\"empty\" empty-title=\"No sample items\" :retryable=\"false\"><p>Items</p></AsyncBoundary>\n  <AsyncBoundary size=\"lg\" state=\"loading\" loading-label=\"Loading a large sample\" :retryable=\"false\"><p>Items</p></AsyncBoundary>\n</div>"
+          "code": "<div class=\"grid items-start gap-4 md:grid-cols-2\">\n  <AsyncBoundary variant=\"card\" state=\"success\" :retryable=\"false\"><p>Content on a card surface.</p></AsyncBoundary>\n  <AsyncBoundary variant=\"card\" size=\"sm\" state=\"empty\" empty-title=\"No sample items\" :retryable=\"false\"><p>Items</p></AsyncBoundary>\n  <AsyncBoundary variant=\"compact\" state=\"loading\" loading-label=\"Loading sample items\" :retryable=\"false\"><p>Items</p></AsyncBoundary>\n  <AsyncBoundary variant=\"compact\" state=\"error\" error=\"The sample list could not be loaded.\" @retry=\"() => {}\"><p>Items</p></AsyncBoundary>\n  <AsyncBoundary variant=\"compact\" state=\"empty\" empty-title=\"No sample items\" :retryable=\"false\"><p>Items</p></AsyncBoundary>\n  <AsyncBoundary size=\"lg\" state=\"loading\" loading-label=\"Loading a large sample\" :retryable=\"false\"><p>Items</p></AsyncBoundary>\n</div>"
         },
         {
           "title": "Your own states in slots",
@@ -15407,6 +16175,12 @@
           "description": "Corner shape of the skeleton placeholders: small radius, none, or fully rounded. Match the shape of the content that will replace them. The spinner variant ignores it. Unknown values fall back to `rounded`. Non-default values add `data-shape`."
         },
         {
+          "name": "indicator",
+          "type": "'ring' | 'dots' | 'bars' | 'pulse' | 'orbit'",
+          "default": "'ring'",
+          "description": "Spinner shape of the `spinner` variant (see `Spinner` `variant`). Skeleton variants ignore it. Unknown values fall back to `ring`."
+        },
+        {
           "name": "fullPage",
           "type": "boolean",
           "default": "false",
@@ -15444,6 +16218,11 @@
         {
           "title": "Skeletons",
           "code": "<div class=\"grid gap-6\">\n  <LoadingState variant=\"text\" :rows=\"4\" label=\"Loading article\" />\n  <LoadingState variant=\"card\" :rows=\"2\" label=\"Loading card\" />\n  <LoadingState variant=\"table\" :rows=\"4\" :columns=\"3\" label=\"Loading table\" />\n</div>"
+        },
+        {
+          "title": "Indicator shapes",
+          "description": "`indicator` picks the spinner shape; the label and role stay the same.",
+          "code": "<div class=\"grid gap-2\">\n  <LoadingState layout=\"inline\" size=\"sm\" indicator=\"dots\" label=\"Loading comments\" />\n  <LoadingState layout=\"inline\" size=\"sm\" indicator=\"bars\" label=\"Loading charts\" />\n  <LoadingState layout=\"inline\" size=\"sm\" indicator=\"orbit\" label=\"Loading files\" />\n</div>"
         },
         {
           "title": "Size and layout (spinner)",
@@ -15712,6 +16491,79 @@
       ],
       "replaces": [
         "hand-rolled StaleNotice markup in app code"
+      ]
+    },
+    {
+      "name": "TypingIndicator",
+      "group": "feedback",
+      "subgroup": "States",
+      "summary": "Three softly pulsing dots in a compact bubble that show someone or something is writing, with the label announced once.",
+      "description": "Use `TypingIndicator` at the end of a conversation while a person or an assistant is composing a reply. It is a polite `role=\"status\"` whose visually hidden `label` (\"Mira is typing\") is the only thing a screen reader announces; the dots are decoration. `ChatThread` draws one for its `typing` prop. Use `Spinner` or `LoadingState` for a wait that is not a reply being written, and `Progress` when the amount done is known.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "'Typing'",
+          "description": "Visually hidden text announced politely once. Name who is typing when it is known. Empty or blank falls back to `Typing`."
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md'",
+          "default": "'md'",
+          "description": "Dot size and padding: 4px or 6px dots. Unknown values fall back to `md`. Non-default values add `data-size`."
+        },
+        {
+          "name": "variant",
+          "type": "'bubble' | 'plain'",
+          "default": "'bubble'",
+          "description": "`bubble` is a muted rounded chip; `plain` is the dots only, in the surrounding text colour. Unknown values fall back to `bubble`. Non-default values add `data-variant`."
+        },
+        {
+          "name": "decorative",
+          "type": "boolean",
+          "default": "false",
+          "description": "Hide it from assistive tech (no role, no label text). Use when a parent region already announces the state, as `ChatThread` does."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last with tailwind-merge; wins over internal classes."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Default",
+          "description": "A bubble with the default label.",
+          "code": "<TypingIndicator />"
+        },
+        {
+          "title": "Named, sizes and looks",
+          "description": "Name who is typing in the label; `plain` sits inline in a line of text.",
+          "code": "<div class=\"flex flex-col items-start gap-3\">\n  <TypingIndicator label=\"Mira is typing\" />\n  <TypingIndicator size=\"sm\" label=\"Sample assistant is writing\" />\n  <p class=\"flex items-center gap-2 text-sm text-muted-foreground\">Sample assistant <TypingIndicator variant=\"plain\" size=\"sm\" label=\"Sample assistant is typing\" /></p>\n</div>"
+        }
+      ],
+      "a11y": [
+        "`role=\"status\"` (polite live region) with a visually hidden label; the three dots are `aria-hidden`, so the label is announced once and the animation is never read.",
+        "Under `prefers-reduced-motion` the dots are static and slightly faded: nothing moves.",
+        "The dots use `currentColor` on the muted token pair, so contrast follows the theme. State is never colour alone: the label carries the meaning.",
+        "With `decorative` it has no role and no text; give the surrounding region the announcement."
+      ],
+      "related": [
+        "ChatThread",
+        "ChatMessage",
+        "Spinner",
+        "LoadingState"
+      ],
+      "llmNotes": [
+        "Put one at the end of a conversation while a reply is being written; in `ChatThread` set `typing` instead of placing it by hand.",
+        "Set `label` to say who is typing (\"Mira is typing\"); do not leave generic text when the name is known.",
+        "Use `decorative` only when a parent already announces the state.",
+        "Use `Spinner` or `LoadingState` for waits that are not a reply being composed."
+      ],
+      "replaces": [
+        "hand-rolled bouncing dots",
+        "chat typing bubble markup"
       ]
     },
     {
@@ -16728,7 +17580,7 @@
         {
           "title": "Minimal",
           "description": "Starts closed; the button opens it.",
-          "code": "<div class=\"flex items-center gap-3\">\n  <Button size=\"sm\" @click=\"open = true\">Take the tour</Button>\n  <input id=\"tour-demo-search\" class=\"rounded-md border px-2 py-1 text-sm\" placeholder=\"Search\" aria-label=\"Search\" />\n  <Button id=\"tour-demo-create\" size=\"sm\" variant=\"outline\">Create</Button>\n</div>\n<Tour v-model:open=\"open\" v-model:step=\"step\" :steps=\"steps\" />",
+          "code": "<div class=\"flex flex-wrap items-center gap-3\">\n  <Button size=\"sm\" @click=\"open = true\">Take the tour</Button>\n  <input id=\"tour-demo-search\" class=\"min-w-0 rounded-md border px-2 py-1 text-sm\" placeholder=\"Search\" aria-label=\"Search\" />\n  <Button id=\"tour-demo-create\" size=\"sm\" variant=\"outline\">Create</Button>\n</div>\n<Tour v-model:open=\"open\" v-model:step=\"step\" :steps=\"steps\" />",
           "script": "import { ref } from 'vue'\nconst open = ref(false)\nconst step = ref(0)\nconst steps = [\n  { target: '#tour-demo-search', title: 'Search', description: 'Find anything in your workspace.' },\n  { target: '#tour-demo-create', title: 'Create', description: 'Start a new project from here.', placement: 'right' },\n  { target: '#tour-demo-missing', title: 'All set', description: 'This step has no target, so the card is centred.' },\n]"
         },
         {
@@ -19130,7 +19982,12 @@
         },
         {
           "title": "Icon and badge, sidebar style",
-          "code": "<div class=\"w-56 max-w-full space-y-1 rounded-lg bg-sidebar p-2\" @click.prevent>\n  <NavLink href=\"/components\" variant=\"sidebar\" :icon=\"faHouse\" active>Overview</NavLink>\n  <NavLink href=\"/components/feedback\" variant=\"sidebar\" :icon=\"faBell\" badge=\"3\">Alerts</NavLink>\n  <NavLink href=\"/guides/customisation\" variant=\"sidebar\" :icon=\"faGear\" collapsed title=\"Settings\">Settings</NavLink>\n</div>"
+          "code": "<div class=\"w-56 max-w-full space-y-1 rounded-lg bg-sidebar p-2\" @click.prevent>\n  <NavLink href=\"/components\" variant=\"sidebar\" :icon=\"faHouse\" active>Overview</NavLink>\n  <NavLink href=\"/components/feedback\" variant=\"sidebar\" :icon=\"faBell\" badge=\"3\">Alerts</NavLink>\n  <NavLink href=\"/guides/customisation\" variant=\"sidebar\" :icon=\"faGear\">Settings</NavLink>\n</div>"
+        },
+        {
+          "title": "Collapsed, icon only",
+          "description": "`collapsed` hides the label visually and keeps it for screen readers; add a `title` for the tooltip.",
+          "code": "<div class=\"w-14 space-y-1 rounded-lg bg-sidebar p-2\" @click.prevent>\n  <NavLink href=\"/components\" variant=\"sidebar\" :icon=\"faHouse\" collapsed title=\"Overview\">Overview</NavLink>\n  <NavLink href=\"/guides/customisation\" variant=\"sidebar\" :icon=\"faGear\" collapsed title=\"Settings\">Settings</NavLink>\n</div>"
         },
         {
           "title": "Active from an injected predicate",
@@ -21100,6 +21957,189 @@
       ],
       "replaces": [
         "hand-rolled AccentPicker markup in app code"
+      ]
+    },
+    {
+      "name": "CodeThemePicker",
+      "group": "navigation",
+      "subgroup": "Theme",
+      "summary": "Radio group that switches the colours of code viewers and code blocks (`data-code-theme`).",
+      "description": "Offers \"Follow palette\" (`default`) and the ten code themes of `THEME_CODE_THEMES` (or the `themes` you pass), dark ones first, and stores the choice with `useThemeStore().setCodeTheme()`, which sets `data-code-theme` on `<html>` and persists it. The theme mode (dark or light) is shown as text after each name, and each option has a small code swatch drawn with that theme. `default` follows the active palette, or the core tokens when no palette is set. The CSS (`@perfect-design/ui/code-themes.css`) must be imported by the app. It is a single tab stop; arrow keys, Home and End move the selection. Pair with `PalettePicker`.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "themes",
+          "type": "ThemeCodeTheme[]",
+          "default": "THEME_CODE_THEMES",
+          "description": "Code themes to offer, in order. Unknown names are ignored."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "'Code theme'",
+          "description": "aria-label of the radiogroup."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last."
+        }
+      ],
+      "examples": [
+        {
+          "title": "All code themes",
+          "code": "<CodeThemePicker />"
+        },
+        {
+          "title": "Subset",
+          "description": "Follow the palette, or pick one of the first three themes.",
+          "code": "<CodeThemePicker :themes=\"subset\" label=\"Syntax colours\" />"
+        }
+      ],
+      "a11y": [
+        "`role=\"radiogroup\"` with `role=\"radio\"` options and aria-checked; the group has an aria-label (`label`).",
+        "Roving tabindex: Tab enters once on the selected option; Arrow keys, Home and End change the selection and move focus (Left and Right swap in RTL).",
+        "Each option has visible text including its mode; the code swatch is decorative (`aria-hidden`). Selection is shown by fill plus aria-checked, never by colour alone. Options are 32px high (44px on coarse pointers) and wrap at narrow widths.",
+        "Every code theme meets 4.5:1 text contrast on its own background."
+      ],
+      "related": [
+        "PalettePicker",
+        "StylePicker",
+        "ThemeToggle"
+      ],
+      "requires": [
+        "Throws a ContractError when no Pinia instance is active (`app.use(createPinia())`).",
+        "Throws a ContractError when `label` is blank, or `themes` has no known code theme."
+      ],
+      "llmNotes": [
+        "Requires an active Pinia instance and the `code-themes.css` import.",
+        "A code theme overrides the palette code colours; leave it on `default` unless users should choose."
+      ],
+      "replaces": [
+        "hand-rolled syntax highlight theme switches"
+      ]
+    },
+    {
+      "name": "FontPicker",
+      "group": "navigation",
+      "subgroup": "Theme",
+      "summary": "Radio group that switches the font family (`data-font`) of the whole page.",
+      "description": "Offers every family in `THEME_FONTS` (or the `fonts` you pass) and stores the choice with `useThemeStore().setFont()`, which sets `data-font` on `<html>` and persists it. Each option is drawn in its own family, so the choice previews itself. The font CSS (`@perfect-design/ui/fonts.css`) must be imported by the app, after `theme.css` and any packs. Every family is a platform font stack, so no font file ships; point a family at a loaded web font by overriding `--font-sans` in your own `[data-font]` rule. It is a single tab stop; arrow keys, Home and End move the selection. The font is independent of the style pack, accent and colour mode. Pair with `StylePicker`, `AccentPicker` and `ThemeToggle`.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "fonts",
+          "type": "ThemeFont[]",
+          "default": "THEME_FONTS",
+          "description": "Font families to offer, in order. Unknown names are ignored."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "'Font'",
+          "description": "aria-label of the radiogroup."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last."
+        }
+      ],
+      "examples": [
+        {
+          "title": "All families",
+          "code": "<FontPicker />"
+        },
+        {
+          "title": "Subset",
+          "description": "Only the first three families of `THEME_FONTS`.",
+          "code": "<FontPicker :fonts=\"subset\" label=\"Typeface\" />"
+        }
+      ],
+      "a11y": [
+        "`role=\"radiogroup\"` with `role=\"radio\"` options and aria-checked; the group has an aria-label (`label`).",
+        "Roving tabindex: Tab enters once on the selected option; Arrow keys, Home and End change the selection and move focus (Left and Right swap in RTL).",
+        "Each option has visible text in its own family; selection is shown by fill plus aria-checked, never by colour alone. Options are 32px high (44px on coarse pointers) and wrap at narrow widths.",
+        "The shipped stacks are all readable text faces; users who need a specific face (for example for dyslexia) can set it with their own `[data-font]` rule or browser override."
+      ],
+      "related": [
+        "StylePicker",
+        "AccentPicker",
+        "ThemeToggle"
+      ],
+      "requires": [
+        "Throws a ContractError when no Pinia instance is active (`app.use(createPinia())`).",
+        "Throws a ContractError when `label` is blank, or `fonts` has no known family."
+      ],
+      "llmNotes": [
+        "Requires an active Pinia instance and the `fonts.css` import.",
+        "Offer it only when users should choose; most products pick one family in code."
+      ],
+      "replaces": [
+        "hand-rolled font-family switches"
+      ]
+    },
+    {
+      "name": "PalettePicker",
+      "group": "navigation",
+      "subgroup": "Theme",
+      "summary": "Radio group that switches the whole-interface palette (`data-palette`) of the page.",
+      "description": "Offers every palette in `THEME_PALETTES` (or the `palettes` you pass) and stores the choice with `useThemeStore().setPalette()`, which sets `data-palette` on `<html>` and persists it. The palettes adapt the GitHub, Ayu, Winter is Coming, Night Owl and Tokyo Night VS Code themes (all MIT-licensed). They follow the light/dark colour mode, and choosing one replaces the accent preset, because both set the primary colour. `default` is the core petrol look. The palette CSS (`@perfect-design/ui/palettes.css`) must be imported by the app, after `theme.css` and the accent presets and before `packs.css`. Each option shows a small swatch strip beside its name. It is a single tab stop; arrow keys, Home and End move the selection. Pair with `CodeThemePicker`, `StylePicker`, `FontPicker` and `ThemeToggle`.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "palettes",
+          "type": "ThemePalette[]",
+          "default": "THEME_PALETTES",
+          "description": "Palettes to offer, in order. Unknown names are ignored."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "'Palette'",
+          "description": "aria-label of the radiogroup."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last."
+        }
+      ],
+      "examples": [
+        {
+          "title": "All palettes",
+          "code": "<PalettePicker />"
+        },
+        {
+          "title": "Subset",
+          "description": "Only the first three palettes of `THEME_PALETTES`.",
+          "code": "<PalettePicker :palettes=\"subset\" label=\"Colour set\" />"
+        }
+      ],
+      "a11y": [
+        "`role=\"radiogroup\"` with `role=\"radio\"` options and aria-checked; the group has an aria-label (`label`).",
+        "Roving tabindex: Tab enters once on the selected option; Arrow keys, Home and End change the selection and move focus (Left and Right swap in RTL).",
+        "Each option has visible text; the swatch strip is decorative (`aria-hidden`). Selection is shown by fill plus aria-checked, never by colour alone. Options are 32px high (44px on coarse pointers) and wrap at narrow widths.",
+        "Every palette is checked for WCAG contrast in light and dark by the contrast tests."
+      ],
+      "related": [
+        "CodeThemePicker",
+        "AccentPicker",
+        "StylePicker",
+        "FontPicker",
+        "ThemeToggle"
+      ],
+      "requires": [
+        "Throws a ContractError when no Pinia instance is active (`app.use(createPinia())`).",
+        "Throws a ContractError when `label` is blank, or `palettes` has no known palette."
+      ],
+      "llmNotes": [
+        "Requires an active Pinia instance and the `palettes.css` import.",
+        "A palette replaces the accent preset; do not offer both pickers for the same choice.",
+        "Offer it only when users should choose; most products pick one palette in code."
+      ],
+      "replaces": [
+        "hand-rolled theme colour switches"
       ]
     },
     {
@@ -24583,9 +25623,9 @@
         },
         {
           "name": "typing",
-          "type": "boolean",
+          "type": "boolean | string",
           "default": "false",
-          "description": "Show the typing or streaming indicator (text plus a dot that pulses only without reduced motion). Sets `aria-busy` and announces once when it appears."
+          "description": "Show the typing or streaming indicator at the end (a `TypingIndicator` plus its text). A string names who is typing (\"Mira\" reads \"Mira is typing\"). Sets `aria-busy` and announces once when it appears."
         },
         {
           "name": "density",
@@ -24634,7 +25674,7 @@
         {
           "name": "labels",
           "type": "Partial<ChatThreadLabels>",
-          "description": "Replace any built-in text: `jump`, `unread(count)`, `loadOlder`, `loadingOlder`, `typing`, `empty`, `newMessages(count)`. Use it to translate."
+          "description": "Replace any built-in text: `jump`, `unread(count)`, `loadOlder`, `loadingOlder`, `typing`, `typingBy(name)`, `empty`, `newMessages(count)`. Use it to translate."
         },
         {
           "name": "class",
@@ -24691,7 +25731,7 @@
         {
           "title": "Messages as data with day separators",
           "description": "`messages` plus the `message` slot. `item-date` groups by day in `time-zone`; \"Today\" and \"Yesterday\" follow `now`.",
-          "code": "<ChatThread :messages=\"messages\" item-key=\"id\" item-date=\"at\" label=\"Export conversation\" time-zone=\"UTC\" locale=\"en\" now=\"2026-03-02T12:00:00Z\" class=\"h-72 rounded-md border\">\n    <template #message=\"{ message }\">\n      <ChatMessage :role=\"message.role\" :datetime=\"message.at\" time-zone=\"UTC\" locale=\"en\">{{ message.text }}</ChatMessage>\n    </template>\n</ChatThread>",
+          "code": "<ChatThread :messages=\"messages\" item-key=\"id\" item-date=\"at\" label=\"Export conversation\" time-zone=\"UTC\" locale=\"en\" now=\"2026-03-02T12:00:00Z\" class=\"h-96 rounded-md border\">\n    <template #message=\"{ message }\">\n      <ChatMessage :role=\"message.role\" :datetime=\"message.at\" time-zone=\"UTC\" locale=\"en\">{{ message.text }}</ChatMessage>\n    </template>\n</ChatThread>",
           "script": "const messages = [\n  { id: 1, role: 'user', text: 'Did the Orchard Mill export finish?', at: '2026-03-01T16:20:00Z' },\n  // ...\n]"
         },
         {
@@ -24706,9 +25746,14 @@
           "code": "<ChatThread label=\"Streaming reply\" typing class=\"h-64 rounded-md border\">\n  <ChatMessage role=\"user\">List the open invoices for Brightwater Co.</ChatMessage>\n  <ChatMessage role=\"assistant\" status=\"streaming\" markdown=\"There are **three** open invoices:\" />\n</ChatThread>"
         },
         {
+          "title": "Who is typing",
+          "description": "A string names the writer: the row and the polite announcement read \"Mira is typing\".",
+          "code": "<ChatThread label=\"Support chat\" typing=\"Mira\" class=\"h-56 rounded-md border\">\n  <ChatMessage role=\"user\">Is the Orchard Mill export ready?</ChatMessage>\n</ChatThread>"
+        },
+        {
           "title": "Load older messages",
           "description": "The button emits `load-older`. `loading-older` disables it until the page arrives; the reader keeps their place when messages are added above.",
-          "code": "<ChatThread :messages=\"messages\" item-key=\"id\" label=\"History\" can-load-older :loading-older=\"loading\" class=\"h-64 rounded-md border\" @load-older=\"older\">\n    <template #message=\"{ message }\">\n      <ChatMessage :role=\"message.role\" :datetime=\"message.at\" time-zone=\"UTC\" locale=\"en\">{{ message.text }}</ChatMessage>\n    </template>\n</ChatThread>",
+          "code": "<ChatThread :messages=\"messages\" item-key=\"id\" label=\"History\" can-load-older :loading-older=\"loading\" class=\"h-96 rounded-md border\" @load-older=\"older\">\n    <template #message=\"{ message }\">\n      <ChatMessage :role=\"message.role\" :datetime=\"message.at\" time-zone=\"UTC\" locale=\"en\">{{ message.text }}</ChatMessage>\n    </template>\n</ChatThread>",
           "script": "const messages = ref(seed())\nconst loading = ref(false)\nconst older = () => { /* fetch, then prepend with new ids */ }"
         },
         {
@@ -24736,7 +25781,7 @@
         "The log is one element with `role=\"log\"`, `tabindex=\"0\"` and a required accessible name, so keyboard users can scroll it: arrow keys, Page Up and Page Down scroll natively; Home and End jump to the first and last message (and End resumes following).",
         "`aria-live=\"off\"` keeps screen readers from reading the log as it grows. One sibling `role=\"status\"` region announces a short summary at most once per second (\"2 new messages\", the typing label, or `announcement`), is cleared after a few seconds, and never contains message text.",
         "The jump button is an ordinary focusable button after the log. Pressing it scrolls to the latest message, resumes following and returns focus to the log, so focus is never lost when the button disappears.",
-        "Day separators are text (`<time datetime>` with a localised label) between two rules drawn as borders, so they survive forced-colors mode. The typing indicator is text; its dot pulses only under `prefers-reduced-motion: no-preference` and only while the indicator is shown.",
+        "Day separators are text (`<time datetime>` with a localised label) between two rules drawn as borders, so they survive forced-colors mode. The typing indicator is text beside decorative `TypingIndicator` dots (hidden from assistive tech, so the thread status region is the only announcement); the dots stay still under `prefers-reduced-motion`.",
         "Scrolling is instant, with no smooth-scroll animation. The thread is `min-w-0` and wraps, so it reflows at 320px; spacing uses logical properties and mirrors in right-to-left.",
         "Message actions inside the log are ordinary buttons in the tab order; the log does not trap focus."
       ],
@@ -24753,6 +25798,7 @@
         "Pass `time-zone` and `now` when server rendering, so the first client render matches the server render."
       ],
       "related": [
+        "TypingIndicator",
         "ChatMessage",
         "Markdown",
         "VirtualList",
@@ -26572,9 +27618,9 @@
         },
         {
           "title": "Backgrounds",
-          "description": "`variant` is `plain`, `dots` or `grid`. The pattern pans and zooms with the content.",
+          "description": "`variant` is `plain`, `dots` or `grid`. The pattern pans and zooms with the content. Each canvas is wide enough to fit the graph at a readable zoom.",
           "script": "const nodes = ref([\n  { id: 'booking', label: 'Booking received', x: 20, y: 70, width: 150 },\n  { id: 'check', label: 'Pallets fit the truck?', x: 250, y: 60, width: 170, height: 72, shape: 'rhombus' },\n  { id: 'driver', label: 'Assign driver', x: 500, y: 20, tone: 'primary' },\n  { id: 'split', label: 'Split the load', x: 500, y: 130, tone: 'warning' },\n  { id: 'depart', label: 'Depart depot', x: 720, y: 70, shape: 'stadium', tone: 'success' },\n])\nconst edges = ref([\n  { id: 'e1', from: 'booking', to: 'check' },\n  { id: 'e2', from: 'check', to: 'driver', label: 'Yes' },\n  { id: 'e3', from: 'check', to: 'split', label: 'No' },\n  { id: 'e4', from: 'split', to: 'driver', style: 'dashed' },\n  { id: 'e5', from: 'driver', to: 'depart' },\n])",
-          "code": "<div class=\"grid gap-4 lg:grid-cols-3\">\n  <FlowCanvas v-model:nodes=\"nodes\" v-model:edges=\"edges\" label=\"Sample, plain background\" size=\"sm\" variant=\"plain\" :toolbar=\"false\" readonly />\n  <FlowCanvas v-model:nodes=\"nodes\" v-model:edges=\"edges\" label=\"Sample, dots background\" size=\"sm\" variant=\"dots\" :toolbar=\"false\" readonly />\n  <FlowCanvas v-model:nodes=\"nodes\" v-model:edges=\"edges\" label=\"Sample, grid background\" size=\"sm\" variant=\"grid\" :toolbar=\"false\" readonly />\n</div>"
+          "code": "<div class=\"grid gap-4 xl:grid-cols-2\">\n  <FlowCanvas v-model:nodes=\"nodes\" v-model:edges=\"edges\" label=\"Sample, plain background\" size=\"md\" variant=\"plain\" :toolbar=\"false\" readonly />\n  <FlowCanvas v-model:nodes=\"nodes\" v-model:edges=\"edges\" label=\"Sample, dots background\" size=\"md\" variant=\"dots\" :toolbar=\"false\" readonly />\n  <FlowCanvas v-model:nodes=\"nodes\" v-model:edges=\"edges\" label=\"Sample, grid background\" size=\"md\" variant=\"grid\" :toolbar=\"false\" readonly />\n</div>"
         },
         {
           "title": "Edge styles",
@@ -28271,7 +29317,8 @@
         },
         {
           "title": "Several slides per view",
-          "code": "<Carousel class=\"mx-auto max-w-lg\" label=\"Cards\">\n  <CarouselContent class=\"gap-2\">\n    <CarouselItem v-for=\"n in 6\" :key=\"n\" class=\"basis-1/3\">\n      <div class=\"flex h-24 items-center justify-center rounded-md border bg-card\">{{ n }}</div>\n    </CarouselItem>\n  </CarouselContent>\n  <CarouselPrevious />\n  <CarouselNext />\n</Carousel>"
+          "description": "Previous and next float over the carousel edges; side padding keeps them off the slides when each slide is narrow.",
+          "code": "<Carousel class=\"mx-auto max-w-lg px-12\" label=\"Cards\">\n  <CarouselContent class=\"gap-2\">\n    <CarouselItem v-for=\"n in 6\" :key=\"n\" class=\"basis-1/3\">\n      <div class=\"flex h-24 items-center justify-center rounded-md border bg-card\">{{ n }}</div>\n    </CarouselItem>\n  </CarouselContent>\n  <CarouselPrevious />\n  <CarouselNext />\n</Carousel>"
         },
         {
           "title": "Vertical",
@@ -28554,9 +29601,9 @@
         },
         {
           "title": "Podium",
-          "description": "Sample data. The top three stand as 2-1-3; the rest follow in a list. Initials come from the label; one entry uses an inline SVG image.",
+          "description": "Sample data. The top three stand as 2-1-3; the rest follow in a list. Initials come from the label; one entry uses an inline SVG sample portrait.",
           "code": "<div class=\"max-w-lg\"><Leaderboard variant=\"podium\" label=\"Suite pass rate (sample)\" :entries=\"entries\" :value-format=\"{ format: 'percent', maximumFractionDigits: 1 }\" /></div>",
-          "script": "const svg = \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8'/%3E%3C/svg%3E\"\nconst entries = [\n  { id: 'a', label: 'Suite A', value: 0.992, avatar: svg },\n  { id: 'b', label: 'Suite B', value: 0.981, avatar: { fallback: 'SB' } },\n  { id: 'c', label: 'Suite C', value: 0.964 },\n  { id: 'd', label: 'Suite D', value: 0.93 },\n  { id: 'e', label: 'Suite E', value: 0.9 },\n]"
+          "script": "const portrait = (bg: string, fg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 80\"><rect width=\"80\" height=\"80\" fill=\"${bg}\"/><circle cx=\"40\" cy=\"31\" r=\"14\" fill=\"${fg}\"/><path d=\"M12 80c2-17 14-26 28-26s26 9 28 26z\" fill=\"${fg}\"/></svg>`)}`\nconst svg = portrait('#e4e4e7', '#a1a1aa')\nconst entries = [\n  { id: 'a', label: 'Suite A', value: 0.992, avatar: svg },\n  { id: 'b', label: 'Suite B', value: 0.981, avatar: { fallback: 'SB' } },\n  { id: 'c', label: 'Suite C', value: 0.964 },\n  { id: 'd', label: 'Suite D', value: 0.93 },\n  { id: 'e', label: 'Suite E', value: 0.9 },\n]"
         },
         {
           "title": "Sizes and density",
@@ -28703,7 +29750,7 @@
       "examples": [
         {
           "title": "Basic gauge",
-          "code": "<div class=\"flex items-end gap-6\">\n  <Gauge :value=\"42\" label=\"CPU\" size=\"sm\" />\n  <Gauge :value=\"68\" label=\"Memory\" />\n  <Gauge :value=\"91\" label=\"Disk\" size=\"lg\" />\n</div>"
+          "code": "<div class=\"flex flex-wrap items-end gap-6\">\n  <Gauge :value=\"42\" label=\"CPU\" size=\"sm\" />\n  <Gauge :value=\"68\" label=\"Memory\" />\n  <Gauge :value=\"91\" label=\"Disk\" size=\"lg\" />\n</div>"
         },
         {
           "title": "Variant: semicircle, arc, linear",
@@ -28718,7 +29765,7 @@
         {
           "title": "Threshold tones",
           "description": "Green below 70, amber from 70, red from 90. The value text also states the band, so colour is not the only signal. Sample data.",
-          "code": "<div class=\"flex items-end gap-6\">\n  <Gauge v-for=\"v in [35, 78, 96]\" :key=\"v\" :value=\"v\" :label=\"'Load ' + v\" :value-text=\"v + '% ' + (v >= 90 ? 'high' : v >= 70 ? 'raised' : 'normal')\" :thresholds=\"thresholds\" size=\"sm\" />\n</div>",
+          "code": "<div class=\"flex flex-wrap items-end gap-6\">\n  <Gauge v-for=\"v in [35, 78, 96]\" :key=\"v\" :value=\"v\" :label=\"'Load ' + v\" :value-text=\"v + '% ' + (v >= 90 ? 'high' : v >= 70 ? 'raised' : 'normal')\" :thresholds=\"thresholds\" />\n</div>",
           "script": "const thresholds = [\n  { value: 0, tone: 'success' },\n  { value: 70, tone: 'warning' },\n  { value: 90, tone: 'danger' },\n]"
         },
         {
@@ -30602,6 +31649,11 @@
           "description": "Accessible name (localise here)."
         },
         {
+          "name": "target",
+          "type": "string | HTMLElement | null",
+          "description": "Follow this scroll container (an element or a CSS selector) instead of the page. A selector that matches nothing falls back to the page."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged last; wins over internal classes. Pass `static` to render the strip in the page flow, as the galleries below do."
@@ -30609,33 +31661,29 @@
       ],
       "examples": [
         {
-          "title": "Top bar (contained preview)",
-          "description": "The bar is `position: fixed`; in real pages place it anywhere in the root layout.",
-          "code": "<ScrollProgress />"
-        },
-        {
-          "title": "Bottom, thicker",
-          "code": "<ScrollProgress position=\"bottom\" size=\"lg\" label=\"Progress through the article\" />"
+          "title": "Tracking a scroll box",
+          "description": "Pass `target` (a selector or an element) to follow an inner scroll container. Without it the bar follows the page and is `position: fixed`; `static` and `bg-muted` keep it in the preview and show the empty track.",
+          "code": "<div class=\"flex flex-col gap-2\">\n  <ScrollProgress target=\"#sp-basic\" class=\"static bg-muted\" label=\"Progress through the sample article\" />\n  <div id=\"sp-basic\" role=\"region\" aria-label=\"Sample article\" tabindex=\"0\" :ref=\"(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }\" class=\"h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground\"><p v-for=\"n in 12\" :key=\"n\" class=\"py-1\">Sample paragraph {{ n }}.</p></div>\n</div>"
         },
         {
           "title": "Size gallery: sm, md, lg",
-          "description": "All three thicknesses side by side. `static` takes the strips out of the viewport edge for this preview and `bg-muted` shows the empty track; the fill follows the page scroll.",
-          "code": "<div class=\"flex flex-col gap-4\">\n  <ScrollProgress size=\"sm\" class=\"static bg-muted\" label=\"Reading progress, small\" />\n  <ScrollProgress size=\"md\" class=\"static bg-muted\" label=\"Reading progress, medium\" />\n  <ScrollProgress size=\"lg\" class=\"static bg-muted\" label=\"Reading progress, large\" />\n</div>"
+          "description": "All three thicknesses follow the same scroll box.",
+          "code": "<div class=\"flex flex-col gap-3\">\n  <ScrollProgress size=\"sm\" target=\"#sp-size\" class=\"static bg-muted\" label=\"Reading progress, small\" />\n  <ScrollProgress size=\"md\" target=\"#sp-size\" class=\"static bg-muted\" label=\"Reading progress, medium\" />\n  <ScrollProgress size=\"lg\" target=\"#sp-size\" class=\"static bg-muted\" label=\"Reading progress, large\" />\n  <div id=\"sp-size\" role=\"region\" aria-label=\"Sample article\" tabindex=\"0\" :ref=\"(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }\" class=\"h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground\"><p v-for=\"n in 12\" :key=\"n\" class=\"py-1\">Sample paragraph {{ n }}.</p></div>\n</div>"
         },
         {
           "title": "Tone gallery: primary, neutral, success, info",
           "description": "The fill colour only. Colour never carries the meaning: the progressbar role and its value text do.",
-          "code": "<div class=\"flex flex-col gap-4\">\n  <ScrollProgress tone=\"primary\" size=\"lg\" class=\"static bg-muted\" label=\"Reading progress, primary\" />\n  <ScrollProgress tone=\"neutral\" size=\"lg\" class=\"static bg-muted\" label=\"Reading progress, neutral\" />\n  <ScrollProgress tone=\"success\" size=\"lg\" class=\"static bg-muted\" label=\"Reading progress, success\" />\n  <ScrollProgress tone=\"info\" size=\"lg\" class=\"static bg-muted\" label=\"Reading progress, info\" />\n</div>"
+          "code": "<div class=\"flex flex-col gap-3\">\n  <ScrollProgress tone=\"primary\" size=\"lg\" target=\"#sp-tone\" class=\"static bg-muted\" label=\"Reading progress, primary\" />\n  <ScrollProgress tone=\"neutral\" size=\"lg\" target=\"#sp-tone\" class=\"static bg-muted\" label=\"Reading progress, neutral\" />\n  <ScrollProgress tone=\"success\" size=\"lg\" target=\"#sp-tone\" class=\"static bg-muted\" label=\"Reading progress, success\" />\n  <ScrollProgress tone=\"info\" size=\"lg\" target=\"#sp-tone\" class=\"static bg-muted\" label=\"Reading progress, info\" />\n  <div id=\"sp-tone\" role=\"region\" aria-label=\"Sample article\" tabindex=\"0\" :ref=\"(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }\" class=\"h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground\"><p v-for=\"n in 12\" :key=\"n\" class=\"py-1\">Sample paragraph {{ n }}.</p></div>\n</div>"
         },
         {
           "title": "Variant gallery: bar, rounded, inset",
           "description": "`bar` is flush, `rounded` rounds the fill, `inset` is a rounded track with its own muted surface and a gap to the edge.",
-          "code": "<div class=\"flex flex-col gap-4\">\n  <ScrollProgress variant=\"bar\" size=\"lg\" class=\"static bg-muted\" label=\"Reading progress, bar\" />\n  <ScrollProgress variant=\"rounded\" size=\"lg\" class=\"static bg-muted\" label=\"Reading progress, rounded\" />\n  <ScrollProgress variant=\"inset\" size=\"lg\" class=\"static\" label=\"Reading progress, inset\" />\n</div>"
+          "code": "<div class=\"flex flex-col gap-3\">\n  <ScrollProgress variant=\"bar\" size=\"lg\" target=\"#sp-variant\" class=\"static bg-muted\" label=\"Reading progress, bar\" />\n  <ScrollProgress variant=\"rounded\" size=\"lg\" target=\"#sp-variant\" class=\"static bg-muted\" label=\"Reading progress, rounded\" />\n  <ScrollProgress variant=\"inset\" size=\"lg\" target=\"#sp-variant\" class=\"static\" label=\"Reading progress, inset\" />\n  <div id=\"sp-variant\" role=\"region\" aria-label=\"Sample article\" tabindex=\"0\" :ref=\"(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }\" class=\"h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground\"><p v-for=\"n in 12\" :key=\"n\" class=\"py-1\">Sample paragraph {{ n }}.</p></div>\n</div>"
         },
         {
-          "title": "Inset at the bottom, neutral",
-          "description": "Combines `variant`, `position` and `tone`. Fixed to the viewport like the default.",
-          "code": "<ScrollProgress variant=\"inset\" position=\"bottom\" tone=\"neutral\" label=\"Progress through the article\" />"
+          "title": "Page-level bar, bottom edge",
+          "description": "Without `target` the bar follows the document and sits on the viewport edge. `position` picks the edge; it is fixed, so it is not shown inside this preview strip.",
+          "code": "<ScrollProgress position=\"bottom\" variant=\"inset\" tone=\"neutral\" label=\"Progress through the article\" />"
         }
       ],
       "requires": [
@@ -30656,7 +31704,7 @@
       "llmNotes": [
         "Mount once per page, not per section.",
         "Do not use for form or upload progress; use Progress from feedback.",
-        "It tracks the whole document, not an inner scroll container."
+        "It tracks the whole document unless `target` names an inner scroll container."
       ],
       "replaces": [
         "hand-rolled ScrollProgress markup in app code"
@@ -31158,7 +32206,7 @@
         },
         {
           "title": "Realistic: single-open with a default and toggle events",
-          "code": "<FaqList single :default-open=\"[0]\" :items=\"items\" @toggle=\"last = $event\" />\n<p class=\"mt-2 text-sm text-muted-foreground\">Last: {{ last }}</p>",
+          "code": "<FaqList single :default-open=\"[0]\" :items=\"items\" @toggle=\"last = $event\" />\n<p class=\"mt-2 text-sm text-muted-foreground\">Last: {{ last ?? 'none yet' }}</p>",
           "script": "const last = ref(null)"
         },
         {
@@ -31457,7 +32505,7 @@
         },
         {
           "title": "Default: vertical, padded numbers, custom step",
-          "code": "<NumberedSteps :columns=\"1\" pad :steps=\"steps\">\n  <template #step=\"{ step, number }\"><span class=\"font-semibold text-primary\">{{ number }}</span><span>{{ step.title }}</span></template>\n</NumberedSteps>"
+          "code": "<NumberedSteps :columns=\"1\" pad :steps=\"steps\">\n  <template #step=\"{ step, number }\"><div class=\"flex items-baseline gap-3\"><span class=\"font-semibold tabular-nums text-primary\">{{ number }}</span><span>{{ step.title }}</span></div></template>\n</NumberedSteps>"
         },
         {
           "title": "Cards variant, four columns",
@@ -31486,7 +32534,7 @@
         },
         {
           "title": "With-media variant using the media slot",
-          "code": "<NumberedSteps variant=\"with-media\" :steps=\"steps\">\n  <template #media=\"{ step, index }\">\n    <div class=\"flex aspect-video items-center justify-center bg-muted text-sm text-muted-foreground\">Placeholder {{ index + 1 }}: {{ step.title }}</div>\n  </template>\n</NumberedSteps>"
+          "code": "<NumberedSteps variant=\"with-media\" :steps=\"steps\">\n  <template #media=\"{ step, index }\">\n    <img :src=\"scene\" :alt=\"'Sample image for step ' + (index + 1)\" class=\"aspect-video w-full object-cover\" />\n  </template>\n</NumberedSteps>"
         },
         {
           "title": "Sizes",
@@ -32752,8 +33800,9 @@
           "code": "<Marquee direction=\"up\" class=\"h-40 max-w-xs\" size=\"sm\" gap=\"sm\" :items=\"['First sample item', 'Second sample item', 'Third sample item', 'Fourth sample item']\" />"
         },
         {
-          "title": "Vertical: down, no pause",
-          "code": "<Marquee direction=\"down\" :pause-on-hover=\"false\" :duration=\"20\" class=\"h-32 max-w-xs\" :items=\"['One', 'Two', 'Three']\" />"
+          "title": "Vertical: down, no pause on hover",
+          "description": "The strip keeps scrolling under the pointer; the pause button stays because a moving strip must be pausable.",
+          "code": "<Marquee direction=\"down\" :pause-on-hover=\"false\" :duration=\"20\" class=\"h-48 max-w-xs\" size=\"sm\" gap=\"sm\" :items=\"['One sample item', 'Two sample item', 'Three sample item', 'Four sample item']\" />"
         },
         {
           "title": "Custom duration beats speed",
@@ -33902,6 +34951,247 @@
       ]
     },
     {
+      "name": "RateCard",
+      "group": "marketing",
+      "subgroup": "Pricing",
+      "summary": "A dense, metered price list: one row per billable unit with its rate, what is included and what happens beyond it.",
+      "description": "Use `RateCard` for developer and infrastructure products that bill by usage, where a grid of plan cards would hide the numbers. Each item has a name, the unit the rate is per, and a rate. A numeric `rate` is formatted with `Price` (small rates such as 0.0004 keep the digits they need); a string rate (\"Custom\") is shown as written. `included` and `overage` columns appear only when at least one item has them.\n\n`variant=\"table\"` (default) is a semantic table inside a focusable, named scroll region, so at 375px it scrolls sideways instead of overflowing the page. `variant=\"list\"` stacks every rate as a definition row and reflows with no horizontal scroll. `size` sets the density.\n\nGroup rows: give items a `group` name and optionally list `groups` to set the order and add a description. Ungrouped items come first without a heading; groups without items are skipped.\n\nPass a `caption` (or `aria-label` / `aria-labelledby`): the list must have a name. Sample rates in these docs are labelled samples, not offers. For plan comparison use `PricingTable` or `ComparisonTable`; for graduated or volume tiers use `TieredPricing`.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "items",
+          "type": "RateCardItem[]",
+          "required": true,
+          "description": "Rates: `{ id?, name, description?, unit, rate, included?, overage?, badge?, group? }`. `rate` is a number (formatted as a price) or text. Items without a name or a rate are skipped."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "default": "'USD'",
+          "description": "ISO 4217 code. An invalid code renders plain numbers."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "default": "ConfigProvider locale, else 'en-US'",
+          "description": "BCP 47 tag such as `de-DE`."
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "description": "Accessible name of the table or list. Required unless `aria-label` or `aria-labelledby` is set."
+        },
+        {
+          "name": "variant",
+          "type": "'table' | 'list'",
+          "default": "'table'",
+          "description": "`table` is a semantic table in a scroll region; `list` stacks the rates. Unknown values fall back to `table`. Exposed as `data-variant`."
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg'",
+          "default": "'md'",
+          "description": "Text size and row padding. Unknown values fall back to `md`. Exposed as `data-size`."
+        },
+        {
+          "name": "groups",
+          "type": "{ group: string; description?: string }[]",
+          "description": "Heading rows and their order. Items join a group through `item.group`; other group names follow in order of first appearance."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last with tailwind-merge; wins over internal classes."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Minimal",
+          "description": "Labelled sample rates, table variant.",
+          "code": "<RateCard caption=\"Sample usage rates\" :items=\"[\n  { name: 'Sample requests', unit: 'per 1,000 requests', rate: 0.4, included: 'First 10,000 free' },\n  { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free' },\n  { name: 'Sample egress', unit: 'per GB', rate: 0.1, included: 'First 10 GB free' },\n]\" />"
+        },
+        {
+          "title": "Grouped with overage",
+          "description": "Sample rates for a fictional product, with group rows, included amounts and overage notes.",
+          "code": "<RateCard\n  caption=\"Kestrel Freight sample rates\"\n  :groups=\"[{ group: 'Compute', description: 'Sample rates' }, { group: 'Data' }]\"\n  :items=\"[\n    { name: 'Sample workers', description: 'Sample unit', unit: 'per 1,000 requests', rate: 0.5, included: 'First 100,000 free', overage: 'Billed at the rate shown', group: 'Compute', badge: 'Sample' },\n    { name: 'Sample queues', unit: 'per 1,000 messages', rate: 0.0004, included: 'First 1,000,000 free', overage: 'Billed at the rate shown', group: 'Compute' },\n    { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free', overage: 'Billed at the rate shown', group: 'Data' },\n    { name: 'Sample support', unit: 'per month', rate: 'Custom', group: 'Data' },\n  ]\"\n/>"
+        },
+        {
+          "title": "Variant: list",
+          "description": "Stacked definition rows that reflow on narrow screens.",
+          "code": "<RateCard variant=\"list\" caption=\"Sample usage rates (list)\" :items=\"[\n  { name: 'Sample requests', unit: 'per 1,000 requests', rate: 0.4, included: 'First 10,000 free' },\n  { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free' },\n  { name: 'Sample egress', unit: 'per GB', rate: 0.1, included: 'First 10 GB free' },\n]\" />"
+        },
+        {
+          "title": "Size",
+          "code": "<div class=\"flex flex-col gap-6\">\n  <RateCard size=\"sm\" caption=\"Sample rates, small\" :items=\"[\n  { name: 'Sample requests', unit: 'per 1,000 requests', rate: 0.4, included: 'First 10,000 free' },\n  { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free' },\n  { name: 'Sample egress', unit: 'per GB', rate: 0.1, included: 'First 10 GB free' },\n]\" />\n  <RateCard size=\"lg\" caption=\"Sample rates, large\" :items=\"[\n  { name: 'Sample requests', unit: 'per 1,000 requests', rate: 0.4, included: 'First 10,000 free' },\n  { name: 'Sample storage', unit: 'per GB-month', rate: 0.02, included: 'First 5 GB free' },\n  { name: 'Sample egress', unit: 'per GB', rate: 0.1, included: 'First 10 GB free' },\n]\" />\n</div>"
+        },
+        {
+          "title": "Currency and locale",
+          "description": "Sample rates formatted for a German locale.",
+          "code": "<RateCard currency=\"EUR\" locale=\"de-DE\" caption=\"Sample rates in euro\" :items=\"[{ name: 'Sample requests', unit: 'per 1.000 Anfragen', rate: 0.4 }, { name: 'Sample storage', unit: 'pro GB-Monat', rate: 0.02 }]\" />"
+        }
+      ],
+      "a11y": [
+        "The table variant is a real `<table>` with a `<caption>`, column headers (`scope=\"col\"`), row headers (`scope=\"row\"`) and group headers (`scope=\"rowgroup\"`), wrapped in a `role=\"region\"` scroll area that is focusable (`tabindex=\"0\"`) and named, so keyboard users can scroll it with the arrow keys.",
+        "At 375px the table scrolls inside its region and the page never scrolls sideways. The list variant has no horizontal scroll at 320px.",
+        "The list variant is a `role=\"group\"` of definition lists; each group heading names its list. The included and overage text carries hidden \"Included\" and \"Beyond included\" labels for screen readers.",
+        "Badges are text, never colour alone. Rates use `Price` with tabular figures.",
+        "Use a `caption` that names what the rates are for; when several rate lists share a page the names must differ."
+      ],
+      "requires": [
+        "Throws a ContractError when none of `caption`, `aria-label` or `aria-labelledby` names the rate list."
+      ],
+      "llmNotes": [
+        "Always pass `caption`; the list needs a name.",
+        "Pass numeric rates as numbers in major units (0.0004), not formatted strings; use a string only for text such as \"Custom\".",
+        "Put the unit in `unit` (\"per 1,000 requests\"), not in the name.",
+        "Use `variant=\"list\"` where a wide table would scroll in a narrow column.",
+        "Use `group` on items for heading rows; do not render several RateCards to fake groups.",
+        "Only invented, labelled sample rates in examples (\"Sample requests\"); never real prices or real company names."
+      ],
+      "related": [
+        "Price",
+        "TieredPricing",
+        "PricingCard",
+        "PricingTable",
+        "ComparisonTable"
+      ],
+      "replaces": [
+        "hand-rolled usage price tables",
+        "hand-rolled Intl.NumberFormat price markup"
+      ]
+    },
+    {
+      "name": "TieredPricing",
+      "group": "marketing",
+      "subgroup": "Pricing",
+      "summary": "Graduated or volume price tiers with an optional usage marker and a computed total.",
+      "description": "Use `TieredPricing` to explain how a per-unit rate falls as usage grows. Each tier is `{ upTo, rate, flat? }`; `upTo: null` means \"and above\" and `upTo` is inclusive. Tiers can come in any order and invalid ones are skipped.\n\n`mode=\"graduated\"` (default) prices the units inside each tier at that tier's rate. `mode=\"volume\"` prices every unit at the rate of the tier the total reaches. A visible note states which one applies. A `flat` fee is charged once when the tier applies (graduated: when it holds any units; volume: for the tier reached).\n\nPass `usage` to mark the tier(s) it reaches with a \"Your usage\" marker (icon plus text) and to show the computed total in one polite status region, so a changing usage value is announced. Usage above the last tier continues at the last tier's rate; 0 and negative usage cost nothing; a non-finite usage shows nothing. The same arithmetic is exported as `tierTotal(tiers, usage, mode)`.\n\n`variant=\"table\"` (default) is a semantic table in a focusable, named scroll region. `variant=\"steps\"` is a ladder that runs side by side from `sm` and stacks below it. Pass a `caption` (or `aria-label` / `aria-labelledby`). Examples use labelled sample rates, not offers.",
+      "status": "stable",
+      "props": [
+        {
+          "name": "tiers",
+          "type": "PricingTier[]",
+          "required": true,
+          "description": "`{ upTo: number | null; rate: number; flat?: number }`. `upTo` is inclusive; `null` means and above. Any order; tiers with a non-finite rate or a bad `upTo` are skipped."
+        },
+        {
+          "name": "mode",
+          "type": "'graduated' | 'volume'",
+          "default": "'graduated'",
+          "description": "`graduated`: each tier prices its own units. `volume`: all units use the rate of the tier reached. Unknown values mean `graduated`. Exposed as `data-mode`."
+        },
+        {
+          "name": "usage",
+          "type": "number",
+          "description": "Units to price. Marks the tier(s) reached and shows the total. Negative counts as 0; NaN and Infinity show nothing."
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "description": "Plural unit name such as \"requests\", used in the column header, marker and total."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "default": "'USD'",
+          "description": "ISO 4217 code. An invalid code renders plain numbers."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "default": "ConfigProvider locale, else 'en-US'",
+          "description": "BCP 47 tag such as `de-DE`."
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "description": "Accessible name of the table or list. Required unless `aria-label` or `aria-labelledby` is set."
+        },
+        {
+          "name": "variant",
+          "type": "'table' | 'steps'",
+          "default": "'table'",
+          "description": "`table` is a semantic table; `steps` is a ladder that stacks below `sm`. Unknown values fall back to `table`. Exposed as `data-variant`."
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg'",
+          "default": "'md'",
+          "description": "Text size and spacing. Unknown values fall back to `md`. Exposed as `data-size`."
+        },
+        {
+          "name": "class",
+          "type": "string | object | array",
+          "description": "Merged last with tailwind-merge; wins over internal classes."
+        }
+      ],
+      "examples": [
+        {
+          "title": "Minimal",
+          "description": "Three sample tiers, graduated.",
+          "code": "<TieredPricing caption=\"Sample request tiers\" unit=\"requests\" :tiers=\"[\n  { upTo: 1000, rate: 0.5 },\n  { upTo: 10000, rate: 0.4 },\n  { upTo: null, rate: 0.3 },\n]\" />"
+        },
+        {
+          "title": "Usage and total",
+          "description": "Sample rates. With 12,500 units graduated pricing charges 1,000 at 0.50, 9,000 at 0.40 and 2,500 at 0.30. The total is announced when usage changes.",
+          "script": "const usage = ref('12500')",
+          "code": "<div class=\"flex flex-col gap-3\">\n  <Field label=\"Sample usage (requests)\">\n    <Input v-model=\"usage\" type=\"number\" min=\"0\" />\n  </Field>\n  <TieredPricing caption=\"Sample request tiers with usage\" unit=\"requests\" :usage=\"Number(usage)\" :tiers=\"[\n    { upTo: 1000, rate: 0.5 },\n    { upTo: 10000, rate: 0.4 },\n    { upTo: null, rate: 0.3 },\n  ]\" />\n</div>"
+        },
+        {
+          "title": "Mode: volume",
+          "description": "The same sample tiers priced as volume: all 12,500 units use the top tier rate.",
+          "code": "<TieredPricing mode=\"volume\" caption=\"Sample volume tiers\" unit=\"requests\" :usage=\"12500\" :tiers=\"[\n  { upTo: 1000, rate: 0.5 },\n  { upTo: 10000, rate: 0.4 },\n  { upTo: null, rate: 0.3 },\n]\" />"
+        },
+        {
+          "title": "Flat fees",
+          "description": "A flat sample fee per tier adds a column.",
+          "code": "<TieredPricing caption=\"Sample tiers with flat fees\" unit=\"seats\" :usage=\"30\" :tiers=\"[\n  { upTo: 10, rate: 5, flat: 20 },\n  { upTo: 50, rate: 4, flat: 20 },\n  { upTo: null, rate: 3, flat: 20 },\n]\" />"
+        },
+        {
+          "title": "Variant: steps",
+          "description": "A ladder that stacks vertically below the sm breakpoint.",
+          "code": "<TieredPricing variant=\"steps\" caption=\"Sample request tiers (steps)\" unit=\"requests\" :usage=\"5000\" :tiers=\"[\n  { upTo: 1000, rate: 0.5 },\n  { upTo: 10000, rate: 0.4 },\n  { upTo: null, rate: 0.3 },\n]\" />"
+        },
+        {
+          "title": "Size",
+          "code": "<div class=\"flex flex-col gap-6\">\n  <TieredPricing size=\"sm\" caption=\"Sample tiers, small\" :tiers=\"[\n  { upTo: 1000, rate: 0.5 },\n  { upTo: 10000, rate: 0.4 },\n  { upTo: null, rate: 0.3 },\n]\" />\n  <TieredPricing size=\"lg\" caption=\"Sample tiers, large\" :tiers=\"[\n  { upTo: 1000, rate: 0.5 },\n  { upTo: 10000, rate: 0.4 },\n  { upTo: null, rate: 0.3 },\n]\" />\n</div>"
+        },
+        {
+          "title": "Currency and locale",
+          "code": "<TieredPricing currency=\"EUR\" locale=\"de-DE\" caption=\"Sample tiers in euro\" unit=\"Anfragen\" :usage=\"2500\" :tiers=\"[\n  { upTo: 1000, rate: 0.5 },\n  { upTo: 10000, rate: 0.4 },\n  { upTo: null, rate: 0.3 },\n]\" />"
+        }
+      ],
+      "a11y": [
+        "The table variant is a real `<table>` with a `<caption>`, column headers and row headers, inside a `role=\"region\"` scroll area that is focusable (`tabindex=\"0\"`) and named, so it scrolls with the keyboard and never overflows the page at 375px.",
+        "The steps variant is an ordered list named by `caption`; below `sm` the steps stack vertically.",
+        "The tier(s) a usage reaches carry a \"Your usage\" marker with a check icon and text, plus `data-active`; the highlight colour is never the only signal.",
+        "One polite `role=\"status\"` region holds the computed total, so changing `usage` announces the new total once. There are no other live regions.",
+        "The mode note (\"Each tier prices only the units that fall inside it.\") is visible text above the tiers."
+      ],
+      "requires": [
+        "Throws a ContractError when none of `caption`, `aria-label` or `aria-labelledby` names the tiers."
+      ],
+      "llmNotes": [
+        "Always pass `caption`; the tiers need a name.",
+        "Set `mode` on purpose: `graduated` prices each tier's own units, `volume` prices all units at the tier reached.",
+        "`upTo` is inclusive and `null` means and above; do not pass a huge number for the last tier.",
+        "Use `tierTotal(tiers, usage, mode)` when you need the number outside the component.",
+        "Pass `usage` to get the marker and total; do not render your own total next to the component.",
+        "Only invented, labelled sample rates in examples; never real prices."
+      ],
+      "related": [
+        "RateCard",
+        "Price",
+        "PricingCard",
+        "PricingTable",
+        "UsageEstimator"
+      ],
+      "replaces": [
+        "hand-rolled usage tier tables",
+        "hand-rolled Intl.NumberFormat price markup"
+      ]
+    },
+    {
       "name": "CtaBand",
       "group": "marketing",
       "subgroup": "Sections",
@@ -33972,7 +35262,7 @@
         },
         {
           "name": "actions",
-          "description": "Buttons row. On `primary` use `variant=\"secondary\"` Buttons, on `inverted` use `outline`, on `muted` the default Button."
+          "description": "Buttons row. On `primary` use `variant=\"secondary\"` Buttons, on `inverted` use a default Button with `class=\"bg-background text-foreground hover:bg-background/90\"`, on `muted` the default Button."
         },
         {
           "name": "form",
@@ -33994,7 +35284,7 @@
         },
         {
           "title": "Split with media",
-          "code": "<CtaBand variant=\"split\" tone=\"inverted\" headline=\"See the table with real data\" subtext=\"Swap the placeholder for a screenshot of your own screen.\">\n  <template #actions><Button variant=\"outline\">Open the table docs</Button></template>\n  <template #media>\n    <div class=\"flex aspect-video items-center justify-center rounded-lg border border-background text-sm\">Screenshot placeholder</div>\n  </template>\n</CtaBand>"
+          "code": "<CtaBand variant=\"split\" tone=\"inverted\" headline=\"See the table with real data\" subtext=\"Swap the placeholder for a screenshot of your own screen.\">\n  <template #actions><Button class=\"bg-background text-foreground hover:bg-background/90\">Open the table docs</Button></template>\n  <template #media>\n    <div class=\"flex aspect-video items-center justify-center rounded-lg border border-background text-sm\">Screenshot placeholder</div>\n  </template>\n</CtaBand>"
         },
         {
           "title": "Split with form",
@@ -34011,11 +35301,11 @@
         {
           "title": "Sizes and square corners",
           "description": "`size` scales padding and headline; `shape=\"square\"` removes the radius.",
-          "code": "<div class=\"grid gap-6\">\n  <CtaBand size=\"sm\" tone=\"muted\" :level=\"3\" headline=\"Small\"><template #actions><Button>Action</Button></template></CtaBand>\n  <CtaBand size=\"lg\" shape=\"square\" tone=\"inverted\" :level=\"3\" headline=\"Large and square\"><template #actions><Button variant=\"outline\">Action</Button></template></CtaBand>\n</div>"
+          "code": "<div class=\"grid gap-6\">\n  <CtaBand size=\"sm\" tone=\"muted\" :level=\"3\" headline=\"Small\"><template #actions><Button>Action</Button></template></CtaBand>\n  <CtaBand size=\"lg\" shape=\"square\" tone=\"inverted\" :level=\"3\" headline=\"Large and square\"><template #actions><Button class=\"bg-background text-foreground hover:bg-background/90\">Action</Button></template></CtaBand>\n</div>"
         },
         {
           "title": "Tones",
-          "code": "<div class=\"grid gap-6\">\n  <CtaBand tone=\"primary\" :level=\"3\" headline=\"Primary\"><template #actions><Button variant=\"secondary\">Action</Button></template></CtaBand>\n  <CtaBand tone=\"muted\" :level=\"3\" headline=\"Muted\"><template #actions><Button>Action</Button></template></CtaBand>\n  <CtaBand tone=\"inverted\" :level=\"3\" headline=\"Inverted\"><template #actions><Button variant=\"outline\">Action</Button></template></CtaBand>\n</div>"
+          "code": "<div class=\"grid gap-6\">\n  <CtaBand tone=\"primary\" :level=\"3\" headline=\"Primary\"><template #actions><Button variant=\"secondary\">Action</Button></template></CtaBand>\n  <CtaBand tone=\"muted\" :level=\"3\" headline=\"Muted\"><template #actions><Button>Action</Button></template></CtaBand>\n  <CtaBand tone=\"inverted\" :level=\"3\" headline=\"Inverted\"><template #actions><Button class=\"bg-background text-foreground hover:bg-background/90\">Action</Button></template></CtaBand>\n</div>"
         }
       ],
       "requires": [
@@ -34037,7 +35327,7 @@
         "One main CtaBand per page, placed before the footer; `inline` may be used additionally mid-page.",
         "Choose by content: card = default, band = full-bleed layouts, split = needs a real screenshot or form, inline = small nudge, newsletter = email capture.",
         "Label the action with what happens (\"Open the catalogue\"), never a generic invitation.",
-        "On `primary` use a `secondary` Button (a default Button would blend in); on `inverted` use `outline`.",
+        "On `primary` use a `secondary` Button (a default Button would blend in); on `inverted` use a default Button with `bg-background text-foreground` (an `outline` Button turns grey on the light panel in dark mode).",
         "There is no gradient tone. Do not fade text with opacity utilities inside the band.",
         "The `form` slot renders only in `newsletter` and `split`; `media` only in `split`.",
         "Do not invent customer counts or claims in the headline or subtext."
@@ -34750,7 +36040,7 @@
         {
           "title": "Newsletter column",
           "description": "Sample form: it does not send anything. Wire `submit` to your own handler.",
-          "code": "<SiteFooter variant=\"newsletter\" nav-label=\"Newsletter footer\" :legal=\"`© ${year} Perfect Design`\" description=\"Vue components and design tokens.\" :columns=\"columns\" newsletter-title=\"Release notes by email\" newsletter-description=\"Sent when a version ships.\">\n  <template #brand><span class=\"text-lg font-semibold\">Perfect Design</span></template>\n  <template #newsletter>\n    <form class=\"flex flex-col gap-2 sm:flex-row\" @submit.prevent>\n      <Input type=\"email\" autocomplete=\"email\" placeholder=\"name@example.com\" aria-label=\"Email address\" />\n      <Button type=\"submit\">Send release notes</Button>\n    </form>\n  </template>\n</SiteFooter>"
+          "code": "<SiteFooter variant=\"newsletter\" nav-label=\"Newsletter footer\" :legal=\"`© ${year} Perfect Design`\" description=\"Vue components and design tokens.\" :columns=\"columns\" newsletter-title=\"Release notes by email\" newsletter-description=\"Sent when a version ships.\">\n  <template #brand><span class=\"text-lg font-semibold\">Perfect Design</span></template>\n  <template #newsletter>\n    <form class=\"flex flex-col gap-2\" @submit.prevent>\n      <Input type=\"email\" autocomplete=\"email\" placeholder=\"name@example.com\" aria-label=\"Email address\" class=\"min-w-0\" />\n      <Button type=\"submit\">Send release notes</Button>\n    </form>\n  </template>\n</SiteFooter>"
         },
         {
           "title": "Mega",
