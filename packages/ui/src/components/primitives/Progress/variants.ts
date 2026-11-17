@@ -1,10 +1,11 @@
 import { cva, type VariantProps } from '../../../lib/cva'
+import { trackSurface } from '../../../lib/styles'
 
 /**
  * Track (the groove). `flex-auto`, not `flex-1`: with `value-position="top"` the root is a flex column and
  * `flex-1`'s basis of 0% overrides the height class on the main axis, collapsing the bar to zero height.
  */
-export const progressVariants = cva('relative w-full flex-auto overflow-hidden rounded-full bg-muted forced-colors:border', {
+export const progressVariants = cva(['relative w-full flex-auto overflow-hidden rounded-full forced-colors:border', trackSurface], {
   variants: {
     size: {
       xs: 'h-0.5',
@@ -59,7 +60,7 @@ export const progressInsideValueVariants = cva(
 )
 
 /** One cell of a segmented bar (the groove of that segment). */
-export const progressSegmentVariants = cva('h-full flex-1 overflow-hidden rounded-full bg-muted')
+export const progressSegmentVariants = cva(['h-full flex-1 overflow-hidden rounded-full', trackSurface])
 
 export type ProgressVariants = VariantProps<typeof progressVariants>
 export type ProgressSize = NonNullable<ProgressVariants['size']>

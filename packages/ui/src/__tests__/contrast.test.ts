@@ -6,6 +6,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { resolve as resolvePath } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { trackStroke, trackSurface } from '../lib/styles'
 import { timelineMarkerVariants, TIMELINE_STATUSES } from '../components/data-display/Timeline/variants'
 
 const stylesDir = resolvePath(process.cwd(), 'src/styles') + '/' // vitest runs from packages/ui
@@ -156,6 +157,16 @@ describe.each(['light', 'dark'] as const)('WCAG contrast — %s', (mode) => {
       for (const [name, surface] of [['background', bg], ['card', card]] as const) {
         const outlineFill = over({ rgb: rgbOf(t, 'input'), alpha: 0.3 }, surface)
         expect(ratio(card, outlineFill), `card vs input/30 on ${name}`).toBeGreaterThanOrEqual(1.15)
+      }
+    })
+
+    // A progress, stat bar, gauge or KPI track is not a control boundary (no 3:1), but it must be perceivable: >= 1.5:1 against the page and a card.
+    it('progress track (input blended over the surface) is >= 1.5:1 against background and card', () => {
+      const alpha = Number(/^bg-input\/(\d+)$/.exec(trackSurface)![1]) / 100
+      expect(trackStroke).toBe(`stroke-input/${Math.round(alpha * 100)}`)
+      for (const name of ['background', 'card'] as const) {
+        const surface = rgbOf(t, name)
+        expect(ratio(over({ rgb: rgbOf(t, 'input'), alpha }, surface), surface), `track on ${name}`).toBeGreaterThanOrEqual(1.5)
       }
     })
 

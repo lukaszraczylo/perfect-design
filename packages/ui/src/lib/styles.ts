@@ -23,3 +23,11 @@ export const floatingSurface =
 
 /** Coarse-pointer (touch) minimum hit area. */
 export const touchTarget = 'pointer-coarse:min-h-11'
+
+/**
+ * Groove of a progress bar, stat bar, gauge or KPI progress. `muted` is about 1.2:1 against a dark card, so the track
+ * disappears; `input` blended at 45% is at least 1.5:1 against background and card in every theme (contrast.test.ts).
+ */
+export const trackSurface = 'bg-input/45'
+/** Same colour for an SVG stroke (the `Gauge` track). */
+export const trackStroke = 'stroke-input/45'

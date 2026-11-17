@@ -22,6 +22,7 @@ const doc: ComponentDoc = {
     { name: 'size', type: "'default' | 'compact' | 'lg'", default: "'default'", description: '`compact` = `p-3 gap-1`, smaller label and value; `lg` = `p-6 gap-3` with a 36px value. Unknown values behave like `default`.' },
     { name: 'layout', type: "'stacked' | 'split' | 'centered'", default: "'stacked'", description: '`stacked` is the default column. `split` puts the label at the start and the value at the end of one row (delta, sparkline and progress span the full width below). `centered` centres every row. Unknown values behave like `stacked`.' },
     { name: 'tone', type: "'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'", default: "'primary'", description: 'Colour of the progress bar and sparkline. Unknown values fall back to `primary`.' },
+    { name: 'sparklineVariant', type: "'area' | 'line'", default: "'area'", description: '`area` fills under the built-in sparkline; `line` draws the line only. Unknown values behave like `area`.' },
     { name: 'sparkline', type: 'number[]', description: 'Values for a mini area sparkline under the delta (non-finite entries become gaps). Hidden while `loading` or when empty.' },
     { name: 'progress', type: 'number | null', description: 'Percentage 0-100 (clamped) rendered as `role="progressbar"`; null / NaN / Infinity hide it.' },
     { name: 'as', type: 'string | Component', default: "'div'", description: 'Element to render (e.g. `a` for a linking tile).' },
@@ -72,6 +73,14 @@ const doc: ComponentDoc = {
       code: `<StatGroup :columns="2" aria-label="Sample data: sparkline tiles">
   <KpiTile label="Throughput" value="48.2k" delta="+12%" trend="up" :sparkline="[3, 5, 4, 7, 9, 8, 12]" tone="success" />
   <KpiTile label="Retries" :value="320" :sparkline="[9, 7, 8, 5, 6, 4, 3]" />
+</StatGroup>`,
+    },
+    {
+      title: 'Line-only sparkline',
+      description: '`sparklineVariant="line"` drops the fill for dense dashboards. Sample data.',
+      code: `<StatGroup :columns="2" aria-label="Sample data: line sparkline tiles">
+  <KpiTile label="Latency" value="142 ms" sparkline-variant="line" :sparkline="[3, 5, 4, 7, 9, 8, 12]" />
+  <KpiTile label="Retries" :value="320" sparkline-variant="line" :sparkline="[9, 7, 8, 5, 6, 4, 3]" tone="warning" />
 </StatGroup>`,
     },
     {

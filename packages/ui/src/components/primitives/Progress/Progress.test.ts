@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import { trackSurface } from '../../../lib/styles'
 import Progress from './Progress.vue'
 import { progressIndicatorVariants, progressInsideValueVariants, progressSegmentVariants, progressVariants } from './variants'
 
@@ -373,7 +374,7 @@ describe('Progress variations', () => {
       const w = mount(Progress, { props: { modelValue: 50, segments: 3, tone: 'warning', size: 'lg' } })
       expect(fills(w)[0]!.classes()).toContain('bg-warning')
       expect(track(w).classes()).toContain('h-3')
-      expect(progressSegmentVariants()).toContain('bg-muted')
+      expect(progressSegmentVariants()).toContain(trackSurface)
     })
 
     it('striped segments draw no gradient', () => {

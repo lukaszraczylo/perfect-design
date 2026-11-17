@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, useAttrs, watch } from 'vue'
 import { requireOneOf } from '../../../lib/contract'
 import { cn } from '../../../lib/cn'
+import { trackStroke } from '../../../lib/styles'
 import type { BaseProps } from '../../../lib/types'
 import { useMountedCheck } from '../_shared/contract'
 import { oneOf } from '../_chart/chartKit'
@@ -146,7 +147,7 @@ const name = computed(() => {
       aria-hidden="true"
       focusable="false"
     >
-      <path data-slot="gauge-track" :d="trackPath" pathLength="100" fill="none" :stroke-width="shape === 'linear' ? 8 : 10" class="stroke-muted" />
+      <path data-slot="gauge-track" :d="trackPath" pathLength="100" fill="none" :stroke-width="shape === 'linear' ? 8 : 10" :class="trackStroke" />
       <path
         v-if="drawn > 0 && valid"
         data-slot="gauge-arc"

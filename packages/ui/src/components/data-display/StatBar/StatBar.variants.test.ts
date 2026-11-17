@@ -1,16 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { trackSurface } from '../../../lib/styles'
 import StatBar from './StatBar.vue'
 
 const mk = (props: Record<string, unknown> = {}) => mount(StatBar, { props: { label: 'Storage', value: 40, ...props } as never })
 const track = (w: ReturnType<typeof mk>) => w.find('[data-slot="stat-bar-track"]')
 const fill = (w: ReturnType<typeof mk>) => w.find('[data-slot="stat-bar-fill"]')
 
+describe('StatBar track', () => {
+  it('uses the shared perceivable track surface, not bg-muted', () => {
+    expect(track(mk()).classes()).toContain(trackSurface)
+    expect(track(mk()).classes()).not.toContain('bg-muted')
+  })
+})
+
 describe('StatBar size, layout and shape dimensions', () => {
   it('default output is unchanged', () => {
     const w = mk()
     expect(w.attributes('class')).toBe('flex flex-col gap-1.5')
-    expect(track(w).attributes('class')).toBe('w-full overflow-hidden rounded-full bg-muted h-2.5')
+    expect(track(w).attributes('class')).toBe('w-full overflow-hidden rounded-full bg-input/45 h-2.5')
     expect(fill(w).attributes('class')).toBe('h-full rounded-full motion-safe:transition-[width] bg-primary')
     expect(w.attributes('data-layout')).toBeUndefined()
     expect(w.attributes('data-shape')).toBeUndefined()

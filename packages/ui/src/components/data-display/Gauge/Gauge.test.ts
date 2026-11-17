@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { trackStroke } from '../../../lib/styles'
 import Gauge from './Gauge.vue'
 import { gaugeDialFontClass, gaugeVariants } from './variants'
 
@@ -13,6 +14,14 @@ afterEach(() => {
 
 describe('Gauge', () => {
   describe('good path', () => {
+    it('track uses the shared perceivable track stroke, not the near-invisible muted', () => {
+      for (const shape of ['arc', 'semicircle', 'linear']) {
+        const t = make({ value: 42, label: 'CPU', variant: shape, animated: false }).find('[data-slot="gauge-track"]')
+        expect(t.classes()).toContain(trackStroke)
+        expect(t.classes()).not.toContain('stroke-muted')
+      }
+    })
+
     it('renders role=meter with aria values, value text and arc', () => {
       const w = make({ value: 42, label: 'CPU', animated: false })
       expect(w.attributes('role')).toBe('meter')

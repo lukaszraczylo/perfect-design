@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { cn } from '../../../lib/cn'
 import { requireText, violation } from '../../../lib/contract'
+import { trackSurface } from '../../../lib/styles'
 import type { BaseProps } from '../../../lib/types'
 import { clamp, isFiniteNumber } from '../_chart/chartMath'
 import { useMountedCheck } from '../_shared/contract'
@@ -90,7 +91,7 @@ const classes = computed(() => cn(inline.value ? 'flex flex-row items-center gap
       aria-valuemax="100"
       :aria-valuenow="percent"
       :aria-valuetext="text"
-      :class="cn('w-full overflow-hidden', square ? 'rounded-none' : 'rounded-full', 'bg-muted', SIZE[size], inline && 'order-1 min-w-0 flex-1')"
+      :class="cn('w-full overflow-hidden', square ? 'rounded-none' : 'rounded-full', trackSurface, SIZE[size], inline && 'order-1 min-w-0 flex-1')"
     >
       <div data-slot="stat-bar-fill" :class="cn('h-full', square ? 'rounded-none' : 'rounded-full', 'motion-safe:transition-[width]', fillClass)" :style="{ width: `${ratio * 100}%` }" />
     </div>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { faServer } from '@fortawesome/free-solid-svg-icons'
+import { trackSurface } from '../../../lib/styles'
 import KpiTile from './KpiTile.vue'
 import { kpiTileVariants } from './index'
 
@@ -136,6 +137,16 @@ describe('KpiTile', () => {
       expect(spark.classes()).toContain('w-full')
     })
 
+    it('sparklineVariant: area by default, line draws no fill, unknown values fall back to area', () => {
+      const area = (v?: unknown) => root({ sparkline: [1, 3, 2, 5], ...(v === undefined ? {} : { sparklineVariant: v }) }).find('[data-slot="sparkline-area"]').exists()
+      expect(area()).toBe(true)
+      expect(area('area')).toBe(true)
+      expect(area('line')).toBe(false)
+      expect(area('bar')).toBe(true)
+      const line = root({ sparkline: [1, 3, 2, 5], sparklineVariant: 'line' }).find('[data-slot="sparkline-line"]')
+      expect(line.exists()).toBe(true)
+    })
+
     it('sparkline slot overrides the built-in one; empty data renders nothing', () => {
       const w = root({ sparkline: [1, 2] }, { sparkline: '<i id="custom" />' })
       expect(w.find('[data-slot="kpi-tile-sparkline"] #custom').exists()).toBe(true)
@@ -143,6 +154,11 @@ describe('KpiTile', () => {
       expect(root({}, { sparkline: '<i id="only-slot" />' }).find('#only-slot').exists()).toBe(true)
       expect(root({ sparkline: [] }).find('[data-slot="kpi-tile-sparkline"]').exists()).toBe(false)
       expect(root({ sparkline: 'nope' as never }).find('[data-slot="kpi-tile-sparkline"]').exists()).toBe(false)
+    })
+
+    it('progress track uses the shared perceivable track surface; inverted keeps its own', () => {
+      expect(root({ label: 'Q', progress: 10 }).find('[data-slot="kpi-tile-progress"]').classes()).toContain(trackSurface)
+      expect(root({ label: 'Q', progress: 10, variant: 'inverted' }).find('[data-slot="kpi-tile-progress"]').classes()).not.toContain(trackSurface)
     })
 
     it('with-progress renders an accessible bar and clamps the value', () => {

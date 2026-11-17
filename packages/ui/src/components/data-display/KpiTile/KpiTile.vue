@@ -5,6 +5,7 @@ import type { IconDefinition } from '../../../lib/icons-tools'
 import { faArrowDown, faArrowUp, faMinus } from '../../../lib/icons'
 import { cn } from '../../../lib/cn'
 import { requireText } from '../../../lib/contract'
+import { trackSurface } from '../../../lib/styles'
 import type { BaseProps, Tone } from '../../../lib/types'
 import Icon from '../../primitives/Icon/Icon.vue'
 import Card from '../Card/Card.vue'
@@ -43,13 +44,15 @@ export interface KpiTileProps extends BaseProps {
   tone?: Tone
   /** Values for a mini trend line under the delta (or use the `sparkline` slot). */
   sparkline?: number[]
+  /** `area` (default) fills under the trend line; `line` draws the line only. Unknown values behave like `area`. */
+  sparklineVariant?: 'area' | 'line'
   /** Percentage (0-100, clamped) shown as a progress bar; non-finite values hide it. */
   progress?: number | null
   as?: PrimitiveProps['as']
   asChild?: boolean
 }
 
-const props = withDefaults(defineProps<KpiTileProps>(), { trend: 'flat', goodWhen: 'up', variant: 'default', size: 'default', layout: 'stacked', tone: 'primary', progress: null })
+const props = withDefaults(defineProps<KpiTileProps>(), { trend: 'flat', goodWhen: 'up', variant: 'default', size: 'default', layout: 'stacked', tone: 'primary', progress: null, sparklineVariant: 'area' })
 
 useMountedCheck(() => requireText('KpiTile', 'label', props.label, 'It names the metric, e.g. `label="Requests"`.'))
 
@@ -86,6 +89,7 @@ const mutedText = computed(() => (inverted.value ? 'text-background/70' : 'text-
 const deltaClass = computed(() => (inverted.value ? 'text-background' : { good: 'text-success', bad: 'text-destructive', neutral: mutedText.value }[sentiment.value]))
 const progressValue = computed(() => (typeof props.progress === 'number' && Number.isFinite(props.progress) ? Math.min(100, Math.max(0, props.progress)) : null))
 const progressFill = computed(() => (inverted.value ? 'bg-background' : (kpiProgressFill[props.tone] ?? kpiProgressFill.primary)))
+const sparkVariant = computed(() => (props.sparklineVariant === 'line' ? 'line' : 'area'))
 const sparkTone = computed(() => kpiSparklineTone[props.tone] ?? 'primary')
 // The tone colours are tuned for the card surface; on the foreground surface the trend uses the surface text colour.
 const sparkInvertedClass = '[&_[data-slot=sparkline-line]]:stroke-background [&_[data-slot=sparkline-area]]:fill-background/20 [&_[data-slot=sparkline-dot]]:fill-background [&_[data-slot=sparkline-last]]:fill-background'
@@ -135,7 +139,7 @@ const classes = computed(() => cn(kpiTileVariants({ size: size.value, layout: la
       </div>
       <div v-if="hasSparkline || $slots.sparkline" data-slot="kpi-tile-sparkline" :class="cn(fullRow, centered && 'w-full')">
         <slot name="sparkline">
-          <Sparkline :data="sparkline!" :tone="sparkTone" :width="240" :height="40" area :label="`${label} trend`" :class="cn('h-10 w-full', inverted && sparkInvertedClass)" />
+          <Sparkline :data="sparkline!" :tone="sparkTone" :width="240" :height="40" :variant="sparkVariant" :label="`${label} trend`" :class="cn('h-10 w-full', inverted && sparkInvertedClass)" />
         </slot>
       </div>
       <div
@@ -146,7 +150,7 @@ const classes = computed(() => cn(kpiTileVariants({ size: size.value, layout: la
         aria-valuemax="100"
         :aria-valuenow="progressValue"
         :aria-label="`${label} progress`"
-        :class="cn('h-1.5 w-full overflow-hidden rounded-full', fullRow, inverted ? 'bg-background/20' : 'bg-muted')"
+        :class="cn('h-1.5 w-full overflow-hidden rounded-full', fullRow, inverted ? 'bg-background/20' : trackSurface)"
       >
         <div data-slot="kpi-tile-progress-bar" :class="cn('h-full rounded-full transition-[width] motion-reduce:transition-none', progressFill)" :style="{ width: `${progressValue}%` }" />
       </div>
