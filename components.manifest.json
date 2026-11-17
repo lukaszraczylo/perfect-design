@@ -30677,6 +30677,12 @@
           "description": "With `layout=\"cards\"`, show the sort select, direction button and \"Select all\" checkbox below 640px (where the header row is hidden). It appears only when a column is `sortable` or `selectable` is set. Set `false` to hide it and offer your own."
         },
         {
+          "name": "cardSortControl",
+          "type": "'select' | 'combobox'",
+          "default": "'select'",
+          "description": "Cards-layout sort control. `combobox` swaps the native select for a filterable Combobox (type to narrow the sortable columns, clear to restore the default order). Same label, direction button and `v-model:sort` value. Unknown values use the select."
+        },
+        {
           "name": "sortByLabel",
           "type": "string",
           "default": "'Sort by'",
@@ -30850,6 +30856,12 @@
               "description": "Disables the checkbox (no rows)."
             },
             {
+              "name": "sortControl",
+              "type": "'select' | 'combobox'",
+              "default": "'select'",
+              "description": "`combobox` renders a filterable Combobox (clearable, placeholder = `sortDefaultLabel`) instead of the native select. Unknown values use the select."
+            },
+            {
               "name": "sortByLabel",
               "type": "string",
               "default": "'Sort by'",
@@ -30934,6 +30946,12 @@
           "description": "Below 640px every row is a card of label and value pairs and a control bar appears above them: a \"Sort by\" select with a direction button, and a \"Select all\" checkbox. It drives the same sort and selection as the header (hidden on phones). From 640px it is a table. Narrow the window to see it. Sample data.",
           "script": "const columns = [\n  { key: 'name', header: 'Name', sortable: true, rowHeader: true },\n  { key: 'plan', header: 'Plan', sortable: true },\n  { key: 'seats', header: 'Seats', sortable: true, numeric: true },\n]\nconst rows = [\n  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },\n  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },\n  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },\n  { id: 4, name: 'Item D', plan: 'Plan 1', seats: null },\n]\nconst sort = ref(null)\nconst selected = ref([])",
           "code": "<div class=\"space-y-3\">\n  <DataTable v-model:sort=\"sort\" v-model:selected=\"selected\" :columns=\"columns\" :rows=\"rows\" layout=\"cards\" selectable label=\"Sample data: cards layout\" />\n  <Badge variant=\"secondary\" class=\"tabular-nums\">{{ sort ? sort.key + ' ' + sort.direction : 'default order' }}, {{ selected.length }} selected</Badge>\n</div>"
+        },
+        {
+          "title": "Cards layout: filterable sort",
+          "description": "`card-sort-control=\"combobox\"` replaces the native sort select with a Combobox: type to filter the sortable columns, clear to return to the default order. Narrow the window to see it. Sample data.",
+          "script": "const columns = [\n  { key: 'name', header: 'Name', sortable: true, rowHeader: true },\n  { key: 'plan', header: 'Plan', sortable: true },\n  { key: 'seats', header: 'Seats', sortable: true, numeric: true },\n]\nconst rows = [\n  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },\n  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },\n  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },\n  { id: 4, name: 'Item D', plan: 'Plan 1', seats: null },\n]\nconst sort = ref(null)",
+          "code": "<DataTable v-model:sort=\"sort\" :columns=\"columns\" :rows=\"rows\" layout=\"cards\" card-sort-control=\"combobox\" label=\"Sample data: filterable card sort\" />"
         },
         {
           "title": "Cards layout: actions column",

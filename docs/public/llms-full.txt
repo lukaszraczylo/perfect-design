@@ -23894,6 +23894,7 @@ Props:
 - layout: 'table' | 'cards' = 'table' - `cards`: below the `sm` breakpoint (640px) each row becomes a stacked card of label and value pairs (the labels are the column headers) and the header row is hidden visually. Sorting, selection, paging, loading and empty states keep working.
 - stickyHeader: boolean = false - Pin the header; set a height on `containerClass` (e.g. `max-h-96`).
 - cardControls: boolean = true - With `layout="cards"`, show the sort select, direction button and "Select all" checkbox below 640px (where the header row is hidden). It appears only when a column is `sortable` or `selectable` is set. Set `false` to hide it and offer your own.
+- cardSortControl: 'select' | 'combobox' = 'select' - Cards-layout sort control. `combobox` swaps the native select for a filterable Combobox (type to narrow the sortable columns, clear to restore the default order). Same label, direction button and `v-model:sort` value. Unknown values use the select.
 - sortByLabel: string = 'Sort by' - Visible label of the cards-layout sort select.
 - sortDirectionLabel: string = 'Sort direction' - Start of the accessible name of the direction button ("Sort direction: Ascending"); its visible text is the current direction.
 - sortDefaultLabel: string = 'Default order' - Select option that clears the sort.
@@ -23918,6 +23919,7 @@ Parts:
     - allSelected: boolean = false - Checks the box (every row of the page is selected).
     - someSelected: boolean = false - Indeterminate box (some, not all, rows are selected).
     - selectDisabled: boolean = false - Disables the checkbox (no rows).
+    - sortControl: 'select' | 'combobox' = 'select' - `combobox` renders a filterable Combobox (clearable, placeholder = `sortDefaultLabel`) instead of the native select. Unknown values use the select.
     - sortByLabel: string = 'Sort by' - Visible label of the select.
     - sortDirectionLabel: string = 'Sort direction' - Accessible name prefix of the direction button.
     - sortDefaultLabel: string = 'Default order' - Option that clears the sort.
@@ -24095,6 +24097,26 @@ const selected = ref([])
   <DataTable v-model:sort="sort" v-model:selected="selected" :columns="columns" :rows="rows" layout="cards" selectable label="Sample data: cards layout" />
   <Badge variant="secondary" class="tabular-nums">{{ sort ? sort.key + ' ' + sort.direction : 'default order' }}, {{ selected.length }} selected</Badge>
 </div>
+```
+
+Example: Cards layout: filterable sort
+```vue
+<script setup lang="ts">
+const columns = [
+  { key: 'name', header: 'Name', sortable: true, rowHeader: true },
+  { key: 'plan', header: 'Plan', sortable: true },
+  { key: 'seats', header: 'Seats', sortable: true, numeric: true },
+]
+const rows = [
+  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },
+  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },
+  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },
+  { id: 4, name: 'Item D', plan: 'Plan 1', seats: null },
+]
+const sort = ref(null)
+</script>
+
+<DataTable v-model:sort="sort" :columns="columns" :rows="rows" layout="cards" card-sort-control="combobox" label="Sample data: filterable card sort" />
 ```
 
 Example: Cards layout: actions column
