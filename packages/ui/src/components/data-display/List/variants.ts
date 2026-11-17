@@ -50,3 +50,22 @@ export const listGaps: Record<ListGap, string> = { none: 'gap-0', sm: 'gap-1', m
 
 /** List provides its size so ListItem can match it without repeating it per row. */
 export const LIST_SIZE_KEY: InjectionKey<ComputedRef<ListSize>> = Symbol('perfect-design:list-size')
+
+export const LIST_MARKERS = ['none', 'disc', 'decimal'] as const
+export type ListMarker = (typeof LIST_MARKERS)[number]
+
+/** Container classes of a marked list: a block (not flex) so the browser draws the markers, with logical start padding for RTL. */
+export const listMarkerClasses: Record<Exclude<ListMarker, 'none'>, string> = {
+  disc: 'list-disc ps-5 marker:text-muted-foreground',
+  decimal: 'list-decimal ps-6 marker:text-muted-foreground marker:tabular-nums',
+}
+
+/** Row text size and spacing of a marked list. */
+export const listMarkerItemSizes: Record<ListSize, string> = {
+  sm: 'text-xs py-0.5',
+  md: 'text-sm py-1',
+  lg: 'text-base py-1.5',
+}
+
+/** List provides its marker so ListItem can drop the flex layout that would hide it. */
+export const LIST_MARKER_KEY: InjectionKey<ComputedRef<ListMarker>> = Symbol('perfect-design:list-marker')

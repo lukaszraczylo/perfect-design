@@ -6,7 +6,7 @@ import { cn } from '../../../lib/cn'
 import { focusRing } from '../../../lib/styles'
 import type { BaseProps } from '../../../lib/types'
 import { useMountedCheck } from '../_shared/contract'
-import { LIST_SIZE_KEY, LIST_VARIANT_KEY, listDescriptionSizes, listItemSizes } from './variants'
+import { LIST_MARKER_KEY, LIST_SIZE_KEY, LIST_VARIANT_KEY, listDescriptionSizes, listItemSizes, listMarkerItemSizes } from './variants'
 
 export interface ListItemProps extends BaseProps {
   as?: PrimitiveProps['as']
@@ -35,12 +35,16 @@ useMountedCheck(() => {
 })
 const listSize = inject(LIST_SIZE_KEY, undefined)
 const size = computed(() => listSize?.value ?? 'md')
+const listMarker = inject(LIST_MARKER_KEY, undefined)
+const marked = computed(() => !!listMarker && listMarker.value !== 'none')
 const withAvatar = computed(() => listVariant?.value === 'with-avatar')
 
 const native = computed(() => props.as === 'a' || props.as === 'button')
 const active = computed(() => isInteractive.value && !props.disabled)
 const classes = computed(() =>
-  cn(
+  marked.value
+    ? cn(listMarkerItemSizes[size.value], props.selected && 'bg-accent text-accent-foreground', props.disabled && 'pointer-events-none opacity-50', props.class)
+    : cn(
     'flex items-center gap-3',
     listItemSizes[size.value],
     listVariant?.value === 'card' && 'rounded-lg border bg-card text-card-foreground shadow-xs',
@@ -83,6 +87,10 @@ function onClick(e: MouseEvent) {
     @keydown="onKeydown"
   >
     <slot v-if="asChild" />
+    <template v-else-if="marked">
+      <slot />
+      <span v-if="$slots.description" data-slot="list-item-description" :class="cn('block text-muted-foreground', listDescriptionSizes[size])"><slot name="description" /></span>
+    </template>
     <template v-else>
       <span v-if="$slots.leading" data-slot="list-item-leading" :class="cn('flex shrink-0 items-center', withAvatar ? 'text-foreground' : 'text-muted-foreground')"><slot name="leading" /></span>
       <span data-slot="list-item-content" :class="cn('flex min-w-0 flex-1 flex-col', withAvatar && 'font-medium')">

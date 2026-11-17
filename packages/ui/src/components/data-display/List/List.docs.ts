@@ -18,6 +18,7 @@ const doc: ComponentDoc = {
     { name: 'variant', type: "'plain' | 'divided' | 'card' | 'interactive' | 'with-avatar'", description: 'Row presentation, shared with every `ListItem` inside. When omitted the `divided` prop decides (dividers by default); unknown values behave as omitted.' },
     { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Row padding and text size, shared with every `ListItem`: `sm` 12px text, `md` 14px, `lg` 16px with roomier rows. Unknown values fall back to `md`.' },
     { name: 'gap', type: "'none' | 'sm' | 'md' | 'lg'", description: 'Space between rows (0, 4px, 8px, 16px). Only `plain` and `card` lists use it; `card` rows keep 8px when it is not set. Divided variants ignore it. Unknown values behave as unset.' },
+    { name: 'marker', type: "'none' | 'disc' | 'decimal'", default: "'none'", description: 'Real list markers for hand-authored bulleted or numbered text (legal text, feature bullets). The list becomes a plain block with logical start padding and muted markers; `variant`, `divided` and `gap` do not apply and rows drop their flex layout. `decimal` renders an `ol` unless `as` is set. Unknown values behave as `none`.' },
     { name: 'divided', type: 'boolean', default: 'true', description: 'Dividers between items. Only used when `variant` is not set.' },
     { name: 'bordered', type: 'boolean', default: 'false', description: 'Rounded border around the list.' },
     classProp,
@@ -38,6 +39,20 @@ const doc: ComponentDoc = {
     },
   ],
   examples: [
+    {
+      title: 'Bulleted and numbered text',
+      description: '`marker` draws real list markers for hand-authored text. Sample terms.',
+      code: `<div class="flex flex-wrap gap-8">
+  <List marker="disc" class="max-w-xs">
+    <ListItem>Sample feature one</ListItem>
+    <ListItem>Sample feature two</ListItem>
+  </List>
+  <List marker="decimal" class="max-w-xs">
+    <ListItem>Sample first step</ListItem>
+    <ListItem>Sample second step</ListItem>
+  </List>
+</div>`,
+    },
     {
       title: 'Simple list',
       code: `<List bordered class="max-w-sm">
@@ -152,6 +167,7 @@ const doc: ComponentDoc = {
     'Throws a ContractError when a `ListItem` is rendered outside a `List` (a plain `ul`, `ol` or `role="list"` parent also counts).',
   ],
   llmNotes: [
+    'Use `marker="disc"` or `"decimal"` for prose-like bulleted or numbered text; leave it unset for rows with slots and dividers.',
     'Use `leading`/`trailing` slots instead of custom flex wrappers inside ListItem.',
     'Choose the look with `variant` on List (not per row): `card` for separated entries, `with-avatar` for people lists, `interactive` when every row is clickable.',
     'Set `size` and `gap` on List, not per row; `gap` only affects `plain` and `card`.',
