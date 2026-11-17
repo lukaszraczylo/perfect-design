@@ -18,7 +18,7 @@ import { join } from 'node:path'
 
 const args = process.argv.slice(2)
 const only = args.includes('--only') ? args[args.indexOf('--only') + 1] : ''
-const STAGES = ['behaviour', 'sweep', 'state']
+const STAGES = ['behaviour', 'sweep', 'state', 'classes']
 if (only && !STAGES.includes(only)) {
   console.error(`--only must be one of ${STAGES.join(', ')} (got "${only}")`)
   process.exit(2)
@@ -72,10 +72,19 @@ try {
       failed++
     } else console.log('self test ok: state-check detects invisible state')
   }
+  if (want('classes')) {
+    // The unstyled-class check must notice a class that has no CSS rule.
+    const broken = spawnSync('node', ['scripts/unstyled-check.mjs', base, '--match', '/components/primitives/button', '--sabotage'], { encoding: 'utf8' })
+    if (broken.status === 0 || !/pd-sabotage-unstyled/.test(`${broken.stdout}${broken.stderr}`)) {
+      console.log(`SELF TEST FAILED: unstyled-check did not detect a class without CSS (exit ${broken.status})`)
+      failed++
+    } else console.log('self test ok: unstyled-check detects classes without CSS')
+  }
   if (want('behaviour')) failed += runSync('behaviour tests (real pointers, focus, layout)', 'scripts/browser/behaviour.mjs', [base]) ? 1 : 0
   const parallel = []
   if (want('sweep')) parallel.push(runAsync('accessibility and responsiveness sweep', 'scripts/a11y-sweep.mjs', [base, '--out', join(reportDir, 'a11y-sweep.json')]))
   if (want('state')) parallel.push(runAsync('state check', 'scripts/state-check.mjs', [base]))
+  if (want('classes')) parallel.push(runAsync('unstyled-class check', 'scripts/unstyled-check.mjs', [base]))
   failed += (await Promise.all(parallel)).filter(Boolean).length
 } finally {
   server.kill()
