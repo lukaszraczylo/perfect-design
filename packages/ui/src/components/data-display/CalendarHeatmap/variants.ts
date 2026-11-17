@@ -22,3 +22,6 @@ export const CALENDAR_GAPS: readonly CalendarHeatmapGap[] = ['sm', 'md', 'lg']
 export const CELL_SIZE: Record<CalendarHeatmapSize, number> = { sm: 10, md: 12, lg: 16 }
 /** Space between cells in px per `gap`. */
 export const CELL_GAP: Record<CalendarHeatmapGap, number> = { sm: 1, md: 2, lg: 4 }
+/** `fit` mode: the cell side stays between these px values; below the minimum the grid scrolls. */
+export const CALENDAR_FIT_MIN_CELL = 8
+export const CALENDAR_FIT_MAX_CELL = 40

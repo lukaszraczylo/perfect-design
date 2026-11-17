@@ -1,6 +1,8 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { h, nextTick } from 'vue'
 import CalendarHeatmap from './CalendarHeatmap.vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 
 const m = (props: Record<string, unknown> = {}, attrs: Record<string, unknown> = {}) => mount(CalendarHeatmap, { props: props as never, attrs })
 const data = [
@@ -313,5 +315,96 @@ describe('CalendarHeatmap: bad and edge input', () => {
     const w = m({ ...base, showLegend: false, showMonthLabels: false, showWeekdayLabels: false })
     expect(Number(w.find('svg').attributes('height'))).toBe(98)
     expect(() => w.unmount()).not.toThrow()
+  })
+})
+
+describe('CalendarHeatmap: fit', () => {
+  const settle = async () => {
+    await nextTick()
+    await nextTick()
+  }
+  let spy: ReturnType<typeof vi.spyOn>
+  beforeEach(() => {
+    spy = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+  })
+  const svg = (w: ReturnType<typeof m>) => w.find('[data-slot="calendar-heatmap-svg"]')
+  const cellW = (w: ReturnType<typeof m>) => num(day(w, '2025-03-03')!, 'width')
+
+  it('is off by default: fixed size and a w-fit scroll region', async () => {
+    spy.mockReturnValue(900)
+    const w = m(base)
+    await settle()
+    expect(w.attributes('data-fit')).toBeUndefined()
+    expect(cellW(w)).toBe(12)
+    expect(slot(w, 'calendar-heatmap-scroll')[0]!.classes()).toContain('w-fit')
+  })
+  it('stretches the cells so the SVG fills the container width, never wider', async () => {
+    spy.mockReturnValue(300)
+    const w = m({ ...base, end: '2025-06-15', fit: true })
+    await settle()
+    expect(w.attributes('data-fit')).toBe('')
+    expect(slot(w, 'calendar-heatmap-scroll')[0]!.classes()).toContain('w-full')
+    expect(cellW(w)).toBeGreaterThan(12)
+    expect(num(svg(w), 'width')).toBeLessThanOrEqual(300)
+    expect(num(svg(w), 'width')).toBeGreaterThanOrEqual(298)
+    expect(num(day(w, '2025-03-03')!, 'height')).toBe(cellW(w))
+    expectClean(w)
+  })
+  it('caps the cell at 40px and floors it at 8px', async () => {
+    spy.mockReturnValue(2000)
+    const wide = m({ ...base, fit: true })
+    await settle()
+    expect(cellW(wide)).toBe(40)
+    spy.mockReturnValue(40)
+    const narrow = m({ ...base, fit: true })
+    await settle()
+    expect(cellW(narrow)).toBe(8)
+  })
+  it('keeps text at its own size: no viewBox scaling', async () => {
+    spy.mockReturnValue(600)
+    const w = m({ ...base, fit: true })
+    await settle()
+    const vb = svg(w).attributes('viewBox')!.split(' ')
+    expect(Number(vb[2])).toBe(num(svg(w), 'width'))
+    expect(Number(vb[3])).toBe(num(svg(w), 'height'))
+  })
+  it('uses the fixed size until the container is measured', () => {
+    spy.mockReturnValue(0)
+    expect(cellW(m({ ...base, fit: true }))).toBe(12)
+  })
+  it('fits without weekday labels and with circles', async () => {
+    spy.mockReturnValue(400)
+    const w = m({ ...base, fit: true, showWeekdayLabels: false, shape: 'circle' })
+    await settle()
+    const c = day(w, '2025-03-03')!
+    expect(num(c, 'r') * 2).toBeGreaterThan(12)
+    expect(num(svg(w), 'width')).toBeLessThanOrEqual(400)
+  })
+})
+
+describe('CalendarHeatmap: legend labels', () => {
+  const legend = (w: ReturnType<typeof m>) => slot(w, 'calendar-heatmap-legend-text').map((t) => t.text())
+  const widthOf = (w: ReturnType<typeof m>) => num(w.find('[data-slot="calendar-heatmap-svg"]'), 'width')
+
+  it('defaults to Less and More', () => {
+    expect(legend(m(base))).toEqual(['Less', 'More'])
+  })
+  it('legendLabels wins over the provider, the provider over English', () => {
+    expect(legend(m({ ...base, legendLabels: { less: 'Weniger', more: 'Mehr' } }))).toEqual(['Weniger', 'Mehr'])
+    const labels = { 'heatmap.less': 'Moins', 'heatmap.more': 'Plus' }
+    const provided = mount(ConfigProvider, { props: { labels }, slots: { default: () => h(CalendarHeatmap, { ...base }) } })
+    expect(legend(provided as never)).toEqual(['Moins', 'Plus'])
+    const mixed = mount(ConfigProvider, { props: { labels }, slots: { default: () => h(CalendarHeatmap, { ...base, legendLabels: { more: 'Davantage' } }) } })
+    expect(legend(mixed as never)).toEqual(['Moins', 'Davantage'])
+  })
+  it('blank legendLabels fall back to English', () => {
+    expect(legend(m({ ...base, legendLabels: { less: ' ', more: '' } }))).toEqual(['Less', 'More'])
+  })
+  it('measures the translated text: long labels widen the legend and move the More label', () => {
+    const short = m(base)
+    const long = m({ ...base, legendLabels: { less: 'Significativamente menos', more: 'Significativamente más' } })
+    expect(widthOf(long)).toBeGreaterThan(widthOf(short))
+    const moreX = (w: ReturnType<typeof m>) => num(slot(w, 'calendar-heatmap-legend-text')[1]!, 'x')
+    expect(moreX(long)).toBeGreaterThan(moreX(short))
   })
 })

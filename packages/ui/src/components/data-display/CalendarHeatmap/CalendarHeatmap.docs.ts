@@ -40,7 +40,9 @@ const doc: ComponentDoc = {
     { name: 'tone', type: TONE, default: "'chart-1'", description: 'Colour token of the intensity ramp.' },
     { name: 'min', type: 'number', description: 'Value where the ramp starts (default 0). Values below it are the faintest step.' },
     { name: 'max', type: 'number', description: 'Value of the strongest step (default: the largest value in the range). Set it to compare several calendars on one scale.' },
+    { name: 'fit', type: 'boolean', default: 'false', description: 'Stretch the grid to the width of the container instead of the fixed `size`. The cell side is the width left after the weekday labels divided by the weeks, kept between 8 and 40px, so a year fills a wide card. Month, weekday and legend text stay 12px and the legend keeps the `size` swatches. Under 8px a cell the grid scrolls in its region as before. `size` is the fallback until the container is measured.' },
     { name: 'showLegend', type: 'boolean', default: 'true', description: 'Less ... More legend with the no-activity cell and every step.' },
+    { name: 'legendLabels', type: '{ less?: string; more?: string }', description: 'Text of the legend ends, for translation. Wins over the `ConfigProvider` labels `heatmap.less` and `heatmap.more`; the English words "Less" and "More" are the default. The legend layout measures the translated text.' },
     { name: 'showMonthLabels', type: 'boolean', default: 'true', description: 'Month names above the weeks (the year at the first label and every January).' },
     { name: 'showWeekdayLabels', type: 'boolean', default: 'true', description: 'Mon, Wed and Fri beside the rows.' },
     { name: 'cellTitle', type: '(date: string, value: number | null) => string', description: 'Custom native tooltip per day. Receives the `YYYY-MM-DD` date and the summed value, or `null` for a day without data.' },
@@ -71,6 +73,13 @@ const doc: ComponentDoc = {
   tone="success"
   :data="year"
 />`,
+      state: () => ({ year: sampleDays(2025, 1, 1, 364) }),
+    },
+    {
+      title: 'Fit the container',
+      description: '`fit` grows the cells until the weeks fill the card; text stays 12px. `legendLabels` translates the legend. Sample data.',
+      script: `const year = Array.from({ length: 364 }, (_, i) => ({ date: new Date(Date.UTC(2025, 0, 1 + i)).toISOString().slice(0, 10), value: (i * 7 + Math.floor(i / 8) * 5) % 13 }))`,
+      code: `<CalendarHeatmap fit title="Deploys in 2025, full width" description="Sample data, one cell per day" :legend-labels="{ less: 'Fewer', more: 'More' }" :data="year" />`,
       state: () => ({ year: sampleDays(2025, 1, 1, 364) }),
     },
     {
@@ -189,6 +198,8 @@ const doc: ComponentDoc = {
     'Never compute `start` or `end` from the current date inside a server-rendered page without passing it in; the component itself never reads the clock.',
     'Use `max` to compare several calendars on one scale; use `levels` (3 to 7) for a coarser or finer ramp.',
     'Use `weekStart="mon"` for locales that start the week on Monday.',
+    'Use `fit` when the calendar sits in a wide card or a fluid layout; keep the fixed `size` for a compact widget.',
+    'Translate the legend with `legendLabels` or the `ConfigProvider` labels `heatmap.less` / `heatmap.more`.',
     'Do not use it for a rows-by-columns matrix of unrelated labels (use Heatmap).',
   ],
   replaces: ['GitHub-style contribution graph components', 'custom div-grid activity calendars'],

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { cn } from '../../../lib/cn'
 import { violation } from '../../../lib/contract'
 import { focusRing } from '../../../lib/styles'
@@ -8,6 +8,8 @@ import { formatNumber, isFiniteNumber, r2 } from '../_chart/chartMath'
 import { estimateTextWidth, oneOf, plural } from '../_chart/chartKit'
 import { toneClasses, type ChartTone } from '../_chart/tones'
 import { useChartContract } from '../_chart/chartContract'
+import { useMeasuredWidth } from '../_chart/useMeasuredWidth'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
 import ChartDataTable from '../_chart/ChartDataTable.vue'
 import { WEEKDAYS, formatDay, longDay, parseDay, weekdayRow, type WeekStart } from './calendarDates'
 import {
@@ -15,7 +17,7 @@ import {
   type CalendarEntry,
 } from './calendarMath'
 import {
-  CALENDAR_GAPS, CALENDAR_SHAPES, CALENDAR_SIZES, CELL_GAP, CELL_SIZE, calendarHeatmapVariants,
+  CALENDAR_FIT_MAX_CELL, CALENDAR_FIT_MIN_CELL, CALENDAR_GAPS, CALENDAR_SHAPES, CALENDAR_SIZES, CELL_GAP, CELL_SIZE, calendarHeatmapVariants,
   type CalendarHeatmapGap, type CalendarHeatmapShape, type CalendarHeatmapSize,
 } from './variants'
 
@@ -42,8 +44,12 @@ export interface CalendarHeatmapProps extends BaseProps {
   min?: number
   /** Value of the strongest step. Without it the largest value in the range. */
   max?: number
+  /** The grid stretches to the width of its container instead of the fixed `size`: cells grow (8 to 40px) so the weeks fill the row, while month, weekday and legend text stay 12px. Below 8px the grid scrolls. */
+  fit?: boolean
   /** Draw the Less ... More legend. */
   showLegend?: boolean
+  /** Text of the legend ends. Wins over the `ConfigProvider` labels `heatmap.less` and `heatmap.more`; the English words are the default. */
+  legendLabels?: { less?: string; more?: string }
   /** Draw month names above the weeks. */
   showMonthLabels?: boolean
   /** Draw Mon, Wed and Fri beside the rows. */
@@ -65,6 +71,7 @@ const props = withDefaults(defineProps<CalendarHeatmapProps>(), {
   size: 'md',
   shape: 'square',
   gap: 'md',
+  fit: false,
   levels: 5,
   tone: 'chart-1',
   showLegend: true,
@@ -115,10 +122,25 @@ const domain = computed(() => {
 const fmt = new Intl.NumberFormat('en', { maximumFractionDigits: 2 })
 const num = (n: number) => (isFiniteNumber(n) ? fmt.format(n === 0 ? 0 : n) : formatNumber(n))
 
+const scrollEl = ref<HTMLElement | null>(null)
+const measured = useMeasuredWidth(scrollEl)
+const labels = useConfigLabels('heatmap', { less: 'Less', more: 'More' })
+const legendText = computed(() => ({
+  less: props.legendLabels?.less?.trim() ? props.legendLabels.less : labels.value.less,
+  more: props.legendLabels?.more?.trim() ? props.legendLabels.more : labels.value.more,
+}))
+
 const base = computed(() => {
-  const cell = CELL_SIZE[sizeKey.value]
   const gap = CELL_GAP[gapKey.value]
-  return { cell, gap, step: cell + gap, left: props.showWeekdayLabels ? 30 : 0, top: props.showMonthLabels ? 18 : 0 }
+  const left = props.showWeekdayLabels ? 30 : 0
+  let cell = CELL_SIZE[sizeKey.value]
+  const columns = grid.value?.columns ?? 0
+  if (props.fit && measured.value > 0 && columns > 0) {
+    // 2px of room on the right matches the `W` margin below, so the SVG is never wider than its container.
+    const fitted = Math.floor(((measured.value - left - 2 + gap) / columns - gap) * 100) / 100
+    cell = Math.min(CALENDAR_FIT_MAX_CELL, Math.max(CALENDAR_FIT_MIN_CELL, fitted))
+  }
+  return { cell, gap, step: cell + gap, left, top: props.showMonthLabels ? 18 : 0 }
 })
 
 const monthTexts = computed(() => {
@@ -152,13 +174,16 @@ const layout = computed(() => {
   const gridW = columns * step - gap
   const gridH = 7 * step - gap
   const legendTop = top + gridH + 8
-  const legendH = Math.max(cell, FONT)
-  const lessW = estimateTextWidth('Less', FONT) + 6
-  const legendRight = left + lessW + (levels.value + 1) * step + estimateTextWidth('More', FONT) + 2
+  // The legend keeps the `size` cell in `fit` mode: stretched swatches would make it wider than the weeks.
+  const lcell = props.fit ? CELL_SIZE[sizeKey.value] : cell
+  const lstep = lcell + gap
+  const legendH = Math.max(lcell, FONT)
+  const lessW = estimateTextWidth(legendText.value.less, FONT) + 6
+  const legendRight = left + lessW + (levels.value + 1) * lstep + estimateTextWidth(legendText.value.more, FONT) + 2
   const monthRight = Math.max(0, ...monthTexts.value.map((m) => m.x + m.width))
   const W = Math.ceil(Math.max(left + gridW + 2, monthRight + 2, props.showLegend ? legendRight : 0))
   const H = Math.ceil(top + gridH + (props.showLegend ? 8 + legendH : 0) + 2)
-  return { cell, gap, step, left, top, gridW, gridH, legendTop, legendH, lessW, W, H }
+  return { cell, gap, step, left, top, gridW, gridH, legendTop, legendH, lessW, lcell, lstep, W, H }
 })
 
 const fills = computed(() => Array.from({ length: levels.value + 1 }, (_, i) => levelFill(toneKey.value, i, levels.value)))
@@ -190,8 +215,8 @@ const weekdayTexts = computed(() => {
 })
 
 const legendCells = computed(() => {
-  const { left, legendTop, lessW, step } = layout.value
-  return fills.value.map((cls, i) => ({ cls, x: left + lessW + i * step, y: legendTop, key: i }))
+  const { left, legendTop, lessW, lstep } = layout.value
+  return fills.value.map((cls, i) => ({ cls, x: left + lessW + i * lstep, y: legendTop, key: i }))
 })
 
 const months = computed(() => (grid.value ? monthTotals(grid.value.cells) : []))
@@ -224,17 +249,18 @@ const radius = computed(() => (sizeKey.value === 'sm' ? 1.5 : 2))
   >
     <span data-slot="calendar-heatmap-empty">{{ emptyText }}</span>
   </div>
-  <div v-else v-bind="rootAttrs" data-slot="calendar-heatmap" :data-shape="shapeKey" :data-gap="gapKey" :data-week-start="weekStart" :class="cn(rootClass, $props.class)">
+  <div v-else v-bind="rootAttrs" data-slot="calendar-heatmap" :data-shape="shapeKey" :data-gap="gapKey" :data-week-start="weekStart" :data-fit="fit ? '' : undefined" :class="cn(rootClass, $props.class)">
     <div v-if="title || description" data-slot="calendar-heatmap-header" class="flex min-w-0 flex-col gap-0.5">
       <p v-if="title" data-slot="calendar-heatmap-title" class="text-sm font-medium text-foreground">{{ title }}</p>
       <p v-if="description" data-slot="calendar-heatmap-description" class="text-xs text-muted-foreground">{{ description }}</p>
     </div>
     <div
+      ref="scrollEl"
       data-slot="calendar-heatmap-scroll"
       role="region"
       tabindex="0"
       :aria-label="name"
-      :class="cn('w-fit max-w-full min-w-0 overflow-x-auto focus-visible:ring-inset', focusRing)"
+      :class="cn(fit ? 'w-full' : 'w-fit', 'max-w-full min-w-0 overflow-x-auto focus-visible:ring-inset', focusRing)"
     >
       <svg
         data-slot="calendar-heatmap-svg"
@@ -259,12 +285,12 @@ const radius = computed(() => (sizeKey.value === 'sm' ? 1.5 : 2))
           </template>
         </g>
         <g v-if="showLegend" data-slot="calendar-heatmap-legend" stroke-width="1">
-          <text data-slot="calendar-heatmap-legend-text" :x="layout.left" :y="layout.legendTop + layout.legendH / 2" dominant-baseline="middle" class="fill-muted-foreground text-xs">Less</text>
+          <text data-slot="calendar-heatmap-legend-text" :x="layout.left" :y="layout.legendTop + layout.legendH / 2" dominant-baseline="middle" class="fill-muted-foreground text-xs">{{ legendText.less }}</text>
           <template v-for="c in legendCells" :key="c.key">
-            <circle v-if="shapeKey === 'circle'" data-slot="calendar-heatmap-legend-swatch" :cx="c.x + layout.cell / 2" :cy="c.y + layout.legendH / 2" :r="layout.cell / 2" :class="c.cls" />
-            <rect v-else data-slot="calendar-heatmap-legend-swatch" :x="c.x" :y="c.y + (layout.legendH - layout.cell) / 2" :width="layout.cell" :height="layout.cell" :rx="radius" :class="c.cls" />
+            <circle v-if="shapeKey === 'circle'" data-slot="calendar-heatmap-legend-swatch" :cx="c.x + layout.lcell / 2" :cy="c.y + layout.legendH / 2" :r="layout.lcell / 2" :class="c.cls" />
+            <rect v-else data-slot="calendar-heatmap-legend-swatch" :x="c.x" :y="c.y + (layout.legendH - layout.lcell) / 2" :width="layout.lcell" :height="layout.lcell" :rx="radius" :class="c.cls" />
           </template>
-          <text data-slot="calendar-heatmap-legend-text" :x="layout.left + layout.lessW + legendCells.length * layout.step + 2" :y="layout.legendTop + layout.legendH / 2" dominant-baseline="middle" class="fill-muted-foreground text-xs">More</text>
+          <text data-slot="calendar-heatmap-legend-text" :x="layout.left + layout.lessW + legendCells.length * layout.lstep + 2" :y="layout.legendTop + layout.legendH / 2" dominant-baseline="middle" class="fill-muted-foreground text-xs">{{ legendText.more }}</text>
         </g>
       </svg>
     </div>
