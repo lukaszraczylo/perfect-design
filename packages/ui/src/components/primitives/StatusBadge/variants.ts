@@ -29,6 +29,7 @@ export const statusBadgeVariants = cva('', {
       outline: '',
       solid: 'forced-colors:border-current',
       plain: 'border-0 px-0',
+      tinted: '',
     },
   },
   defaultVariants: { variant: 'soft' },
