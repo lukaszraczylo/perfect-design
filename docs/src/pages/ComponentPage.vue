@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { browserEnv, isChunkLoadError, reloadForNewBuild } from '../lib/stale-build'
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import type { ComponentDoc } from '@ui/docs-types'
@@ -30,8 +31,9 @@ watch(
     full.value = null
     try {
       full.value = await loadDoc(entry)
-    } catch {
-      failed.value = true
+    } catch (error) {
+      // A stale tab after a deploy: load the page from the new build once before showing the error.
+      if (!(isChunkLoadError(error) && reloadForNewBuild(route.fullPath, browserEnv()))) failed.value = true
     }
   },
   // Immediate: when the router guard could not preload the docs, load them here and show the error state on failure.
