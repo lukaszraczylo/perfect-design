@@ -8,7 +8,7 @@ const doc: ComponentDoc = {
   summary: 'Horizontal progress bar with determinate and indeterminate modes, tones, sizes, a pulse animation, inside/top labels and segments.',
   description:
     'Use `Progress` to show how far a known task has come (`modelValue` 0..`max`) or that something is working with no known end (omit `modelValue` or pass `null`). Values are clamped: NaN and negatives become 0, values above `max` become `max`, an invalid `max` falls back to 100. Unknown `size`/`tone`/`valuePosition` values fall back to the defaults.\n\n' +
-    'Variations: **size** `xs` (2px) to `xl` (20px); **tone** for meaning (primary, success, warning, danger, info, neutral); **animated** pulses the filled bar (a busy but determinate task; static under prefers-reduced-motion). `striped` is deprecated and draws nothing, because stripes need a gradient and the design system uses none; **valuePosition** `end` (percentage beside the bar, default), `inside` (percentage inside the filled bar, needs size `lg`/`xl`, clipped when the value is very small) or `top` (header row with the visible `label` on the left and the percentage on the right); **segments** splits the bar into N steps for wizards, password strength or quotas (each segment fills proportionally). For a circular meter use `ProgressRing`; for tiny inline waits use `Spinner`.',
+    'Variations: **size** `xs` (2px) to `xl` (20px); **tone** for meaning (primary, success, warning, danger, info, neutral); **animated** pulses the filled bar (a busy but determinate task; static under prefers-reduced-motion). **variant** picks the indeterminate look: `slide` or `sweep` (two-phase: grows, travels, shrinks). A moving stripe look is not offered because stripes need a gradient. `striped` is deprecated and draws nothing, because stripes need a gradient and the design system uses none; **valuePosition** `end` (percentage beside the bar, default), `inside` (percentage inside the filled bar, needs size `lg`/`xl`, clipped when the value is very small) or `top` (header row with the visible `label` on the left and the percentage on the right); **segments** splits the bar into N steps for wizards, password strength or quotas (each segment fills proportionally). For a circular meter use `ProgressRing`; for tiny inline waits use `Spinner`.',
   status: 'stable',
   props: [
     { name: 'modelValue', type: 'number | null', description: 'Current value. null/undefined renders the indeterminate animation.' },
@@ -18,8 +18,9 @@ const doc: ComponentDoc = {
     { name: 'label', type: 'string', description: 'Accessible name (aria-label). Required unless `aria-label` or `aria-labelledby` is set. Also rendered as visible text when `valuePosition="top"`.' },
     { name: 'showValue', type: 'boolean', default: 'false', description: 'Show the rounded percentage as text (determinate only). Placement set by `valuePosition`.' },
     { name: 'valuePosition', type: "'end' | 'inside' | 'top'", default: "'end'", description: 'end = beside the bar; inside = in the filled bar (use size lg/xl; segmented bars fall back to end); top = header row above the bar with label + percentage.' },
-    { name: 'striped', type: 'boolean', default: 'false', description: 'Diagonal stripes on the filled bar (static).' },
-    { name: 'animated', type: 'boolean', default: 'false', description: 'Moving stripes; implies `striped`. Static under prefers-reduced-motion and ignored while indeterminate.' },
+    { name: 'variant', type: "'slide' | 'sweep'", default: "'slide'", description: 'Indeterminate look: slide = the bar travels across the track; sweep = the bar grows, travels and shrinks. Static half-opacity full bar under prefers-reduced-motion. No effect when determinate or segmented. Unknown values fall back to slide.' },
+    { name: 'striped', type: 'boolean', default: 'false', description: 'Deprecated, no visual effect (stripes need a gradient).' },
+    { name: 'animated', type: 'boolean', default: 'false', description: 'Pulses the filled bar; implies nothing else. Static under prefers-reduced-motion and ignored while indeterminate.' },
     { name: 'segments', type: 'number', default: '0', description: 'Split the bar into N segments (2..50, floored). Values below 2 or non-finite render a normal bar. Each segment fills proportionally to the value.' },
     { name: 'as', type: 'string | Component', description: 'Root element (default div).' },
     { name: 'class', type: 'string | object | array', description: 'Merged last onto the root wrapper (set width here, e.g. `w-64`).' },
@@ -45,6 +46,15 @@ const doc: ComponentDoc = {
   </div>
 </div>`,
       state: () => ({ value: ref(30) }),
+    },
+    {
+      title: 'Indeterminate looks',
+      description: 'slide (default) and sweep. Both stop moving under prefers-reduced-motion.',
+      code: `<div class="w-full max-w-72 space-y-3">
+  <Progress label="Sample slide" />
+  <Progress variant="sweep" label="Sample sweep" />
+  <Progress variant="sweep" tone="success" size="lg" label="Sample large sweep" />
+</div>`,
     },
     {
       title: 'Sizes',

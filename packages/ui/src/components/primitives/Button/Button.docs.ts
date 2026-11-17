@@ -21,6 +21,7 @@ const doc: ComponentDoc = {
     { name: 'asChild', type: 'boolean', default: 'false', description: 'Render the single slot child instead of a wrapper (reka-ui).' },
     { name: 'type', type: "'button' | 'submit' | 'reset'", default: "'button'", description: 'Native button type. Defaults to button so it never submits forms by accident.' },
     { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables interaction.' },
+    { name: 'loadingIndicator', type: "'ring' | 'dots' | 'bars' | 'pulse' | 'orbit'", default: "'ring'", description: 'Spinner shape shown while `loading` (see `Spinner` `variant`). The spinner stays decorative; the label stays the accessible name. Unknown values fall back to `ring`.' },
     { name: 'loading', type: 'boolean', default: 'false', description: 'Shows a decorative spinner, sets aria-busy, blocks clicks, keeps width. The label stays in the accessible name.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],
@@ -95,6 +96,15 @@ const doc: ComponentDoc = {
   </Button>
 </div>`,
       state: () => ({ faPlus, faArrowRight, faDownload }),
+    },
+    {
+      title: 'Loading indicator',
+      description: '`loadingIndicator` changes only the spinner shape.',
+      code: `<div class="flex flex-wrap gap-2">
+  <Button loading loading-indicator="dots">Saving</Button>
+  <Button loading loading-indicator="bars" variant="outline">Exporting</Button>
+  <Button loading loading-indicator="orbit" variant="secondary">Syncing</Button>
+</div>`,
     },
     {
       title: 'Loading',

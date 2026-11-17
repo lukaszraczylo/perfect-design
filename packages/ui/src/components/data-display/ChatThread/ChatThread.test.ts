@@ -370,9 +370,35 @@ describe('ChatThread', () => {
       const ind = w.find('[data-slot="chat-thread-typing"]')
       expect(ind.text()).toBe('Replying')
       expect(logOf(w).attributes('aria-busy')).toBe('true')
-      const dot = ind.find('span[aria-hidden="true"]')
-      expect(dot.classes()).toContain('motion-safe:animate-pulse')
-      expect(dot.classes()).not.toContain('animate-pulse')
+      const indicator = ind.find('[data-slot="typing-indicator"]')
+      expect(indicator.exists()).toBe(true)
+      expect(indicator.attributes('role')).toBeUndefined()
+      expect(indicator.find('[data-slot="typing-indicator-dot"]').classes()).toContain('motion-reduce:animate-none')
+    })
+
+    it('a string names who is typing, announced once, and is the last row', async () => {
+      const w = mk({ typing: 'Mira', messages: msgs(2) }, { message: messageSlot })
+      const ind = w.find('[data-slot="chat-thread-typing"]')
+      expect(ind.text()).toBe('Mira is typing')
+      expect(logOf(w).attributes('aria-busy')).toBe('true')
+      expect(w.findAll('[data-slot="chat-thread-content"] > *').at(-1)?.attributes('data-slot')).toBe('chat-thread-typing')
+      await w.setProps({ typing: false })
+      expect(w.find('[data-slot="chat-thread-typing"]').exists()).toBe(false)
+    })
+
+    it('a blank string shows nothing and typingBy translates the name', () => {
+      expect(mk({ typing: '  ' }).find('[data-slot="chat-thread-typing"]').exists()).toBe(false)
+      expect(mk({ typing: 'Mira', labels: { typingBy: (n: string) => `${n} schreibt` } }).find('[data-slot="chat-thread-typing"]').text()).toBe('Mira schreibt')
+    })
+
+    it('announces the named typing label through the thread status region', async () => {
+      vi.useFakeTimers()
+      const w = mk()
+      await w.setProps({ typing: 'Mira' })
+      vi.advanceTimersByTime(1000)
+      await nextTick()
+      expect(status(w).text()).toBe('Mira is typing')
+      w.unmount()
     })
 
     it('is absent when off and replaceable by the typing slot and labels', () => {

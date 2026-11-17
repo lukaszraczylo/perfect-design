@@ -46,3 +46,15 @@ export function skeletonVariants(props: SkeletonVariantProps = {}): string {
 export const skeletonLinesVariants = cva('flex w-full flex-col gap-2')
 
 export type SkeletonVariants = VariantProps<typeof skeletonVariants>
+
+/** Avatar placeholder sizes (the base `avatar` shape is size-10). */
+export const skeletonAvatarVariants = cva('', {
+  variants: {
+    size: { sm: 'size-8', md: 'size-10', lg: 'size-12', xl: 'size-16' },
+    shape: { circle: 'rounded-full', square: 'rounded-md' },
+  },
+  defaultVariants: { size: 'md', shape: 'circle' },
+})
+
+export type SkeletonAvatarSize = NonNullable<NonNullable<Parameters<typeof skeletonAvatarVariants>[0]>['size']>
+export type SkeletonAvatarShape = NonNullable<NonNullable<Parameters<typeof skeletonAvatarVariants>[0]>['shape']>

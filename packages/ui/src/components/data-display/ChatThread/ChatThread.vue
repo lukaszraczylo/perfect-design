@@ -7,6 +7,7 @@ import { faArrowDown } from '../../../lib/icons'
 import type { BaseProps } from '../../../lib/types'
 import Button from '../../primitives/Button/Button.vue'
 import Icon from '../../primitives/Icon/Icon.vue'
+import TypingIndicator from '../../feedback/TypingIndicator/TypingIndicator.vue'
 import { useMountedCheck, hasAriaName, hasText } from '../_shared/contract'
 import { dayKey, formatDay, toDate, type ChatDateInput } from '../ChatMessage/date'
 import { CHAT_THREAD_DENSITIES, chatThreadContentVariants, chatThreadLogClasses, chatThreadVariants, type ChatThreadDensity } from './variants'
@@ -22,6 +23,8 @@ export interface ChatThreadLabels {
   loadingOlder: string
   /** Typing indicator text. Also announced once when it appears. */
   typing: string
+  /** Typing indicator text when `typing` names who is writing. Receives that name. */
+  typingBy: (name: string) => string
   /** Empty state text. */
   empty: string
   /** Summary announced when messages arrive. */
@@ -39,8 +42,8 @@ export interface ChatThreadProps<T> extends BaseProps {
   label?: string
   /** Stick to the bottom while the reader is at the bottom; scrolling up stops it and shows the jump button. Turn off for a plain scrolling list. */
   follow?: boolean
-  /** Show the typing or streaming indicator at the end. Announced politely once when it appears. */
-  typing?: boolean
+  /** Show the typing or streaming indicator at the end. A string names who is typing ("Mira" reads "Mira is typing"). Announced politely once when it appears. */
+  typing?: boolean | string
   /** Spacing: `compact`, `default` or `relaxed`. Unknown values fall back to `default`. */
   density?: ChatThreadDensity
   /** More history exists: shows the load-older control at the top. */
@@ -108,10 +111,14 @@ const DEFAULT_LABELS: ChatThreadLabels = {
   loadOlder: 'Load older messages',
   loadingOlder: 'Loading older messages',
   typing: 'Replying',
+  typingBy: (name) => `${name} is typing`,
   empty: 'No messages yet',
   newMessages: (n) => (n === 1 ? '1 new message' : `${n} new messages`),
 }
 const text = computed<ChatThreadLabels>(() => ({ ...DEFAULT_LABELS, ...(props.labels ?? {}) }))
+const typingName = computed(() => (typeof props.typing === 'string' ? props.typing.trim() : ''))
+const isTyping = computed(() => props.typing === true || typingName.value !== '')
+const typingLabel = computed(() => (typingName.value ? text.value.typingBy(typingName.value) : text.value.typing))
 
 const slots = useSlots()
 const attrs = useAttrs()
@@ -273,14 +280,14 @@ onUpdated(() => {
 /* ------------------------------------------------------------------ announcements */
 
 const announced = ref('')
-let pending: { added: number; typing: boolean; text: string } = { added: 0, typing: false, text: '' }
+let pending: { added: number; typing: string; text: string } = { added: 0, typing: '', text: '' }
 let announceTimer: ReturnType<typeof setTimeout> | undefined
 let clearTimer: ReturnType<typeof setTimeout> | undefined
 
 function flushAnnouncement() {
   announceTimer = undefined
-  const message = pending.text || (pending.added > 0 ? text.value.newMessages(pending.added) : pending.typing ? text.value.typing : '')
-  pending = { added: 0, typing: false, text: '' }
+  const message = pending.text || (pending.added > 0 ? text.value.newMessages(pending.added) : pending.typing)
+  pending = { added: 0, typing: '', text: '' }
   if (!message) return
   announced.value = message
   clearTimeout(clearTimer)
@@ -304,9 +311,9 @@ watch(
     scheduleAnnouncement()
   },
 )
-watch(() => props.typing, (on) => {
-  if (!on) return
-  pending.typing = true
+watch(() => (isTyping.value ? typingLabel.value : ''), (label) => {
+  if (!label) return
+  pending.typing = label
   scheduleAnnouncement()
 })
 watch(() => props.announcement, (value) => {
@@ -357,7 +364,7 @@ const contentClasses = computed(() => chatThreadContentVariants({ density: densi
       aria-live="off"
       tabindex="0"
       :aria-label="logLabel"
-      :aria-busy="typing ? 'true' : undefined"
+      :aria-busy="isTyping ? 'true' : undefined"
       :class="chatThreadLogClasses"
       @scroll.passive="onScroll"
       @keydown="onKeydown"
@@ -388,10 +395,10 @@ const contentClasses = computed(() => chatThreadContentVariants({ density: densi
           <slot name="empty">{{ text.empty }}</slot>
         </div>
 
-        <div v-if="typing" data-slot="chat-thread-typing" class="flex items-center gap-2 text-sm text-muted-foreground">
+        <div v-if="isTyping" data-slot="chat-thread-typing" class="flex items-center gap-2 text-sm text-muted-foreground">
           <slot name="typing">
-            <span aria-hidden="true" class="size-2 shrink-0 rounded-full bg-current motion-safe:animate-pulse" />
-            <span>{{ text.typing }}</span>
+            <TypingIndicator decorative variant="plain" size="sm" :label="typingLabel" />
+            <span>{{ typingLabel }}</span>
           </slot>
         </div>
       </div>

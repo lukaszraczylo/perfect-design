@@ -67,3 +67,12 @@ export type ProgressIndicatorVariants = VariantProps<typeof progressIndicatorVar
 export type ProgressTone = NonNullable<ProgressIndicatorVariants['tone']>
 /** Where the percentage goes: `end` = beside the bar, `inside` = inside the filled bar, `top` = header row above the bar. */
 export type ProgressValuePosition = 'end' | 'inside' | 'top'
+
+/** Indeterminate look: `slide` is the original bar that travels across the track; `sweep` grows, travels and shrinks (left/width keyframes). */
+export type ProgressVariant = 'slide' | 'sweep'
+
+/** Indeterminate indicator classes per look. Reduced motion gives a static half-opacity full bar for both. */
+export const PROGRESS_INDETERMINATE: Record<ProgressVariant, string> = {
+  slide: 'w-2/5 animate-ds-indeterminate motion-reduce:w-full motion-reduce:animate-none motion-reduce:opacity-50',
+  sweep: 'absolute inset-y-0 animate-ds-sweep motion-reduce:start-0 motion-reduce:w-full motion-reduce:animate-none motion-reduce:opacity-50',
+}

@@ -137,7 +137,7 @@ describe('Button', () => {
       default: 'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90',
       secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
       outline:
-        'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
+        'border bg-background text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
       ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
       link: 'text-primary underline-offset-4 hover:underline',
       destructive: 'bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/30',
@@ -315,6 +315,26 @@ describe('Button', () => {
         for (const rounded of ['default', 'full', 'none'] as const)
           for (const block of [true, false])
             expect(mount(Button, { props: { variant, rounded, block } }).exists()).toBe(true)
+    })
+  })
+
+  describe('loadingIndicator', () => {
+    it.each(['ring', 'dots', 'bars', 'pulse', 'orbit'] as const)('%s shows that spinner variant, decorative, keeping aria-busy and the label', (loadingIndicator) => {
+      const w = mount(Button, { props: { loading: true, loadingIndicator }, slots: { default: 'Save' } })
+      const sp = w.find('[data-slot="spinner"]')
+      expect(sp.attributes('data-variant')).toBe(loadingIndicator === 'ring' ? undefined : loadingIndicator)
+      expect(sp.attributes('aria-hidden')).toBe('true')
+      expect(sp.attributes('role')).toBeUndefined()
+      expect(w.attributes('aria-busy')).toBe('true')
+      expect(w.text()).toContain('Save')
+    })
+    it('defaults to ring and falls back to ring when unknown', () => {
+      expect(mount(Button, { props: { loading: true } }).find('[data-slot="spinner"]').classes()).toContain('animate-spin')
+      // @ts-expect-error deliberately invalid
+      expect(mount(Button, { props: { loading: true, loadingIndicator: 'x' } }).find('[data-slot="spinner"]').classes()).toContain('animate-spin')
+    })
+    it('draws no spinner when not loading', () => {
+      expect(mount(Button, { props: { loadingIndicator: 'dots' } }).find('[data-slot="spinner"]').exists()).toBe(false)
     })
   })
 })

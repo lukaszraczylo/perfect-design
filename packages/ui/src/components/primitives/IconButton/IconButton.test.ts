@@ -127,4 +127,14 @@ describe('IconButton', () => {
       expect(w.attributes('title')).toBe('b')
     })
   })
+
+  describe('loadingIndicator', () => {
+    it.each(['ring', 'dots', 'bars', 'pulse', 'orbit'] as const)('%s replaces the icon and keeps the label as the accessible name', (loadingIndicator) => {
+      const w = mount(IconButton, { props: { label: 'Save', icon: faPlus, loading: true, loadingIndicator } })
+      expect(w.find('[data-slot="spinner"]').attributes('data-variant')).toBe(loadingIndicator === 'ring' ? undefined : loadingIndicator)
+      expect(w.find('[data-slot="icon"]').exists()).toBe(false)
+      expect(w.attributes('aria-label')).toBe('Save')
+      expect(w.attributes('aria-busy')).toBe('true')
+    })
+  })
 })

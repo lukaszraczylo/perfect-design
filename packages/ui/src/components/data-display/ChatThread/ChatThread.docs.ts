@@ -38,7 +38,7 @@ const doc: ComponentDoc = {
     { name: 'itemDate', type: 'string | ((item: T, index: number) => string | number | Date)', description: 'When a message was sent, for day separators (property name or function). Items without a valid date join the day before them. Without it there are no separators.' },
     { name: 'label', type: 'string', description: 'Accessible name of the log. Required: set `label`, `aria-label` or `aria-labelledby`.' },
     { name: 'follow', type: 'boolean', default: 'true', description: 'Stay at the bottom while the reader is at the bottom; scrolling up stops it and shows the jump button. Off makes a plain scrolling list with no button.' },
-    { name: 'typing', type: 'boolean', default: 'false', description: 'Show the typing or streaming indicator (text plus a dot that pulses only without reduced motion). Sets `aria-busy` and announces once when it appears.' },
+    { name: 'typing', type: 'boolean | string', default: 'false', description: 'Show the typing or streaming indicator at the end (a `TypingIndicator` plus its text). A string names who is typing ("Mira" reads "Mira is typing"). Sets `aria-busy` and announces once when it appears.' },
     { name: 'density', type: "'compact' | 'default' | 'relaxed'", default: "'default'", description: 'Spacing between messages and around the thread. Unknown values fall back to `default`.' },
     { name: 'canLoadOlder', type: 'boolean', default: 'false', description: 'More history exists: shows the load-older control above the first message.' },
     { name: 'loadingOlder', type: 'boolean', default: 'false', description: 'A load is running: disables the control and blocks repeated requests.' },
@@ -47,7 +47,7 @@ const doc: ComponentDoc = {
     { name: 'timeZone', type: 'string', description: 'IANA time zone that decides which day a message belongs to (Falls back to `ConfigProvider`, then `UTC` (not the runtime zone).).' },
     { name: 'now', type: 'string | number | Date', description: 'The current time, for "Today" and "Yesterday". Defaults to the clock after mount (so a server render prints plain dates); pass it for tests or server rendering.' },
     { name: 'announcement', type: 'string', description: 'Text to announce politely (collected for one second) instead of the automatic "N new messages". Use it with the default slot, which cannot be counted.' },
-    { name: 'labels', type: 'Partial<ChatThreadLabels>', description: 'Replace any built-in text: `jump`, `unread(count)`, `loadOlder`, `loadingOlder`, `typing`, `empty`, `newMessages(count)`. Use it to translate.' },
+    { name: 'labels', type: 'Partial<ChatThreadLabels>', description: 'Replace any built-in text: `jump`, `unread(count)`, `loadOlder`, `loadingOlder`, `typing`, `typingBy(name)`, `empty`, `newMessages(count)`. Use it to translate.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge on the root; wins over internal classes.' },
   ],
   slots: [
@@ -75,7 +75,7 @@ const doc: ComponentDoc = {
     {
       title: 'Messages as data with day separators',
       description: '`messages` plus the `message` slot. `item-date` groups by day in `time-zone`; "Today" and "Yesterday" follow `now`.',
-      code: `<ChatThread :messages="messages" item-key="id" item-date="at" label="Export conversation" time-zone="UTC" locale="en" now="2026-03-02T12:00:00Z" class="h-72 rounded-md border">
+      code: `<ChatThread :messages="messages" item-key="id" item-date="at" label="Export conversation" time-zone="UTC" locale="en" now="2026-03-02T12:00:00Z" class="h-96 rounded-md border">
     ${messageTemplate}
 </ChatThread>`,
       script: `const messages = [
@@ -109,9 +109,16 @@ const add = () => { messages.value = [...messages.value, { id: messages.value.le
 </ChatThread>`,
     },
     {
+      title: 'Who is typing',
+      description: 'A string names the writer: the row and the polite announcement read "Mira is typing".',
+      code: `<ChatThread label="Support chat" typing="Mira" class="h-56 rounded-md border">
+  <ChatMessage role="user">Is the Orchard Mill export ready?</ChatMessage>
+</ChatThread>`,
+    },
+    {
       title: 'Load older messages',
       description: 'The button emits `load-older`. `loading-older` disables it until the page arrives; the reader keeps their place when messages are added above.',
-      code: `<ChatThread :messages="messages" item-key="id" label="History" can-load-older :loading-older="loading" class="h-64 rounded-md border" @load-older="older">
+      code: `<ChatThread :messages="messages" item-key="id" label="History" can-load-older :loading-older="loading" class="h-96 rounded-md border" @load-older="older">
     ${messageTemplate}
 </ChatThread>`,
       script: `const messages = ref(seed())
@@ -172,7 +179,7 @@ const older = () => { /* fetch, then prepend with new ids */ }`,
     'The log is one element with `role="log"`, `tabindex="0"` and a required accessible name, so keyboard users can scroll it: arrow keys, Page Up and Page Down scroll natively; Home and End jump to the first and last message (and End resumes following).',
     '`aria-live="off"` keeps screen readers from reading the log as it grows. One sibling `role="status"` region announces a short summary at most once per second ("2 new messages", the typing label, or `announcement`), is cleared after a few seconds, and never contains message text.',
     'The jump button is an ordinary focusable button after the log. Pressing it scrolls to the latest message, resumes following and returns focus to the log, so focus is never lost when the button disappears.',
-    'Day separators are text (`<time datetime>` with a localised label) between two rules drawn as borders, so they survive forced-colors mode. The typing indicator is text; its dot pulses only under `prefers-reduced-motion: no-preference` and only while the indicator is shown.',
+    'Day separators are text (`<time datetime>` with a localised label) between two rules drawn as borders, so they survive forced-colors mode. The typing indicator is text beside decorative `TypingIndicator` dots (hidden from assistive tech, so the thread status region is the only announcement); the dots stay still under `prefers-reduced-motion`.',
     'Scrolling is instant, with no smooth-scroll animation. The thread is `min-w-0` and wraps, so it reflows at 320px; spacing uses logical properties and mirrors in right-to-left.',
     'Message actions inside the log are ordinary buttons in the tab order; the log does not trap focus.',
   ],
@@ -188,6 +195,6 @@ const older = () => { /* fetch, then prepend with new ids */ }`,
     'Emit-driven history: set `can-load-older`, handle `load-older`, toggle `loading-older`, then prepend items with keys that are not reused.',
     'Pass `time-zone` and `now` when server rendering, so the first client render matches the server render.',
   ],
-  related: ['ChatMessage', 'Markdown', 'VirtualList', 'ScrollArea'],
+  related: ['TypingIndicator', 'ChatMessage', 'Markdown', 'VirtualList', 'ScrollArea'],
 }
 export default doc

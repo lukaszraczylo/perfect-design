@@ -143,10 +143,11 @@ describe('ChatMessage', () => {
       expect(mk({ status: 'sent', live: true }).find('[data-slot="chat-message-status"]').attributes('role')).toBe('status')
     })
 
-    it('streaming shows a pulse that only moves without reduced motion', () => {
-      const dot = mk({ status: 'streaming' }).find('[data-slot="chat-message-status"] span[aria-hidden="true"]')
-      expect(dot.classes()).toContain('motion-safe:animate-pulse')
-      expect(dot.classes()).not.toContain('animate-pulse')
+    it('streaming shows decorative typing dots that stay still under reduced motion', () => {
+      const ind = mk({ status: 'streaming' }).find('[data-slot="chat-message-status"] [data-slot="typing-indicator"]')
+      expect(ind.attributes('aria-hidden')).toBe('true')
+      expect(ind.attributes('role')).toBeUndefined()
+      expect(ind.find('[data-slot="typing-indicator-dot"]').classes()).toContain('motion-reduce:animate-none')
     })
   })
 

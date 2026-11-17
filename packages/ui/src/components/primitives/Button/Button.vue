@@ -7,6 +7,7 @@ import type { IconDefinition } from '../../../lib/icons-tools'
 import type { BaseProps } from '../../../lib/types'
 import Icon from '../Icon/Icon.vue'
 import Spinner from '../Spinner/Spinner.vue'
+import type { SpinnerVariant } from '../Spinner/variants'
 import { buttonVariants, type ButtonRounded, type ButtonSize, type ButtonVariant } from './variants'
 
 export interface ButtonProps extends BaseProps {
@@ -28,6 +29,8 @@ export interface ButtonProps extends BaseProps {
   disabled?: boolean
   /** Shows a spinner, sets aria-busy and blocks clicks while keeping layout stable. */
   loading?: boolean
+  /** Spinner shape shown while `loading`: `ring` (default), `dots`, `bars`, `pulse` or `orbit`. */
+  loadingIndicator?: SpinnerVariant
 }
 
 const props = withDefaults(defineProps<ButtonProps>(), {
@@ -36,6 +39,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   rounded: 'default',
   as: 'button',
   type: 'button',
+  loadingIndicator: 'ring',
 })
 
 const isNativeButton = computed(() => props.as === 'button')
@@ -89,7 +93,7 @@ function onClick(e: MouseEvent) {
   >
     <slot v-if="asChild" />
     <template v-else>
-      <Spinner v-if="loading" size="sm" decorative />
+      <Spinner v-if="loading" size="sm" :variant="loadingIndicator" decorative />
       <slot v-else-if="$slots['icon-start'] || iconStart" name="icon-start"><Icon v-if="iconStart" :icon="iconStart" /></slot>
       <slot />
       <slot v-if="$slots['icon-end'] || iconEnd" name="icon-end"><Icon v-if="iconEnd" :icon="iconEnd" /></slot>

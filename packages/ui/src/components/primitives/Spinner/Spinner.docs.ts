@@ -12,6 +12,7 @@ const doc: ComponentDoc = {
     { name: 'label', type: 'string', default: "'Loading'", description: 'Accessible name of the spinner. Ignored when `decorative`.' },
     { name: 'decorative', type: 'boolean', default: 'false', description: 'Hide the spinner from assistive tech (`aria-hidden`, no role). Use it when a parent already announces the busy state.' },
     { name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'", description: 'Diameter: 12, 16, 20, 24 or 32px. Unknown values fall back to md.' },
+    { name: 'variant', type: "'ring' | 'dots' | 'bars' | 'pulse' | 'orbit'", default: "'ring'", description: 'Animation shape. `ring` is a rotating arc, `dots` three dots fading in turn, `bars` an equaliser of four bars, `pulse` a solid dot with an expanding ring, `orbit` two arcs turning in opposite directions. Unknown values fall back to `ring`. Non-default values add `data-variant`. The names are exported as `SPINNER_VARIANTS`.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes. The spinner uses `currentColor`.' },
   ],
   examples: [
@@ -34,14 +35,35 @@ const doc: ComponentDoc = {
   <span role="status" class="inline-flex items-center gap-2 text-muted-foreground"><Spinner decorative size="sm" /> Syncing the sample catalogue</span>
 </div>`,
     },
+    {
+      title: 'Variants',
+      description: 'The same semantics and sizes for every shape. Pick one per product and use it everywhere.',
+      code: `<div class="flex items-center gap-6 text-primary">
+  <Spinner variant="ring" size="lg" label="Loading ring" />
+  <Spinner variant="dots" size="lg" label="Loading dots" />
+  <Spinner variant="bars" size="lg" label="Loading bars" />
+  <Spinner variant="pulse" size="lg" label="Loading pulse" />
+  <Spinner variant="orbit" size="lg" label="Loading orbit" />
+</div>`,
+    },
+    {
+      title: 'Inline next to text',
+      description: 'A decorative variant beside text inside a status region that announces the wait.',
+      code: `<div class="flex flex-col gap-2 text-sm text-muted-foreground">
+  <p role="status" class="inline-flex items-center gap-2"><Spinner variant="dots" decorative size="sm" /> Fetching the sample report</p>
+  <p role="status" class="inline-flex items-center gap-2"><Spinner variant="bars" decorative size="sm" /> Transcribing the sample recording</p>
+</div>`,
+    },
   ],
   a11y: [
     'Not decorative: `role="progressbar"` with `aria-label` from `label`. Give it a label that says what is loading, not just "Loading".',
     'Decorative: `aria-hidden="true"` and no role. The parent must announce the busy state, for example with `role="status"` text.',
-    'Rotation slows to a pulse under `prefers-reduced-motion`.',
+    'Every variant keeps the same role, label and `decorative` behaviour.',
+    'Under `prefers-reduced-motion` no variant moves: the ring, dots, bars and orbit fade gently, and `pulse` shows a static dot with a faint ring.',
   ],
   related: ['ProgressRing', 'LoadingState', 'Button', 'Skeleton'],
   llmNotes: [
+    'Choose `variant` for the look only (`ring`, `dots`, `bars`, `pulse`, `orbit`); semantics and sizes do not change.',
     'Pass `decorative` when the spinner sits inside a button or a status region that already announces the wait.',
     'Give a specific `label` when the spinner stands alone.',
     'Use `ProgressRing` or `Progress` when the amount done is known.',

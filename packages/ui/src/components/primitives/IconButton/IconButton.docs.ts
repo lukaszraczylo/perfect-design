@@ -20,6 +20,7 @@ const doc: ComponentDoc = {
     { name: 'as', type: 'string | Component', default: "'button'", description: 'Element to render.' },
     { name: 'type', type: "'button' | 'submit' | 'reset'", default: "'button'", description: 'Native button type.' },
     { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables interaction.' },
+    { name: 'loadingIndicator', type: "'ring' | 'dots' | 'bars' | 'pulse' | 'orbit'", default: "'ring'", description: 'Spinner shape shown while `loading` (see `Spinner` `variant`). Unknown values fall back to `ring`.' },
     { name: 'loading', type: 'boolean', default: 'false', description: 'Replaces the icon with a spinner, sets aria-busy, blocks clicks.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],
@@ -35,6 +36,14 @@ const doc: ComponentDoc = {
   <IconButton label="Unavailable" :icon="faGear" disabled />
 </div>`,
       state: () => ({ faPlus, faGear, faTrash }),
+    },
+    {
+      title: 'Loading indicator',
+      code: `<div class="flex gap-2">
+  <IconButton label="Save" :icon="faPlus" variant="outline" loading loading-indicator="dots" />
+  <IconButton label="Refresh" :icon="faPlus" variant="outline" loading loading-indicator="orbit" />
+</div>`,
+      state: () => ({ faPlus }),
     },
     {
       title: 'Loading',

@@ -6,7 +6,7 @@ const loadingStateRoot = cva('flex w-full', {
     variant: {
       spinner: 'flex-col items-center justify-center gap-3 text-sm text-muted-foreground',
       text: 'flex-col gap-2.5',
-      card: 'flex-col gap-4 rounded-lg border bg-card p-4',
+      card: 'flex-col gap-4 rounded-lg border bg-card p-4 text-card-foreground',
       table: 'flex-col gap-3',
       list: 'flex-col gap-3',
       'avatar-text': 'flex-col gap-4',

@@ -7,6 +7,7 @@ import type { BaseProps } from '../../../lib/types'
 import Button from '../Button/Button.vue'
 import Icon from '../Icon/Icon.vue'
 import type { ButtonVariant } from '../Button/variants'
+import type { SpinnerVariant } from '../Spinner/variants'
 import { cn } from '../../../lib/cn'
 import {
   ICON_BUTTON_SHAPES,
@@ -33,9 +34,11 @@ export interface IconButtonProps extends BaseProps {
   disabled?: boolean
   /** Replaces the icon with a spinner, sets aria-busy and blocks clicks. */
   loading?: boolean
+  /** Spinner shape shown while `loading`: `ring` (default), `dots`, `bars`, `pulse` or `orbit`. */
+  loadingIndicator?: SpinnerVariant
 }
 
-const props = withDefaults(defineProps<IconButtonProps>(), { variant: 'ghost', size: 'icon', shape: 'rounded', as: 'button', type: 'button' })
+const props = withDefaults(defineProps<IconButtonProps>(), { variant: 'ghost', size: 'icon', shape: 'rounded', as: 'button', type: 'button', loadingIndicator: 'ring' })
 
 const slots = useSlots()
 
@@ -63,6 +66,7 @@ const classes = computed(() => cn(iconButtonExtra({ size: size.value }), props.c
     :type="type"
     :disabled="disabled"
     :loading="loading"
+    :loading-indicator="loadingIndicator"
     :aria-label="label"
     :title="label"
     :class="classes"

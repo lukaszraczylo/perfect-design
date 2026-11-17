@@ -48,7 +48,7 @@ export const chatMessageBodyVariants = cva('min-w-0 max-w-full break-words text-
   compoundVariants: [
     { variant: 'bubble', role: 'user', class: 'bg-secondary text-secondary-foreground' },
     { variant: 'bubble', role: 'assistant', class: 'bg-muted text-foreground' },
-    { variant: 'bubble', role: 'system', class: 'border-dashed border-border bg-background' },
+    { variant: 'bubble', role: 'system', class: 'border-dashed border-border bg-background text-foreground' },
     { variant: 'bubble', role: 'tool', class: 'border-border bg-card text-card-foreground' },
     { variant: 'plain', role: 'user', class: 'text-foreground' },
     { variant: 'plain', role: 'assistant', class: 'text-foreground' },

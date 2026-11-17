@@ -14,6 +14,7 @@ const doc: ComponentDoc = {
     { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Scale of the `spinner` variant: spinner, label and padding. Skeleton variants ignore it. Unknown values fall back to `md`. Non-default values add `data-size`.' },
     { name: 'layout', type: "'stacked' | 'inline'", default: "'stacked'", description: '`inline` puts the spinner and the label in one start-aligned row (buttons-adjacent status, table footers, toolbars). Spinner variant only. Unknown values fall back to `stacked`. Non-default values add `data-layout`.' },
     { name: 'shape', type: "'rounded' | 'square' | 'pill'", default: "'rounded'", description: 'Corner shape of the skeleton placeholders: small radius, none, or fully rounded. Match the shape of the content that will replace them. The spinner variant ignores it. Unknown values fall back to `rounded`. Non-default values add `data-shape`.' },
+    { name: 'indicator', type: "'ring' | 'dots' | 'bars' | 'pulse' | 'orbit'", default: "'ring'", description: 'Spinner shape of the `spinner` variant (see `Spinner` `variant`). Skeleton variants ignore it. Unknown values fall back to `ring`.' },
     { name: 'fullPage', type: 'boolean', default: 'false', description: 'Fill the viewport height and centre the content.' },
     { name: 'rows', type: 'number', default: '3', description: 'Skeleton text lines, table body rows, list rows, avatar rows or form fields, clamped to 1-50.' },
     { name: 'columns', type: 'number', default: '4', description: 'Skeleton table columns, or the number of `kpi-grid` tiles, clamped to 1-12.' },
@@ -28,6 +29,15 @@ const doc: ComponentDoc = {
   <LoadingState variant="text" :rows="4" label="Loading article" />
   <LoadingState variant="card" :rows="2" label="Loading card" />
   <LoadingState variant="table" :rows="4" :columns="3" label="Loading table" />
+</div>`,
+    },
+    {
+      title: 'Indicator shapes',
+      description: '`indicator` picks the spinner shape; the label and role stay the same.',
+      code: `<div class="grid gap-2">
+  <LoadingState layout="inline" size="sm" indicator="dots" label="Loading comments" />
+  <LoadingState layout="inline" size="sm" indicator="bars" label="Loading charts" />
+  <LoadingState layout="inline" size="sm" indicator="orbit" label="Loading files" />
 </div>`,
     },
     {

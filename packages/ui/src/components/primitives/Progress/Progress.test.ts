@@ -436,3 +436,44 @@ describe('Progress forced-colors fallback', () => {
     expect(progressIndicatorVariants()).toContain('forced-colors:border-2')
   })
 })
+
+describe('Progress indeterminate variant', () => {
+  it('slide is the default and keeps its classes', () => {
+    const w = mount(Progress, { props: { label: 'x' } })
+    expect(indicator(w).classes()).toContain('animate-ds-indeterminate')
+    expect(indicator(w).classes()).not.toContain('animate-ds-sweep')
+    expect(w.find('[data-slot="progress-track"]').attributes('data-variant')).toBeUndefined()
+  })
+
+  it('sweep uses the sweep animation on an absolutely positioned bar', () => {
+    const w = mount(Progress, { props: { label: 'x', variant: 'sweep' } })
+    expect(indicator(w).classes()).toEqual(expect.arrayContaining(['animate-ds-sweep', 'absolute', 'motion-reduce:animate-none', 'motion-reduce:w-full']))
+    expect(indicator(w).classes()).not.toContain('animate-ds-indeterminate')
+    expect(w.find('[data-slot="progress-track"]').attributes('data-variant')).toBe('sweep')
+    expect(w.attributes('data-state')).toBe('indeterminate')
+  })
+
+  it('unknown variant falls back to slide', () => {
+    const w = mount(Progress, { props: { label: 'x', variant: 'zigzag' as never } })
+    expect(indicator(w).classes()).toContain('animate-ds-indeterminate')
+  })
+
+  it('has no effect when determinate', () => {
+    const w = mount(Progress, { props: { label: 'x', variant: 'sweep', modelValue: 30 } })
+    expect(indicator(w).classes()).not.toContain('animate-ds-sweep')
+    expect(w.find('[data-slot="progress-track"]').attributes('data-variant')).toBeUndefined()
+    expect(indicator(w).attributes('style')).toContain('width: 30%')
+  })
+
+  it('has no effect on segmented bars', () => {
+    const w = mount(Progress, { props: { label: 'x', variant: 'sweep', segments: 3 } })
+    expect(w.find('[data-slot="progress-indicator"]').exists()).toBe(false)
+    expect(w.find('[data-slot="progress-track"]').attributes('data-variant')).toBeUndefined()
+  })
+
+  it('combines with tone and size', () => {
+    const w = mount(Progress, { props: { label: 'x', variant: 'sweep', tone: 'success', size: 'lg' } })
+    expect(indicator(w).classes()).toEqual(expect.arrayContaining(['bg-success', 'animate-ds-sweep']))
+    expect(w.find('[data-slot="progress-track"]').classes()).toContain('h-3')
+  })
+})

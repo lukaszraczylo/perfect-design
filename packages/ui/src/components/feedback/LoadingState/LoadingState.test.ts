@@ -181,4 +181,23 @@ describe('clampCount', () => {
       expect(clampCount(7, 3, 5)).toBe(5)
     })
   })
+
+  describe('indicator', () => {
+    it('defaults to the ring spinner', () => {
+      const sp = mount(LoadingState).find('[data-slot="spinner"]')
+      expect(sp.attributes('data-variant')).toBeUndefined()
+      expect(sp.classes()).toContain('animate-spin')
+    })
+    it.each(['dots', 'bars', 'pulse', 'orbit'] as const)('%s is passed to the spinner and the label stays', (indicator) => {
+      const w = mount(LoadingState, { props: { indicator, label: 'Loading invoices' } })
+      expect(w.find('[data-slot="spinner"]').attributes('data-variant')).toBe(indicator)
+      expect(w.attributes('role')).toBe('status')
+      expect(w.text()).toContain('Loading invoices')
+    })
+    it('unknown indicator falls back to ring and skeletons ignore it', () => {
+      // @ts-expect-error deliberately invalid
+      expect(mount(LoadingState, { props: { indicator: 'x' } }).find('[data-slot="spinner"]').attributes('data-variant')).toBeUndefined()
+      expect(mount(LoadingState, { props: { variant: 'text', indicator: 'dots' } }).find('[data-slot="spinner"]').exists()).toBe(false)
+    })
+  })
 })

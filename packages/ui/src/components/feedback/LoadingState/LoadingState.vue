@@ -4,6 +4,7 @@ import { cn } from '../../../lib/cn'
 import { requireText } from '../../../lib/contract'
 import type { BaseProps } from '../../../lib/types'
 import Spinner from '../../primitives/Spinner/Spinner.vue'
+import type { SpinnerVariant } from '../../primitives/Spinner/variants'
 import { checkAfterMount } from '../requireContent'
 import { clampCount } from './count'
 import { pick } from '../pick'
@@ -32,6 +33,8 @@ export interface LoadingStateProps extends BaseProps {
   layout?: LoadingStateLayout
   /** Corner shape of the skeleton placeholders: `rounded` (default), `square` or `pill`. The spinner variant ignores it. */
   shape?: LoadingStateShape
+  /** Spinner shape of the `spinner` variant: `ring` (default), `dots`, `bars`, `pulse` or `orbit`. Skeleton variants ignore it. */
+  indicator?: SpinnerVariant
   /** Announced to assistive tech (and shown next to the spinner). */
   label?: string
   /** Fill the viewport height and centre the content. */
@@ -42,7 +45,7 @@ export interface LoadingStateProps extends BaseProps {
   columns?: number
 }
 
-const props = withDefaults(defineProps<LoadingStateProps>(), { variant: 'spinner', size: 'md', layout: 'stacked', shape: 'rounded', label: 'Loading…', fullPage: false, rows: 3, columns: 4 })
+const props = withDefaults(defineProps<LoadingStateProps>(), { variant: 'spinner', size: 'md', layout: 'stacked', shape: 'rounded', label: 'Loading…', indicator: 'ring', fullPage: false, rows: 3, columns: 4 })
 
 const slots = useSlots()
 // The label is the only thing a screen reader announces for this status region (it is visually hidden on skeletons).
@@ -77,7 +80,7 @@ const mediaBone = computed(() => cn(bone.value, resolvedShape.value === 'pill' &
     :class="classes"
   >
     <template v-if="resolvedVariant === 'spinner'">
-      <span aria-hidden="true"><Spinner :size="SPINNER_SIZES[resolvedSize]" class="text-primary" /></span>
+      <span aria-hidden="true"><Spinner :size="SPINNER_SIZES[resolvedSize]" :variant="indicator" class="text-primary" /></span>
       <span data-slot="loading-state-label"><slot>{{ label }}</slot></span>
     </template>
     <template v-else>

@@ -9,9 +9,11 @@ import {
   progressInsideValueVariants,
   progressSegmentVariants,
   progressVariants,
+  PROGRESS_INDETERMINATE,
   type ProgressSize,
   type ProgressTone,
   type ProgressValuePosition,
+  type ProgressVariant,
 } from './variants'
 
 export interface ProgressProps extends BaseProps {
@@ -28,6 +30,8 @@ export interface ProgressProps extends BaseProps {
   showValue?: boolean
   /** `end` beside the bar (default), `inside` inside the filled bar (use size lg/xl), `top` in a header row above the bar. */
   valuePosition?: ProgressValuePosition
+  /** Indeterminate look: `slide` (default) travels across the track, `sweep` grows, travels and shrinks. No effect on determinate or segmented bars. */
+  variant?: ProgressVariant
   /** Deprecated, no visual effect: stripes need a gradient, which the design system does not use. */
   striped?: boolean
   /** Pulses the filled bar. Disabled under prefers-reduced-motion; ignored while indeterminate. */
@@ -43,6 +47,7 @@ const props = withDefaults(defineProps<ProgressProps>(), {
   tone: 'primary',
   size: 'md',
   valuePosition: 'end',
+  variant: 'slide',
   striped: false,
   animated: false,
   segments: 0,
@@ -51,6 +56,7 @@ const props = withDefaults(defineProps<ProgressProps>(), {
 const DEFAULT_MAX = 100
 const SIZES: readonly ProgressSize[] = ['xs', 'sm', 'md', 'lg', 'xl']
 const TONES: readonly ProgressTone[] = ['neutral', 'primary', 'success', 'warning', 'danger', 'info']
+const VARIANTS: readonly ProgressVariant[] = ['slide', 'sweep']
 const MAX_SEGMENTS = 50
 
 const safeMax = computed(() => (Number.isFinite(props.max) && props.max > 0 ? props.max : DEFAULT_MAX))
@@ -66,6 +72,7 @@ const indeterminate = computed(() => safeValue.value === null)
 const percent = computed(() => (safeValue.value === null ? 0 : (safeValue.value / safeMax.value) * 100))
 
 const size = computed<ProgressSize>(() => (SIZES.includes(props.size) ? props.size : 'md'))
+const variant = computed<ProgressVariant>(() => (VARIANTS.includes(props.variant) ? props.variant : 'slide'))
 const tone = computed<ProgressTone>(() => (TONES.includes(props.tone) ? props.tone : 'primary'))
 
 const segmentCount = computed(() => {
@@ -104,7 +111,7 @@ const indicatorClasses = computed(() =>
     progressIndicatorVariants({ tone: tone.value, striped: striped.value, animated: props.animated && !indeterminate.value }),
     showInside.value && progressInsideValueVariants({ tone: tone.value }),
     indeterminate.value
-      ? 'w-2/5 animate-ds-indeterminate motion-reduce:w-full motion-reduce:animate-none motion-reduce:opacity-50'
+      ? PROGRESS_INDETERMINATE[variant.value]
       : 'transition-[width] duration-300 motion-reduce:transition-none',
   ),
 )
@@ -148,7 +155,7 @@ const labelAttrs = computed(() =>
         class="ms-auto shrink-0 font-medium tabular-nums text-muted-foreground"
       >{{ valueText }}</span>
     </div>
-    <div data-slot="progress-track" :data-segments="segmented ? segmentCount : undefined" :class="trackClasses">
+    <div data-slot="progress-track" :data-variant="indeterminate && !segmented && variant === 'sweep' ? variant : undefined" :data-segments="segmented ? segmentCount : undefined" :class="trackClasses">
       <template v-if="segmented">
         <div v-for="(fill, i) in segmentFills" :key="i" data-slot="progress-segment" :class="segmentClasses">
           <div

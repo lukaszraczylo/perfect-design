@@ -7,6 +7,7 @@ import { accessibleName, violation } from '../../../lib/contract'
 import { faCheck, faCircleExclamation } from '../../../lib/icons'
 import type { BaseProps } from '../../../lib/types'
 import Icon from '../../primitives/Icon/Icon.vue'
+import TypingIndicator from '../../feedback/TypingIndicator/TypingIndicator.vue'
 import Markdown from '../../typography/Markdown/Markdown.vue'
 import { useMountedCheck } from '../_shared/contract'
 import ChatMessageImageLink from './ChatMessageImageLink.vue'
@@ -166,7 +167,7 @@ useMountedCheck(() => {
         >
           <Icon v-if="status === 'error'" :icon="faCircleExclamation" size="xs" />
           <Icon v-else-if="status === 'sent'" :icon="faCheck" size="xs" />
-          <span v-else-if="status === 'streaming'" aria-hidden="true" class="size-2 rounded-full bg-current motion-safe:animate-pulse" />
+          <TypingIndicator v-else-if="status === 'streaming'" decorative variant="plain" size="sm" />
           {{ statusText }}
         </span>
         <div v-if="$slots.actions" ref="actionsEl" data-slot="chat-message-actions" :class="actionsClasses">
