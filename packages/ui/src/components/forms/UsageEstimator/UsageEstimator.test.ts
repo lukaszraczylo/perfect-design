@@ -88,6 +88,20 @@ describe('UsageEstimator: good path', () => {
     expect(w.findAll('[data-slot=usage-estimator-unit]').map((u) => u.text())).toEqual(['seats', 'requests'])
   })
 
+  it('localises the hint text with labels', () => {
+    const w = make({ labels: { included: '{count} inclus', graduated: 'Tarifs progressifs' } })
+    const hints = w.findAll('[data-slot=usage-estimator-hint]').map((h) => h.text())
+    expect(hints[0]).toBe('$0.40 / 1,000 requests · 10,000 inclus')
+    expect(hints[1]).toBe('Tarifs progressifs')
+  })
+
+  it('keeps the English default for a label left out or empty', () => {
+    const w = make({ labels: { included: '', graduated: undefined } })
+    const hints = w.findAll('[data-slot=usage-estimator-hint]').map((h) => h.text())
+    expect(hints[0]).toBe('$0.40 / 1,000 requests · 10,000 included')
+    expect(hints[1]).toBe('Graduated rates')
+  })
+
   it('falls back to unit when unitSingular is empty', () => {
     const w = make({ dimensions: [{ ...dims[2]!, unitSingular: '' }], defaultValue: undefined })
     expect(w.find('[data-slot=usage-estimator-hint]').text()).toBe('$5 / seats · 3 included')

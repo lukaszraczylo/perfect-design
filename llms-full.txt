@@ -9513,6 +9513,7 @@ Props:
 - input: 'slider' | 'number' | 'both' = 'both' - Controls in each row. With `slider` alone the quantity is shown as text. Unknown values fall back to `both`.
 - showBreakdown: boolean = true - Show the cost of each row and its rate hint. The total is always shown.
 - totalLabel: string = 'Estimated total' - Label of the total line, also used in the spoken update.
+- labels: Partial<UsageEstimatorLabels> - Rate hint text for i18n: `included` (default `{count} included`, `{count}` is replaced by the formatted number) and `graduated` (default `Graduated rates`). An empty value keeps the English default.
 - note: string - Disclaimer under the total, such as "Sample rates. Estimate only." Use the `note` slot for rich content.
 - size: 'sm' | 'md' | 'lg' = 'md' - Spacing, text size and control size. Unknown values fall back to `md`.
 - variant: 'card' | 'plain' = 'card' - `card` is a bordered panel; `plain` has no surface. Unknown values fall back to `card`.
@@ -9536,6 +9537,7 @@ Rules:
 - Set `unitSingular` ("seat") when `unit` is plural, so a per-unit rate reads "$5 / seat".
 - Use `per` for rates quoted per 1,000 units and `included` for free units; use `tiers` for graduated pricing (`upTo` counts billable units, `null` means no limit).
 - Compute the figure with `lineCost` and `estimateTotal`, never by hand; they do not round.
+- On a translated page, pass `labels` (`included` with `{count}`, `graduated`) next to `totalLabel`, `period` and `note`.
 - Always set `note` to say the figure is an estimate, and `period` for the billing period.
 - In examples, use labelled sample rates and round numbers ("Sample requests"), never real prices.
 

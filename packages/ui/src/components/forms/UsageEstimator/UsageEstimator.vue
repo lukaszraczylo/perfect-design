@@ -22,6 +22,15 @@ import {
   type UsageEstimatorVariant,
 } from './variants'
 
+export interface UsageEstimatorLabels {
+  /** Free units in the rate hint; `{count}` is replaced by the formatted number. */
+  included: string
+  /** Rate hint of a dimension with `tiers`. */
+  graduated: string
+}
+
+const DEFAULT_LABELS: UsageEstimatorLabels = { included: '{count} included', graduated: 'Graduated rates' }
+
 export interface UsageEstimatorProps {
   /** Metered dimensions, one row each. Every `id` and `label` is required and unique. */
   dimensions: UsageDimension[]
@@ -40,6 +49,8 @@ export interface UsageEstimatorProps {
   /** Show the cost of each row and its rate hint. The total is always shown. */
   showBreakdown?: boolean
   totalLabel?: string
+  /** Rate hint text for i18n: `included` (`{count}` placeholder) and `graduated`. An empty value keeps the English default. */
+  labels?: Partial<UsageEstimatorLabels>
   /** Disclaimer under the total, such as "Sample rates. Estimate only." Use the `note` slot for rich content. */
   note?: string
   size?: UsageEstimatorSize
@@ -58,6 +69,7 @@ const props = withDefaults(defineProps<UsageEstimatorProps>(), {
   input: 'both',
   showBreakdown: true,
   totalLabel: 'Estimated total',
+  labels: undefined,
   note: undefined,
   size: 'md',
   variant: 'card',
@@ -98,15 +110,17 @@ const numberText = (n: number) => formatNumber(n, { locale: locale.value, maximu
 const labelOf = (d: UsageDimension) => `${d.label}, ${d.unit}`
 const money = (n: number, extra: { minimumFractionDigits?: number } = {}) => formatPrice(n, { currency: props.currency, locale: locale.value, ...extra })
 
+const label = (name: keyof UsageEstimatorLabels) => props.labels?.[name] || DEFAULT_LABELS[name]
+
 function hintOf(d: UsageDimension): string {
   const parts: string[] = []
-  if (Array.isArray(d.tiers) && d.tiers.length > 0) parts.push('Graduated rates')
+  if (Array.isArray(d.tiers) && d.tiers.length > 0) parts.push(label('graduated'))
   else {
     const rate = Number.isFinite(d.rate) ? d.rate : 0
     const per = unitsPer(d)
     parts.push(`${money(rate, Number.isInteger(rate) ? {} : { minimumFractionDigits: significantFractionDigits(rate) })} / ${per > 1 ? `${numberText(per)} ${d.unit}` : d.unitSingular || d.unit}`)
   }
-  if (typeof d.included === 'number' && d.included > 0) parts.push(`${numberText(d.included)} included`)
+  if (typeof d.included === 'number' && d.included > 0) parts.push(label('included').replace('{count}', numberText(d.included)))
   return parts.join(' · ')
 }
 

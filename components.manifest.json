@@ -12087,6 +12087,11 @@
           "description": "Label of the total line, also used in the spoken update."
         },
         {
+          "name": "labels",
+          "type": "Partial<UsageEstimatorLabels>",
+          "description": "Rate hint text for i18n: `included` (default `{count} included`, `{count}` is replaced by the formatted number) and `graduated` (default `Graduated rates`). An empty value keeps the English default."
+        },
+        {
           "name": "note",
           "type": "string",
           "description": "Disclaimer under the total, such as \"Sample rates. Estimate only.\" Use the `note` slot for rich content."
@@ -12170,6 +12175,7 @@
         "Set `unitSingular` (\"seat\") when `unit` is plural, so a per-unit rate reads \"$5 / seat\".",
         "Use `per` for rates quoted per 1,000 units and `included` for free units; use `tiers` for graduated pricing (`upTo` counts billable units, `null` means no limit).",
         "Compute the figure with `lineCost` and `estimateTotal`, never by hand; they do not round.",
+        "On a translated page, pass `labels` (`included` with `{count}`, `graduated`) next to `totalLabel`, `period` and `note`.",
         "Always set `note` to say the figure is an estimate, and `period` for the billing period.",
         "In examples, use labelled sample rates and round numbers (\"Sample requests\"), never real prices."
       ],
