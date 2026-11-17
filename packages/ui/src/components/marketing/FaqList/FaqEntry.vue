@@ -22,7 +22,7 @@ defineEmits<{ toggle: [event: Event] }>()
   <details data-slot="faq-item" :class="faqItemVariants({ variant })" :open="open" @toggle="$emit('toggle', $event)">
     <summary
       data-slot="faq-question"
-      :class="cn('flex cursor-pointer list-none items-start justify-between gap-4 rounded-sm text-start text-base font-medium marker:hidden [&::-webkit-details-marker]:hidden', touchTarget, focusRing)"
+      :class="cn('flex cursor-pointer list-none items-center justify-between gap-4 rounded-sm text-start text-base font-medium marker:hidden [&::-webkit-details-marker]:hidden', touchTarget, focusRing)"
     >
       <span v-if="numbered" data-slot="faq-number" aria-hidden="true" class="w-6 shrink-0 font-semibold tabular-nums text-muted-foreground">{{ index + 1 }}.</span>
       <span :class="numbered && 'min-w-0 flex-1'">{{ item.q }}</span>

@@ -361,3 +361,12 @@ describe('FaqList', () => {
     })
   })
 })
+
+describe('FaqList question rows', () => {
+  it('centres a single-line question in its touch-sized row instead of pinning it to the top', () => {
+    const w = mount(FaqList, { props: { items: [{ q: 'Sample question?', a: 'Sample answer.' }] } })
+    const summary = w.find('summary')
+    expect(summary.classes()).toContain('items-center')
+    expect(summary.classes()).not.toContain('items-start')
+  })
+})

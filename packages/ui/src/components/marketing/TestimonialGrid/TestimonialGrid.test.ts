@@ -134,3 +134,12 @@ describe('TestimonialGrid', () => {
     })
   })
 })
+
+describe('TestimonialGrid on narrow screens', () => {
+  it('gives the grid an explicit shrinkable column below sm, so a long role line cannot widen the card', () => {
+    for (const columns of [2, 3] as const) {
+      const w = mount(TestimonialGrid, { props: { layout: 'grid', columns, items: [{ quote: 'Sample quote', author: 'Sample author', role: 'Sample role with a long organisation name · 140,000 members' }] } })
+      expect(w.classes()).toContain('grid-cols-1')
+    }
+  })
+})

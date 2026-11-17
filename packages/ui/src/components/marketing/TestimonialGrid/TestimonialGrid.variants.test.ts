@@ -13,7 +13,7 @@ const cards = (w: ReturnType<typeof m>) => w.findAll('[data-slot="testimonial"]'
 describe('TestimonialGrid gap, size, tone and shape', () => {
   it('defaults keep the original classes and report md settings', () => {
     const w = m()
-    expect(w.classes().join(' ')).toBe('grid gap-6 [&>*]:h-full sm:grid-cols-2 lg:grid-cols-3')
+    expect(w.classes().join(' ')).toBe('grid gap-6 [&>*]:h-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3')
     expect(m({ layout: 'masonry' }).classes().join(' ')).toBe('gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid columns-1 sm:columns-2 lg:columns-3')
     expect(m({ layout: 'columns' }).classes().join(' ')).toBe('flex flex-col gap-6 md:flex-row md:[&>*]:flex-1')
     expect([w.attributes('data-gap'), w.attributes('data-size'), w.attributes('data-tone'), w.attributes('data-shape')]).toEqual(['md', 'md', 'default', 'rounded'])
