@@ -36,6 +36,7 @@ const SAMPLE: Record<string, Record<string, unknown>> = {
   LineChart: { labels: ['A', 'B', 'C'], series: [{ name: 'Series', data: [3, 5, 2] }] },
   DonutChart: { data: [{ label: 'One', value: 3 }, { label: 'Two', value: 5 }] },
   Heatmap: { values: [[1, 2, 3], [4, 5, 6]] },
+  UptimeBar: { label: 'Sample', segments: [{ state: 'up' }, { state: 'degraded' }, { state: 'down' }] },
   Sparkline: { data: [1, 3, 2, 5, 4] },
   Gauge: { value: 40, label: 'Load' },
   KpiTile: { label: 'Sample metric', value: '42', delta: 3, sparkline: [1, 3, 2, 4], progress: 40 },
