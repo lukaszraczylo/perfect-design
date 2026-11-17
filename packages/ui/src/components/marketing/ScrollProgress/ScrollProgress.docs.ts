@@ -2,7 +2,7 @@ import type { ComponentDoc } from '../../../docs-types'
 
 /** Scrollable sample article the bars track (`target` = its id). It opens part-way down so the fill is visible before any interaction. */
 const box = (id: string) =>
-  `<div id="${id}" role="region" aria-label="Sample article" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>`
+  `<div id="${id}" role="region" aria-label="Sample article (${id})" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>`
 
 const doc: ComponentDoc = {
   name: 'ScrollProgress',
