@@ -1,4 +1,5 @@
 import { computed, inject, provide, type ComputedRef, type InjectionKey } from 'vue'
+import { mergeLabels, pluralKeys } from '../../../lib/plural'
 import type { Size } from '../../../lib/types'
 
 /** Text direction: `auto` lets the browser pick from the first strong character of the content. */
@@ -33,6 +34,10 @@ export type ConfigLabelKey =
   | 'heatmap.less'
   | 'heatmap.more'
   | 'usageEstimator.included'
+  | 'dialog.close'
+  | 'command.noResults'
+  | 'command.results'
+  | 'command.resultsOne'
   | 'usageEstimator.graduated'
 
 export type ConfigLabels = Partial<Record<ConfigLabelKey, string>> & { [key: string]: string | undefined }
@@ -145,16 +150,20 @@ export function useConfig(): ComputedRef<ResolvedConfig> {
 
 /**
  * Built-in strings of one component: `defaults` overlaid by the provider's `<prefix>.<name>` labels. Only keys present
- * in `defaults` are read, so a provider cannot inject extra keys. Without a provider the result equals `defaults`.
+ * in `defaults` are read, so a provider cannot inject extra keys. Names in `plurals` also read their category keys
+ * (`<prefix>.<name>Few`, see `lib/plural`). Without a provider the result equals `defaults`.
  */
-export function useConfigLabels<D extends { [K in keyof D]: string }>(prefix: string, defaults: D): ComputedRef<D> {
+export function useConfigLabels<D extends { [K in keyof D]: string }>(prefix: string, defaults: D, plurals: readonly (keyof D & string)[] = []): ComputedRef<D & Record<string, string>> {
   const config = useConfig()
   return computed(() => {
-    const out: Record<string, string> = { ...defaults }
-    for (const name of Object.keys(defaults)) {
+    const provided: Record<string, string> = {}
+    const names = [...Object.keys(defaults), ...plurals.flatMap((name) => pluralKeys(name).slice(1))]
+    for (const name of names) {
       const text = config.value.labels[`${prefix}.${name}`]
-      if (text !== undefined) out[name] = text
+      if (text !== undefined) provided[name] = text
     }
-    return out as D
+    const out = mergeLabels<Record<string, string | undefined>>({ ...defaults }, provided, plurals)
+    for (const key of Object.keys(out)) if (out[key] === undefined) delete out[key]
+    return out as D & Record<string, string>
   })
 }

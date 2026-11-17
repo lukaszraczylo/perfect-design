@@ -263,6 +263,15 @@ describe('useConfig without a provider', () => {
     wrapper = mount(ConfigProvider, { props: { labels: { 'x.a': 'one', 'x.c': 'extra', 'y.b': 'other' } }, slots: { default: () => h(Reader) } })
     expect(seen.value).toEqual({ a: 'one', b: 'B' })
   })
+  it('useConfigLabels reads plural category keys only for the names in plurals', () => {
+    let seen!: ReturnType<typeof useConfigLabels<{ n: string; nOne: string; m: string }>>
+    const Reader = defineComponent({ setup: () => ((seen = useConfigLabels('x', { n: '{count} items', nOne: '{count} item', m: 'M' }, ['n'])), () => h('i')) })
+    wrapper = mount(ConfigProvider, { props: { labels: { 'x.nFew': '{count} few', 'x.nOne': 'one', 'x.mFew': 'ignored' } }, slots: { default: () => h(Reader) } })
+    expect(seen.value).toEqual({ n: '{count} items', nOne: 'one', nFew: '{count} few', m: 'M' })
+    wrapper.unmount()
+    wrapper = mount(ConfigProvider, { props: { labels: { 'x.n': '{count} элементов' } }, slots: { default: () => h(Reader) } })
+    expect(seen.value).toEqual({ n: '{count} элементов', m: 'M' })
+  })
 })
 
 describe('sanitizeConfig and mergeConfig', () => {

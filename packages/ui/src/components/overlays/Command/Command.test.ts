@@ -13,6 +13,7 @@ import {
   CommandShortcut,
   matchesSearch,
 } from './index'
+import { ConfigProvider } from '../../layout/ConfigProvider'
 
 let wrapper: VueWrapper | undefined
 afterEach(() => {
@@ -193,6 +194,38 @@ describe('Command', () => {
       expect(q('[data-slot="command-status"]')!.getAttribute('role')).toBe('status')
       await type('a')
       expect(q('[data-slot="command-status"]')!.textContent).toMatch(/^\d+ results? available$/)
+    })
+
+    it('counts results with the singular and plural forms', async () => {
+      make()
+      const status = () => q('[data-slot="command-status"]')!.textContent
+      await type('cal')
+      expect(status()).toBe('2 results available')
+      await type('calen')
+      expect(status()).toBe('1 result available')
+    })
+
+    it('translates the status with labels, and a ConfigProvider adds plural forms', async () => {
+      make({ rootProps: { labels: { noResults: 'Rien trouvé.', results: '{count} résultats', resultsOne: '{count} résultat' } } })
+      const status = () => q('[data-slot="command-status"]')!.textContent
+      await type('cal')
+      expect(status()).toBe('2 résultats')
+      await type('calen')
+      expect(status()).toBe('1 résultat')
+      await type('zzz')
+      expect(status()).toBe('Rien trouvé.')
+      wrapper!.unmount()
+      wrapper = mount(
+        defineComponent({
+          setup: () => () =>
+            h(ConfigProvider, { locale: 'ru', labels: { 'command.results': '{count} результата', 'command.resultsOne': '{count} результат', 'command.resultsMany': '{count} результатов' } }, () =>
+              h(Command, null, () => [h(CommandInput), h(CommandList, null, () => [h(CommandEmpty), ...['a1', 'a2', 'a3', 'a4', 'a5'].map((v) => h(CommandItem, { value: v }, () => v))])]),
+            ),
+        }),
+        { attachTo: document.body },
+      )
+      await type('a')
+      expect(status()).toBe('5 результатов')
     })
 
     it('default empty text is provided', async () => {

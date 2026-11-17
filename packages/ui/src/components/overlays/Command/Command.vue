@@ -2,9 +2,16 @@
 import { computed, nextTick, useTemplateRef, watch, type HTMLAttributes } from 'vue'
 import { ListboxRoot, useForwardPropsEmits, type ListboxRootEmits, type ListboxRootProps } from 'reka-ui'
 import { cn } from '../../../lib/cn'
+import { mergeLabels, pluralText, type PluralLabel } from '../../../lib/plural'
+import { useConfig, useConfigLabels } from '../../layout/ConfigProvider/config'
 import { RequiredPartsProbe, useRequiredParts } from '../../../lib/contract'
 import { provideCommand } from './commandContext'
 import { commandVariants, normalizeCommandSize, normalizeCommandVariant, type CommandSize, type CommandVariant } from './variants'
+
+/** Status text read to screen readers while the user types. `results` has `{count}`; add `resultsOne`, `resultsFew` and the other plural forms a language needs. */
+export type CommandLabels = { noResults: string } & PluralLabel<'results'>
+
+const DEFAULT_LABELS = { noResults: 'No results found.', results: '{count} results available', resultsOne: '{count} result available' }
 
 export interface CommandOwnProps {
   class?: HTMLAttributes['class']
@@ -14,6 +21,8 @@ export interface CommandOwnProps {
   variant?: CommandVariant
   /** Density of the search row, rows and list height: `sm`, `md` (default) or `lg`. */
   size?: CommandSize
+  /** Status text for i18n: `noResults`, and `results` with `{count}` plus plural forms (`resultsOne`, `resultsFew`). Also read from a ConfigProvider as `command.*`. */
+  labels?: Partial<CommandLabels>
 }
 
 const props = withDefaults(defineProps<ListboxRootProps & CommandOwnProps>(), {
@@ -28,7 +37,7 @@ const emits = defineEmits<ListboxRootEmits>()
 const search = defineModel<string>('search', { default: '' })
 
 const delegated = computed(() => {
-  const { class: _c, shouldFilter: _f, variant: _v, size: _s, ...rest } = props
+  const { class: _c, shouldFilter: _f, variant: _v, size: _s, labels: _l, ...rest } = props
   return rest
 })
 const forwarded = useForwardPropsEmits(delegated, emits)
@@ -36,11 +45,15 @@ const forwarded = useForwardPropsEmits(delegated, emits)
 useRequiredParts('Command', [{ part: 'CommandEmpty', hint: 'Render <CommandEmpty> inside the list so an empty search result is announced (it has a default message).' }])
 const command = provideCommand({ search, shouldFilter: computed(() => props.shouldFilter), size: computed(() => normalizeCommandSize(props.size)) })
 const variantKey = computed(() => normalizeCommandVariant(props.variant))
+// Precedence per string: `labels` prop, then a surrounding ConfigProvider (`command.*`), then the English default.
+const config = useConfig()
+const configured = useConfigLabels('command', DEFAULT_LABELS, ['results'])
 // Visually hidden live region: reports the result count while the user types (not in the listbox, where only options are allowed).
 const statusText = computed(() => {
   if (!search.value.trim()) return ''
   const n = command.visible.size
-  return n === 0 ? 'No results found.' : `${n} ${n === 1 ? 'result' : 'results'} available`
+  const text = mergeLabels(configured.value, props.labels, ['results'])
+  return n === 0 ? text.noResults || DEFAULT_LABELS.noResults : pluralText(text, 'results', n, config.value.locale)
 })
 
 const root = useTemplateRef<{ highlightFirstItem: () => void }>('root')

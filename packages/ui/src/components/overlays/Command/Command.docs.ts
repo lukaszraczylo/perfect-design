@@ -28,6 +28,7 @@ const doc: ComponentDoc = {
     { name: 'highlightOnHover', type: 'boolean', default: 'true', description: 'Highlight the item under the pointer.' },
     { name: 'variant', type: "'palette' | 'inline'", default: "'palette'", description: 'Surface: `palette` fills its container without a border, `inline` adds a border and light shadow (unknown values fall back to palette). Adds data-variant when inline.' },
     { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Search row height, row padding and type, and list max height (unknown values fall back to md). Adds data-size when not md.' },
+    { name: 'labels', type: 'Partial<CommandLabels>', description: 'Screen-reader status text for i18n: `noResults` (default `No results found.`), and `results` with `{count}` (default `{count} results available`) plus plural forms `resultsOne`, `resultsFew`, `resultsMany`, `resultsTwo`, `resultsZero` chosen with `Intl.PluralRules` and the ConfigProvider locale. Setting any form of `results` replaces all English forms. A ConfigProvider can set the same keys as `command.*`.' },
     { name: 'class', type: 'string | object | array', description: 'Merged onto the root.' },
   ],
   emits: [
@@ -155,6 +156,7 @@ const picked = ref('none')`,
     'Throws a ContractError when `CommandDialog` has a blank `title` (it is the screen-reader name of the dialog).',
   ],
   llmNotes: [
+    'On a translated page, pass `labels` (or ConfigProvider `command.*` keys): `noResults`, `results` with `{count}`, and the plural forms the language needs (`resultsOne`, `resultsFew`).',
     'Run actions with @select on CommandItem (close the dialog yourself with v-model:open).',
     'Every CommandItem needs a unique value; searchable text is the value plus keywords, not the rendered label, so use a descriptive value or add keywords.',
     'Always render a CommandEmpty so empty results are announced.',
