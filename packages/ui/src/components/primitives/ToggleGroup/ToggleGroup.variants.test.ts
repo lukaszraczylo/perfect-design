@@ -3,6 +3,8 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import ToggleGroup from './ToggleGroup.vue'
 import ToggleGroupItem from './ToggleGroupItem.vue'
+import { cn } from '../../../lib/cn'
+import { toggleVariants } from '../Toggle/variants'
 import { TOGGLE_GROUP_GAPS, TOGGLE_GROUP_SHAPES, TOGGLE_GROUP_TONES, toggleGroupItemVariants, toggleGroupVariants } from './variants'
 
 let wrapper: VueWrapper | undefined
@@ -193,6 +195,16 @@ describe('ToggleGroup gap', () => {
       expect(i.classes()).not.toContain('rounded-none')
       expect(i.classes()).not.toContain('border-s-0')
       expect(i.classes().join(' ')).not.toMatch(/first:rounded|last:rounded/)
+    }
+  })
+
+  it.each(['sm', 'md'] as const)('outline with gap %s carries every class of a standalone outline Toggle, so it matches an outline Button/Toggle and shows its on state', (gap) => {
+    const w = build({ gap, variant: 'outline' })
+    const toggle = cn(toggleVariants({ variant: 'outline' })).split(/\s+/)
+    for (const i of items(w)) {
+      const have = i.classes()
+      for (const c of toggle) expect(have, c).toContain(c)
+      expect(have).toEqual(expect.arrayContaining(['border', 'border-input', 'rounded-md', 'data-[state=on]:bg-accent', 'data-[state=on]:border-foreground']))
     }
   })
 
