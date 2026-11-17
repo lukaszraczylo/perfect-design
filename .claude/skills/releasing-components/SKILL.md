@@ -32,14 +32,14 @@ gh run watch <release-run-id> -R lukaszraczylo/perfect-design --exit-status
 ## 4. Confirm npm
 The registry shows the version metadata first. The tarball can return `ERR_PNPM_FETCH_404` for some minutes after that. Retry; do not change the version.
 ```sh
-for i in $(seq 1 30); do [ "$(pnpm view @perfect-design/ui@X.Y.Z version 2>/dev/null)" = "X.Y.Z" ] && break; sleep 15; done
+for i in $(seq 1 30); do [ "$(pnpm view @perfect-design/ui@X.Y.Z version 2>/dev/null)" = "X.Y.Z" ] && break; perl -e 'select(undef,undef,undef,15)'; done
 ```
 If the version never appears, read the npm publish step in the run log. It is the step that can fail while the run stays green.
 
 ## 5. Update a consuming app
 Run in the app (in its worktree when it has one):
 ```sh
-for i in $(seq 1 20); do pnpm add @perfect-design/ui@X.Y.Z && break; sleep 20; done
+for i in $(seq 1 20); do pnpm add @perfect-design/ui@X.Y.Z && break; perl -e 'select(undef,undef,undef,20)'; done
 pnpm exec prettier --write pnpm-lock.yaml
 git diff --stat package.json pnpm-lock.yaml
 ```
