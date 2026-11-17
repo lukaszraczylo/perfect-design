@@ -12,7 +12,9 @@ pnpm add @fortawesome/free-solid-svg-icons      # optional: icon data you pass t
 @import "tailwindcss";
 @import "@perfect-design/ui/theme.css";
 @import "@perfect-design/ui/themes/emerald.css"; /* optional accents */
+@import "@perfect-design/ui/palettes.css";        /* optional whole-interface palettes: data-palette="graphite" */
 @import "@perfect-design/ui/code-themes.css";     /* optional editor colours for code: data-code-theme="midnight" */
+@import "@perfect-design/ui/fonts.css";           /* optional font families: data-font="serif" */
 @source "../node_modules/@perfect-design/ui/dist";  /* so Tailwind scans component classes */`,
   main: `import { createApp } from 'vue'
 import { createPinia } from 'pinia'

@@ -9,6 +9,9 @@ import { defineComponent, h, nextTick, onErrorCaptured, type Component, type VNo
 import { configureStrictMode } from '../../lib/contract'
 import { AccentPicker } from './AccentPicker'
 import { StylePicker } from './StylePicker'
+import { FontPicker } from './FontPicker'
+import { PalettePicker } from './PalettePicker'
+import { CodeThemePicker } from './CodeThemePicker'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './Accordion'
 import { AppHeader } from './AppHeader'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage } from './Breadcrumb'
@@ -693,6 +696,45 @@ describe('Pinia requirement', () => {
     await reopen(() => el(StylePicker, { styles: ['neon'] }))
     expect(messages()).toContain('StylePicker: requires at least one known style')
     await reopen(() => el(StylePicker, { styles: ['raw', 'neon'] }))
+    expect(errors).toEqual([])
+  })
+  it('FontPicker throws a ContractError when Pinia is missing', async () => {
+    await open(() => el(FontPicker), false)
+    expect(errors[0]?.name).toBe('ContractError')
+    expect(errors[0].message).toContain('FontPicker: requires an active Pinia instance')
+  })
+  it('FontPicker throws for a blank label and for no known font', async () => {
+    await open(() => el(FontPicker, { label: '' }))
+    expect(messages()).toContain('FontPicker: requires a non-empty `label`')
+    await reopen(() => el(FontPicker, { fonts: ['comic'] }))
+    expect(messages()).toContain('FontPicker: requires at least one known font')
+    await reopen(() => el(FontPicker, { fonts: ['serif', 'comic'] }))
+    expect(errors).toEqual([])
+  })
+  it('PalettePicker throws a ContractError when Pinia is missing', async () => {
+    await open(() => el(PalettePicker), false)
+    expect(errors[0]?.name).toBe('ContractError')
+    expect(errors[0].message).toContain('PalettePicker: requires an active Pinia instance')
+  })
+  it('PalettePicker throws for a blank label and for no known palette', async () => {
+    await open(() => el(PalettePicker, { label: '' }))
+    expect(messages()).toContain('PalettePicker: requires a non-empty `label`')
+    await reopen(() => el(PalettePicker, { palettes: ['neon'] }))
+    expect(messages()).toContain('PalettePicker: requires at least one known palette')
+    await reopen(() => el(PalettePicker, { palettes: ['harbor', 'neon'] }))
+    expect(errors).toEqual([])
+  })
+  it('CodeThemePicker throws a ContractError when Pinia is missing', async () => {
+    await open(() => el(CodeThemePicker), false)
+    expect(errors[0]?.name).toBe('ContractError')
+    expect(errors[0].message).toContain('CodeThemePicker: requires an active Pinia instance')
+  })
+  it('CodeThemePicker throws for a blank label and for no known theme', async () => {
+    await open(() => el(CodeThemePicker, { label: '' }))
+    expect(messages()).toContain('CodeThemePicker: requires a non-empty `label`')
+    await reopen(() => el(CodeThemePicker, { themes: ['neon'] }))
+    expect(messages()).toContain('CodeThemePicker: requires at least one known theme')
+    await reopen(() => el(CodeThemePicker, { themes: ['mist', 'neon'] }))
     expect(errors).toEqual([])
   })
   it('both pass with Pinia installed on the app or active globally', async () => {

@@ -2,7 +2,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { faBell, faCheck, faGear, faHouse, faMagnifyingGlass, faTriangleExclamation, faUser } from '@fortawesome/free-solid-svg-icons'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Icon, Input, StyleScope, THEME_ACCENTS, THEME_STYLES, useThemeStore } from '@ui/index'
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, CodeThemePicker, CodeViewer, Field, FontPicker, Icon, Input, PalettePicker, StyleScope, THEME_ACCENTS, THEME_STYLES, useThemeStore } from '@ui/index'
 import type { ThemeMode, ThemeStyle } from '@ui/index'
 import DocSection from '@/components/DocSection.vue'
 import PageShell from '@/components/PageShell.vue'
@@ -50,6 +50,18 @@ const STYLE_SNIPPET = `@import "@perfect-design/ui/packs.css";   /* or packs/wor
 useThemeStore().setStyle('workbench')
 /* one region: */
 <StyleScope look="workbench">...</StyleScope>`
+const shownPalette = computed(() => (mounted.value ? theme.palette : 'default'))
+const shownCodeTheme = computed(() => (mounted.value ? theme.codeTheme : 'default'))
+const PREVIEW_JSON = `{
+  "name": "order-sync",
+  "retries": 3,
+  "regions": ["north", "south"],
+  "dryRun": false
+}`
+const PALETTE_SNIPPET = `@import "@perfect-design/ui/palettes.css";
+useThemeStore().setPalette('graphite')`
+const CODE_THEME_SNIPPET = `@import "@perfect-design/ui/code-themes.css";
+useThemeStore().setCodeTheme('midnight')`
 const modes: ThemeMode[] = ['light', 'dark', 'system']
 const replay = ref(0)
 const ICON_SNIPPET = `import { faCheck } from '@fortawesome/free-solid-svg-icons'
@@ -68,7 +80,7 @@ const lead: Record<string, string> = {
   elevation: 'Five shadow levels whose colour follows the theme, so dark mode deepens shadows automatically.',
   motion: 'Short, snappy transitions with one easing curve; every animation collapses under prefers-reduced-motion.',
   iconography: 'Any FontAwesome-shaped icon data, rendered as inline SVG by the `Icon` component. No FontAwesome runtime is needed.',
-  themes: 'Light, dark and system modes plus seven accent presets (indigo, violet and lime are brand exceptions), controlled by `useThemeStore`.',
+  themes: 'Light, dark and system modes, seven accent presets (indigo, violet and lime are brand exceptions), five palettes and ten code themes, controlled by `useThemeStore`.',
   styles: 'Seven deliberate looks, each answering a brief: density, corners, depth and type change through tokens, so every component follows without new markup.',
   accessibility: 'Accessibility rules baked into the components and the contract each one follows.',
 }
@@ -100,6 +112,16 @@ const lead: Record<string, string> = {
     </template>
 
     <template v-else-if="topic === 'typography'">
+      <DocSection title="Switch the font family" description="Applies to this whole site: the family sets data-font on the document element and is remembered in the browser. Every family is a platform font stack, so nothing downloads.">
+        <FontPicker class="mb-4" />
+        <div class="rounded-lg border p-4">
+          <div class="text-2xl font-semibold">The quick brown fox jumps over the lazy dog</div>
+          <p class="mt-2 text-md">Typography carries most of an interface. Numbers like 0123456789 and long words like internationalisation should still sit cleanly.</p>
+        </div>
+        <pre tabindex="0" role="region" aria-label="Font families import" class="mt-4 overflow-x-auto rounded-lg border bg-muted p-4 text-sm"><code>@import "@perfect-design/ui/fonts.css";
+useThemeStore().setFont('serif')
+[data-font="serif"] { --font-sans: "Source Serif 4", ui-serif, serif; }</code></pre>
+      </DocSection>
       <DocSection title="Font families">
         <div class="grid gap-3 sm:grid-cols-2">
           <div class="rounded-lg border p-4"><div class="font-sans text-2xl">IBM Plex Sans, interface and prose</div><code class="text-xs text-muted-foreground">font-sans</code></div>
@@ -121,17 +143,17 @@ const lead: Record<string, string> = {
 
     <template v-else-if="topic === 'spacing'">
       <DocSection title="Spacing scale" description="Multiples of 4px. Prefer gap utilities over margins between siblings.">
-        <div class="space-y-2"><div v-for="n in SPACING" :key="n" class="flex items-center gap-3"><code class="w-16 text-xs text-muted-foreground">{{ n }} · {{ n * 4 }}px</code><div class="h-4 rounded-sm bg-primary/70" :style="{ width: `${n * 4}px` }" /></div></div>
+        <div class="space-y-2"><div v-for="n in SPACING" :key="n" class="flex items-center gap-3"><code class="w-20 shrink-0 whitespace-nowrap text-xs text-muted-foreground">{{ n }} · {{ n * 4 }}px</code><div class="h-4 rounded-sm bg-primary/70" :style="{ width: `${n * 4}px` }" /></div></div>
       </DocSection>
       <DocSection title="Radius" description="Change --radius once to restyle every component.">
-        <div class="grid grid-cols-3 gap-3 sm:grid-cols-6"><div v-for="r in RADII" :key="r" class="space-y-2 text-center"><div class="mx-auto size-16 border-2 border-primary bg-primary/10" :class="`rounded-${r}`" /><code class="text-xs text-muted-foreground">rounded-{{ r }}</code></div></div>
+        <div class="grid grid-cols-3 gap-3 sm:grid-cols-6"><div v-for="r in RADII" :key="r.name" class="space-y-2 text-center"><div class="mx-auto size-16 border-2 border-primary bg-primary/10" :class="r.cls" /><code class="text-xs text-muted-foreground">{{ r.cls }}</code></div></div>
       </DocSection>
       <DocSection title="Touch targets"><p class="text-sm">On coarse pointers (touch) interactive controls grow to at least 44px using the <code>pointer-coarse:</code> variant.</p></DocSection>
     </template>
 
     <template v-else-if="topic === 'elevation'">
       <DocSection title="Shadows">
-        <div class="grid grid-cols-2 gap-6 sm:grid-cols-5"><div v-for="s in SHADOWS" :key="s" class="space-y-2 text-center"><div class="mx-auto grid h-20 w-full place-items-center rounded-lg border bg-card text-xs" :class="`shadow-${s}`">{{ s }}</div><code class="text-xs text-muted-foreground">shadow-{{ s }}</code></div></div>
+        <div class="grid grid-cols-2 gap-6 sm:grid-cols-5"><div v-for="s in SHADOWS" :key="s.name" class="space-y-2 text-center"><div class="mx-auto grid h-20 w-full place-items-center rounded-lg border bg-card text-xs" :class="s.cls">{{ s.name }}</div><code class="text-xs text-muted-foreground">{{ s.cls }}</code></div></div>
       </DocSection>
       <DocSection title="Stacking order"><ul class="list-disc space-y-1 pl-5 text-sm"><li><code>--z-sticky</code> 40 · <code>--z-dropdown</code> 50 · <code>--z-overlay</code> 60 · <code>--z-modal</code> 70 · <code>--z-toast</code> 80</li><li>Never use arbitrary z-index values in components.</li></ul></DocSection>
     </template>
@@ -158,6 +180,29 @@ const lead: Record<string, string> = {
       <DocSection title="Accent presets">
         <div class="flex flex-wrap gap-2"><Button v-for="a in THEME_ACCENTS" :key="a" size="sm" :variant="shownAccent === a ? 'default' : 'outline'" class="capitalize" @click="theme.setAccent(a)">{{ a }}</Button></div>
         <CodeSnippet :code="ACCENT_SNIPPET" />
+      </DocSection>
+      <DocSection title="Palettes" description="Whole-interface colour sets. Applies to this whole site and follows the light and dark toggle.">
+        <PalettePicker class="mb-4" />
+        <p class="max-w-prose text-sm text-muted-foreground">Palette: {{ shownPalette }}. Palettes adapt the GitHub, Ayu, Winter is Coming, Night Owl and Tokyo Night VS Code themes (all MIT-licensed). They follow the light and dark toggle, and choosing one replaces the accent preset because both set the primary colour.</p>
+        <div class="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle>Order 4821</CardTitle></CardHeader>
+            <CardContent class="space-y-4">
+              <p class="text-sm text-muted-foreground">Sample text on the card surface. Status, action and field colours follow the palette.</p>
+              <div class="flex flex-wrap items-center gap-2"><Button size="sm">Approve</Button><Button size="sm" variant="outline">Review</Button></div>
+              <div class="flex flex-wrap items-center gap-2"><Badge variant="success">Shipped</Badge><Badge variant="warning">Delayed</Badge><Badge variant="destructive">Cancelled</Badge></div>
+              <Field label="Customer name" hint="Sample field"><Input placeholder="Customer name" /></Field>
+            </CardContent>
+          </Card>
+          <div class="min-w-0"><CodeViewer :source="PREVIEW_JSON" language="json" filename="palette-preview.json" /></div>
+        </div>
+        <CodeSnippet :code="PALETTE_SNIPPET" />
+      </DocSection>
+      <DocSection title="Code themes" description="Colours for code viewers and blocks. Follow palette uses the active palette; the others override it.">
+        <CodeThemePicker class="mb-4" />
+        <p class="text-sm text-muted-foreground">Code theme: {{ shownCodeTheme }}.</p>
+        <div class="min-w-0"><CodeViewer :source="PREVIEW_JSON" language="json" filename="code-theme-preview.json" /></div>
+        <CodeSnippet :code="CODE_THEME_SNIPPET" />
       </DocSection>
       <DocSection title="Create your own"><CodeSnippet :code="`:root[data-theme='brand'] { --primary: oklch(0.55 0.2 300); --ring: oklch(0.55 0.2 300); }\n:root[data-theme='brand'].dark { --primary: oklch(0.75 0.15 300); --ring: oklch(0.75 0.15 300); }`" /></DocSection>
     </template>

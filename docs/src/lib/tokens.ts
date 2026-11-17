@@ -44,9 +44,23 @@ export const TYPE_SCALE = [
   { cls: 'text-2xs', name: '2xs', sample: 'Micro labels (11px)' },
 ]
 
-export const RADII = ['xs', 'sm', 'md', 'lg', 'xl', '2xl']
+/** Class strings are written out in full: Tailwind only emits a utility that appears literally in the source. */
+export const RADII = [
+  { name: 'xs', cls: 'rounded-xs' },
+  { name: 'sm', cls: 'rounded-sm' },
+  { name: 'md', cls: 'rounded-md' },
+  { name: 'lg', cls: 'rounded-lg' },
+  { name: 'xl', cls: 'rounded-xl' },
+  { name: '2xl', cls: 'rounded-2xl' },
+] as const
 export const SPACING = [1, 2, 3, 4, 6, 8, 12, 16]
-export const SHADOWS = ['xs', 'sm', 'md', 'lg', 'xl']
+export const SHADOWS = [
+  { name: 'xs', cls: 'shadow-xs' },
+  { name: 'sm', cls: 'shadow-sm' },
+  { name: 'md', cls: 'shadow-md' },
+  { name: 'lg', cls: 'shadow-lg' },
+  { name: 'xl', cls: 'shadow-xl' },
+] as const
 /** Class strings are written out in full: Tailwind only emits a utility that appears literally in the source. */
 export const ANIMATIONS = [
   { name: 'ds-fade-in', cls: 'animate-ds-fade-in' },

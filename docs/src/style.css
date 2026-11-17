@@ -11,8 +11,10 @@
 @import "../../packages/ui/src/styles/themes/lime.css";
 @import "../../packages/ui/src/styles/themes/violet.css";
 @import "../../packages/ui/src/styles/themes/cyan.css";
+@import "../../packages/ui/src/styles/palettes.css";
 @import "../../packages/ui/src/styles/packs.css";
 @import "../../packages/ui/src/styles/code-themes.css";
+@import "../../packages/ui/src/styles/fonts.css";
 
 /* Latin subsets only: the full fontsource files declare every script and cost render-blocking CSS bytes. */
 @font-face {
@@ -40,5 +42,20 @@
 @source "../../packages/ui/src/components/primitives/Spinner";
 @source "../../packages/ui/src/components/forms/Input";
 @source "../../packages/ui/src/lib";
+@source "../../packages/ui/src/components/data-display/Card";
+@source "../../packages/ui/src/components/data-display/CodeViewer";
+@source "../../packages/ui/src/components/data-display/_shared";
+@source "../../packages/ui/src/components/forms/Field";
+@source "../../packages/ui/src/components/forms/InputGroup";
+@source "../../packages/ui/src/components/forms/Label";
+@source "../../packages/ui/src/components/forms/NativeSelect";
+@source "../../packages/ui/src/components/layout/ConfigProvider";
+@source "../../packages/ui/src/components/layout/StyleScope";
+@source "../../packages/ui/src/components/navigation/CodeThemePicker";
+@source "../../packages/ui/src/components/navigation/FontPicker";
+@source "../../packages/ui/src/components/navigation/PalettePicker";
+@source "../../packages/ui/src/components/navigation/contract.ts";
+@source "../../packages/ui/src/components/typography/Markdown";
+@source "../../packages/ui/src/components/typography/RelativeTime";
 
 html { scroll-behavior: smooth; scroll-padding-top: 5rem; }

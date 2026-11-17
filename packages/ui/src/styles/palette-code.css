@@ -1,0 +1,65 @@
+/* Code surfaces under a palette (styles/palettes/*.css define the --code-* values). A data-code-theme on <html>, a region or the
+
+ * component takes over: its own variables are nearer, and this file does not match an element that sets one. */
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) {
+  background-color: var(--code-bg);
+  color: var(--code-fg);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) :is([data-slot="code-viewer-header"], [data-slot="code-block-header"]) {
+  background-color: var(--code-header);
+  color: var(--code-header-fg);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) :is([data-slot="code-viewer-gutter"], [data-slot="code-block-line-number"]) {
+  color: var(--code-muted);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="keyword"] {
+  color: var(--code-keyword);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="string"] {
+  color: var(--code-string);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="number"] {
+  color: var(--code-number);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="comment"] {
+  color: var(--code-comment);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="type"] {
+  color: var(--code-type);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="function"] {
+  color: var(--code-function);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="key"] {
+  color: var(--code-key);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="constant"] {
+  color: var(--code-constant);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="punctuation"] {
+  color: var(--code-punctuation);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="operator"] {
+  color: var(--code-operator);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="tag"] {
+  color: var(--code-tag);
+}
+
+[data-palette]:not([data-code-theme]) :is([data-slot="code-viewer"], [data-slot="code-block"]) [data-slot="code-viewer-token"][data-type="anchor"] {
+  color: var(--code-anchor);
+}

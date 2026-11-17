@@ -1,5 +1,5 @@
 /**
- * WCAG colour-contrast gate for every theme. Parses the real CSS token files (theme.css + themes/*.css),
+ * WCAG colour-contrast gate for every theme. Parses the real CSS token files (theme.css + themes/*.css + palettes/*.css),
  * converts oklch → sRGB and asserts contrast for the token pairings components actually use.
  *   text ≥ 4.5:1 (WCAG 1.4.3)  ·  UI boundaries / focus ring ≥ 3:1 (WCAG 1.4.11)
  */
@@ -10,7 +10,8 @@ import { timelineMarkerVariants, TIMELINE_STATUSES } from '../components/data-di
 
 const stylesDir = resolvePath(process.cwd(), 'src/styles') + '/' // vitest runs from packages/ui
 const themeCss = { 'theme.css': readFileSync(`${stylesDir}theme.css`, 'utf8') } as Record<string, string>
-const presetCss = Object.fromEntries(readdirSync(`${stylesDir}themes`).filter((f) => f.endsWith('.css')).map((f) => [`/${f}`, readFileSync(`${stylesDir}themes/${f}`, 'utf8')])) as Record<string, string>
+// Accent presets (themes/) and whole-interface palettes (palettes/) pass the same gate.
+const presetCss = Object.fromEntries(['themes', 'palettes'].flatMap((dir) => readdirSync(`${stylesDir}${dir}`).filter((f) => f.endsWith('.css')).map((f) => [`/${f}`, readFileSync(`${stylesDir}${dir}/${f}`, 'utf8')]))) as Record<string, string>
 
 type Tokens = Record<string, string>
 type RGB = [number, number, number]

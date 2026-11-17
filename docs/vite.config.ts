@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { Plugin } from 'vite'
+import { themeBootScript } from '../packages/ui/src/stores/theme-boot'
 import { defineConfig } from 'vitest/config'
 
 // Vite's static middleware skips dot-directories, so `/.well-known/*` (the agent discovery manifest) fell through to the
@@ -24,8 +25,13 @@ function serveWellKnown(): Plugin {
   }
 }
 
+// The site applies the saved theme before first paint with the same script the library ships to apps.
+function themeBoot(): Plugin {
+  return { name: 'theme-boot', transformIndexHtml: () => [{ tag: 'script', children: themeBootScript, injectTo: 'head-prepend' }] }
+}
+
 export default defineConfig({
-  plugins: [vue(), tailwindcss(), serveWellKnown()],
+  plugins: [vue(), tailwindcss(), serveWellKnown(), themeBoot()],
   resolve: {
     alias: [
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },

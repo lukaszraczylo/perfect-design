@@ -26,7 +26,7 @@ const LOOK_PROPS = new Set([
 const NEEDS_PARENT = new Set([
   'Dialog', 'AlertDialog', 'Sheet', 'Popover', 'Tooltip', 'HoverCard', 'DropdownMenu', 'ContextMenu', 'Menubar', 'NavigationMenu', 'Command', 'Tour', 'Lightbox', 'ConfirmDialog', 'ShortcutsDialog',
   'Toaster', 'Select', 'Combobox', 'Collapsible', 'Accordion', 'Tabs', 'RadioGroup', 'ToggleGroup', 'Carousel', 'ResizablePanels', 'AppShell', 'Pagination', 'Breadcrumb',
-  'Stepper', 'Table', 'DescriptionList', 'List', 'Timeline', 'Card', 'AvatarGroup', 'ThemeToggle', 'AccentPicker', 'StylePicker', 'ConfirmHost', 'NotificationList', 'DataTable', 'Tree',
+  'Stepper', 'Table', 'DescriptionList', 'List', 'Timeline', 'Card', 'AvatarGroup', 'ThemeToggle', 'AccentPicker', 'StylePicker', 'FontPicker', 'ConfirmHost', 'NotificationList', 'DataTable', 'Tree',
   'InstallTabs', 'FaqList', 'BoardColumn', 'BoardCard', 'StatGroup', 'ScrollArea', 'Field', 'FieldGroup', 'BackToTop', 'SkipLink', 'InfiniteScroll', 'Affix', 'SectionReveal',
 ])
 

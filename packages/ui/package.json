@@ -53,6 +53,9 @@
     "./themes/*.css": "./src/styles/themes/*.css",
     "./packs.css": "./src/styles/packs.css",
     "./packs/*.css": "./src/styles/packs/*.css",
+    "./fonts.css": "./src/styles/fonts.css",
+    "./palettes.css": "./src/styles/palettes.css",
+    "./palettes/*.css": "./src/styles/palettes/*.css",
     "./code-themes.css": "./src/styles/code-themes.css",
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"

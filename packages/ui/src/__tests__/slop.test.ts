@@ -87,6 +87,10 @@ describe('slop guard: colour (C1 to C5, C8)', () => {
 })
 
 describe('slop guard: typography (T1, T2, T4, T5)', () => {
+  it('opt-in font families never name Inter, Space Grotesk, Geist or Instrument Serif', () => {
+    const fonts = readFileSync(resolve(process.cwd(), 'src/styles/fonts.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+    expect(fonts).not.toMatch(/\b(?:Inter|Space Grotesk|Geist|Instrument Serif)\b/i)
+  })
   it('font tokens are not Inter, Space Grotesk, Geist or Instrument Serif', () => {
     const fam = [...themeCss.matchAll(/--font-(?:sans|display|mono):\s*([^;]+);/g)].map((m) => m[1]).join(' | ')
     expect(fam.length).toBeGreaterThan(0)

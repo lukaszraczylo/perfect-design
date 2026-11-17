@@ -11,15 +11,6 @@
     <link rel="ard" href="/.well-known/ard.json" type="application/json" />
     <link rel="alternate" type="text/markdown" href="/llms.txt" title="llms.txt" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f6475'/%3E%3Cpath d='M9 22V10h7a4 4 0 0 1 0 8h-4' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
-    <script>
-      // Apply the saved colour mode before first paint to avoid a flash.
-      try {
-        var t = JSON.parse(localStorage.getItem('pd-theme') || '{}');
-        var dark = t.mode === 'dark' || ((!t.mode || t.mode === 'system') && matchMedia('(prefers-color-scheme: dark)').matches);
-        if (dark) document.documentElement.classList.add('dark');
-        if (t.accent && t.accent !== 'default') document.documentElement.setAttribute('data-theme', t.accent);
-      } catch (e) {}
-    </script>
   </head>
   <body>
     <div id="app"></div>
