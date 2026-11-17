@@ -33,3 +33,7 @@
   min-block-size: 1.5rem;
   min-inline-size: 1.5rem;
 }
+/* The copy field joins an input to a button; both keep the same floor so the xs size does not make the button taller than the input. */
+[data-style="terminal"] [data-slot="copy-field-input"] {
+  min-block-size: 1.5rem;
+}

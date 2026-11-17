@@ -78,6 +78,12 @@ describe('CopyField size', () => {
     expect(w.find('input').classes()).toEqual(expect.arrayContaining([height, text, 'text-md']))
     expect(w.find('button').classes()).toContain(height)
   })
+  it.each(['xs', 'sm', 'md', 'lg'])('%s: input and button share one height class and one coarse-pointer floor', (size) => {
+    const w = m({ size })
+    const pick = (el: ReturnType<typeof w.find>, re: RegExp) => el.classes().filter((c) => re.test(c))
+    expect(pick(w.find('input'), /^h-\d+$/)).toEqual(pick(w.find('button'), /^h-\d+$/))
+    expect(pick(w.find('input'), /^pointer-coarse:min-h-/)).toEqual(pick(w.find('button'), /^pointer-coarse:min-h-/))
+  })
   it('xs keeps the touch target on both', () => {
     const w = m({ size: 'xs' })
     expect(w.find('input').classes()).toContain('pointer-coarse:min-h-11')

@@ -70,6 +70,11 @@ describe('style packs: slop and safety rules', () => {
       expect(css[name], name).toMatch(/:is\(button, \[role="button"\]\)\s*\{\s*min-block-size:\s*1\.5rem;\s*min-inline-size:\s*1\.5rem/)
     }
   })
+  it('dense packs give the copy field input the same 24px floor as its button', () => {
+    for (const name of ['workbench', 'terminal']) {
+      expect(css[name], name).toMatch(/\[data-slot="copy-field-input"\]\s*\{\s*min-block-size:\s*1\.5rem;\s*\}/)
+    }
+  })
   it('packs override only tokens that exist in theme.css', () => {
     for (const [name, text] of Object.entries(css)) {
       for (const m of stripComments(text).matchAll(/^\s*(--[a-z0-9-]+)\s*:/gm)) {
