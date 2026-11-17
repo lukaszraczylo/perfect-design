@@ -275,7 +275,7 @@ describe('DataTable: actions column in cards', () => {
 describe('DataTable cards row header in compact density', () => {
   it('drops the compact side padding and fixed height so it lines up with the field labels', () => {
     const w = mount(DataTable, {
-      props: { layout: 'cards', density: 'compact', rows: [{ id: 1, name: 'Sample row' }], rowKey: 'id', columns: [{ key: 'name', header: 'Name', rowHeader: true }, { key: 'id', header: 'Id' }] },
+      props: { layout: 'cards', density: 'compact', rows: [{ id: 1, name: 'Sample row' }], columns: [{ key: 'name', header: 'Name', rowHeader: true }, { key: 'id', header: 'Id' }] },
     })
     const th = w.find('th[scope=row]')
     expect(th.classes()).toEqual(expect.arrayContaining(['max-sm:group-data-[density=compact]/table:px-0', 'group-data-[density=compact]/table:h-auto', 'max-sm:pb-2']))
