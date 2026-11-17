@@ -104,7 +104,7 @@ function hintOf(d: UsageDimension): string {
   else {
     const rate = Number.isFinite(d.rate) ? d.rate : 0
     const per = unitsPer(d)
-    parts.push(`${money(rate, Number.isInteger(rate) ? {} : { minimumFractionDigits: significantFractionDigits(rate) })} / ${per > 1 ? `${numberText(per)} ` : ''}${d.unit}`)
+    parts.push(`${money(rate, Number.isInteger(rate) ? {} : { minimumFractionDigits: significantFractionDigits(rate) })} / ${per > 1 ? `${numberText(per)} ${d.unit}` : d.unitSingular || d.unit}`)
   }
   if (typeof d.included === 'number' && d.included > 0) parts.push(`${numberText(d.included)} included`)
   return parts.join(' · ')

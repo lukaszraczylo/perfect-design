@@ -11,6 +11,8 @@ export interface UsageDimension {
   id: string
   label: string
   unit: string
+  /** Singular unit for the rate hint when `per` is 1 ("$5 / seat"); `unit` is used when it is missing or empty. */
+  unitSingular?: string
   /** Price per `per` units. Ignored when `tiers` is a non-empty array. */
   rate: number
   /** The rate applies per this many units (default 1). Partial blocks are charged pro rata. */

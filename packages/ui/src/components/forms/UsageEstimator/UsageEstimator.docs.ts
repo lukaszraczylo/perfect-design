@@ -4,13 +4,13 @@ import type { ComponentDoc } from '../../../docs-types'
 const DIMENSIONS_SCRIPT = `const dimensions = [
   { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },
   { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },
-  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },
+  { id: 'seats', label: 'Sample seats', unit: 'seats', unitSingular: 'seat', rate: 5, included: 3, min: 1, max: 50 },
 ]`
 
 const dimensions = [
   { id: 'requests', label: 'Sample requests', unit: 'requests', rate: 0.4, per: 1000, included: 10000, max: 1000000, step: 1000 },
   { id: 'storage', label: 'Sample storage', unit: 'GB', rate: 0, tiers: [{ upTo: 100, rate: 0.1 }, { upTo: 1000, rate: 0.05 }, { upTo: null, rate: 0.02 }], max: 5000, step: 10 },
-  { id: 'seats', label: 'Sample seats', unit: 'seats', rate: 5, included: 3, min: 1, max: 50 },
+  { id: 'seats', label: 'Sample seats', unit: 'seats', unitSingular: 'seat', rate: 5, included: 3, min: 1, max: 50 },
 ]
 
 const doc: ComponentDoc = {
@@ -22,7 +22,7 @@ const doc: ComponentDoc = {
     'Use `UsageEstimator` on a pricing page or a plan screen when the price depends on how much is used. Each dimension has a `rate` per unit (or per `per` units), optional free `included` units, bounds, and optionally graduated `tiers` that replace the flat rate. The estimate is computed by the exported pure helpers `lineCost` and `estimateTotal`, which never round: amounts are rounded only when displayed. Quantities are clamped to `min` and `max`; NaN and negative values count as 0. Tier bounds `upTo` count billable units (after `included`), and units above the last bounded tier are billed at that tier rate. Use `PlanPicker` to choose a plan and `RateCard` or `TieredPricing` to show the rates as a table. Always say that the figures are an estimate with `note`.',
   status: 'beta',
   props: [
-    { name: 'dimensions', type: 'UsageDimension[]', required: true, description: 'Metered dimensions, one row each: `{ id, label, unit, rate, per?, included?, min?, max, step?, tiers? }`. `id` and `label` are required and unique, `max` is a finite number above `min`, `rate` is at least 0. `tiers` is `{ upTo: number | null, rate: number }[]` in ascending order.' },
+    { name: 'dimensions', type: 'UsageDimension[]', required: true, description: 'Metered dimensions, one row each: `{ id, label, unit, unitSingular?, rate, per?, included?, min?, max, step?, tiers? }`. `id` and `label` are required and unique, `max` is a finite number above `min`, `rate` is at least 0. `tiers` is `{ upTo: number | null, rate: number }[]` in ascending order.' },
     { name: 'modelValue', type: 'Record<string, number>', description: 'v-model: quantity per dimension id. A missing id counts as that dimension\'s `min` (or 0). Uncontrolled when omitted.' },
     { name: 'defaultValue', type: 'Record<string, number>', description: 'Initial quantities when uncontrolled.' },
     { name: 'currency', type: 'string', description: 'ISO 4217 currency code. Default `USD`.' },
@@ -97,6 +97,7 @@ const doc: ComponentDoc = {
   llmNotes: [
     'Use UsageEstimator for usage-based pricing; use PlanPicker to choose a plan and RateCard or TieredPricing to list the rates.',
     'Give every dimension a unique `id`, a `label`, a `unit`, a `rate` and a `max`; set `step` so the slider moves in useful jumps.',
+    'Set `unitSingular` ("seat") when `unit` is plural, so a per-unit rate reads "$5 / seat".',
     'Use `per` for rates quoted per 1,000 units and `included` for free units; use `tiers` for graduated pricing (`upTo` counts billable units, `null` means no limit).',
     'Compute the figure with `lineCost` and `estimateTotal`, never by hand; they do not round.',
     'Always set `note` to say the figure is an estimate, and `period` for the billing period.',

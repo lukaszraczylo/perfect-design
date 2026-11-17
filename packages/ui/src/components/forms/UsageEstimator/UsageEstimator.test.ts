@@ -80,6 +80,19 @@ describe('UsageEstimator: good path', () => {
     expect(hints[2]).toBe('$5 / seats · 3 included')
   })
 
+  it('uses unitSingular in the rate hint when the rate is per one unit', () => {
+    const w = make({ dimensions: [{ ...dims[2]!, unitSingular: 'seat' }, { ...dims[0]!, unitSingular: 'request' }], defaultValue: undefined })
+    const hints = w.findAll('[data-slot=usage-estimator-hint]').map((h) => h.text())
+    expect(hints[0]).toBe('$5 / seat · 3 included')
+    expect(hints[1]).toBe('$0.40 / 1,000 requests · 10,000 included')
+    expect(w.findAll('[data-slot=usage-estimator-unit]').map((u) => u.text())).toEqual(['seats', 'requests'])
+  })
+
+  it('falls back to unit when unitSingular is empty', () => {
+    const w = make({ dimensions: [{ ...dims[2]!, unitSingular: '' }], defaultValue: undefined })
+    expect(w.find('[data-slot=usage-estimator-hint]').text()).toBe('$5 / seats · 3 included')
+  })
+
   it('shows a custom total label and a note (prop and slot)', () => {
     const w = make({ totalLabel: 'Sample sum', note: 'Sample rates. Estimate only.' })
     expect(total(w)).toContain('Sample sum')
