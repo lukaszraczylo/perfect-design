@@ -128,6 +128,7 @@ const doc: ComponentDoc = {
   ],
   related: ['TestimonialGrid', 'TestimonialSlider', 'LogoCloud', 'StatGrid'],
   llmNotes: [
+    'The avatar blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.',
     'Pass `quote` without surrounding quotation marks.',
     'Use real names, roles and ratings only; never fabricate testimonials. Examples use visibly sample text.',
     'Leave `avatarAlt` empty unless the image conveys extra information.',

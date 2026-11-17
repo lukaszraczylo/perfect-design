@@ -17,6 +17,7 @@ const doc: ComponentDoc = {
     { name: 'layout', type: "'stacked' | 'spaced'", default: "'stacked'", description: 'stacked overlaps the avatars with a background ring between them; spaced places them side by side with a gap and wraps. Unknown values fall back to stacked.' },
     { name: 'density', type: "'compact' | 'default' | 'loose'", default: "'default'", description: 'Stacked: overlap amount (compact overlaps more, loose less). Spaced: gap of 4px, 8px or 12px. Unknown values fall back to default.' },
     { name: 'as', type: 'string | Component', default: "'div'", description: 'Element to render.' },
+    { name: 'blurred', type: 'boolean', description: 'Privacy blur on every avatar (image and initials). The `+N` count is not blurred. Wins over `ConfigProvider blurMedia`; an Avatar with its own `blurred` keeps it, true or false.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],
   slots: [{ name: 'default', description: '`Avatar` children. Fragments from v-for are flattened and v-if=false nodes ignored when counting for `max`.' }],
@@ -74,13 +75,29 @@ const doc: ComponentDoc = {
   <AvatarGroup layout="spaced" density="loose" size="sm" aria-label="Loose gap" :items="[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }]" />
 </div>`,
     },
+    {
+      title: 'Privacy blur',
+      description: 'Every avatar is blurred; the overflow count stays readable. One slotted Avatar opts out with `:blurred="false"`.',
+      code: `<div class="flex flex-col gap-4">
+  <AvatarGroup blurred :max="3" aria-label="Meeting participants, blurred" :items="[{ name: 'Author One' }, { name: 'Author Two' }, { name: 'Author Five' }, { name: 'Author Three' }, { name: 'Author Four' }]" />
+  <AvatarGroup blurred layout="spaced" aria-label="Presenter stays visible">
+    <Avatar name="Author One" :blurred="false" />
+    <Avatar name="Author Two" />
+    <Avatar name="Author Five" />
+  </AvatarGroup>
+</div>`,
+    },
   ],
-  a11y: ['Root has role="group"; add `aria-label` (e.g. "Project members").', 'The overflow bubble is role="img" with aria-label "N more".', '`layout` and `density` change spacing only; the group role, names and the +N bubble stay the same. `spaced` uses `flex-wrap`, so the group reflows at 320px instead of overflowing, and it draws no overlap ring.', 'The `stacked` ring is a box shadow, which forced-colors mode removes, so each avatar also gets a 2px `CanvasText` outline there (`forced-colors:[&>*]:outline-2`) and overlapping avatars stay distinct. `layout="spaced"` needs neither.'],
+  a11y: [
+    'Blur is visual only: names, alt text and the `+N` label are unchanged; the root gets `data-blurred`.',
+    'Root has role="group"; add `aria-label` (e.g. "Project members").', 'The overflow bubble is role="img" with aria-label "N more".', '`layout` and `density` change spacing only; the group role, names and the +N bubble stay the same. `spaced` uses `flex-wrap`, so the group reflows at 320px instead of overflowing, and it draws no overlap ring.', 'The `stacked` ring is a box shadow, which forced-colors mode removes, so each avatar also gets a 2px `CanvasText` outline there (`forced-colors:[&>*]:outline-2`) and overlapping avatars stay distinct. `layout="spaced"` needs neither.'],
   related: ['Avatar', 'Badge'],
   requires: [
     'Throws a ContractError when an item (or a slotted Avatar) has neither `name` nor `alt`, because every avatar must say who it is.',
   ],
-  llmNotes: ['Prefer `items` for data-driven lists, slot children when avatars need extra props.', 'Set `max` so long lists do not overflow the layout.', 'Give the group an aria-label.', 'Use layout="spaced" when avatars carry status dots or rings, or in narrow containers; keep the default stacked layout for compact "who is here" rows.'],
+  llmNotes: [
+    'Use `blurred` for privacy (screen sharing, demos). The `+N` bubble stays readable.',
+    'Prefer `items` for data-driven lists, slot children when avatars need extra props.', 'Set `max` so long lists do not overflow the layout.', 'Give the group an aria-label.', 'Use layout="spaced" when avatars carry status dots or rings, or in narrow containers; keep the default stacked layout for compact "who is here" rows.'],
   replaces: ['ad-hoc overlapping avatar stacks'],
 }
 export default doc

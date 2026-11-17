@@ -85,6 +85,8 @@ Each row trips a pattern in `LLMSlop.md` on purpose. `packages/ui/src/__tests__/
 | N4 faux-brutalist | `styles/packs/raw.css` | Square corners, ink borders and hard offset shadows, only for products whose brief is a blunt, poster-like tool. It is selected on purpose with `look="raw"` or `data-style="raw"`, never applied as a fallback. |
 | M2 press | `styles/packs/tactile.css` | The one-pixel sink on `:active` is feedback for a press, applies only under `prefers-reduced-motion: no-preference`, and there is no hover lift or scale. |
 
+Privacy blur (`blurred` on Avatar, AvatarGroup, TeamGrid, MediaFrame, ImageGrid, Lightbox, BeforeAfter; `ConfigProvider blurMedia` for a region) is a state, not decoration: an opt-in CSS filter blur on the media element only, clipped by its container, with a transition only under `motion-safe:`. It is not `backdrop-blur` (S4) and not a glow (C4), so it needs no exception row. Use it for screen sharing, demos and sensitive uploads.
+
 ## 8. Style packs
 
 The core look (`quiet`) is a decision for most products. Some briefs need a different, equally deliberate look. A style pack restyles the whole system by overriding tokens only (`--spacing`, `--radius`, `--shadow-*`, `--text-*`, `--font-*`, `--border`, `--input`, foreground tokens), plus a few rules on the stable `data-slot` hooks. No component changes its markup. Apply a pack on `<html>` (`useThemeStore().setStyle()`, `StylePicker`) or on a region (`StyleScope`). Packs are 2026 looks chosen from a brief, not trends layered on top: each has an audience and a reason.

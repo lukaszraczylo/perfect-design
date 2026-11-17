@@ -41,6 +41,7 @@ export interface ConfigInput {
   size?: Size
   density?: ConfigDensity
   labels?: ConfigLabels
+  blurMedia?: boolean
 }
 
 /** What `useConfig()` returns: validated values merged from every surrounding provider. */
@@ -52,10 +53,11 @@ export interface ResolvedConfig {
   readonly size: Size | undefined
   readonly density: ConfigDensity | undefined
   readonly labels: Readonly<Record<string, string>>
+  readonly blurMedia?: boolean
 }
 
 const noLabels: Readonly<Record<string, string>> = Object.freeze(Object.create(null) as Record<string, string>)
-const EMPTY: ResolvedConfig = Object.freeze({ dir: undefined, locale: undefined, timeZone: undefined, reducedMotion: 'user', size: undefined, density: undefined, labels: noLabels })
+const EMPTY: ResolvedConfig = Object.freeze({ dir: undefined, locale: undefined, timeZone: undefined, reducedMotion: 'user', size: undefined, density: undefined, labels: noLabels, blurMedia: undefined })
 const EMPTY_REF: ComputedRef<ResolvedConfig> = computed(() => EMPTY)
 const KEY: InjectionKey<ComputedRef<ResolvedConfig>> = Symbol('perfect-design-config')
 
@@ -100,6 +102,7 @@ export function sanitizeConfig(input: ConfigInput | undefined): Omit<ResolvedCon
     size: oneOf(CONFIG_SIZES, input?.size),
     density: oneOf(CONFIG_DENSITIES, input?.density),
     labels: validLabels(input?.labels),
+    blurMedia: typeof input?.blurMedia === 'boolean' ? input.blurMedia : undefined,
   }
 }
 
@@ -115,6 +118,7 @@ export function mergeConfig(parent: ResolvedConfig, input: ConfigInput | undefin
     size: own.size ?? parent.size,
     density: own.density ?? parent.density,
     labels: Object.freeze(labels),
+    blurMedia: own.blurMedia ?? parent.blurMedia,
   })
 }
 

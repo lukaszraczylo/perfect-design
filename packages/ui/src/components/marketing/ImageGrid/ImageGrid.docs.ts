@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import type { ComponentDoc } from '../../../docs-types'
 
 /** Neutral textless sample scene sized to the tile ratio, so masonry keeps its mixed heights and nothing clips under `object-cover`. */
@@ -30,9 +31,15 @@ const doc: ComponentDoc = {
     { name: 'ratio', type: "'square' | 'video' | 'auto'", description: 'Legacy alias of `aspect` kept for compatibility; used when `aspect` is not set. Default `square` (`auto` for masonry).' },
     { name: 'lightbox', type: 'boolean', default: 'true', description: 'Open a Lightbox on click.' },
     { name: 'viewLabel', type: 'string', default: "'View image'", description: 'Prefix of each button\'s accessible name (localise here).' },
+    { name: 'blurred', type: 'boolean', description: 'Privacy blur on every image, also inside the Lightbox. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false. Changing it clears the per-image reveals.' },
+    { name: 'revealable', type: 'boolean', default: 'false', description: 'Offer a reveal button per image (and inside the Lightbox). Revealing one image leaves the others blurred; a revealed image gets a hide toggle. Buttons are actions whose names say what they do next ("Show image", "Hide image"), with a 24px minimum target (44px on coarse pointers).' },
+    { name: 'revealLabel', type: 'string', default: "'Show image'", description: 'Name of the reveal button (translate it).' },
+    { name: 'hideLabel', type: 'string', default: "'Hide image'", description: 'Name of the button that blurs an image again (translate it).' },
     { name: 'class', type: 'string | object | array', description: 'Merged last on the root; wins over internal classes.' },
   ],
-  emits: [{ name: 'open', payload: '[index: number]', description: 'A thumbnail was activated.' }],
+  emits: [
+    { name: 'reveal', payload: '[index: number, revealed: boolean]', description: 'An image was revealed or blurred again, from the grid or from the Lightbox.' },
+    { name: 'open', payload: '[index: number]', description: 'A thumbnail was activated.' }],
   examples: [
     {
       title: 'Basic: gallery with lightbox',
@@ -82,8 +89,17 @@ const doc: ComponentDoc = {
       code: `<ImageGrid variant="featured" shape="square" gap="sm" :columns="3" :images="images" />`,
       state: () => ({ images: gallery() }),
     },
+    {
+      title: 'Blurred, reveal per image',
+      description: 'Every image is blurred. Revealing one leaves the others blurred; the Lightbox respects the same state.',
+      code: `<ImageGrid blurred revealable :images="images" :columns="3" @reveal="(i, on) => (last = { i, on })" />
+<p class="mt-2 text-sm text-muted-foreground" role="status">{{ last ? 'Image ' + (last.i + 1) + (last.on ? ' revealed' : ' blurred again') : 'All images blurred' }}</p>`,
+      script: `const last = ref(null)`,
+      state: () => ({ images: gallery().slice(0, 3), last: ref(null) }),
+    },
   ],
   a11y: [
+    'Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.',
     'The root is a native `<ul>` and each tile an `<li>`. With the lightbox on, a tile is a `<button type="button" aria-haspopup="dialog">` named "View image: <alt>" (the alt text, else the caption, else the position); its image is decorative so the name is not announced twice. Tiles are at least 44px tall (`min-h-11`) even before the image loads, which keeps lazy images above the 24px target size.',
     'Keyboard: Tab moves through the thumbnails, Enter or Space opens the Lightbox (see Lightbox: Esc closes, Left/Right arrows and Home/End navigate, focus returns to the thumbnail). With `lightbox=false` the tiles are plain images with their `alt`.',
     'Masonry fills column by column, so the visual order differs from the DOM and tab order across columns; use it for galleries whose order does not matter.',
@@ -95,6 +111,7 @@ const doc: ComponentDoc = {
   ],
   related: ['Lightbox', 'BeforeAfter', 'MediaFrame'],
   llmNotes: [
+    'Use `blurred` for privacy, not decoration. With `revealable` each image has its own button; the grid-wide `blurred` is the default for all of them.',
     'Always provide meaningful `alt` (it becomes the button label); never remote placeholder URLs in examples.',
     'Provide `thumb` for large originals.',
     'Choose `variant`: grid for uniform screenshots, masonry for mixed-orientation photography, featured to spotlight one hero image among 4-7 others.',

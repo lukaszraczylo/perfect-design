@@ -3,9 +3,11 @@ import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
 import { faUser } from '../../../lib/icons'
 import { Primitive, type PrimitiveProps } from 'reka-ui'
 import { cn } from '../../../lib/cn'
+import { mediaBlurClass, useMediaBlur } from '../../../lib/media-blur'
 import { violation } from '../../../lib/contract'
 import type { BaseProps } from '../../../lib/types'
 import Icon from '../Icon/Icon.vue'
+import AvatarMedia from './AvatarMedia.vue'
 import { avatarGroupKey, getInitials } from './context'
 import {
   avatarStatusVariants,
@@ -38,10 +40,12 @@ export interface AvatarProps extends BaseProps {
   statusPosition?: AvatarStatusPosition
   /** Text appended to the avatar's accessible name for the status dot ("Ada, online"); defaults to the status name. The dot itself is decorative. */
   statusLabel?: string
+  /** Privacy blur on the image, and on the initials too (they identify the person). Wins over `ConfigProvider blurMedia` and an AvatarGroup, true or false. There is no reveal control: it is too small. */
+  blurred?: boolean
   as?: PrimitiveProps['as']
 }
 
-const props = defineProps<AvatarProps>()
+const props = withDefaults(defineProps<AvatarProps>(), { blurred: undefined })
 const group = inject(avatarGroupKey, null)
 
 const SIZES: readonly AvatarSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl']
@@ -68,6 +72,9 @@ const ring = computed<AvatarRing>(() => {
 const position = computed<AvatarStatusPosition>(() =>
   props.statusPosition && POSITIONS.includes(props.statusPosition) ? props.statusPosition : 'bottom-right',
 )
+
+const blurred = useMediaBlur(() => props.blurred ?? group?.blurred?.())
+const blurClass = computed(() => mediaBlurClass(blurred.value))
 
 const failed = ref(false)
 watch(
@@ -101,22 +108,25 @@ const statusClasses = computed(() => avatarStatusVariants({ size: size.value, st
     :role="isImage ? 'img' : undefined"
     :aria-label="isImage ? accessibleName : undefined"
     :data-status="status"
+    :data-blurred="blurred ? '' : undefined"
     :class="classes"
   >
-    <img
-      v-if="showImage"
-      data-slot="avatar-image"
-      :src="src"
-      :alt="label ?? ''"
-      class="size-full rounded-[inherit] object-cover"
-      @error="failed = true"
-    />
-    <span v-else data-slot="avatar-fallback" :aria-hidden="isImage ? 'true' : undefined" class="flex size-full items-center justify-center overflow-hidden rounded-[inherit]">
-      <slot>
-        <template v-if="initials">{{ initials }}</template>
-        <Icon v-else :icon="faUser" size="sm" />
-      </slot>
-    </span>
+    <AvatarMedia :clip="blurred">
+      <img
+        v-if="showImage"
+        data-slot="avatar-image"
+        :src="src"
+        :alt="label ?? ''"
+        :class="cn('size-full rounded-[inherit] object-cover', blurClass)"
+        @error="failed = true"
+      />
+      <span v-else data-slot="avatar-fallback" :aria-hidden="isImage ? 'true' : undefined" :class="cn('flex size-full items-center justify-center overflow-hidden rounded-[inherit]', blurClass)">
+        <slot>
+          <template v-if="initials">{{ initials }}</template>
+          <Icon v-else :icon="faUser" size="sm" />
+        </slot>
+      </span>
+    </AvatarMedia>
     <span
       v-if="status"
       data-slot="avatar-status"

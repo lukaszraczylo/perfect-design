@@ -25,6 +25,7 @@ const doc: ComponentDoc = {
     { name: 'statusPosition', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Corner of the status dot. Unknown values fall back to bottom-right.' },
     { name: 'statusLabel', type: 'string', description: 'Accessible label of the dot; defaults to the status name.' },
     { name: 'as', type: 'string | Component', default: "'span'", description: 'Element to render.' },
+    { name: 'blurred', type: 'boolean', description: 'Privacy blur for screen sharing, demos and sensitive uploads. Blurs the image and the initials (they identify the person too); the status dot stays sharp. Wins over `ConfigProvider blurMedia` and over an AvatarGroup, true or false. Undefined (default) inherits, then falls back to false. There is no reveal control: the avatar is too small.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],
   slots: [{ name: 'default', description: 'Custom fallback content (icon, text) shown when there is no image. Replaces initials.' }],
@@ -93,8 +94,20 @@ const doc: ComponentDoc = {
 </div>`,
       state: () => ({ faUser }),
     },
+    {
+      title: 'Privacy blur',
+      description: 'The image and the initials are blurred, the status dot stays sharp. The accessible name is unchanged. Use it while sharing a screen, not as decoration.',
+      code: `<div class="flex flex-wrap items-center gap-3">
+  <Avatar :src="portrait" name="Author One" blurred />
+  <Avatar name="Author Two" status="success" blurred />
+  <Avatar :src="portrait" name="Author Three" />
+</div>`,
+      script: 'const portrait = samplePortrait()',
+      state: () => ({ portrait: samplePortrait() }),
+    },
   ],
   a11y: [
+    'Blur is visual only: the `alt`, the accessible name and the status text are unchanged, and the root gets `data-blurred` as a styling and test hook. Do not rely on it to hide a name from assistive technology; pass `alt=""` or omit `name` where the person must not be named.',
     'With an image: renders `<img alt>` (alt falls back to name).',
     'Without an image the root gets role="img" with aria-label = alt or name; the initials are aria-hidden so they are not read as letters.',
     'The status dot is decorative (aria-hidden). Because role="img" hides its children from assistive tech, the status text is folded into the avatar\'s own name ("Author One, online"; override the text with `statusLabel`), so colour is never the only signal.',
@@ -105,6 +118,7 @@ const doc: ComponentDoc = {
     'Throws a ContractError when an Avatar has neither `name` nor `alt` (`alt=""` marks it decorative and is accepted).',
   ],
   llmNotes: [
+    'Use `blurred` (or `ConfigProvider blurMedia`) for privacy, never as decoration. It blurs the initials as well as the image.',
     'Always pass `name` (even with `src`) so the fallback and label work.',
     'Do not hard-code size via width/height classes; use the `size` prop.',
     'Use `statusPosition` and `ring` instead of absolutely positioning your own dots or ring classes.',

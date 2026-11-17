@@ -2,6 +2,7 @@
 import { computed, h, provide, useSlots } from 'vue'
 import { Primitive, type PrimitiveProps } from 'reka-ui'
 import { cn } from '../../../lib/cn'
+import { useMediaBlur } from '../../../lib/media-blur'
 import type { BaseProps } from '../../../lib/types'
 import Avatar from '../Avatar/Avatar.vue'
 import { avatarGroupKey } from '../Avatar/context'
@@ -24,6 +25,8 @@ export interface AvatarGroupProps extends BaseProps {
   max?: number
   size?: AvatarSize
   shape?: AvatarShape
+  /** Privacy blur on every avatar in the group; the `+N` count stays readable. Wins over `ConfigProvider blurMedia`; an Avatar's own `blurred` wins over the group. */
+  blurred?: boolean
   /** `stacked` overlaps the avatars (default); `spaced` puts them side by side with a gap and lets them wrap. */
   layout?: AvatarGroupLayout
   /** Stacked: how far the avatars overlap. Spaced: the gap between them. `compact`, `default` or `loose`. */
@@ -31,10 +34,11 @@ export interface AvatarGroupProps extends BaseProps {
   as?: PrimitiveProps['as']
 }
 
-const props = withDefaults(defineProps<AvatarGroupProps>(), { items: () => [], size: 'md', shape: 'circle', layout: 'stacked', density: 'default', as: 'div' })
+const props = withDefaults(defineProps<AvatarGroupProps>(), { items: () => [], blurred: undefined, size: 'md', shape: 'circle', layout: 'stacked', density: 'default', as: 'div' })
 const slots = useSlots()
 
-provide(avatarGroupKey, { size: () => props.size, shape: () => props.shape })
+provide(avatarGroupKey, { size: () => props.size, shape: () => props.shape, blurred: () => props.blurred })
+const blurred = useMediaBlur(() => props.blurred)
 
 const SIZES: readonly AvatarSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl']
 const SHAPES: readonly AvatarShape[] = ['circle', 'rounded', 'square']
@@ -72,5 +76,5 @@ const Content = () => {
 </script>
 
 <template>
-  <Primitive data-slot="avatar-group" :as="as" role="group" :class="classes"><Content /></Primitive>
+  <Primitive data-slot="avatar-group" :as="as" role="group" :data-blurred="blurred ? '' : undefined" :class="classes"><Content /></Primitive>
 </template>

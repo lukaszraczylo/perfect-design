@@ -127,6 +127,7 @@ const doc: ComponentDoc = {
   ],
   related: ['BlogGrid', 'Badge', 'FeatureCard', 'Testimonial'],
   llmNotes: [
+    'The cover image blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.',
     'Pass dates as ISO strings (`2024-03-01`) so `<time datetime>` is emitted.',
     'Do not nest interactive elements in the card: the title link is stretched over it.',
     'Use `vertical` in grids, `horizontal` for list-style indexes, `featured` once at the top of an index.',

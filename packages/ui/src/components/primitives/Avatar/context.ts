@@ -5,6 +5,7 @@ import type { AvatarShape, AvatarSize } from './variants'
 export interface AvatarGroupContext {
   size: () => AvatarSize | undefined
   shape: () => AvatarShape | undefined
+  blurred?: () => boolean | undefined
 }
 
 export const avatarGroupKey: InjectionKey<AvatarGroupContext> = Symbol('avatar-group')

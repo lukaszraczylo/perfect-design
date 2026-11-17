@@ -58,9 +58,11 @@ export interface TeamMemberCardProps extends BaseProps, TeamMember {
   align?: TeamMemberAlign
   /** Heading level of the name (1-6). Invalid values fall back to 3. */
   level?: 1 | 2 | 3 | 4 | 5 | 6
+  /** Privacy blur on the photo (and the initials); name, role and links stay readable. Wins over `ConfigProvider blurMedia`, true or false. */
+  blurred?: boolean
 }
 
-const props = withDefaults(defineProps<TeamMemberCardProps>(), { variant: 'card', size: 'md', shape: 'circle', align: 'start', level: 3, links: () => [] })
+const props = withDefaults(defineProps<TeamMemberCardProps>(), { variant: 'card', size: 'md', shape: 'circle', align: 'start', level: 3, links: () => [], blurred: undefined })
 
 const quiet = parentChecksItems()
 onMounted(async () => {
@@ -87,7 +89,7 @@ const linkClass = cn('inline-flex min-h-6 min-w-6 items-center justify-center ga
 <template>
   <div data-slot="team-member-card" :data-variant="variant" :data-size="size" :data-shape="shape" :data-align="align" :class="classes">
     <slot name="avatar">
-      <Avatar :src="avatar" :alt="avatarAlt" :name="name" :shape="shape" :class="avatarClass" />
+      <Avatar :src="avatar" :alt="avatarAlt" :name="name" :shape="shape" :blurred="blurred" :class="avatarClass" />
     </slot>
     <div data-slot="team-member-body" class="flex min-w-0 flex-1 flex-col gap-1">
       <component :is="tag" v-if="name" data-slot="team-member-name" :class="nameClass">{{ name }}</component>

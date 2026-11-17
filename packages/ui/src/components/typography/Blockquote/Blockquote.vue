@@ -2,6 +2,7 @@
 import { computed, useSlots, watchEffect } from 'vue'
 import { Primitive, type PrimitiveProps } from 'reka-ui'
 import { cn } from '../../../lib/cn'
+import { mediaBlurSoftClass, useMediaBlur } from '../../../lib/media-blur'
 import type { BaseProps } from '../../../lib/types'
 import {
   blockquoteAligns,
@@ -38,6 +39,7 @@ export interface BlockquoteProps extends BaseProps {
 }
 
 const props = withDefaults(defineProps<BlockquoteProps>(), { variant: 'default', as: 'blockquote' })
+const blurred = useMediaBlur(() => undefined)
 const slots = useSlots()
 
 // Slots are not reactive: read them while rendering so a slot that appears or disappears updates the footer.
@@ -81,7 +83,7 @@ const authorClasses = computed(() => blockquoteAuthorVariants({ align: align.val
       <slot />
       <footer v-if="hasAuthorRow()" data-slot="blockquote-footer" :class="authorClasses">
         <span v-if="hasAvatar()" data-slot="blockquote-avatar" class="shrink-0">
-          <slot name="avatar"><img :src="avatar" alt="" class="size-10 rounded-full object-cover" /></slot>
+          <slot name="avatar"><img :src="avatar" alt="" :data-blurred="blurred ? '' : undefined" :class="cn('size-10 rounded-full object-cover', mediaBlurSoftClass(blurred))" /></slot>
         </span>
         <span v-if="hasAuthorName() || hasRole()" class="min-w-0 text-start leading-snug">
           <span v-if="hasAuthorName()" data-slot="blockquote-author" class="block text-sm font-semibold text-foreground">

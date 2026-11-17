@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import type { ComponentDoc } from '../../../docs-types'
 
 /** Neutral textless landscape sample (docs only). */
@@ -22,9 +23,17 @@ const doc: ComponentDoc = {
     { name: 'alt', type: 'string', description: 'Alt text for `src`. Required with `src` (and no default slot). Describe what the screenshot shows. An empty string marks the image decorative; only do that when the caption already says it.' },
     { name: 'elevated', type: 'boolean', default: 'false', description: 'Neutral `shadow-md` under the frame. Off by default because only floating surfaces cast shadows.' },
     { name: 'contentClass', type: 'string | object | array', description: 'Classes for the content area (padding, background, font).' },
+    { name: 'blurred', type: 'boolean', description: 'Privacy blur on the content area (the image or whatever is in the slot); the chrome bar stays sharp. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false.' },
+    { name: 'defaultBlurred', type: 'boolean', description: 'Starting blur when `blurred` is not bound.' },
+    { name: 'revealable', type: 'boolean', default: 'false', description: 'When blurred, show a button that unblurs, then a toggle that blurs again. The button is an action whose name says what it does next ("Show image", "Hide image"), with a 24px minimum target (44px on coarse pointers) and does not appear while the media was never blurred.' },
+    { name: 'revealLabel', type: 'string', default: "'Show image'", description: 'Name of the reveal button (translate it).' },
+    { name: 'hideLabel', type: 'string', default: "'Hide image'", description: 'Name of the button that blurs again (translate it).' },
     { name: 'class', type: 'string | object | array', description: 'Merged last on the frame root; wins over internal classes.' },
   ],
   slots: [{ name: 'default', description: 'Frame content (image, video, code). Overrides `src`. Wide code needs its own scroll container (see the code example).' }],
+  emits: [
+    { name: 'update:blurred', payload: '[value: boolean]', description: 'The reveal button changed the blur.' },
+  ],
   examples: [
     {
       title: 'Browser around a screenshot',
@@ -94,8 +103,16 @@ const doc: ComponentDoc = {
       script: `const shot = '/screenshots/catalogue.png'`,
       state: () => ({ shot: sampleScene() }),
     },
+    {
+      title: 'Blurred, revealable',
+      description: 'Content is blurred for a demo or screen share. The button reveals it and hides it again.',
+      code: `<MediaFrame v-model:blurred="blurred" revealable title="localhost:5173/dashboard" :src="shot" alt="Dashboard with a sidebar and a table of components" />`,
+      script: `const blurred = ref(true)\nconst shot = '/screenshots/dashboard.png'`,
+      state: () => ({ blurred: ref(true), shot: sampleScene() }),
+    },
   ],
   a11y: [
+    'Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.',
     'The frame is a `figure`. Add `aria-label` or a `figcaption` when the capture needs a name; the chrome dots and notch are aria-hidden decoration and the address bar text is plain text.',
     'Give `src` images a meaningful `alt`. Empty alt is for decoration only.',
     'Scrollable code inside the frame must be focusable and labelled: `tabindex="0"`, `role="region"` and `aria-label` on the scrolling element (Hero does this for its `code` prop).',
@@ -107,6 +124,7 @@ const doc: ComponentDoc = {
   ],
   related: ['Hero', 'ImageGrid', 'AspectRatio'],
   llmNotes: [
+    'Use `blurred` for privacy (screen sharing, demos, sensitive uploads), never as decoration. Add `revealable` when the viewer may look.',
     'Wrap real screenshots only. Never recreate a dashboard in markup inside a frame.',
     'Use `size` for chrome density, `shape="square"` and `appearance="borderless"` for flush layouts; never add chrome with custom classes.',
     'Use `browser` for web screenshots, `window` for terminal and code, `phone` for mobile screens, `plain` for no chrome.',

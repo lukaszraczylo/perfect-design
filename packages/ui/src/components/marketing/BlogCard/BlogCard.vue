@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, useSlots, watch } from 'vue'
 import { cn } from '../../../lib/cn'
+import { mediaBlurClass, useMediaBlur } from '../../../lib/media-blur'
 import type { BaseProps } from '../../../lib/types'
 import Badge from '../../primitives/Badge/Badge.vue'
 import {
@@ -57,6 +58,7 @@ export interface BlogCardProps extends BaseProps, BlogPost {
 }
 
 const props = withDefaults(defineProps<BlogCardProps>(), { variant: 'vertical', size: 'md', shape: 'rounded', appearance: 'card', level: 3, imageAlt: undefined, locale: 'en-US' })
+const blurred = useMediaBlur(() => undefined)
 const slots = useSlots()
 const quiet = parentChecksItems()
 onMounted(async () => {
@@ -110,7 +112,8 @@ const authorClass = computed(() => cn('font-medium [overflow-wrap:anywhere]', ap
           :alt="imageAlt ?? ''"
           loading="lazy"
           decoding="async"
-          class="absolute inset-0 size-full object-cover"
+          :data-blurred="blurred ? '' : undefined"
+          :class="cn('absolute inset-0 size-full object-cover', mediaBlurClass(blurred))"
           @error="broken = true"
         />
       </slot>
