@@ -24801,7 +24801,7 @@ Example: Tracking a scroll box
 ```vue
 <div class="flex flex-col gap-2">
   <ScrollProgress target="#sp-basic" class="static bg-muted" label="Progress through the sample article" />
-  <div id="sp-basic" role="region" aria-label="Sample article" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
+  <div id="sp-basic" role="region" aria-label="Sample article (sp-basic)" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
 </div>
 ```
 
@@ -24811,7 +24811,7 @@ Example: Size gallery: sm, md, lg
   <ScrollProgress size="sm" target="#sp-size" class="static bg-muted" label="Reading progress, small" />
   <ScrollProgress size="md" target="#sp-size" class="static bg-muted" label="Reading progress, medium" />
   <ScrollProgress size="lg" target="#sp-size" class="static bg-muted" label="Reading progress, large" />
-  <div id="sp-size" role="region" aria-label="Sample article" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
+  <div id="sp-size" role="region" aria-label="Sample article (sp-size)" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
 </div>
 ```
 
@@ -24822,7 +24822,7 @@ Example: Tone gallery: primary, neutral, success, info
   <ScrollProgress tone="neutral" size="lg" target="#sp-tone" class="static bg-muted" label="Reading progress, neutral" />
   <ScrollProgress tone="success" size="lg" target="#sp-tone" class="static bg-muted" label="Reading progress, success" />
   <ScrollProgress tone="info" size="lg" target="#sp-tone" class="static bg-muted" label="Reading progress, info" />
-  <div id="sp-tone" role="region" aria-label="Sample article" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
+  <div id="sp-tone" role="region" aria-label="Sample article (sp-tone)" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
 </div>
 ```
 
@@ -24832,7 +24832,7 @@ Example: Variant gallery: bar, rounded, inset
   <ScrollProgress variant="bar" size="lg" target="#sp-variant" class="static bg-muted" label="Reading progress, bar" />
   <ScrollProgress variant="rounded" size="lg" target="#sp-variant" class="static bg-muted" label="Reading progress, rounded" />
   <ScrollProgress variant="inset" size="lg" target="#sp-variant" class="static" label="Reading progress, inset" />
-  <div id="sp-variant" role="region" aria-label="Sample article" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
+  <div id="sp-variant" role="region" aria-label="Sample article (sp-variant)" tabindex="0" :ref="(el) => { if (el && !el.scrollTop) el.scrollTop = 90 }" class="h-32 overflow-auto rounded-md border p-3 text-sm text-muted-foreground"><p v-for="n in 12" :key="n" class="py-1">Sample paragraph {{ n }}.</p></div>
 </div>
 ```
 
