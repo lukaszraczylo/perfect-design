@@ -25,6 +25,7 @@ const doc: ComponentDoc = {
         { name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'", default: "'md'", description: 'Max-width preset from the sm breakpoint (unknown values fall back to md; ignored by fullscreen).' },
         { name: 'tone', type: "'neutral' | 'danger' | 'warning' | 'success' | 'info'", default: "'neutral'", description: 'Border colour for a danger, warning, success or info dialog (unknown values fall back to neutral). Adds data-tone when not neutral.' },
         { name: 'showClose', type: 'boolean', default: 'true', description: 'Show the X button.' },
+        { name: 'closeLabel', type: 'string', default: "'Close'", description: 'Accessible name of the X button, for i18n. A ConfigProvider can set it for every Dialog and Sheet as `dialog.close`. A blank value keeps the default.' },
         { name: 'class', type: 'string | object | array', description: 'Merged onto the panel (wins over variant classes).' },
       ],
     },

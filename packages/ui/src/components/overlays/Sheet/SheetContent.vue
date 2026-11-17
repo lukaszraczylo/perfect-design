@@ -13,6 +13,7 @@ import { faXmark } from '../../../lib/icons'
 import { cn } from '../../../lib/cn'
 import { RequiredPartsProbe, useRequiredParts } from '../../../lib/contract'
 import { focusRing } from '../../../lib/styles'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
 import { normalizeOverlayTone, type OverlayTone } from '../overlayTone'
 import { sheetSides, sheetSizes, sheetVariantNames, sheetVariants, type SheetSide, type SheetSize, type SheetVariant } from './variants'
 import Icon from '../../primitives/Icon/Icon.vue'
@@ -25,6 +26,8 @@ export interface SheetContentOwnProps {
   size?: SheetSize
   /** Show the built-in close (X) button. */
   showClose?: boolean
+  /** Accessible name of the close (X) button. Also read from a ConfigProvider as `dialog.close`. A blank value keeps the default. */
+  closeLabel?: string
   /** Floating card look: margin to the viewport edges, rounded corners, full border. */
   inset?: boolean
   /** `default` padded panel, or `flush` for content that runs edge to edge. */
@@ -49,10 +52,13 @@ useRequiredParts('SheetContent', [{ part: 'SheetTitle', orAttrs: ['aria-label', 
 const emits = defineEmits<DialogContentEmits>()
 
 const delegated = computed(() => {
-  const { class: _c, side: _s, size: _z, showClose: _x, inset: _i, variant: _v, tone: _t, ...rest } = props
+  const { class: _c, side: _s, size: _z, showClose: _x, closeLabel: _l, inset: _i, variant: _v, tone: _t, ...rest } = props
   return rest
 })
 const forwarded = useForwardPropsEmits(delegated, emits)
+// Precedence: `closeLabel` prop, then a surrounding ConfigProvider (`dialog.close`), then the English default.
+const configured = useConfigLabels('dialog', { close: 'Close' })
+const closeName = computed(() => props.closeLabel?.trim() || configured.value.close)
 
 const sideKey = computed<SheetSide>(() => (sheetSides.includes(props.side) ? props.side : 'right'))
 const sizeKey = computed<SheetSize>(() => (sheetSizes.includes(props.size) ? props.size : 'md'))
@@ -80,7 +86,7 @@ const toneKey = computed<OverlayTone>(() => normalizeOverlayTone(props.tone))
       <RekaClose
         v-if="showClose"
         data-slot="sheet-close-x"
-        aria-label="Close"
+        :aria-label="closeName"
         :class="cn('absolute end-4 top-4 inline-flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 pointer-coarse:size-10 forced-colors:opacity-100', focusRing)"
       >
         <Icon :icon="faXmark" />

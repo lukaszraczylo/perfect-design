@@ -28,6 +28,7 @@ const doc: ComponentDoc = {
         { name: 'variant', type: "'default' | 'flush'", default: "'default'", description: 'Padding: `flush` removes the padding and the gap, keeping the safe-area padding on the docked edge (unknown values fall back to default). Adds data-variant when flush.' },
         { name: 'tone', type: "'neutral' | 'danger' | 'warning' | 'success' | 'info'", default: "'neutral'", description: 'Border colour (unknown values fall back to neutral). Adds data-tone when not neutral.' },
         { name: 'showClose', type: 'boolean', default: 'true', description: 'Show the X button.' },
+        { name: 'closeLabel', type: 'string', default: "'Close'", description: 'Accessible name of the X button, for i18n. A ConfigProvider can set it for every Dialog and Sheet as `dialog.close`. A blank value keeps the default.' },
         { name: 'class', type: 'string | object | array', description: 'Merged onto the panel (wins over variant classes).' },
       ],
     },

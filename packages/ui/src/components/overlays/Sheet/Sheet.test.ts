@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
+import { ConfigProvider } from '../../layout/ConfigProvider'
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, sheetSides, sheetSizes, sheetVariants } from './index'
 
 let wrapper: VueWrapper | undefined
@@ -84,6 +85,29 @@ describe('Sheet', () => {
     document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0, pointerType: 'mouse' }))
     await nextTick()
     expect(open.value).toBe(false)
+  })
+
+  it('names the X button with closeLabel, a ConfigProvider, or the English default', async () => {
+    make({ open: true, contentProps: { closeLabel: 'Fermer' } })
+    await nextTick()
+    expect(q('[data-slot="sheet-close-x"]')!.getAttribute('aria-label')).toBe('Fermer')
+    wrapper!.unmount()
+    make({ open: true, contentProps: { closeLabel: '  ' } })
+    await nextTick()
+    expect(q('[data-slot="sheet-close-x"]')!.getAttribute('aria-label')).toBe('Close')
+    wrapper!.unmount()
+    const open = ref(true)
+    wrapper = mount(
+      defineComponent({
+        setup: () => () =>
+          h(ConfigProvider, { labels: { 'dialog.close': 'Schließen' } }, () =>
+            h(Sheet, { open: open.value }, () => h(SheetContent, null, () => [h(SheetTitle, null, () => 'Title'), h('p', 'Body')])),
+          ),
+      }),
+      { attachTo: document.body },
+    )
+    await nextTick()
+    expect(q('[data-slot="sheet-close-x"]')!.getAttribute('aria-label')).toBe('Schließen')
   })
 
   it('hides the X with showClose=false', async () => {

@@ -4760,7 +4760,7 @@
       "group": "layout",
       "subgroup": "Configuration",
       "summary": "Sets text direction, locale, time zone, motion override, default size and density, and translated built-in strings for everything inside it.",
-      "description": "Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`, `link.externalHint`, `heatmap.less|more`, `usageEstimator.included|graduated`. Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox, ModelPicker, Link, Heatmap, CalendarHeatmap and UsageEstimator read them today. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. `blurMedia` is the privacy switch: it blurs avatars and photos in the subtree, and each component's own `blurred` prop wins. Use `asChild` to render no extra element, or `class=\"contents\"` to keep layout unchanged.",
+      "description": "Wrap an app or a region once instead of passing `locale`, `size` or translated labels to every component. `dir` and `locale` are set as `dir` and `lang` on the wrapper and passed to the headless primitives (menus, tabs, sliders), which read them even in portalled content. `labels` translates the strings a component ships with, keyed `<component>.<string>`: `pagination.nav|first|previous|next|last|page|summary`, `datePicker.placeholder|clear|required|dialog`, `confirmDialog.confirm|cancel|defaultTitle|error`, `fileDropzone.prompt|dragging|remove|added|addedMany|removed|typeNotAllowed|tooLarge|onlyOne|atMost|accepts|upTo|maxFiles`, `multiSelect.more|clearSelection|selectAll|clear|options`, `colorPicker.swatches|input|invalid`, `passwordInput.show|revealWarning`, `textarea.count|limit`, `combobox.clearSelection|toggleOptions|empty`, `modelPicker.clearSelection|toggleOptions|empty`, `link.externalHint`, `heatmap.less|more`, `usageEstimator.included|graduated`, `command.noResults|results`, `dialog.close` (Dialog and Sheet). Pagination, DatePicker, ConfirmDialog, FileDropzone, MultiSelect, ColorPicker, PasswordInput, Textarea, Combobox, ModelPicker, Link, Heatmap, CalendarHeatmap, UsageEstimator, Command, Dialog and Sheet read them today. A label that depends on a number is a plural label: the bare key holds the `other` form and `<key>Zero`, `<key>One`, `<key>Two`, `<key>Few`, `<key>Many` hold the forms `Intl.PluralRules` picks for the provider `locale` (`command.resultsOne`, `command.resultsFew`). Setting any form replaces all English forms of that label. Placeholders such as `{count}`, `{name}`, `{size}`, `{max}` and `{types}` are replaced where a label uses them. Precedence per value is the component prop, then the nearest provider, then the English default, so a component with no provider behaves exactly as before. Providers nest: an inner provider overrides an outer one per key and `labels` merge per key. Invalid values (an unknown `dir`, a bad locale or time zone, a label that is not a non-blank string) are ignored, and labels are always rendered as text, never as HTML. Read the merged result in your own components with `useConfig()` (a computed with `dir`, `locale`, `timeZone`, `reducedMotion`, `size`, `density`, `labels`) and give them the same translation hook with `useConfigLabels(prefix, defaults)`. `reducedMotion` is an app-level override for code that asks; CSS `motion-reduce:` rules still follow the operating system. `dir` and `lang` are attributes of the wrapper, so portalled content (dialogs, popovers) does not inherit them from the DOM: use the same `dir` on `<html>` for those, or rely on the primitives that read it from the provider. `blurMedia` is the privacy switch: it blurs avatars and photos in the subtree, and each component's own `blurred` prop wins. Use `asChild` to render no extra element, or `class=\"contents\"` to keep layout unchanged.",
       "status": "stable",
       "props": [
         {
@@ -17793,6 +17793,11 @@
           "description": "Search row height, row padding and type, and list max height (unknown values fall back to md). Adds data-size when not md."
         },
         {
+          "name": "labels",
+          "type": "Partial<CommandLabels>",
+          "description": "Screen-reader status text for i18n: `noResults` (default `No results found.`), and `results` with `{count}` (default `{count} results available`) plus plural forms `resultsOne`, `resultsFew`, `resultsMany`, `resultsTwo`, `resultsZero` chosen with `Intl.PluralRules` and the ConfigProvider locale. Setting any form of `results` replaces all English forms. A ConfigProvider can set the same keys as `command.*`."
+        },
+        {
           "name": "class",
           "type": "string | object | array",
           "description": "Merged onto the root."
@@ -17962,6 +17967,7 @@
         "Throws a ContractError when `CommandDialog` has a blank `title` (it is the screen-reader name of the dialog)."
       ],
       "llmNotes": [
+        "On a translated page, pass `labels` (or ConfigProvider `command.*` keys): `noResults`, `results` with `{count}`, and the plural forms the language needs (`resultsOne`, `resultsFew`).",
         "Run actions with @select on CommandItem (close the dialog yourself with v-model:open).",
         "Every CommandItem needs a unique value; searchable text is the value plus keywords, not the rendered label, so use a descriptive value or add keywords.",
         "Always render a CommandEmpty so empty results are announced.",
@@ -18779,6 +18785,12 @@
               "description": "Show the X button."
             },
             {
+              "name": "closeLabel",
+              "type": "string",
+              "default": "'Close'",
+              "description": "Accessible name of the X button, for i18n. A ConfigProvider can set it for every Dialog and Sheet as `dialog.close`. A blank value keeps the default."
+            },
+            {
               "name": "class",
               "type": "string | object | array",
               "description": "Merged onto the panel (wins over variant classes)."
@@ -18956,6 +18968,12 @@
               "type": "boolean",
               "default": "true",
               "description": "Show the X button."
+            },
+            {
+              "name": "closeLabel",
+              "type": "string",
+              "default": "'Close'",
+              "description": "Accessible name of the X button, for i18n. A ConfigProvider can set it for every Dialog and Sheet as `dialog.close`. A blank value keeps the default."
             },
             {
               "name": "class",

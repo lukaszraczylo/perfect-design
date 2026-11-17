@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
+import { ConfigProvider } from '../../layout/ConfigProvider'
 import {
   Dialog,
   DialogClose,
@@ -81,6 +82,29 @@ describe('Dialog', () => {
     x.click()
     await nextTick()
     expect(open.value).toBe(false)
+  })
+
+  it('names the X button with closeLabel, a ConfigProvider, or the English default', async () => {
+    make({ open: true, contentProps: { closeLabel: 'Fermer' } })
+    await nextTick()
+    expect(q('[data-slot="dialog-close-x"]')!.getAttribute('aria-label')).toBe('Fermer')
+    wrapper!.unmount()
+    make({ open: true, contentProps: { closeLabel: '  ' } })
+    await nextTick()
+    expect(q('[data-slot="dialog-close-x"]')!.getAttribute('aria-label')).toBe('Close')
+    wrapper!.unmount()
+    const open = ref(true)
+    wrapper = mount(
+      defineComponent({
+        setup: () => () =>
+          h(ConfigProvider, { labels: { 'dialog.close': 'Schließen' } }, () =>
+            h(Dialog, { open: open.value }, () => h(DialogContent, null, () => [h(DialogTitle, null, () => 'Title'), h('p', 'Body')])),
+          ),
+      }),
+      { attachTo: document.body },
+    )
+    await nextTick()
+    expect(q('[data-slot="dialog-close-x"]')!.getAttribute('aria-label')).toBe('Schließen')
   })
 
   it('closes on Escape', async () => {
