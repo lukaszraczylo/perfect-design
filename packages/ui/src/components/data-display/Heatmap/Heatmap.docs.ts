@@ -23,7 +23,9 @@ const doc: ComponentDoc = {
     { name: 'gap', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Space between cells: 1px, 2px or 4px (`border-spacing`).' },
     { name: 'showLegend', type: 'boolean', default: 'true', description: 'Less … More swatch legend.' },
     { name: 'colLabelStep', type: 'number', default: '1', description: 'Show every n-th column label visibly; the others stay screen-reader only. With `fit` the step also grows automatically so labels never overlap.' },
-    { name: 'fit', type: 'boolean', default: 'false', description: 'Stretch the columns to the width of the container. Cells stay square and grow up to 40px (`size` is ignored; `shape` and `gap` still apply). The table keeps its semantics through ARIA roles. The first and last column labels always show and the ones between are thinned so none overlap.' },
+    { name: 'fit', type: 'boolean', default: 'false', description: 'Stretch the columns to the width of the container. Cells stay square and grow up to 40px (`size` is ignored; `shape` and `gap` still apply). The table keeps its semantics through ARIA roles. Each column label is centred over its column. The first and last labels always show; the ones between are thinned so none overlap, and a first or last label wider than its cell hugs the grid edge so it stays inside.' },
+    { name: 'fill', type: 'boolean', default: 'false', description: 'Only with `fit`: cells grow past the 40px cap until the grid fills the container width (columns are `minmax(0, 1fr)`). Cells stay square, so the heatmap gets taller as it gets wider; label thinning uses the uncapped cell width.' },
+    { name: 'legendLabels', type: '{ less?: string; more?: string }', description: 'Text of the legend ends, for translation. Wins over the `ConfigProvider` labels `heatmap.less` and `heatmap.more`; the English words "Less" and "More" are the default. With `fit` and row labels the legend starts at the first cell column.' },
     { name: 'label', type: 'string', description: 'Accessible name of the region and its visually hidden table caption. Required (or pass `aria-label` / `aria-labelledby`); an auto-generated summary is only the fallback when strict mode is off.' },
     { name: 'emptyText', type: 'string', default: "'No data'", description: 'Shown when there are no cells.' },
     { name: 'formatValue', type: '(value: number) => string', description: 'Formats numbers in the visually hidden table cells, the default cell tooltip and the summary range, e.g. as a percentage. Empty cells stay "no data". Unset keeps plain number formatting.' },
@@ -70,6 +72,11 @@ const grid = days.map((_, r) => weeks.map((_, c) => ((r * 7 + c * 13) % 11 < 3 ?
       code: `<Heatmap fit label="Sample data: requests by hour" :row-labels="['Mon', 'Tue', 'Wed']" :col-labels="Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0') + ':00')" :values="Array.from({ length: 3 }, (_, r) => Array.from({ length: 24 }, (_, c) => (r * 7 + c * 3) % 11))" />`,
     },
     {
+      title: 'Fill the container',
+      description: '`fit` stops at 40px cells; add `fill` so the cells keep growing until the grid reaches the right edge of a wide card. `legendLabels` translates the legend. Deterministic sample data.',
+      code: `<Heatmap fit fill label="Sample data: requests by hour, full width" :legend-labels="{ less: 'Fewer', more: 'More' }" :row-labels="['Mon', 'Tue', 'Wed']" :col-labels="Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))" :values="Array.from({ length: 3 }, (_, r) => Array.from({ length: 24 }, (_, c) => (r * 7 + c * 3) % 11))" />`,
+    },
+    {
       title: 'Shape: square and circle',
       description: 'The same sample data as squares and as dots. Intensity and the hidden values are identical; circles suit a sparse matrix, squares a calendar.',
       code: `<div class="flex flex-wrap items-start gap-8">
@@ -114,6 +121,8 @@ const grid = days.map((_, r) => weeks.map((_, c) => ((r * 7 + c * 13) % 11 < 3 ?
     'Use `shape="circle"` for sparse matrices and `gap="lg"` to separate cells further; keep squares for dense calendars. `levels` already sets the number of intensity steps (1 to 5), so there is no separate `scale` prop.',
     'Use `formatValue` for units (percent, bytes); it changes text only, not the intensity.',
     'Use `colLabelStep` for wide calendars instead of removing labels.',
+    'Use `fit` to fill a container up to 40px cells and `fit fill` when the grid must reach the container edge; `fill` alone does nothing.',
+    'Translate the legend with `legendLabels` or the `ConfigProvider` labels `heatmap.less` / `heatmap.more`; never leave English legend text in a localised app.',
     'Pick one `tone`; do not mix colours. Use `min`/`max` to compare several heatmaps on one scale.',
   ],
   replaces: ['GitHub-style contribution calendar components', 'custom div-grid heatmaps'],

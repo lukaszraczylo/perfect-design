@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useAttrs } from 'vue'
+import { computed, nextTick, ref, useAttrs, watch } from 'vue'
 import { cn } from '../../../lib/cn'
 import { requireOneOf, violation } from '../../../lib/contract'
 import { focusRing } from '../../../lib/styles'
@@ -8,6 +8,7 @@ import { extent, formatNumber, isFiniteNumber } from '../_chart/chartMath'
 import { estimateTextWidth, labelStep, oneOf, plural } from '../_chart/chartKit'
 import { useMeasuredWidth } from '../_chart/useMeasuredWidth'
 import { useMountedCheck } from '../_shared/contract'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
 import type { ChartTone } from '../_chart/tones'
 import { heatClass, heatLevel, normalizeLevels } from './heatLevel'
 import { heatmapCellVariants, heatmapFitGapClass, heatmapFitShapeClass, heatmapTableVariants, HEATMAP_FIT_MAX_CELL_PX, type HeatmapGap, type HeatmapShape, type HeatmapSize } from './variants'
@@ -36,6 +37,10 @@ export interface HeatmapProps extends BaseProps {
   colLabelStep?: number
   /** Cells stretch to the width of the container (square, up to 40px) instead of the fixed `size`. The first and last column labels always show; the ones between are thinned to fit. */
   fit?: boolean
+  /** Only with `fit`: cells grow past the 40px cap until the grid fills the container width. They stay square, so the heatmap gets taller as it gets wider. */
+  fill?: boolean
+  /** Text of the legend ends. Wins over the `ConfigProvider` labels `heatmap.less` and `heatmap.more`; the English words are the default. */
+  legendLabels?: { less?: string; more?: string }
   /** Accessible label (table caption); defaults to an auto-generated summary. */
   label?: string
   /** Shown when `values` has no cells. */
@@ -55,6 +60,7 @@ const props = withDefaults(defineProps<HeatmapProps>(), {
   showLegend: true,
   colLabelStep: 1,
   fit: false,
+  fill: false,
   emptyText: 'No data',
 })
 
@@ -82,8 +88,14 @@ const shapeKey = computed(() => oneOf<HeatmapShape>(props.shape, ['square', 'cir
 
 const legendCellClass = computed(() => (props.fit ? heatmapCellVariants({ shape: shapeKey.value, size: 'md' }) : cellClass.value))
 const fitCellClass = computed(() => cn('block aspect-square w-full', heatmapFitShapeClass[shapeKey.value]))
+const filling = computed(() => props.fit && props.fill)
 const fitTableStyle = computed(() => ({
-  gridTemplateColumns: `${hasRowLabels.value ? 'auto ' : ''}repeat(${cols.value}, minmax(0, ${HEATMAP_FIT_MAX_CELL_PX}px))`,
+  gridTemplateColumns: `${hasRowLabels.value ? 'auto ' : ''}repeat(${cols.value}, minmax(0, ${filling.value ? '1fr' : `${HEATMAP_FIT_MAX_CELL_PX}px`}))`,
+}))
+const labels = useConfigLabels('heatmap', { less: 'Less', more: 'More' })
+const legendText = computed(() => ({
+  less: props.legendLabels?.less?.trim() ? props.legendLabels.less : labels.value.less,
+  more: props.legendLabels?.more?.trim() ? props.legendLabels.more : labels.value.more,
 }))
 
 const rows = computed<unknown[][]>(() => (Array.isArray(props.values) ? props.values : []).map((r) => (Array.isArray(r) ? r : [])))
@@ -97,15 +109,29 @@ const hasRowLabels = computed(() => Array.isArray(props.rowLabels) && props.rowL
 const colName = (c: number) => String(props.colLabels?.[c] ?? '')
 const rowName = (r: number) => String(props.rowLabels?.[r] ?? '')
 
+const fitRowGutter = computed(() => (hasRowLabels.value ? Math.max(0, ...Array.from({ length: rows.value.length }, (_, r) => estimateTextWidth(rowName(r), FIT_FONT))) + FIT_LABEL_GUTTER_PAD : 0))
+/** Estimated width of one `fit` cell in px (0 until the container is measured). Capped at 40px unless `fill`. */
+const fitCellPx = computed(() => {
+  if (!props.fit || measured.value <= 0) return 0
+  const raw = Math.max(1, (measured.value - fitRowGutter.value - FIT_GAP_PX[gapKey.value] * cols.value) / Math.max(1, cols.value))
+  return filling.value ? raw : Math.min(HEATMAP_FIT_MAX_CELL_PX, raw)
+})
+
 /** Visible column-label step: the explicit step, raised in `fit` mode until the widest label fits its stretch of cells. */
 const effectiveStep = computed(() => {
   if (!props.fit || !hasColLabels.value || measured.value <= 0) return step.value
-  const rowGutter = hasRowLabels.value ? Math.max(0, ...Array.from({ length: rows.value.length }, (_, r) => estimateTextWidth(rowName(r), FIT_FONT))) + FIT_LABEL_GUTTER_PAD : 0
-  const gap = FIT_GAP_PX[gapKey.value]
-  const cell = Math.min(HEATMAP_FIT_MAX_CELL_PX, Math.max(1, (measured.value - rowGutter - gap * cols.value) / Math.max(1, cols.value)))
   const widest = Math.max(0, ...Array.from({ length: cols.value }, (_, c) => estimateTextWidth(colName(c), FIT_FONT))) + FIT_LABEL_GUTTER_PAD
-  return Math.max(step.value, labelStep(cell + gap, widest))
+  return Math.max(step.value, labelStep(fitCellPx.value + FIT_GAP_PX[gapKey.value], widest))
 })
+/** Centres a `fit` label over its column; a first or last label wider than its cell hugs the grid edge so it stays inside. */
+const colLabelAlign = (c: number): string => {
+  const cell = fitCellPx.value
+  if (cell > 0 && estimateTextWidth(colName(c), FIT_FONT) > cell) {
+    if (c === 0) return 'justify-start'
+    if (c === cols.value - 1) return 'justify-end'
+  }
+  return 'justify-center'
+}
 /** Whether the label of 0-based column `c` is visible. The first and (in `fit` mode) the last always are; a step multiple too close to the last one yields to it. */
 const labelShown = (c: number): boolean => {
   const s = effectiveStep.value
@@ -114,6 +140,23 @@ const labelShown = (c: number): boolean => {
   if (c === last || c === 0) return true
   return c % s === 0 && last - c >= s
 }
+
+const tableEl = ref<HTMLElement | null>(null)
+const legendInset = ref(0)
+/** In `fit` mode the legend starts at the first cell column, after the row-label gutter. The gutter is sized by the browser, so it is read back from the layout. */
+const measureInset = () => {
+  const table = tableEl.value
+  const first = table?.querySelector('[data-slot="heatmap-cell"]')
+  if (!props.fit || !hasRowLabels.value || !table || !first) {
+    legendInset.value = 0
+    return
+  }
+  const t = table.getBoundingClientRect()
+  const f = first.getBoundingClientRect()
+  const rtl = getComputedStyle(table).direction === 'rtl'
+  legendInset.value = Math.max(0, Math.round(rtl ? t.right - f.right : f.left - t.left))
+}
+watch([measured, () => props.fit, hasRowLabels, () => props.rowLabels, () => props.showLegend], () => void nextTick(measureInset), { immediate: true, flush: 'post' })
 
 const domain = computed(() => {
   const ext = extent(rows.value.flat())
@@ -171,9 +214,11 @@ const summary = computed(() => {
     tabindex="0"
     :aria-label="label || summary"
     :data-fit="fit ? '' : undefined"
+    :data-fill="filling ? '' : undefined"
     :class="cn('relative flex max-w-full min-w-0 flex-col gap-2 overflow-x-auto focus-visible:ring-inset', fit ? 'w-full' : 'w-fit', focusRing, $props.class)"
   >
     <table
+      ref="tableEl"
       data-slot="heatmap-table"
       :role="fit ? 'table' : undefined"
       :class="fit ? ['grid w-full justify-start text-xs text-muted-foreground', heatmapFitGapClass[gapKey]] : tableClass"
@@ -189,7 +234,7 @@ const summary = computed(() => {
             data-slot="heatmap-col-label"
             scope="col"
             :role="fit ? 'columnheader' : undefined"
-            :class="fit ? 'flex min-w-0 p-0 font-normal whitespace-nowrap' + (c === cols ? ' justify-end' : ' justify-start') : 'whitespace-nowrap p-0 text-start font-normal'"
+            :class="fit ? ['flex min-w-0 p-0 font-normal whitespace-nowrap', colLabelAlign(c - 1)] : 'whitespace-nowrap p-0 text-start font-normal'"
           >
             <span :class="labelShown(c - 1) ? '' : 'sr-only'">{{ colName(c - 1) }}</span>
           </th>
@@ -205,10 +250,10 @@ const summary = computed(() => {
         </tr>
       </tbody>
     </table>
-    <div v-if="showLegend" data-slot="heatmap-legend" class="flex items-center gap-1 text-xs text-muted-foreground tabular-nums" aria-hidden="true">
-      <span>Less</span>
+    <div v-if="showLegend" data-slot="heatmap-legend" class="flex items-center gap-1 text-xs text-muted-foreground tabular-nums" :style="legendInset > 0 ? { paddingInlineStart: `${legendInset}px` } : undefined" aria-hidden="true">
+      <span>{{ legendText.less }}</span>
       <span v-for="(c, i) in legend" :key="i" data-slot="heatmap-legend-swatch" :class="[legendCellClass, c]" />
-      <span>More</span>
+      <span>{{ legendText.more }}</span>
     </div>
   </div>
 </template>

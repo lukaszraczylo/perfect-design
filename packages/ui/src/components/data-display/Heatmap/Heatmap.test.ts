@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { h, nextTick } from 'vue'
 import Heatmap from './Heatmap.vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 
 const m = (props: Record<string, unknown>, attrs: Record<string, unknown> = {}) => mount(Heatmap, { props: props as never, attrs })
 const cells = (w: ReturnType<typeof m>) => w.findAll('[data-slot="heatmap-cell"]')
@@ -271,5 +272,112 @@ describe('Heatmap: fit mode', () => {
     spy.mockReturnValue(100)
     expect(cells(m({ values: [[1], [2]], fit: true, colLabels: ['only'] }))).toHaveLength(2)
     expect(cells(m({ values: [[1, 2]], fit: true }))).toHaveLength(2)
+  })
+})
+
+describe('Heatmap: fit column label alignment', () => {
+  const wide = Array.from({ length: 2 }, (_, r) => Array.from({ length: 24 }, (_, c) => (r + c) % 5))
+  const spy = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+  afterEach(() => spy.mockReset())
+  const heads = (w: ReturnType<typeof m>) => w.findAll('[data-slot="heatmap-col-label"]')
+  const align = (el: { classes: () => string[] }) => el.classes().find((c) => c.startsWith('justify-'))
+
+  it('centres every label, the last included, when all of them fit', async () => {
+    spy.mockReturnValue(1200)
+    const w = m({ values: wide, fit: true, colLabels: Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')) })
+    await nextTick()
+    const all = heads(w).map(align)
+    expect(new Set(all)).toEqual(new Set(['justify-center']))
+    expect(align(heads(w)[23]!)).toBe(align(heads(w)[22]!))
+  })
+  it('centres labels before the container is measured', () => {
+    spy.mockReturnValue(0)
+    const w = m({ values: wide, fit: true, colLabels: ['a', 'b', 'c'] })
+    expect(heads(w).every((h) => align(h) === 'justify-center')).toBe(true)
+  })
+  it('clamps the first label to the start and the last to the end only when wider than their cell', async () => {
+    spy.mockReturnValue(300)
+    const hours = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`)
+    const w = m({ values: wide, fit: true, colLabels: hours })
+    await nextTick()
+    const all = heads(w).map(align)
+    expect(all[0]).toBe('justify-start')
+    expect(all[23]).toBe('justify-end')
+    expect(all.slice(1, 23).every((a) => a === 'justify-center')).toBe(true)
+  })
+  it('non-fit labels keep their plain start alignment', () => {
+    const w = m({ values: wide, colLabels: ['a', 'b'] })
+    expect(heads(w)[0]!.classes()).toContain('text-start')
+  })
+})
+
+describe('Heatmap: fill', () => {
+  const wide = Array.from({ length: 2 }, (_, r) => Array.from({ length: 24 }, (_, c) => (r + c) % 5))
+  const hours = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`)
+  const spy = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+  afterEach(() => spy.mockReset())
+  const shown = (w: ReturnType<typeof m>) => w.findAll('[data-slot="heatmap-col-label"]').filter((th) => !th.find('span').classes().includes('sr-only')).length
+
+  it('is off by default: columns stay capped at 40px', () => {
+    const w = m({ values, fit: true })
+    expect(w.attributes('data-fill')).toBeUndefined()
+    expect(w.find('table').attributes('style')).toContain('minmax(0px, 40px)')
+  })
+  it('fill uses 1fr columns and marks the root', () => {
+    const w = m({ values, fit: true, fill: true, rowLabels: ['a', 'b'] })
+    expect(w.attributes('data-fill')).toBe('')
+    expect(w.find('table').attributes('style')).toContain('auto repeat(3, minmax(0px, 1fr))')
+    expect(swatch(w, 0).classes()).toEqual(expect.arrayContaining(['aspect-square', 'w-full']))
+  })
+  it('fill without fit changes nothing', () => {
+    const w = m({ values, fill: true })
+    expect(w.attributes('data-fill')).toBeUndefined()
+    expect(w.find('table').attributes('style')).toBeUndefined()
+  })
+  it('label thinning uses the uncapped cell width with fill', async () => {
+    // 1200px / 24 columns = ~49px cells: more than the 40px cap, so a capped heatmap thins harder.
+    spy.mockReturnValue(1200)
+    const capped = m({ values: wide, fit: true, colLabels: hours })
+    const filled = m({ values: wide, fit: true, fill: true, colLabels: hours })
+    await nextTick()
+    expect(shown(filled)).toBeGreaterThanOrEqual(shown(capped))
+    expect(shown(filled)).toBe(24)
+  })
+})
+
+describe('Heatmap: legend', () => {
+  const spy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+  afterEach(() => spy.mockReset())
+  const texts = (w: ReturnType<typeof m>) => w.find('[data-slot="heatmap-legend"]').findAll(':scope > span:not([data-slot])').map((s) => s.text())
+
+  it('defaults to Less and More', () => {
+    expect(texts(m({ values }))).toEqual(['Less', 'More'])
+  })
+  it('legendLabels wins over the provider, the provider over English', () => {
+    expect(texts(m({ values, legendLabels: { less: 'Weniger', more: 'Mehr' } }))).toEqual(['Weniger', 'Mehr'])
+    const provided = mount(ConfigProvider, { props: { labels: { 'heatmap.less': 'Moins', 'heatmap.more': 'Plus' } }, slots: { default: () => h(Heatmap, { values, label: 'x' }) } })
+    expect(texts(provided as never)).toEqual(['Moins', 'Plus'])
+    const mixed = mount(ConfigProvider, { props: { labels: { 'heatmap.less': 'Moins', 'heatmap.more': 'Plus' } }, slots: { default: () => h(Heatmap, { values, label: 'x', legendLabels: { more: 'Davantage' } }) } })
+    expect(texts(mixed as never)).toEqual(['Moins', 'Davantage'])
+  })
+  it('blank legendLabels fall back', () => {
+    expect(texts(m({ values, legendLabels: { less: '  ', more: '' } }))).toEqual(['Less', 'More'])
+  })
+  it('fit with row labels starts the legend at the first cell column', async () => {
+    spy.mockImplementation(function (this: HTMLElement) {
+      const slot = this.getAttribute('data-slot')
+      return { left: slot === 'heatmap-cell' ? 36 : 0, right: 0 } as DOMRect
+    })
+    const w = m({ values, fit: true, rowLabels: ['Mon', 'Tue'] })
+    await nextTick()
+    await nextTick()
+    expect(w.find('[data-slot="heatmap-legend"]').attributes('style')).toContain('padding-inline-start: 36px')
+  })
+  it('no inset without row labels or without fit', async () => {
+    const a = m({ values, fit: true })
+    const b = m({ values, rowLabels: ['Mon', 'Tue'] })
+    await nextTick()
+    expect(a.find('[data-slot="heatmap-legend"]').attributes('style')).toBeUndefined()
+    expect(b.find('[data-slot="heatmap-legend"]').attributes('style')).toBeUndefined()
   })
 })
