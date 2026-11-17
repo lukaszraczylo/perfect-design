@@ -2393,7 +2393,7 @@ Use `StatusBadge` to display backend status values without writing a status-to-c
 
 Variations:
 
-- `variant`: `soft` (default: tinted success, warning and info, filled danger, secondary neutral), `outline` (bordered, tone-coloured text), `solid` (filled with the tone colour) and `plain` (tone-coloured dot and text with no border, fill or side padding, for dense tables and lists).
+- `variant`: `soft` (default: tinted success, warning and info, filled danger, secondary neutral), `outline` (bordered, tone-coloured text), `solid` (filled with the tone colour), `plain` (tone-coloured dot and text with no border, fill or side padding, for dense tables and lists) and `tinted` (every tone tinted, danger and primary included, so a failed row does not outweigh everything else on a busy status screen).
 - `size`: `sm`, `md` (default), `lg`. The dot scales with the text (4px, 6px, 8px).
 - `shape`: `rounded` (default, rounded-md), `pill` (fully round), `square` (no radius).
 
@@ -2405,7 +2405,7 @@ Props:
 - status: string | null - Raw status value. null/undefined/empty renders "Unknown" in the neutral tone.
 - tones: Record<string, 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'> - Overrides of the built-in map. Keys are normalised like the status; invalid tones are ignored.
 - label: string - Text to show. Defaults to the humanised status (`in_progress` -> `In progress`).
-- variant: 'soft' | 'outline' | 'solid' | 'plain' = 'soft' - Look. soft = the original tinted/filled badges; outline = border and tone text; solid = tone fill; plain = text and dot only. Unknown values fall back to soft.
+- variant: 'soft' | 'outline' | 'solid' | 'plain' | 'tinted' = 'soft' - Look. soft = the original tinted/filled badges (danger filled); outline = border and tone text; solid = tone fill; plain = text and dot only; tinted = every tone tinted, danger included. Unknown values fall back to soft.
 - size: 'sm' | 'md' | 'lg' = 'md' - Badge text and padding size; the dot follows (4px, 6px, 8px). Unknown values fall back to md.
 - shape: 'pill' | 'rounded' | 'square' = 'rounded' - Corner radius: rounded-full, rounded-md or none. Unknown values fall back to rounded.
 - dot: boolean = true - Show the leading status dot.
@@ -2459,6 +2459,9 @@ Example: Variants
   </div>
   <div class="flex flex-wrap items-center gap-2">
     <StatusBadge variant="outline" status="active" /><StatusBadge variant="outline" status="pending" /><StatusBadge variant="outline" status="failed" /><StatusBadge variant="outline" status="running" /><StatusBadge variant="outline" status="archived" />
+  </div>
+  <div class="flex flex-wrap items-center gap-2">
+    <StatusBadge variant="tinted" status="active" /><StatusBadge variant="tinted" status="pending" /><StatusBadge variant="tinted" status="failed" /><StatusBadge variant="tinted" status="running" /><StatusBadge variant="tinted" status="archived" />
   </div>
   <div class="flex flex-wrap items-center gap-2">
     <StatusBadge variant="solid" status="active" /><StatusBadge variant="solid" status="pending" /><StatusBadge variant="solid" status="failed" /><StatusBadge variant="solid" status="running" /><StatusBadge variant="solid" status="archived" />
