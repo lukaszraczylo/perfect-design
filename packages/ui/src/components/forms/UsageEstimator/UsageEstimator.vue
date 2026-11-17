@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch, type HTMLAttributes } from 'vue'
 import { violation } from '../../../lib/contract'
 import { cn } from '../../../lib/cn'
 import { useDebounceFn } from '../../../lib/use-helpers'
-import { useConfig } from '../../layout/ConfigProvider/config'
+import { useConfig, useConfigLabels } from '../../layout/ConfigProvider/config'
 import { Price, formatPrice, significantFractionDigits } from '../../typography/Price'
 import { formatNumber } from '../../typography/FormattedNumber/format'
 import { useControllable } from '../CheckboxCard/use-controllable'
@@ -110,7 +110,9 @@ const numberText = (n: number) => formatNumber(n, { locale: locale.value, maximu
 const labelOf = (d: UsageDimension) => `${d.label}, ${d.unit}`
 const money = (n: number, extra: { minimumFractionDigits?: number } = {}) => formatPrice(n, { currency: props.currency, locale: locale.value, ...extra })
 
-const label = (name: keyof UsageEstimatorLabels) => props.labels?.[name] || DEFAULT_LABELS[name]
+// Precedence per string: `labels` prop, then a surrounding ConfigProvider (`usageEstimator.*`), then the English default.
+const configured = useConfigLabels('usageEstimator', DEFAULT_LABELS)
+const label = (name: keyof UsageEstimatorLabels) => props.labels?.[name] || configured.value[name] || DEFAULT_LABELS[name]
 
 function hintOf(d: UsageDimension): string {
   const parts: string[] = []

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { defineComponent, h, ref } from 'vue'
 import UsageEstimator from './UsageEstimator.vue'
+import { ConfigProvider } from '../../layout/ConfigProvider'
 import { UsageEstimator as Exported, estimateTotal, lineCost, usageEstimatorVariants, usageEstimatorRowVariants, usageEstimatorTotalVariants } from './index'
 import type { UsageDimension } from './estimate'
 
@@ -93,6 +94,16 @@ describe('UsageEstimator: good path', () => {
     const hints = w.findAll('[data-slot=usage-estimator-hint]').map((h) => h.text())
     expect(hints[0]).toBe('$0.40 / 1,000 requests · 10,000 inclus')
     expect(hints[1]).toBe('Tarifs progressifs')
+  })
+
+  it('reads labels from a ConfigProvider, and the prop wins', () => {
+    const Host = (labels?: Record<string, string>) =>
+      defineComponent({ setup: () => () => h(ConfigProvider, { labels: { 'usageEstimator.included': '{count} gratis', 'usageEstimator.graduated': 'Por tramos' } }, () => h(UsageEstimator, { dimensions: dims, defaultValue: START, labels })) })
+    wrapper = mount(Host(), { attachTo: document.body })
+    expect(wrapper.findAll('[data-slot=usage-estimator-hint]').map((x) => x.text()).slice(0, 2)).toEqual(['$0.40 / 1,000 requests · 10,000 gratis', 'Por tramos'])
+    wrapper.unmount()
+    wrapper = mount(Host({ included: '{count} incluidos' }), { attachTo: document.body })
+    expect(wrapper.find('[data-slot=usage-estimator-hint]').text()).toBe('$0.40 / 1,000 requests · 10,000 incluidos')
   })
 
   it('keeps the English default for a label left out or empty', () => {

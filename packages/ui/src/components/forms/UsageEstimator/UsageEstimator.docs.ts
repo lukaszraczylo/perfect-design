@@ -31,7 +31,7 @@ const doc: ComponentDoc = {
     { name: 'input', type: "'slider' | 'number' | 'both'", default: "'both'", description: 'Controls in each row. With `slider` alone the quantity is shown as text. Unknown values fall back to `both`.' },
     { name: 'showBreakdown', type: 'boolean', default: 'true', description: 'Show the cost of each row and its rate hint. The total is always shown.' },
     { name: 'totalLabel', type: 'string', default: "'Estimated total'", description: 'Label of the total line, also used in the spoken update.' },
-    { name: 'labels', type: 'Partial<UsageEstimatorLabels>', description: 'Rate hint text for i18n: `included` (default `{count} included`, `{count}` is replaced by the formatted number) and `graduated` (default `Graduated rates`). An empty value keeps the English default.' },
+    { name: 'labels', type: 'Partial<UsageEstimatorLabels>', description: 'Rate hint text for i18n: `included` (default `{count} included`, `{count}` is replaced by the formatted number) and `graduated` (default `Graduated rates`). A surrounding `ConfigProvider` can set them as `usageEstimator.included` and `usageEstimator.graduated`; the prop wins. An empty value keeps the English default.' },
     { name: 'note', type: 'string', description: 'Disclaimer under the total, such as "Sample rates. Estimate only." Use the `note` slot for rich content.' },
     { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Spacing, text size and control size. Unknown values fall back to `md`.' },
     { name: 'variant', type: "'card' | 'plain'", default: "'card'", description: '`card` is a bordered panel; `plain` has no surface. Unknown values fall back to `card`.' },

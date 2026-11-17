@@ -32,6 +32,8 @@ export type ConfigLabelKey =
   | 'link.externalHint'
   | 'heatmap.less'
   | 'heatmap.more'
+  | 'usageEstimator.included'
+  | 'usageEstimator.graduated'
 
 export type ConfigLabels = Partial<Record<ConfigLabelKey, string>> & { [key: string]: string | undefined }
 
