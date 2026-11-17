@@ -226,3 +226,18 @@ describe('Gauge', () => {
     })
   })
 })
+
+describe('Gauge linear thickness', () => {
+  it('keeps a fixed bar height per size however wide the gauge is stretched', () => {
+    for (const [size, h] of [['sm', 'h-2'], ['md', 'h-3'], ['lg', 'h-4']] as const) {
+      const svg = mount(Gauge, { props: { value: 40, variant: 'linear', size, label: 'Memory', class: 'w-full' } }).find('[data-slot=gauge-svg]')
+      expect(svg.classes()).toContain(h)
+      expect(svg.attributes('preserveAspectRatio')).toBe('none')
+    }
+  })
+  it('leaves dial shapes scaling with their width', () => {
+    const svg = mount(Gauge, { props: { value: 40, label: 'Memory' } }).find('[data-slot=gauge-svg]')
+    expect(svg.attributes('preserveAspectRatio')).toBeUndefined()
+    expect(svg.classes()).not.toContain('h-3')
+  })
+})

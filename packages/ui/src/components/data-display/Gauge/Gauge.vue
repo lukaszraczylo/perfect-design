@@ -106,6 +106,8 @@ const arcClass = computed(() =>
 )
 const shape = computed(() => oneOf<GaugeVariant>(props.variant, GAUGE_VARIANTS, 'semicircle'))
 const sizeKey = computed(() => oneOf<GaugeSize>(props.size, GAUGE_SIZES, 'md'))
+/** A linear bar keeps its thickness when it is stretched wider than its size, so a full-width bar stays thin. */
+const LINEAR_HEIGHT: Record<GaugeSize, string> = { sm: 'h-2', md: 'h-3', lg: 'h-4' }
 const classes = computed(() => cn(gaugeVariants({ size: sizeKey.value, variant: shape.value }), props.class))
 /** Track and arc share one path; `pathLength="100"` turns dash lengths into percentages. */
 const trackPath = computed(() => (shape.value === 'linear' ? 'M 0 4 H 100' : shape.value === 'arc' ? 'M 21.72 78.28 A 40 40 0 1 1 78.28 78.28' : 'M 10 50 A 40 40 0 0 1 90 50'))
@@ -143,7 +145,8 @@ const name = computed(() => {
     <svg
       data-slot="gauge-svg"
       :viewBox="shape === 'linear' ? '0 0 100 8' : shape === 'arc' ? '0 0 100 100' : '0 0 100 52'"
-      :class="['block w-full', shape === 'linear' && 'overflow-hidden rounded-full']"
+      :preserveAspectRatio="shape === 'linear' ? 'none' : undefined"
+      :class="['block w-full', shape === 'linear' && ['overflow-hidden rounded-full', LINEAR_HEIGHT[sizeKey]]]"
       aria-hidden="true"
       focusable="false"
     >
