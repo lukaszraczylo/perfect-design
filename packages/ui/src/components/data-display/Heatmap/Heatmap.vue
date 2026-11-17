@@ -40,6 +40,8 @@ export interface HeatmapProps extends BaseProps {
   label?: string
   /** Shown when `values` has no cells. */
   emptyText?: string
+  /** Formats values in the hidden table cells, the default cell tooltip and the summary range (default: plain number formatting). */
+  formatValue?: (value: number) => string
   /** Custom tooltip text per cell. */
   cellTitle?: (value: number | null, rowLabel: string, colLabel: string) => string
 }
@@ -121,6 +123,8 @@ const domain = computed(() => {
   }
 })
 
+const fmt = (v: number): string => (props.formatValue ? props.formatValue(v) : formatNumber(v))
+
 const grid = computed(() =>
   rows.value.map((row, r) => ({
     label: rowName(r),
@@ -132,9 +136,9 @@ const grid = computed(() =>
       const cl = colName(c) || `Column ${c + 1}`
       return {
         value,
-        text: value === null ? 'no data' : formatNumber(value),
+        text: value === null ? 'no data' : fmt(value),
         cls: heatClass(props.tone, level, levels.value),
-        title: props.cellTitle ? props.cellTitle(value, rowName(r), colName(c)) : `${rl}, ${cl}: ${value === null ? 'no data' : formatNumber(value)}`,
+        title: props.cellTitle ? props.cellTitle(value, rowName(r), colName(c)) : `${rl}, ${cl}: ${value === null ? 'no data' : fmt(value)}`,
       }
     }),
   })),
@@ -145,7 +149,7 @@ const legend = computed(() => [heatClass(props.tone, 0, levels.value), ...Array.
 const summary = computed(() => {
   const ext = extent(rows.value.flat())
   const base = `Heatmap: ${plural(rows.value.length, 'row')} by ${plural(cols.value, 'column')}`
-  return ext ? `${base}, values from ${formatNumber(ext[0])} to ${formatNumber(ext[1])}` : `${base}, no values`
+  return ext ? `${base}, values from ${fmt(ext[0])} to ${fmt(ext[1])}` : `${base}, no values`
 })
 </script>
 

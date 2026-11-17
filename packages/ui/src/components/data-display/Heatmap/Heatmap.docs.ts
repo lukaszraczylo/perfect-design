@@ -26,6 +26,7 @@ const doc: ComponentDoc = {
     { name: 'fit', type: 'boolean', default: 'false', description: 'Stretch the columns to the width of the container. Cells stay square and grow up to 40px (`size` is ignored; `shape` and `gap` still apply). The table keeps its semantics through ARIA roles. The first and last column labels always show and the ones between are thinned so none overlap.' },
     { name: 'label', type: 'string', description: 'Accessible name of the region and its visually hidden table caption. Required (or pass `aria-label` / `aria-labelledby`); an auto-generated summary is only the fallback when strict mode is off.' },
     { name: 'emptyText', type: 'string', default: "'No data'", description: 'Shown when there are no cells.' },
+    { name: 'formatValue', type: '(value: number) => string', description: 'Formats numbers in the visually hidden table cells, the default cell tooltip and the summary range, e.g. as a percentage. Empty cells stay "no data". Unset keeps plain number formatting.' },
     { name: 'cellTitle', type: '(value: number | null, rowLabel: string, colLabel: string) => string', description: 'Custom native tooltip per cell (default "Row, Col: value").' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge onto the root element.' },
   ],
@@ -86,6 +87,11 @@ const grid = days.map((_, r) => weeks.map((_, c) => ((r * 7 + c * 13) % 11 < 3 ?
 </div>`,
     },
     {
+      title: 'Formatted values',
+      description: '`formatValue` formats the hidden table cells and the default tooltips. Sample ratios shown as percentages.',
+      code: `<Heatmap label="Sample data: success rate by weekday" :row-labels="['Mon', 'Tue']" :col-labels="['9', '12', '15']" :values="[[0.5, 0.75, 1], [0.25, null, 0.9]]" :format-value="(v) => Math.round(v * 100) + '%'" />`,
+    },
+    {
       title: 'Empty',
       code: `<Heatmap label="Activity by weekday" :values="[]" empty-text="No activity yet" />`,
     },
@@ -106,6 +112,7 @@ const grid = days.map((_, r) => weeks.map((_, c) => ((r * 7 + c * 13) % 11 < 3 ?
     'Pass `values` as rows × columns; use null for missing cells (zero is also drawn as empty).',
     'Provide `rowLabels`/`colLabels` so the table is understandable to screen readers.',
     'Use `shape="circle"` for sparse matrices and `gap="lg"` to separate cells further; keep squares for dense calendars. `levels` already sets the number of intensity steps (1 to 5), so there is no separate `scale` prop.',
+    'Use `formatValue` for units (percent, bytes); it changes text only, not the intensity.',
     'Use `colLabelStep` for wide calendars instead of removing labels.',
     'Pick one `tone`; do not mix colours. Use `min`/`max` to compare several heatmaps on one scale.',
   ],
