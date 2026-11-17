@@ -47,8 +47,9 @@ function niceNum(range: number, round: boolean): number {
  * "Nice" axis ticks (1/2/5 × 10^n steps) that cover [min, max].
  * Never throws: non-finite input falls back to [0, 1], min > max is swapped, min === max is padded,
  * `count` is clamped to 2..50. Result is ascending with no floating-point noise (0.1 + 0.2 → 0.3).
+ * `integer` keeps the step a whole number (at least 1), so count data never gets a 0.5 tick.
  */
-export function niceTicks(min: number, max: number, count = 5): number[] {
+export function niceTicks(min: number, max: number, count = 5, integer = false): number[] {
   let lo = min
   let hi = max
   if (!isFiniteNumber(lo) && !isFiniteNumber(hi)) return [0, 1]
@@ -62,7 +63,8 @@ export function niceTicks(min: number, max: number, count = 5): number[] {
     hi += pad
   }
   const n = clamp(Math.floor(Number.isFinite(count) ? count : 5), 2, 50)
-  const step = niceNum(niceNum(hi - lo, false) / (n - 1), true)
+  let step = niceNum(niceNum(hi - lo, false) / (n - 1), true)
+  if (integer && step < 1) step = 1
   if (!isFiniteNumber(step) || step <= 0) return [lo, hi]
   const start = Math.floor(lo / step) * step
   const end = Math.ceil(hi / step) * step
@@ -74,6 +76,17 @@ export function niceTicks(min: number, max: number, count = 5): number[] {
     ticks.push(t === 0 ? 0 : t)
   }
   return ticks
+}
+
+/** True when `values` has at least one finite number and every finite number is a whole number. */
+export function allIntegers(values: readonly unknown[]): boolean {
+  let seen = false
+  for (const v of values) {
+    if (!isFiniteNumber(v)) continue
+    if (!Number.isInteger(v)) return false
+    seen = true
+  }
+  return seen
 }
 
 /** Linear scale. A zero-width domain maps everything to the middle of the range. */

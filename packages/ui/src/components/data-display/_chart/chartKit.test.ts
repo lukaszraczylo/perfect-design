@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { dimension, estimateTextWidth, fitText, hasValues, labelGutter, LABEL_GAP, LABEL_SAFETY, labelStep, normalizeSeries, plural, scaleSafe, truncateLabel } from './chartKit'
+import { dimension, edgeAnchor, estimateTextWidth, fitText, hasValues, labelGutter, LABEL_GAP, LABEL_SAFETY, labelStep, normalizeSeries, plural, scaleSafe, truncateLabel } from './chartKit'
 import ChartLegend from './ChartLegend.vue'
 
 describe('normalizeSeries', () => {
@@ -168,4 +168,13 @@ describe('ChartLegend', () => {
     expect(w.find('span').classes()).toContain('bg-chart-1')
     expect(w.text()).toContain('B')
   })
+})
+
+describe('edgeAnchor', () => {
+  it('centres labels that fit, end-anchors at the right edge and start-anchors at the left edge', () => {
+    expect(edgeAnchor(100, '13:00', 200)).toBe('middle')
+    expect(edgeAnchor(195, '13:00:10', 200)).toBe('end')
+    expect(edgeAnchor(5, '13:00:10', 200)).toBe('start')
+  })
+  it('an empty label is centred', () => expect(edgeAnchor(100, '', 200)).toBe('middle'))
 })

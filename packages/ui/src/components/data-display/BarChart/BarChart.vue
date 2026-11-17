@@ -2,9 +2,9 @@
 import { computed, ref } from 'vue'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
-import { extent, formatCompact, formatNumber, niceTicks, r2 } from '../_chart/chartMath'
+import { allIntegers, extent, formatCompact, formatNumber, niceTicks, r2 } from '../_chart/chartMath'
 import {
-  barFill, barRadius, chartHeight, dimension, estimateTextWidth, fitText, hasValues, labelGutter, labelStep, LABEL_GAP, LABEL_SAFETY, normalizeSeries, plural, scaleSafe, truncateLabel,
+  barFill, barRadius, chartHeight, dimension, edgeAnchor, estimateTextWidth, fitText, hasValues, labelGutter, labelStep, LABEL_GAP, LABEL_SAFETY, normalizeSeries, plural, scaleSafe, truncateLabel,
   type BarGap, type BarRounded, type ChartSeries, type ChartSize,
 } from '../_chart/chartKit'
 import { toneClasses } from '../_chart/tones'
@@ -36,6 +36,8 @@ export interface BarChartProps extends BaseProps {
   grid?: 'none' | 'value' | 'dashed' | 'full'
   showGrid?: boolean
   showAxis?: boolean
+  /** Axis ticks on whole numbers only. `'auto'` does this when every value is an integer (counts); `false` always allows fractional ticks. */
+  integerTicks?: boolean | 'auto'
   /** `'auto'` shows the legend when there is more than one series. */
   showLegend?: boolean | 'auto'
   /** Formats axis ticks and tooltips. Defaults to compact (axis) / grouped (tooltip) numbers. */
@@ -59,6 +61,7 @@ const props = withDefaults(defineProps<BarChartProps>(), {
   showValues: false,
   showGrid: true,
   showAxis: true,
+  integerTicks: 'auto',
   showLegend: 'auto',
   emptyText: 'No data',
   width: 480,
@@ -118,7 +121,8 @@ const ticks = computed(() => {
   const ext = extent(cells.value.flatMap((c) => (c.v === null ? [] : [c.from, c.to])))
   const lo = Math.min(0, ext ? ext[0] : 0)
   const hi = Math.max(0, ext ? ext[1] : 0)
-  return niceTicks(lo, hi, horizontal.value ? 5 : 6)
+  const whole = props.integerTicks === 'auto' ? allIntegers(cells.value.flatMap((c) => (c.v === null ? [] : [c.from, c.to]))) : !!props.integerTicks
+  return niceTicks(lo, hi, horizontal.value ? 5 : 6, whole)
 })
 
 // The drawing is always laid out left to right (axis on the left); `text-anchor: end` follows `direction`, so the svg pins it to ltr.
@@ -316,7 +320,7 @@ const catLabels = computed(() => {
       ci,
       x: r2(horizontal.value ? x0 - LABEL_GAP : mid),
       y: r2(horizontal.value ? mid : y1 + 14),
-      anchor: horizontal.value ? 'end' : 'middle',
+      anchor: horizontal.value ? 'end' : edgeAnchor(mid, text, W.value, FONT),
       text,
       full: text === full ? null : full,
     })

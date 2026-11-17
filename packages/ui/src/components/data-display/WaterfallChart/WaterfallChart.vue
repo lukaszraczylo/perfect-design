@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { cn } from '../../../lib/cn'
 import { violation } from '../../../lib/contract'
 import type { BaseProps } from '../../../lib/types'
-import { extent, formatCompact, formatNumber, niceTicks, r2 } from '../_chart/chartMath'
+import { allIntegers, extent, formatCompact, formatNumber, niceTicks, r2 } from '../_chart/chartMath'
 import { barFill, dimension, estimateTextWidth, labelStep, oneOf, plural, scaleSafe, truncateLabel } from '../_chart/chartKit'
 import { wrapLabel } from '../_chart/chartText'
 import { toneClasses, type ChartTone } from '../_chart/tones'
@@ -38,6 +38,8 @@ export interface WaterfallChartProps extends BaseProps {
   showValues?: boolean
   showGrid?: boolean
   showAxis?: boolean
+  /** Axis ticks on whole numbers only. `'auto'` does this when every value is an integer (counts); `false` always allows fractional ticks. */
+  integerTicks?: boolean | 'auto'
   /** `'auto'` shows the legend when the chart has more than one kind of bar. */
   showLegend?: boolean | 'auto'
   /** Tone of increases. Decreases are marked as well by a hatch (bars), a dashed line (steps) or a hollow head (lollipop), and by the minus sign. */
@@ -75,6 +77,7 @@ const props = withDefaults(defineProps<WaterfallChartProps>(), {
   showValues: false,
   showGrid: true,
   showAxis: true,
+  integerTicks: 'auto',
   showLegend: 'auto',
   positiveTone: 'success',
   negativeTone: 'danger',
@@ -140,7 +143,8 @@ const H = computed(() => {
 
 const ticks = computed(() => {
   const ext = extent(bars.value.flatMap((b) => [b.from, b.to]))
-  return niceTicks(Math.min(0, ext ? ext[0] : 0), Math.max(0, ext ? ext[1] : 0), horizontal.value ? 5 : 6)
+  const whole = props.integerTicks === 'auto' ? allIntegers(bars.value.flatMap((b) => [b.from, b.to])) : !!props.integerTicks
+  return niceTicks(Math.min(0, ext ? ext[0] : 0), Math.max(0, ext ? ext[1] : 0), horizontal.value ? 5 : 6, whole)
 })
 
 const MAX_CAT_CHARS = 14

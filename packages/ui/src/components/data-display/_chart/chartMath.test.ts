@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  areaPath, clamp, extent, formatCompact, formatNumber, isFiniteNumber, isolatedPoints, linePath, niceTicks, r2, runs, scaleLinear,
+  allIntegers, areaPath, clamp, extent, formatCompact, formatNumber, isFiniteNumber, isolatedPoints, linePath, niceTicks, r2, runs, scaleLinear,
 } from './chartMath'
 import { CHART_TONES, seriesTone, toneClasses } from './tones'
 
@@ -150,5 +150,30 @@ describe('negative zero', () => {
     expect(formatCompact(-0.04)).toBe('0')
     expect(formatNumber(-0.01)).toBe('-0.01')
     expect(formatCompact(-1200)).toBe('-1.2K')
+  })
+})
+
+describe('niceTicks integer mode', () => {
+  it('never steps below 1', () => {
+    expect(niceTicks(0, 1, 5, true)).toEqual([0, 1])
+    expect(niceTicks(0, 3, 6, true)).toEqual([0, 1, 2, 3])
+    expect(niceTicks(0, 2, 5, true).every(Number.isInteger)).toBe(true)
+  })
+  it('is identical to the default for large ranges and fractional mode is unchanged', () => {
+    expect(niceTicks(0, 100, 5, true)).toEqual(niceTicks(0, 100, 5))
+    expect(niceTicks(0, 1, 5)).toContain(0.2)
+  })
+  it('handles degenerate input', () => {
+    expect(niceTicks(Number.NaN, Number.NaN, 5, true)).toEqual([0, 1])
+    expect(niceTicks(5, 5, 5, true).every(Number.isInteger)).toBe(true)
+  })
+})
+
+describe('allIntegers', () => {
+  it('true only when every finite value is whole and there is at least one', () => {
+    expect(allIntegers([0, 1, 2, null, Number.NaN, undefined])).toBe(true)
+    expect(allIntegers([0, 0.5])).toBe(false)
+    expect(allIntegers([])).toBe(false)
+    expect(allIntegers([null, Number.NaN])).toBe(false)
   })
 })

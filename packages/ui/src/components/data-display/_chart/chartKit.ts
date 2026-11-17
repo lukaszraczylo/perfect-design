@@ -104,6 +104,17 @@ export function fitText(text: string, maxPx: number, fontPx = 10): string {
   return chars.length === 0 ? '…' : `${chars.join('').trimEnd()}…`
 }
 
+/**
+ * `text-anchor` for a label centred on `x`: `end` / `start` when a centred label would cross the right / left edge of a
+ * viewBox `viewWidth` wide, so the first and last tick labels are never clipped. `middle` otherwise.
+ */
+export function edgeAnchor(x: number, text: string, viewWidth: number, fontPx = 12, safety = 4): 'start' | 'middle' | 'end' {
+  const half = (estimateTextWidth(text, fontPx) + safety) / 2
+  if (x + half > viewWidth) return 'end'
+  if (x - half < 0) return 'start'
+  return 'middle'
+}
+
 /** Space between a right-aligned axis label and the axis (the label's x is `x0 - LABEL_GAP`). */
 export const LABEL_GAP = 6
 /** Extra pixels for what the estimate misses: another fallback font, hinting, a slightly heavier weight. */

@@ -321,3 +321,12 @@ describe('WaterfallChart: loading', () => {
     expect(m({ ...base, loading: true, class: 'min-h-48' }).classes()).toContain('min-h-48')
   })
 })
+
+describe('WaterfallChart: integer ticks', () => {
+  const ticks = (w: ReturnType<typeof m>) => w.findAll('[data-slot="waterfall-chart-tick"]').map((t) => Number(t.text()))
+  it('auto: whole-number data gets whole ticks; integerTicks=false restores fractions', () => {
+    const small = { label: 'S', items: [{ label: 'A', value: 1 }, { label: 'B', value: 1 }] }
+    expect(ticks(m(small)).every(Number.isInteger)).toBe(true)
+    expect(ticks(m({ ...small, integerTicks: false })).some((n) => !Number.isInteger(n))).toBe(true)
+  })
+})

@@ -23,6 +23,7 @@ const doc: ComponentDoc = {
     { name: 'grid', type: "'none' | 'value' | 'dashed' | 'full'", description: 'Gridline style: `value` lines at each tick, `dashed` dashed value lines, `full` value lines plus a separator between categories, `none` no lines. When omitted, `showGrid` decides (`value` when on).' },
     { name: 'showGrid', type: 'boolean', default: 'true', description: 'Gridlines at each tick.' },
     { name: 'showAxis', type: 'boolean', default: 'true', description: 'Value ticks, category labels and the zero baseline.' },
+    { name: 'integerTicks', type: "boolean | 'auto'", default: "'auto'", description: 'Value axis ticks on whole numbers only. `auto` does this when every value is an integer (counts, so no 0.5 tick); `true` forces it; `false` always allows fractional ticks.' },
     { name: 'showLegend', type: "boolean | 'auto'", default: "'auto'", description: 'Legend of series swatches. `auto` shows it when there is more than one series.' },
     { name: 'valueFormatter', type: '(n: number) => string', description: 'Formats axis ticks and tooltips (default: compact on the axis, grouped numbers in tooltips).' },
     { name: 'label', type: 'string', description: 'Accessible name of the chart image. Required (or pass `aria-label` / `aria-labelledby`); an auto-generated summary ("Bar chart: 3 categories, 2 series, values from 1 to 9") is only the fallback when strict mode is off.' },
@@ -36,6 +37,11 @@ const doc: ComponentDoc = {
       title: 'Minimal',
       description: 'Sample data.',
       code: `<BarChart class="max-w-md" label="Sample data: bar chart" :labels="['Mon', 'Tue', 'Wed', 'Thu', 'Fri']" :series="[{ name: 'Orders', data: [12, 19, 8, 24, 16] }]" />`,
+    },
+    {
+      title: 'Whole-number ticks for counts',
+      description: 'Integer data gets whole-number ticks automatically; `:integer-ticks="false"` restores fractional ticks. Sample data.',
+      code: `<BarChart class="max-w-md" label="Sample data: small counts" :labels="['Mon', 'Tue', 'Wed']" :series="[{ name: 'Failures', data: [0, 1, 2] }]" />`,
     },
     {
       title: 'Stacked, multi-series',

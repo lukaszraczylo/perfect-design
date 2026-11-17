@@ -2,9 +2,9 @@
 import { computed, ref } from 'vue'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
-import { curveAreaPath, curvePath, extent, formatCompact, formatNumber, isolatedPoints, niceTicks, normalizeCurve, r2, runs, type Curve, type Point } from '../_chart/chartMath'
+import { allIntegers, isFiniteNumber, curveAreaPath, curvePath, extent, formatCompact, formatNumber, isolatedPoints, niceTicks, normalizeCurve, r2, runs, type Curve, type Point } from '../_chart/chartMath'
 import {
-  chartHeight, dimension, estimateTextWidth, hasValues, labelStep, markerPath, normalizeSeries, plural, scaleSafe, seriesMarker, truncateLabel,
+  chartHeight, dimension, edgeAnchor, estimateTextWidth, hasValues, labelStep, markerPath, normalizeSeries, plural, scaleSafe, seriesMarker, truncateLabel,
   MARKER_SHAPES, type ChartSeries, type ChartSize, type MarkerShape,
 } from '../_chart/chartKit'
 import { toneClasses, type ToneClasses } from '../_chart/tones'
@@ -35,6 +35,12 @@ export interface LineChartProps extends BaseProps {
   grid?: 'none' | 'horizontal' | 'dashed' | 'full'
   showGrid?: boolean
   showAxis?: boolean
+  /** Lower bound of the y axis. Without it the axis starts at the lowest tick below the data. Values below it are drawn on the bottom edge. */
+  yMin?: number
+  /** Upper bound of the y axis. Without it the axis ends at the highest tick above the data. Values above it are drawn on the top edge. */
+  yMax?: number
+  /** Axis ticks on whole numbers only. `'auto'` does this when every value is an integer (counts); `false` always allows fractional ticks. */
+  integerTicks?: boolean | 'auto'
   /** `'auto'` shows the legend when there is more than one series. */
   showLegend?: boolean | 'auto'
   /** Formats axis ticks and tooltips. Defaults to compact (axis) / grouped (tooltip) numbers. */
@@ -57,6 +63,7 @@ const props = withDefaults(defineProps<LineChartProps>(), {
   markerShape: 'circle',
   showGrid: true,
   showAxis: true,
+  integerTicks: 'auto',
   showLegend: 'auto',
   emptyText: 'No data',
   width: 480,
@@ -90,8 +97,13 @@ const fmtAxis = (n: number) => (props.valueFormatter ?? formatCompact)(n)
 const dotsOn = computed(() => (props.showDots === 'auto' ? norm.value.count <= AUTO_DOT_LIMIT : !!props.showDots))
 
 const ticks = computed(() => {
-  const ext = extent(norm.value.series.flatMap((s) => s.data))
-  return ext ? niceTicks(ext[0], ext[1], 5) : [0, 1]
+  const values = norm.value.series.flatMap((s) => s.data)
+  const ext = extent(values)
+  if (!ext) return [0, 1]
+  const lo = isFiniteNumber(props.yMin) ? props.yMin : ext[0]
+  const hi = isFiniteNumber(props.yMax) ? props.yMax : ext[1]
+  const whole = props.integerTicks === 'auto' ? allIntegers([...values, props.yMin, props.yMax]) : !!props.integerTicks
+  return niceTicks(lo, hi, 5, whole)
 })
 
 const layout = computed(() => {
@@ -114,7 +126,10 @@ const sx = computed(() => {
 const sy = computed(() => {
   const t = ticks.value
   const { y0, y1 } = layout.value
-  return scaleSafe(t[0]!, t[t.length - 1]!, y1, y0)
+  const scale = scaleSafe(t[0]!, t[t.length - 1]!, y1, y0)
+  const lo = t[0]!
+  const hi = t[t.length - 1]!
+  return (v: number) => scale(Math.min(hi, Math.max(lo, v)))
 })
 
 interface Line {
@@ -166,11 +181,12 @@ const xLabels = computed(() => {
   const longest = Math.min(80, Math.max(0, ...categories.map((c) => estimateTextWidth(c, FONT)))) + 6
   const step = labelStep(slot, longest)
   const maxChars = Math.max(3, Math.floor((slot * step) / (FONT * 0.58)))
-  const out: { i: number; x: number; y: number; text: string; full: string | null }[] = []
+  const out: { i: number; x: number; y: number; anchor: string; text: string; full: string | null }[] = []
   for (let i = 0; i < count; i += step) {
     const full = categories[i]!
     const text = truncateLabel(full, maxChars)
-    out.push({ i, x: r2(sx.value(i)), y: r2(y1 + 14), text, full: text === full ? null : full })
+    const x = r2(sx.value(i))
+    out.push({ i, x, y: r2(y1 + 14), anchor: edgeAnchor(x, text, W.value, FONT), text, full: text === full ? null : full })
   }
   return out
 })
@@ -250,7 +266,7 @@ const legendVisible = computed(() => (props.showLegend === 'auto' ? norm.value.s
           v-for="l in xLabels"
           :key="`x${l.i}`"
           data-slot="line-chart-category"
-          :x="l.x" :y="l.y" text-anchor="middle" dominant-baseline="middle"
+          :x="l.x" :y="l.y" :text-anchor="l.anchor" dominant-baseline="middle"
         >{{ l.text }}<title v-if="l.full">{{ l.full }}</title></text>
       </g>
       <g v-for="(ln, si) in lines" :key="si" data-slot="line-chart-series" :data-series="si">

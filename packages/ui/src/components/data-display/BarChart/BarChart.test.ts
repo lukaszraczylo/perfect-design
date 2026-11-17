@@ -296,3 +296,40 @@ describe('BarChart: edge cases', () => {
     expect(performance.now() - t).toBeLessThan(3000)
   })
 })
+
+describe('BarChart: integer ticks', () => {
+  const ticks = (w: ReturnType<typeof m>) => w.findAll('[data-slot="bar-chart-tick"]').map((t) => Number(t.text()))
+  const counts = { labels: ['a', 'b', 'c'], series: [{ name: 'n', data: [0, 1, 2] }] }
+  it('auto: integer counts get whole ticks only (no 0.2, 0.4 ...)', () => {
+    const t = ticks(m(counts))
+    expect(t.length).toBeGreaterThan(1)
+    expect(t.every(Number.isInteger)).toBe(true)
+  })
+  it('auto: fractional data keeps fractional ticks; false restores them for integers', () => {
+    expect(ticks(m({ ...counts, series: [{ name: 'n', data: [0, 0.5, 1] }] })).some((n) => !Number.isInteger(n))).toBe(true)
+    expect(ticks(m({ ...counts, integerTicks: false })).some((n) => !Number.isInteger(n))).toBe(true)
+  })
+  it('true forces whole ticks on fractional data; works stacked and horizontal', () => {
+    expect(ticks(m({ ...counts, integerTicks: true, series: [{ name: 'n', data: [0, 0.5, 1] }] })).every(Number.isInteger)).toBe(true)
+    expect(ticks(m({ ...counts, stacked: true, series: [{ name: 'a', data: [1, 0, 1] }, { name: 'b', data: [0, 1, 1] }] })).every(Number.isInteger)).toBe(true)
+    expect(ticks(m({ ...counts, orientation: 'horizontal' })).every(Number.isInteger)).toBe(true)
+  })
+  it('all-zero data does not break', () => expect(ticks(m({ ...counts, series: [{ name: 'n', data: [0, 0, 0] }] })).length).toBeGreaterThan(0))
+})
+
+describe('BarChart: edge category labels stay inside the viewBox', () => {
+  it('every vertical category label fits in the viewBox at several widths', () => {
+    for (const width of [160, 240, 480]) {
+      const labels = ['13:00:00', '13:00:05', '13:00:10', '13:00:15', '13:00:20', '13:00:25', '13:00:30']
+      const w = m({ labels, series: [{ name: 'n', data: labels.map((_, i) => i + 1) }], width })
+      for (const c of w.findAll('[data-slot="bar-chart-category"]')) {
+        const x = Number(c.attributes('x'))
+        const tw = estimateTextWidth(c.text(), 12)
+        const a = c.attributes('text-anchor')
+        const [l, r] = a === 'end' ? [x - tw, x] : a === 'start' ? [x, x + tw] : [x - tw / 2, x + tw / 2]
+        expect(l).toBeGreaterThanOrEqual(0)
+        expect(r).toBeLessThanOrEqual(width)
+      }
+    }
+  })
+})

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import LineChart from './LineChart.vue'
+import { estimateTextWidth } from '../_chart/chartKit'
 
 const m = (props: Record<string, unknown>, attrs: Record<string, unknown> = {}) => mount(LineChart, { props: props as never, attrs })
 const lines = (w: ReturnType<typeof m>) => w.findAll('[data-slot="line-chart-line"]')
@@ -206,4 +207,94 @@ describe('LineChart: edge cases', () => {
     expect(performance.now() - t).toBeLessThan(5000)
     expect(dots(w)).toHaveLength(n)
   })
+})
+
+const textBox = (el: { attributes: (n: string) => string | undefined; text: () => string }, font = 12) => {
+  const x = Number(el.attributes('x'))
+  const w = estimateTextWidth(el.text(), font)
+  const a = el.attributes('text-anchor')
+  return a === 'end' ? [x - w, x] : a === 'start' ? [x, x + w] : [x - w / 2, x + w / 2]
+}
+
+describe('LineChart: edge tick labels stay inside the viewBox', () => {
+  const clock = { labels: ['13:00:00', '13:00:05', '13:00:10'], series: [{ name: 'Load', data: [1, 3, 2] }] }
+  it('a centred last label would cross the right edge, so it is end-anchored and fits', () => {
+    const w = m(clock)
+    const cats = w.findAll('[data-slot="line-chart-category"]')
+    const last = cats[cats.length - 1]!
+    const x = Number(last.attributes('x'))
+    expect(x + estimateTextWidth(last.text(), 12) / 2).toBeGreaterThan(480)
+    expect(last.attributes('text-anchor')).toBe('end')
+    for (const c of cats) {
+      const [l, r] = textBox(c)
+      expect(l).toBeGreaterThanOrEqual(0)
+      expect(r).toBeLessThanOrEqual(480)
+    }
+  })
+  it('keeps middle anchors for inner labels and fits at other widths', () => {
+    for (const width of [200, 320, 480, 900]) {
+      const w = m({ ...clock, width })
+      const cats = w.findAll('[data-slot="line-chart-category"]')
+      expect(cats[1] === undefined || cats.length < 3 || cats[1]!.attributes('text-anchor') === 'middle').toBe(true)
+      for (const c of cats) {
+        const [l, r] = textBox(c)
+        expect(l).toBeGreaterThanOrEqual(0)
+        expect(r).toBeLessThanOrEqual(width)
+      }
+    }
+  })
+  it('short labels keep the original middle anchor', () => {
+    const w = m(base)
+    expect(w.findAll('[data-slot="line-chart-category"]').every((c) => c.attributes('text-anchor') === 'middle')).toBe(true)
+  })
+})
+
+describe('LineChart: integer ticks', () => {
+  const ticks = (w: ReturnType<typeof m>) => w.findAll('[data-slot="line-chart-tick"]').map((t) => Number(t.text()))
+  const counts = { labels: ['a', 'b', 'c'], series: [{ name: 'n', data: [0, 1, 2] }] }
+  it('auto: integer data gets whole-number ticks only', () => {
+    const t = ticks(m(counts))
+    expect(t.length).toBeGreaterThan(1)
+    expect(t.every(Number.isInteger)).toBe(true)
+  })
+  it('auto: fractional data keeps fractional ticks', () => {
+    expect(ticks(m({ ...counts, series: [{ name: 'n', data: [0, 0.5, 1] }] })).some((n) => !Number.isInteger(n))).toBe(true)
+  })
+  it('integerTicks=true forces whole ticks on fractional data, false allows fractions on integer data', () => {
+    expect(ticks(m({ ...counts, integerTicks: true, series: [{ name: 'n', data: [0, 0.5, 1] }] })).every(Number.isInteger)).toBe(true)
+    expect(ticks(m({ ...counts, integerTicks: false })).some((n) => !Number.isInteger(n))).toBe(true)
+  })
+})
+
+describe('LineChart: y domain', () => {
+  const flat = { labels: ['a', 'b', 'c'], series: [{ name: 'n', data: [172.0, 172.6, 172.3] }] }
+  const ys = (w: ReturnType<typeof m>) => w.findAll('[data-slot="line-chart-tick"]').map((t) => Number(t.attributes('y')))
+  const tickVals = (w: ReturnType<typeof m>) => w.findAll('[data-slot="line-chart-tick"]').map((t) => Number(t.text()))
+  it('yMin / yMax widen the axis so a small series is not a dramatic swing', () => {
+    const auto = m(flat)
+    const wide = m({ ...flat, yMin: 0, yMax: 200 })
+    const span = (w: ReturnType<typeof m>) => { const v = ys(w); return Math.max(...v) - Math.min(...v) }
+    expect(Math.min(...tickVals(wide))).toBeLessThanOrEqual(0)
+    expect(Math.max(...tickVals(wide))).toBeGreaterThanOrEqual(200)
+    const lineYs = (w: ReturnType<typeof m>) => [...(w.find('[data-slot="line-chart-line"]').attributes('d') ?? '').matchAll(/,([\d.]+)/g)].map((x) => Number(x[1]))
+    const rangeOf = (a: number[]) => Math.max(...a) - Math.min(...a)
+    expect(rangeOf(lineYs(wide))).toBeLessThan(rangeOf(lineYs(auto)) / 10)
+    expect(span(wide)).toBeGreaterThan(0)
+  })
+  it('data outside the domain is clamped to the plot edge, never NaN', () => {
+    const w = m({ labels: ['a', 'b', 'c'], series: [{ name: 'n', data: [-50, 100, 400] }], yMin: 0, yMax: 200 })
+    const d = w.find('[data-slot="line-chart-line"]').attributes('d')!
+    const all = [...d.matchAll(/,([\d.]+)/g)].map((x) => Number(x[1]))
+    const tickYs = ys(w)
+    expect(Math.min(...all)).toBeGreaterThanOrEqual(Math.min(...tickYs) - 0.01)
+    expect(Math.max(...all)).toBeLessThanOrEqual(Math.max(...tickYs) + 0.01)
+    noBad(w)
+  })
+  it('only yMin or only yMax works; non-finite values are ignored', () => {
+    expect(Math.min(...tickVals(m({ ...flat, yMin: 100 })))).toBeLessThanOrEqual(100)
+    expect(Math.max(...tickVals(m({ ...flat, yMax: 300 })))).toBeGreaterThanOrEqual(300)
+    const auto = tickVals(m(flat))
+    expect(tickVals(m({ ...flat, yMin: Number.NaN, yMax: Infinity }))).toEqual(auto)
+  })
+  it('inverted bounds do not break the chart', () => noBad(m({ ...flat, yMin: 300, yMax: 100 })))
 })

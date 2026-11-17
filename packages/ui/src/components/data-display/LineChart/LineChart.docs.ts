@@ -22,6 +22,9 @@ const doc: ComponentDoc = {
     { name: 'grid', type: "'none' | 'horizontal' | 'dashed' | 'full'", description: 'Gridline style: `horizontal` solid lines at each y tick, `dashed` dashed ones, `full` horizontal lines plus a vertical line at each labelled x position, `none` no lines. When omitted, `showGrid` decides (`horizontal` when on).' },
     { name: 'showGrid', type: 'boolean', default: 'true', description: 'Horizontal gridlines at each y tick.' },
     { name: 'showAxis', type: 'boolean', default: 'true', description: 'Y tick labels and x labels.' },
+    { name: 'integerTicks', type: "boolean | 'auto'", default: "'auto'", description: 'Value axis ticks on whole numbers only. `auto` does this when every value is an integer (counts, so no 0.5 tick); `true` forces it; `false` always allows fractional ticks.' },
+    { name: 'yMin', type: 'number', description: 'Lower bound of the y axis, rounded down to a tick. Without it the axis starts below the lowest value, which makes a narrow series look like a large swing. Values below it are drawn on the bottom edge. Non-finite values are ignored.' },
+    { name: 'yMax', type: 'number', description: 'Upper bound of the y axis, rounded up to a tick. Values above it are drawn on the top edge. Non-finite values are ignored.' },
     { name: 'showLegend', type: "boolean | 'auto'", default: "'auto'", description: 'Legend of series swatches; `auto` shows it for more than one series.' },
     { name: 'valueFormatter', type: '(n: number) => string', description: 'Formats y ticks and tooltips.' },
     { name: 'label', type: 'string', description: 'Accessible name of the chart image. Required (or pass `aria-label` / `aria-labelledby`); an auto-generated summary ("Line chart: 12 points per series, 2 series, values from 1 to 9") is only the fallback when strict mode is off.' },
@@ -35,6 +38,19 @@ const doc: ComponentDoc = {
       title: 'Minimal',
       description: 'Sample data.',
       code: `<LineChart class="max-w-md" label="Sample data: line chart" :labels="['Jan', 'Feb', 'Mar', 'Apr', 'May']" :series="[{ name: 'Series A', data: [120, 180, 150, 240, 310] }]" />`,
+    },
+    {
+      title: 'Fixed y domain',
+      description: 'A narrow series (172.0 to 172.6) on the default axis fills the whole height; `yMin` and `yMax` show it against a wider scale. Sample data.',
+      code: `<div class="grid gap-6 md:grid-cols-2">
+  <LineChart label="Sample data: automatic domain" :labels="['a', 'b', 'c', 'd']" :series="[{ name: 'Reading', data: [172.0, 172.6, 172.2, 172.4] }]" />
+  <LineChart label="Sample data: domain 150 to 200" :y-min="150" :y-max="200" :labels="['a', 'b', 'c', 'd']" :series="[{ name: 'Reading', data: [172.0, 172.6, 172.2, 172.4] }]" />
+</div>`,
+    },
+    {
+      title: 'Whole-number ticks and edge labels',
+      description: 'Integer data gets whole-number ticks; the first and last x labels are anchored so they are never cut off. Sample data.',
+      code: `<LineChart class="max-w-md" label="Sample data: queue length" :labels="['13:00:00', '13:00:05', '13:00:10']" :series="[{ name: 'Queued', data: [0, 2, 1] }]" />`,
     },
     {
       title: 'Multi-series with area and gaps',

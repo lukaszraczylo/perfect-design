@@ -21,6 +21,7 @@ const doc: ComponentDoc = {
     { name: 'showValues', type: 'boolean', default: 'false', description: 'Print the change (`+80`, `−25`) or the total at the end of each bar. Labels that do not fit are left out; they are also in the table.' },
     { name: 'showGrid', type: 'boolean', default: 'true', description: 'Gridlines at each tick of the value axis.' },
     { name: 'showAxis', type: 'boolean', default: 'true', description: 'Tick labels, category labels and the zero line.' },
+    { name: 'integerTicks', type: "boolean | 'auto'", default: "'auto'", description: 'Value axis ticks on whole numbers only. `auto` does this when every value is an integer (counts, so no 0.5 tick); `true` forces it; `false` always allows fractional ticks.' },
     { name: 'showLegend', type: "boolean | 'auto'", default: "'auto'", description: 'Legend of increase, decrease and total with the marking of the variant; `auto` shows it when more than one kind of bar is present.' },
     { name: 'positiveTone', type: TONE, default: "'success'", description: 'Tone of increases.' },
     { name: 'negativeTone', type: TONE, default: "'danger'", description: 'Tone of decreases.' },
