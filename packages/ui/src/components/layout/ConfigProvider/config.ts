@@ -30,6 +30,8 @@ export type ConfigLabelKey =
   | 'confirmDialog.defaultTitle'
   | 'confirmDialog.error'
   | 'link.externalHint'
+  | 'heatmap.less'
+  | 'heatmap.more'
 
 export type ConfigLabels = Partial<Record<ConfigLabelKey, string>> & { [key: string]: string | undefined }
 
