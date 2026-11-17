@@ -8,7 +8,7 @@ No indigo/violet/purple utilities; no gradients or gradient-clipped text; no glo
 ## Judgement rules the tests cannot see
 - Lead with the product's real content, not a centred hero + pill badge + two buttons + logo row + three identical cards. Unequal emphasis; vary the form of each section.
 - Copy: say what it does, for whom. No headline that fits any company. No em dashes as connectives, no rule-of-three taglines, no hedges, no emoji bullets. Sentence case. Section headings state a claim.
-- Content honesty (P0): no invented metrics, ratings, testimonials, customer names, logos or prices anywhere, including docs examples. Use obviously generic sample text ("Sample plan", "Customer name") or real facts about this repository (component counts, token names). Missing content is marked `TODO(content)`, never filled with plausible text.
+- Content honesty (P0): no invented metrics, ratings, testimonials, customer names, logos or prices anywhere, including docs examples. The one exception is labelled sample rates in pricing examples (DESIGN.md section 6). Use obviously generic sample text ("Sample plan", "Customer name") or real facts about this repository (component counts, token names). Missing content is marked `TODO(content)`, never filled with plausible text.
 - Docs examples are what people and LLMs copy: they must model the system's own rules.
 - Do not "fix" slop by moving to the next most probable look (cream and terracotta, near-black with acid green, faux-brutalist). An aesthetic is acceptable only if `DESIGN.md` explains why this product needs it.
 

@@ -1,0 +1,6 @@
+export { default as Price } from './Price.vue'
+export type { PriceProps } from './Price.vue'
+export { priceVariants, priceAuxVariants, PRICE_SIZES, PRICE_TONES, resolvePriceSize, resolvePriceTone } from './variants'
+export type { PriceVariants, PriceSize, PriceTone } from './variants'
+export { formatPrice, significantFractionDigits, isPriceAmount } from './format'
+export type { FormatPriceOptions } from './format'
