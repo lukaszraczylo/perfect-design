@@ -3,9 +3,11 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { faChevronLeft, faChevronRight, faXmark } from '../../../lib/icons'
 import { cn } from '../../../lib/cn'
 import { violation } from '../../../lib/contract'
+import { mediaBlurSoftClass, useMediaBlurToggle } from '../../../lib/media-blur'
 import { focusRing } from '../../../lib/styles'
 import type { BaseProps } from '../../../lib/types'
 import Icon from '../../primitives/Icon/Icon.vue'
+import MediaBlurToggle from '../_media/MediaBlurToggle.vue'
 import { checkItems, parentChecksItems } from '../shared/itemsContract'
 import { clampNumber } from '../shared/motion'
 import { imageAltProblem } from './contract'
@@ -32,6 +34,16 @@ export interface LightboxProps extends BaseProps {
   closeLabel?: string
   prevLabel?: string
   nextLabel?: string
+  /** Privacy blur on the open image. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false. */
+  blurred?: boolean
+  /** Starting blur when `blurred` is not bound. */
+  defaultBlurred?: boolean
+  /** Offer a reveal button in the header that unblurs the image and blurs it again. */
+  revealable?: boolean
+  /** Name of the reveal button. */
+  revealLabel?: string
+  /** Name of the button that blurs the image again. */
+  hideLabel?: string
 }
 
 const props = withDefaults(defineProps<LightboxProps>(), {
@@ -44,8 +56,14 @@ const props = withDefaults(defineProps<LightboxProps>(), {
   closeLabel: 'Close',
   prevLabel: 'Previous image',
   nextLabel: 'Next image',
+  blurred: undefined,
+  defaultBlurred: undefined,
+  revealable: false,
+  revealLabel: 'Show image',
+  hideLabel: 'Hide image',
 })
-const emit = defineEmits<{ 'update:open': [open: boolean]; 'update:index': [index: number]; close: [] }>()
+const emit = defineEmits<{ 'update:open': [open: boolean]; 'update:index': [index: number]; 'update:blurred': [blurred: boolean]; close: [] }>()
+const blur = useMediaBlurToggle(() => props.blurred, () => props.defaultBlurred, (v) => emit('update:blurred', v))
 
 const quiet = parentChecksItems()
 onMounted(async () => {
@@ -170,6 +188,7 @@ const btn = cn(
       v-if="visible"
       ref="root"
       data-slot="lightbox"
+      :data-blurred="blur.blurred.value ? '' : undefined"
       role="dialog"
       aria-modal="true"
       :aria-label="label"
@@ -177,7 +196,15 @@ const btn = cn(
       :class="overlayClasses"
       @click="onRootClick"
     >
-      <div data-slot="lightbox-header" class="flex w-full shrink-0 justify-end">
+      <div data-slot="lightbox-header" class="flex w-full shrink-0 items-center justify-end gap-2">
+        <MediaBlurToggle
+          v-if="revealable && (blur.blurred.value || blur.hideable.value)"
+          placement="inline"
+          :blurred="blur.blurred.value"
+          :reveal-label="revealLabel"
+          :hide-label="hideLabel"
+          @toggle="blur.toggle"
+        />
         <button ref="closeBtn" type="button" data-slot="lightbox-close" :aria-label="closeLabel" :class="btn" @click="setOpen(false)">
           <Icon :icon="faXmark" size="lg" />
         </button>
@@ -188,7 +215,7 @@ const btn = cn(
           data-slot="lightbox-image"
           :src="image.src"
           :alt="image.alt ?? image.caption ?? ''"
-          class="max-h-full min-h-0 max-w-full rounded-md object-contain"
+          :class="cn('max-h-full min-h-0 max-w-full rounded-md object-contain', mediaBlurSoftClass(blur.blurred.value, revealable))"
           @error="broken = true"
         />
         <p v-else data-slot="lightbox-fallback" role="img" :aria-label="image?.alt || 'Image unavailable'" class="rounded-md border bg-background px-6 py-10 text-sm text-muted-foreground">

@@ -179,6 +179,7 @@ function more() {
     'Throws a ContractError when an event has a blank `action`.',
   ],
   llmNotes: [
+    'Actor avatars blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.',
     'Always set `label`; give every event a unique, stable `id` and a non-blank `action`.',
     'Pass `now` (and `time-zone`) for server-rendered pages so the output matches on the client.',
     'Use generic actors ("Deploy bot", "Reviewer 1"); never invent real people. Put the outcome in `action` or `tone`, not only in colour.',

@@ -27,9 +27,15 @@ const doc: ComponentDoc = {
     { name: 'closeLabel', type: 'string', default: "'Close'", description: 'aria-label of the close button.' },
     { name: 'prevLabel', type: 'string', default: "'Previous image'", description: 'aria-label of the previous button.' },
     { name: 'nextLabel', type: 'string', default: "'Next image'", description: 'aria-label of the next button.' },
+    { name: 'blurred', type: 'boolean', description: 'Privacy blur on the open image. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false. The reveal button sits in the header, never over the picture.' },
+    { name: 'defaultBlurred', type: 'boolean', description: 'Starting blur when `blurred` is not bound.' },
+    { name: 'revealable', type: 'boolean', default: 'false', description: 'When blurred, show a button that unblurs, then a toggle that blurs again. The button is an action whose name says what it does next ("Show image", "Hide image"), with a 24px minimum target (44px on coarse pointers) and does not appear while the media was never blurred.' },
+    { name: 'revealLabel', type: 'string', default: "'Show image'", description: 'Name of the reveal button (translate it).' },
+    { name: 'hideLabel', type: 'string', default: "'Hide image'", description: 'Name of the button that blurs again (translate it).' },
     { name: 'class', type: 'string | object | array', description: 'Merged last onto the overlay; wins over internal classes.' },
   ],
   emits: [
+    { name: 'update:blurred', payload: '[value: boolean]', description: 'The reveal button changed the blur.' },
     { name: 'update:open', payload: '[open: boolean]', description: 'Requested open state change.' },
     { name: 'update:index', payload: '[index: number]', description: 'Visible image changed.' },
     { name: 'close', description: 'Closed by Esc, close button or backdrop.' },
@@ -59,8 +65,17 @@ const doc: ComponentDoc = {
         images: [0, 1, 2].map((n) => ({ src: sample(n), alt: `Sample image ${n + 1}` })),
       }),
     },
+    {
+      title: 'Blurred, revealable',
+      description: 'The open image is blurred; the header offers Show image and Hide image.',
+      code: `<Button variant="outline" @click="open = true">Open blurred viewer</Button>
+<Lightbox v-model:open="open" revealable default-blurred :images="images" />`,
+      script: `const open = ref(false)`,
+      state: () => ({ open: ref(false), images: [0, 1].map((n) => ({ src: sample(n), alt: `Sample image ${n + 1}` })) }),
+    },
   ],
   a11y: [
+    'Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.',
     'role="dialog" aria-modal="true" with an aria-label (`label`); focus moves to Close on open and is restored to the opener on close.',
     'Keyboard map: Tab/Shift+Tab stay inside the dialog (no trap escape); Escape closes; ArrowLeft/ArrowRight move to the previous/next image (swapped in RTL); Home/End jump to the first/last image. Close, previous and next are real buttons with accessible names (`closeLabel`, `prevLabel`, `nextLabel`). At the ends with `loop=false` they use aria-disabled so a focused button keeps focus.',
     'The counter ("2 / 5") is a polite live region. Body scroll is locked while open and restored afterwards (including on unmount).',
@@ -72,7 +87,9 @@ const doc: ComponentDoc = {
     'Throws a ContractError when an entry of `images` has no `alt` string and no non-empty `caption`. The message names the first failing index.',
   ],
   related: ['ImageGrid', 'BeforeAfter', 'Dialog'],
-  llmNotes: ['Always bind `v-model:open`; the component never opens itself.', 'Supply `alt` for each image.', 'Prefer ImageGrid unless you need a custom trigger.'],
+  llmNotes: [
+    'Use `blurred` for privacy, not decoration. `revealable` puts the button in the header; ImageGrid passes its own blur state down.',
+    'Always bind `v-model:open`; the component never opens itself.', 'Supply `alt` for each image.', 'Prefer ImageGrid unless you need a custom trigger.'],
   replaces: ['hand-rolled Lightbox markup in app code'],
 }
 export default doc

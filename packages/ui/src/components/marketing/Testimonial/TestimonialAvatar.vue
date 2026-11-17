@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { cn } from '../../../lib/cn'
+import { mediaBlurSoftClass, useMediaBlur } from '../../../lib/media-blur'
 import type { BaseProps } from '../../../lib/types'
 import { initialsOf } from '../shared/motion'
 
@@ -13,6 +14,7 @@ export interface TestimonialAvatarProps extends BaseProps {
 
 const props = withDefaults(defineProps<TestimonialAvatarProps>(), { alt: '' })
 
+const blurred = useMediaBlur(() => undefined)
 const broken = ref(false)
 watch(
   () => props.src,
@@ -26,16 +28,18 @@ const showImage = computed(() => !!props.src && !broken.value)
   <img
     v-if="showImage"
     data-slot="testimonial-avatar"
+    :data-blurred="blurred ? '' : undefined"
     :src="src"
     :alt="alt"
-    :class="cn('shrink-0 rounded-full object-cover', props.class)"
+    :class="cn('shrink-0 rounded-full object-cover', mediaBlurSoftClass(blurred), props.class)"
     @error="broken = true"
   />
   <span
     v-else-if="initials"
     data-slot="testimonial-avatar"
     aria-hidden="true"
-    :class="cn('flex shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary', props.class)"
+    :data-blurred="blurred ? '' : undefined"
+    :class="cn('flex shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary', mediaBlurSoftClass(blurred), props.class)"
   >
     {{ initials }}
   </span>

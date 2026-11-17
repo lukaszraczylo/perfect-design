@@ -148,6 +148,7 @@ const doc: ComponentDoc = {
     'Throws a ContractError when a button, link or `role="button"` element in the `actions` slot has no accessible name (give icon-only buttons an `aria-label`).',
   ],
   llmNotes: [
+    'Inline images blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.',
     'Use `role` for who wrote it and keep the default `role-label` unless a name reads better ("Ada said"); never rely on alignment or colour to say who spoke.',
     'Give every icon-only control in the `actions` slot an `aria-label`; use `IconButton` with `label`.',
     'Pass streamed Markdown through `markdown` with `status="streaming"`; do not build HTML strings and never use `v-html`.',

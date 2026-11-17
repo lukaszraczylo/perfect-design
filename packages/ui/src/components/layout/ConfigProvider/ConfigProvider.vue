@@ -20,13 +20,15 @@ export interface ConfigProviderProps extends BaseProps {
   density?: ConfigDensity
   /** Translations of built-in strings, keyed `<component>.<string>` (for example `pagination.next`). Merged per key with outer providers; non-string and blank values are ignored. */
   labels?: ConfigLabels
+  /** Blur every avatar and photo in the subtree (privacy, not decoration). A component's own `blurred` (true or false) wins. Unset keeps the surrounding value. */
+  blurMedia?: boolean
   as?: PrimitiveProps['as']
   /** Render no wrapper element: `dir`, `lang` and `data-reduced-motion` go onto the single child instead. */
   asChild?: boolean
 }
 
 defineOptions({ inheritAttrs: false })
-const props = withDefaults(defineProps<ConfigProviderProps>(), { as: 'div' })
+const props = withDefaults(defineProps<ConfigProviderProps>(), { as: 'div', blurMedia: undefined })
 
 const own = computed(() => sanitizeConfig(props))
 provideConfig(() => props)
@@ -59,6 +61,7 @@ const motion = computed(() => (own.value.reducedMotion && own.value.reducedMotio
       :data-reduced-motion="motion"
       :data-size="own.size"
       :data-density="own.density"
+      :data-blur-media="own.blurMedia ? '' : undefined"
       :class="cn(props.class) || undefined"
     >
       <slot />

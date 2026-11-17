@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { cn } from '../../../lib/cn'
+import { mediaBlurClass, useMediaBlurToggle } from '../../../lib/media-blur'
 import { requireText, violation } from '../../../lib/contract'
 import { faChevronDown, faChevronLeft, faChevronRight, faChevronUp } from '../../../lib/icons'
 import type { BaseProps } from '../../../lib/types'
 import Icon from '../../primitives/Icon/Icon.vue'
+import MediaBlurToggle from '../_media/MediaBlurToggle.vue'
 import { clampNumber } from '../shared/motion'
 import { oneOf } from '../shared/pick'
 import {
@@ -63,6 +65,16 @@ export interface BeforeAfterProps extends BaseProps {
   aspect?: string
   /** Accessible name of the slider. */
   label?: string
+  /** Privacy blur on both images; labels and the slider stay sharp. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false. */
+  blurred?: boolean
+  /** Starting blur when `blurred` is not bound. */
+  defaultBlurred?: boolean
+  /** Offer a button that reveals the blurred images and blurs them again. */
+  revealable?: boolean
+  /** Name of the reveal button. */
+  revealLabel?: string
+  /** Name of the button that blurs the images again. */
+  hideLabel?: string
 }
 
 const props = withDefaults(defineProps<BeforeAfterProps>(), {
@@ -79,8 +91,15 @@ const props = withDefaults(defineProps<BeforeAfterProps>(), {
   step: 2,
   aspect: '16 / 9',
   label: 'Image comparison slider',
+  blurred: undefined,
+  defaultBlurred: undefined,
+  revealable: false,
+  revealLabel: 'Show image',
+  hideLabel: 'Hide image',
 })
-const emit = defineEmits<{ 'update:modelValue': [value: number] }>()
+const emit = defineEmits<{ 'update:modelValue': [value: number]; 'update:blurred': [value: boolean] }>()
+const blur = useMediaBlurToggle(() => props.blurred, () => props.defaultBlurred, (v) => emit('update:blurred', v))
+const imageBlur = computed(() => mediaBlurClass(blur.blurred.value, props.revealable))
 
 onMounted(async () => {
   await nextTick()
@@ -171,6 +190,7 @@ const handlePos = computed(() => (vertical.value ? { top: `${pos.value}%` } : { 
   <div
     ref="root"
     data-slot="before-after"
+    :data-blurred="blur.blurred.value ? '' : undefined"
     :data-orientation="orientation"
     :data-variant="labels"
     :data-size="size"
@@ -185,10 +205,10 @@ const handlePos = computed(() => (vertical.value ? { top: `${pos.value}%` } : { 
     @pointerup="endDrag"
     @pointercancel="endDrag"
   >
-    <img v-if="before" data-slot="before-after-before" :src="before" :alt="beforeAlt ?? beforeLabel" draggable="false" class="absolute inset-0 size-full object-cover" />
+    <img v-if="before" data-slot="before-after-before" :src="before" :alt="beforeAlt ?? beforeLabel" draggable="false" :class="cn('absolute inset-0 size-full object-cover', imageBlur)" />
     <div v-else data-slot="before-after-before" class="absolute inset-0 bg-muted" />
     <div data-slot="before-after-after-layer" class="absolute inset-0" :style="{ clipPath: afterClip }">
-      <img v-if="after" data-slot="before-after-after" :src="after" :alt="afterAlt ?? afterLabel" draggable="false" class="size-full object-cover" />
+      <img v-if="after" data-slot="before-after-after" :src="after" :alt="afterAlt ?? afterLabel" draggable="false" :class="cn('size-full object-cover', imageBlur)" />
       <div v-else data-slot="before-after-after" class="size-full bg-accent" />
     </div>
     <template v-if="labels === 'overlay'">
@@ -222,5 +242,6 @@ const handlePos = computed(() => (vertical.value ? { top: `${pos.value}%` } : { 
         </template>
       </span>
     </div>
+    <MediaBlurToggle v-if="revealable && (blur.blurred.value || blur.hideable.value)" :blurred="blur.blurred.value" :reveal-label="revealLabel" :hide-label="hideLabel" @toggle="blur.toggle" />
   </div>
 </template>

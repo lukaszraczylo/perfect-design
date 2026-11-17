@@ -83,7 +83,9 @@ const doc: ComponentDoc = {
   ],
   a11y: ['Native <blockquote> element; the `cite` attribute is not announced, so show the attribution visibly via `citation` or `author`.', 'The avatar image is decorative (`alt=""`) because the author name is rendered as text next to it.', 'Borders use logical properties (`border-s`, `ps`), so the quote rule flips in right-to-left layouts.', 'Text wraps and reflows at 320px; no fixed widths.'],
   related: ['Text', 'Prose', 'Lead'],
-  llmNotes: ['Put the quote in the default slot and the author in `citation`.', 'Use `cite` only for a real URL.', 'Use `author` (+ `authorRole`, `avatar`; `role` is a deprecated alias) for attributed quotes, `citation` for plain sources; do not pass both.', 'Only use real quotes with a real source. Never invent a quote, person or company.', 'Use `variant="pull"` for at most one highlighted quote per section.'],
+  llmNotes: [
+    'The author avatar image blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.',
+    'Put the quote in the default slot and the author in `citation`.', 'Use `cite` only for a real URL.', 'Use `author` (+ `authorRole`, `avatar`; `role` is a deprecated alias) for attributed quotes, `citation` for plain sources; do not pass both.', 'Only use real quotes with a real source. Never invent a quote, person or company.', 'Use `variant="pull"` for at most one highlighted quote per section.'],
   replaces: ['ad-hoc <blockquote class="border-l-2 pl-4 italic"> patterns'],
 }
 export default doc

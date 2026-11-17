@@ -143,6 +143,7 @@ const entries = [
     'Throws a ContractError when an entry has a blank `label`.',
   ],
   llmNotes: [
+    'Entry avatars blur when a surrounding `ConfigProvider` sets `blurMedia` (privacy, not decoration); there is no prop on this component.',
     'Always pass `label` (or `aria-label`) and give every entry a unique `id`.',
     'Pass raw numbers in `value` and set `valueFormat` (and `locale`) instead of pre-formatting strings.',
     'Use `highlight` plus `highlightLabel` to mark the current user or team; never mark it with colour only.',

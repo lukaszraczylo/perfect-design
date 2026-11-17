@@ -35,9 +35,16 @@ const doc: ComponentDoc = {
     { name: 'step', type: 'number', default: '2', description: 'Keyboard step in percent; invalid falls back to 2.' },
     { name: 'aspect', type: 'string', default: "'16 / 9'", description: 'CSS aspect ratio "w / h"; invalid falls back to 16 / 9.' },
     { name: 'label', type: 'string', default: "'Image comparison slider'", description: 'Accessible name of the slider.' },
+    { name: 'blurred', type: 'boolean', description: 'Privacy blur on both images; the labels and the slider stay sharp. v-model:blurred. Wins over `ConfigProvider blurMedia`, true or false; undefined inherits, then false.' },
+    { name: 'defaultBlurred', type: 'boolean', description: 'Starting blur when `blurred` is not bound.' },
+    { name: 'revealable', type: 'boolean', default: 'false', description: 'When blurred, show a button that unblurs, then a toggle that blurs again. The button is an action whose name says what it does next ("Show image", "Hide image"), with a 24px minimum target (44px on coarse pointers) and does not appear while the media was never blurred.' },
+    { name: 'revealLabel', type: 'string', default: "'Show image'", description: 'Name of the reveal button (translate it).' },
+    { name: 'hideLabel', type: 'string', default: "'Hide image'", description: 'Name of the button that blurs again (translate it).' },
     { name: 'class', type: 'string | object | array', description: 'Merged last on the root; wins over internal classes.' },
   ],
-  emits: [{ name: 'update:modelValue', payload: '[value: number]', description: 'Position changed by pointer or keyboard.' }],
+  emits: [
+    { name: 'update:blurred', payload: '[value: boolean]', description: 'The reveal button changed the blur.' },
+    { name: 'update:modelValue', payload: '[value: number]', description: 'Position changed by pointer or keyboard.' }],
   examples: [
     { title: 'Basic: uncontrolled placeholders', code: `<BeforeAfter class="max-w-xl" aspect="4 / 3" before-label="Before" after-label="After" />` },
     {
@@ -132,8 +139,16 @@ const after = '/screenshots/after.png'`,
       script: `const pos = ref(60)`,
       state: () => ({ pos: ref(60) }),
     },
+    {
+      title: 'Blurred, revealable',
+      description: 'Both images are blurred; the slider still works. Dragging the divider never triggers the button.',
+      code: `<BeforeAfter class="max-w-xl" aspect="4 / 3" revealable default-blurred :before="before" :after="after" before-alt="Sample image: before" after-alt="Sample image: after" />`,
+      script: `const before = '/screenshots/before.png'\nconst after = '/screenshots/after.png'`,
+      state: () => ({ before, after }),
+    },
   ],
   a11y: [
+    'Blur is visual only: alt text and names are unchanged and nothing is hidden from assistive technology; the root gets `data-blurred`. The reveal button is a real button whose name changes with the action (`revealLabel` while blurred, `hideLabel` once shown); it has no `aria-pressed`, because a toggle must not also change its label. Blur is a CSS filter on the media only, so it needs no colour and survives forced-colors mode; its transition runs only under `motion-safe:`.',
     'The divider handle is role="slider" (tabindex 0) with aria-valuemin 0, aria-valuemax 100, aria-valuenow, aria-valuetext ("40% Before, 60% After") and an aria-label (`label`).',
     'Keyboard map: ArrowRight/ArrowUp/PageUp add "before" and ArrowLeft/ArrowDown/PageDown remove it (horizontal); vertical follows the arrow (Down/Right/PageDown move the divider down). Shift multiplies the step by 5; PageUp/PageDown always move 5 steps; Home = 0, End = 100.',
     'Focus is shown as an inset outline around the whole handle and as a ring on the round knob (and, in forced-colors mode, an outline). The handle hit area is 40px wide (a 36px knob) so it exceeds the 24px target size; the page can still scroll over the image on the cross axis (`touch-pan-y` / `touch-pan-x`).',
@@ -147,7 +162,9 @@ const after = '/screenshots/after.png'`,
     'Throws a ContractError when `label` is an empty string: the slider needs an accessible name.',
   ],
   related: ['ImageGrid', 'Lightbox'],
-  llmNotes: ['Use `orientation="vertical"` for portrait/tall images or narrow columns; keep horizontal for landscape images.', 'Both images must share the same crop/aspect ratio.', 'Always set beforeAlt/afterAlt describing the content.', 'Do not rely on drag only; the slider is keyboard operable by design.'],
+  llmNotes: [
+'Use `blurred` for privacy, not decoration.',
+    'Use `orientation="vertical"` for portrait/tall images or narrow columns; keep horizontal for landscape images.', 'Both images must share the same crop/aspect ratio.', 'Always set beforeAlt/afterAlt describing the content.', 'Do not rely on drag only; the slider is keyboard operable by design.'],
   replaces: ['hand-rolled BeforeAfter markup in app code'],
 }
 export default doc

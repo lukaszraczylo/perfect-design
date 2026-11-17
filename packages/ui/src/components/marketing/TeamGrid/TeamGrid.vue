@@ -46,9 +46,11 @@ export interface TeamGridProps extends BaseProps {
   items?: TeamGridItem[]
   /** Heading level used for member names. */
   level?: 1 | 2 | 3 | 4 | 5 | 6
+  /** Privacy blur on every generated member photo; names and roles stay readable. Wins over `ConfigProvider blurMedia`, true or false. */
+  blurred?: boolean
 }
 
-const props = withDefaults(defineProps<TeamGridProps>(), { columns: 3, variant: 'card', gap: 'md', size: 'md', shape: 'circle', align: 'start', items: () => [], level: 3 })
+const props = withDefaults(defineProps<TeamGridProps>(), { columns: 3, variant: 'card', gap: 'md', size: 'md', shape: 'circle', align: 'start', items: () => [], level: 3, blurred: undefined })
 
 const slots = useSlots()
 onMounted(async () => {
@@ -77,7 +79,7 @@ function cardProps(m: TeamGridItem): TeamGridItem {
     <slot>
       <!-- `role` is a member field (job title), so list semantics live on the <li> wrapper, never on the card. -->
       <li v-for="(m, i) in members" :key="`${i}-${m.name}`" data-slot="team-grid-item">
-        <ItemsChecked><TeamMemberCard v-bind="cardProps(m)" :variant="variant" :level="level" class="h-full" /></ItemsChecked>
+        <ItemsChecked><TeamMemberCard v-bind="cardProps(m)" :variant="variant" :level="level" :blurred="blurred" class="h-full" /></ItemsChecked>
       </li>
     </slot>
   </component>

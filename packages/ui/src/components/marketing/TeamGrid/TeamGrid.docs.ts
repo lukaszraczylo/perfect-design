@@ -30,6 +30,7 @@ const doc: ComponentDoc = {
     { name: 'align', type: "'start' | 'center'", default: "'start'", description: 'Text alignment forwarded to the generated `card` and `minimal` cards; a member\'s own `align` wins. `centered` is always centred and `horizontal` always start-aligned. Unknown values fall back to `start`.' },
     { name: 'items', type: 'TeamGridItem[]', default: '[]', description: 'Members: `{ name, role?, bio?, avatar?, avatarAlt?, links?: { label, href, icon?, external? }[], size?, shape?, align? }`. Non-array values and null entries are ignored. `name` is required and every link needs a `label` and an `href`.' },
     { name: 'level', type: '1 | 2 | 3 | 4 | 5 | 6', default: '3', description: 'Heading level of member names; invalid values fall back to 3.' },
+    { name: 'blurred', type: 'boolean', description: 'Privacy blur on every generated member photo (and the initials). Names, roles, bios and links stay readable. Wins over `ConfigProvider blurMedia`, true or false. Cards in the default slot keep their own props.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last; wins over internal classes.' },
   ],
   parts: [
@@ -48,6 +49,7 @@ const doc: ComponentDoc = {
         { name: 'shape', type: "'circle' | 'rounded' | 'square'", default: "'circle'", description: 'Avatar shape, forwarded to Avatar. The `name` and `avatarAlt` contract is the same in every shape. Unknown values fall back to `circle`.' },
         { name: 'align', type: "'start' | 'center'", default: "'start'", description: '`center` centres the avatar, text and links of the `card` and `minimal` layouts. Ignored by `centered` (already centred) and `horizontal`. Unknown values fall back to `start`.' },
         { name: 'level', type: '1 | 2 | 3 | 4 | 5 | 6', default: '3', description: 'Heading level of the name.' },
+        { name: 'blurred', type: 'boolean', description: 'Privacy blur on the photo and the initials; text stays readable. Wins over `ConfigProvider blurMedia`, true or false.' },
         { name: 'class', type: 'string | object | array', description: 'Merged last.' },
       ],
     },
@@ -144,8 +146,16 @@ const doc: ComponentDoc = {
       script: `const links = [{ label: 'Email sample person A', href: 'mailto:name@example.com', icon: faEnvelope }]`,
       state: () => ({ links: team[0].links }),
     },
+    {
+      title: 'Blurred photos',
+      description: 'Photos are blurred for a demo or screen share; names and roles stay readable.',
+      code: `<TeamGrid blurred :columns="3" :items="team" />`,
+      script: `const team = [{ name: 'Sample person A', role: 'Role title', avatar: '/sample-a.png' }, ...]`,
+      state: () => ({ team: team.slice(0, 3) }),
+    },
   ],
   a11y: [
+    'Blur is visual only: names, roles and the avatar alt text are unchanged; the avatar root gets `data-blurred`.',
     'With `items` the root is a native `<ul>` and each member an `<li>` (role="listitem" is never put on the card: `role` is the job-title prop). With the default slot, or when empty, the root is a plain `<div>`; wrap your cards in `<li>` inside your own `<ul>` for list semantics.',
     'Names render as headings (`level`, default 3); keep levels consistent with the surrounding section.',
     'Icon-only links use `label` as aria-label; the avatar is labelled with `avatarAlt` or the name (initials fallback is exposed as an image with the name). Every link is at least 24px square and 44px on coarse pointers, with the shared focus ring.',
@@ -157,6 +167,7 @@ const doc: ComponentDoc = {
   ],
   related: ['SectionHeading', 'Testimonial', 'Avatar', 'SocialLinks'],
   llmNotes: [
+    'Use `blurred` for privacy, not decoration; text stays readable.',
     'Use `items` unless cards need custom content; pass icons as FontAwesome IconDefinition objects.',
     'Use real names only with permission; never invent people. Pick `variant="card"` by default, `centered` for leadership with big photos, `minimal` on already-carded pages, `horizontal` with `columns=2` and long bios.',
     'Keep one `size` and one `shape` per grid. `align="center"` only moves `card` and `minimal`.',

@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { cn } from '../../../lib/cn'
+import { mediaBlurClass, useMediaBlur } from '../../../lib/media-blur'
 import { focusRing } from '../../../lib/styles'
 import type { BaseProps } from '../../../lib/types'
 import Lightbox from '../Lightbox/Lightbox.vue'
 import { imageAltProblem } from '../Lightbox/contract'
+import MediaBlurToggle from '../_media/MediaBlurToggle.vue'
 import { checkItems, ItemsChecked } from '../shared/itemsContract'
 import { pickColumns } from '../shared/motion'
 import {
@@ -49,6 +51,14 @@ export interface ImageGridProps extends BaseProps {
   lightbox?: boolean
   /** Prefix of each thumbnail button's accessible name. */
   viewLabel?: string
+  /** Privacy blur on every image, also inside the Lightbox. Wins over `ConfigProvider blurMedia`, true or false. Changing it clears the per-image reveals. */
+  blurred?: boolean
+  /** Offer a reveal button per image (and inside the Lightbox). Revealing one image leaves the others blurred. */
+  revealable?: boolean
+  /** Name of the reveal button. */
+  revealLabel?: string
+  /** Name of the button that blurs a revealed image again. */
+  hideLabel?: string
 }
 
 const props = withDefaults(defineProps<ImageGridProps>(), {
@@ -61,8 +71,12 @@ const props = withDefaults(defineProps<ImageGridProps>(), {
   ratio: undefined,
   lightbox: true,
   viewLabel: 'View image',
+  blurred: undefined,
+  revealable: false,
+  revealLabel: 'Show image',
+  hideLabel: 'Hide image',
 })
-const emit = defineEmits<{ open: [index: number] }>()
+const emit = defineEmits<{ open: [index: number]; reveal: [index: number, revealed: boolean] }>()
 
 const variant = computed<ImageGridVariant>(() => (IMAGE_GRID_VARIANTS.includes(props.variant) ? props.variant : 'grid'))
 const cols = computed(() => pickColumns(props.columns, [2, 3, 4] as const, 3))
@@ -88,6 +102,18 @@ const isOpen = ref(false)
 const index = ref(0)
 const failed = reactive(new Set<number>())
 
+const gridBlurred = useMediaBlur(() => props.blurred)
+const revealed = reactive(new Set<number>())
+watch(gridBlurred, () => revealed.clear())
+const itemBlurred = (i: number) => gridBlurred.value && !revealed.has(i)
+const hasToggle = (i: number) => props.revealable && gridBlurred.value && (itemBlurred(i) || revealed.has(i))
+function setRevealed(i: number, on: boolean) {
+  if (on === revealed.has(i)) return
+  if (on) revealed.add(i)
+  else revealed.delete(i)
+  emit('reveal', i, on)
+}
+
 function open(i: number) {
   index.value = i
   isOpen.value = true
@@ -95,17 +121,18 @@ function open(i: number) {
 }
 const name = (img: GridImage, i: number) => `${props.viewLabel}: ${img.alt || img.caption || i + 1}`
 const tileClass = (i: number) => cn(imageGridTileVariants({ aspect: aspect.value, shape: shape.value }), isHero(i) && ['aspect-auto h-full min-h-0', imageGridHeroMobileAspect[aspect.value]])
-const imgClass = (i: number) => (fixed(i) ? 'absolute inset-0 size-full object-cover' : 'block h-auto w-full')
+const imgClass = (i: number) => cn(fixed(i) ? 'absolute inset-0 size-full object-cover' : 'block h-auto w-full', mediaBlurClass(itemBlurred(i), props.revealable))
 </script>
 
 <template>
-  <ul data-slot="image-grid" role="list" :data-variant="variant" :data-columns="cols" :data-shape="shape" :class="classes">
+  <ul data-slot="image-grid" role="list" :data-blurred="gridBlurred ? '' : undefined" :data-variant="variant" :data-columns="cols" :data-shape="shape" :class="classes">
     <li
       v-for="(img, i) in images"
       :key="i"
       data-slot="image-grid-item"
       :data-featured="isHero(i) ? '' : undefined"
-      :class="cn(itemClass, isHero(i) && 'col-span-2 row-span-2')"
+      :data-blurred="itemBlurred(i) ? '' : undefined"
+      :class="cn(itemClass, isHero(i) && 'col-span-2 row-span-2', revealable && 'relative')"
     >
       <component
         :is="lightbox ? 'button' : 'div'"
@@ -131,7 +158,8 @@ const imgClass = (i: number) => (fixed(i) ? 'absolute inset-0 size-full object-c
           {{ img.alt || 'Image unavailable' }}
         </span>
       </component>
+      <MediaBlurToggle v-if="hasToggle(i)" :blurred="itemBlurred(i)" :reveal-label="revealLabel" :hide-label="hideLabel" @toggle="setRevealed(i, itemBlurred(i))" />
     </li>
-    <ItemsChecked v-if="lightbox"><Lightbox v-model:open="isOpen" v-model:index="index" :images="images" /></ItemsChecked>
+    <ItemsChecked v-if="lightbox"><Lightbox v-model:open="isOpen" v-model:index="index" :images="images" :blurred="itemBlurred(index)" :revealable="revealable && gridBlurred" :reveal-label="revealLabel" :hide-label="hideLabel" @update:blurred="(v: boolean) => setRevealed(index, !v)" /></ItemsChecked>
   </ul>
 </template>
