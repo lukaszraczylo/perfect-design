@@ -98,6 +98,33 @@ describe('Tabs', () => {
       await nextTick()
       expect(triggers()[1].getAttribute('data-state')).toBe('inactive')
     })
+
+    it('forceMount keeps inactive panels mounted but hidden', async () => {
+      const Comp = defineComponent({
+        setup: () => () =>
+          h(Tabs, { defaultValue: 'a' }, () => [
+            h(TabsList, { 'aria-label': 'Sections' }, () => [
+              h(TabsTrigger, { value: 'a' }, () => 'Alpha'),
+              h(TabsTrigger, { value: 'b' }, () => 'Beta'),
+            ]),
+            h(TabsContent, { value: 'a', forceMount: true }, () => 'Panel A'),
+            h(TabsContent, { value: 'b', forceMount: true }, () => h('input', { 'aria-label': 'Kept' })),
+          ]),
+      })
+      wrapper = mount(Comp, { attachTo: document.body })
+      await flushPromises()
+      const panels = () => [...document.body.querySelectorAll<HTMLElement>('[data-slot="tabs-content"]')]
+      const hiddenWhenInactive = (el: HTMLElement) => el.classList.contains('data-[state=inactive]:hidden')
+      expect(panels()).toHaveLength(2)
+      expect(panels().map((p) => p.dataset.state)).toEqual(['active', 'inactive'])
+      expect(panels().every(hiddenWhenInactive)).toBe(true)
+      const input = document.body.querySelector('input')!
+      input.value = 'typed'
+      await activate(triggers()[1])
+      expect(panels().map((p) => p.dataset.state)).toEqual(['inactive', 'active'])
+      expect(document.body.querySelector('input')).toBe(input)
+      expect(input.value).toBe('typed')
+    })
   })
 
   describe('customisation', () => {

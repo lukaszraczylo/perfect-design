@@ -15,7 +15,7 @@ const delegated = computed(() => {
 </script>
 
 <template>
-  <RekaContent data-slot="tabs-content" v-bind="delegated" :class="cn('flex-1 rounded-md text-sm', focusRing, props.class)">
+  <RekaContent data-slot="tabs-content" v-bind="delegated" :class="cn('flex-1 rounded-md text-sm data-[state=inactive]:hidden', focusRing, props.class)">
     <slot />
   </RekaContent>
 </template>
