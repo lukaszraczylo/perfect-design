@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import Link from './Link.vue'
+import ConfigProvider from '../../layout/ConfigProvider/ConfigProvider.vue'
 import { linkVariants } from './variants'
 
 const set = (s: string) => [...new Set(s.split(/\s+/).filter(Boolean))].sort()
@@ -108,5 +110,18 @@ describe('Link variations', () => {
     it('keeps an accessible name from its text for every variant', () => {
       for (const variant of ['plain', 'destructive'] as const) expect(mount(Link, { props: { variant, href: '/x' }, slots: { default: 'Docs' } }).text()).toBe('Docs')
     })
+  })
+})
+
+describe('Link externalLabel', () => {
+  const hint = (props: Record<string, unknown>, opts: Record<string, unknown> = {}) => mount(Link, { props: { href: 'https://example.com', external: true, ...props } as never, slots: { default: 'Docs' }, ...opts }).find('.sr-only').text()
+  it('keeps the English hint by default', () => expect(hint({})).toBe('(opens in new tab)'))
+  it('renders a custom label', () => expect(hint({ externalLabel: 'öffnet in neuem Tab' })).toBe('öffnet in neuem Tab'))
+  it('blank label falls back to the default', () => expect(hint({ externalLabel: '  ' })).toBe('(opens in new tab)'))
+  it('reads the ConfigProvider label and lets the prop win', () => {
+    const wrap = (externalLabel?: string) =>
+      mount(ConfigProvider, { props: { labels: { 'link.externalHint': 'neuer Tab' } }, slots: { default: () => h(Link, { href: 'https://example.com', external: true, externalLabel }, () => 'Docs') } }).find('.sr-only').text()
+    expect(wrap()).toBe('neuer Tab')
+    expect(wrap('Prop')).toBe('Prop')
   })
 })

@@ -5,6 +5,7 @@ import { Primitive, type PrimitiveProps } from 'reka-ui'
 import { cn } from '../../../lib/cn'
 import { useRequireAccessibleName, violation } from '../../../lib/contract'
 import type { BaseProps } from '../../../lib/types'
+import { useConfigLabels } from '../../layout/ConfigProvider/config'
 import Icon from '../Icon/Icon.vue'
 import { LINK_SIZES, LINK_VARIANTS, linkVariants, type LinkSize, type LinkVariant } from './variants'
 
@@ -16,6 +17,8 @@ export interface LinkProps extends BaseProps {
   href?: string
   /** Opens in a new tab with rel="noopener noreferrer", adds an icon and an sr-only hint. */
   external?: boolean
+  /** Visually hidden hint after an external link, e.g. a translation of "(opens in new tab)". Wins over `ConfigProvider` `labels['link.externalHint']`. */
+  externalLabel?: string
   /** Show the trailing icon on external links. */
   externalIcon?: boolean
   /** Blocks navigation, sets aria-disabled and removes the link from the tab order. */
@@ -26,6 +29,9 @@ export interface LinkProps extends BaseProps {
 }
 
 const props = withDefaults(defineProps<LinkProps>(), { variant: 'default', size: 'inherit', externalIcon: true, as: 'a' })
+
+const labels = useConfigLabels('link', { externalHint: '(opens in new tab)' })
+const hint = computed(() => (props.externalLabel?.trim() ? props.externalLabel : labels.value.externalHint))
 
 const variant = computed<LinkVariant>(() => (LINK_VARIANTS.includes(props.variant) ? props.variant : 'default'))
 const size = computed<LinkSize>(() => (LINK_SIZES.includes(props.size) ? props.size : 'inherit'))
@@ -99,7 +105,7 @@ function onClick(e: MouseEvent) {
         size="xs"
         class="ms-1 inline align-baseline"
       />
-      <span v-if="external" class="sr-only"> (opens in new tab)</span>
+      <span v-if="external" class="sr-only"> {{ hint }}</span>
     </template>
   </Primitive>
 </template>

@@ -29,6 +29,7 @@ export type ConfigLabelKey =
   | 'confirmDialog.cancel'
   | 'confirmDialog.defaultTitle'
   | 'confirmDialog.error'
+  | 'link.externalHint'
 
 export type ConfigLabels = Partial<Record<ConfigLabelKey, string>> & { [key: string]: string | undefined }
 

@@ -13,6 +13,7 @@ const doc: ComponentDoc = {
     { name: 'size', type: "'inherit' | 'sm' | 'md' | 'lg'", default: "'inherit'", description: 'inherit keeps the size of the surrounding text; sm, md, lg set text-sm, text-base, text-lg. Unknown values fall back to inherit.' },
     { name: 'href', type: 'string', description: 'Destination. Omitted while `disabled`.' },
     { name: 'external', type: 'boolean', default: 'false', description: 'target="_blank", rel="noopener noreferrer", trailing icon and sr-only hint.' },
+    { name: 'externalLabel', type: 'string', default: "'(opens in new tab)'", description: 'Visually hidden hint read after an external link. Use it to translate the text; a `ConfigProvider` label `link.externalHint` sets it for a whole subtree and this prop wins.' },
     { name: 'externalIcon', type: 'boolean', default: 'true', description: 'Show the trailing arrow icon on external links.' },
     { name: 'disabled', type: 'boolean', default: 'false', description: 'aria-disabled, tabindex -1, no href, clicks blocked.' },
     { name: 'as', type: 'string | Component', default: "'a'", description: 'Element or component (e.g. RouterLink) to render.' },
