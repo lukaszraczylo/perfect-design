@@ -449,3 +449,162 @@ describe('Table layout="cards" with TableCardControls (hand-written table)', () 
     w.unmount()
   })
 })
+
+describe('TableCardControls sortControl="combobox"', () => {
+  const flush = async () => {
+    for (let i = 0; i < 4; i++) await Promise.resolve()
+    await nextTick()
+    await new Promise((r) => setTimeout(r, 0))
+    await nextTick()
+  }
+  const qa = (s: string) => Array.from(document.body.querySelectorAll(s)) as HTMLElement[]
+  const cInput = () => document.body.querySelector('input[role=combobox]') as HTMLInputElement
+  const optionTexts = () => qa('[role=option]').map((o) => o.textContent?.trim())
+  const mc = (props: Record<string, unknown> = {}) => mnt({ sortControl: 'combobox', ...props }) as AnyWrapper
+  const mountC = (props: Record<string, unknown> = {}) =>
+    mount(TableCardControls as any, { props: { options, sortControl: 'combobox', ...props }, attachTo: document.body }) as AnyWrapper
+  const type = async (text: string) => {
+    cInput().value = text
+    cInput().dispatchEvent(new Event('input', { bubbles: true }))
+    await flush()
+  }
+  const open = async () => {
+    cInput().blur()
+    await flush()
+    cInput().focus()
+    await flush()
+  }
+  const pick = async (label: string) => {
+    await open()
+    qa('[role=option]').find((o) => o.textContent?.trim() === label)!.click()
+    await flush()
+  }
+
+  it('renders a combobox and no native select', () => {
+    const w = mc()
+    expect(w.find('select').exists()).toBe(false)
+    expect(w.find('input[role=combobox]').exists()).toBe(true)
+    expect(w.find('[data-slot=table-card-controls-sort-combobox]').exists()).toBe(true)
+    expect(dirBtn(w).exists()).toBe(true)
+  })
+  it('unknown and missing values keep the native select', () => {
+    expect(mnt({ sortControl: 'nope' }).find('select').exists()).toBe(true)
+    expect(mnt({ sortControl: undefined }).find('select').exists()).toBe(true)
+    expect(mnt({ sortControl: 'nope' }).find('input[role=combobox]').exists()).toBe(false)
+  })
+  it('default output has no combobox', () => {
+    expect(mnt().find('[data-slot=combobox]').exists()).toBe(false)
+  })
+  it('is named by the visible "Sort by" label and uses the default order as placeholder', () => {
+    const w = mountC()
+    const el = w.find('input[role=combobox]').element as HTMLInputElement
+    expect(el.labels).toHaveLength(1)
+    expect(el.labels![0]!.textContent).toBe('Sort by')
+    expect(el.placeholder).toBe('Default order')
+    w.unmount()
+  })
+  it('placeholder and label follow the relabel props', () => {
+    const w = mountC({ sortByLabel: 'Sortieren', sortDefaultLabel: 'Standard' })
+    const el = w.find('input[role=combobox]').element as HTMLInputElement
+    expect(el.labels![0]!.textContent).toBe('Sortieren')
+    expect(el.placeholder).toBe('Standard')
+    w.unmount()
+  })
+  it('lists the sortable columns and filters while typing, with an empty text', async () => {
+    const w = mountC()
+    await open()
+    expect(optionTexts()).toEqual(['Name', 'Plan'])
+    await type('pla')
+    expect(optionTexts()).toEqual(['Plan'])
+    await type('zzz')
+    expect(optionTexts()).toEqual([])
+    expect(document.body.textContent).toContain('No matching columns')
+    w.unmount()
+  })
+  it('a first pick sorts ascending and a later pick keeps the direction', async () => {
+    const w = mountC({ 'onUpdate:sort': () => {} })
+    await pick('Name')
+    expect(w.emitted('update:sort')![0]).toEqual([{ key: 'name', direction: 'asc' }])
+    await w.setProps({ sort: { key: 'name', direction: 'desc' } })
+    await pick('Plan')
+    expect(w.emitted('update:sort')!.at(-1)).toEqual([{ key: 'plan', direction: 'desc' }])
+    w.unmount()
+  })
+  it('clearing sets the sort to null', async () => {
+    const w = mountC({ sort: { key: 'plan', direction: 'asc' } })
+    await flush()
+    expect(cInput().value).toBe('Plan')
+    ;(document.body.querySelector('[data-slot=combobox-clear]') as HTMLElement).click()
+    await flush()
+    expect(w.emitted('update:sort')!.at(-1)).toEqual([null])
+    w.unmount()
+  })
+  it('shows the active column and a controlled parent that ignores the update still shows the real sort', async () => {
+    const w = mountC({ sort: { key: 'plan', direction: 'asc' }, 'onUpdate:sort': () => {} })
+    await flush()
+    expect(cInput().value).toBe('Plan')
+    await pick('Name')
+    await flush()
+    expect(w.emitted('update:sort')![0]).toEqual([{ key: 'name', direction: 'asc' }])
+    expect(cInput().value).toBe('Plan')
+    w.unmount()
+  })
+  it('an unknown sort key shows the default order and disables the direction button', async () => {
+    const w = mountC({ sort: { key: 'ghost', direction: 'asc' } })
+    await flush()
+    expect(cInput().value).toBe('')
+    expect(dirBtn(w).attributes('disabled')).toBeDefined()
+    w.unmount()
+  })
+  it('direction button and announcement keep working', async () => {
+    const w = mountC({ sort: { key: 'name', direction: 'asc' } })
+    expect(status(w).text()).toBe('Sort by Name, Ascending')
+    await dirBtn(w).trigger('click')
+    expect(w.emitted('update:sort')![0]).toEqual([{ key: 'name', direction: 'desc' }])
+    w.unmount()
+  })
+  it('uses logical properties, and works inside an RTL region', async () => {
+    const w = mount(defineComponent({ render: () => h('div', { dir: 'rtl' }, [h(TableCardControls as any, { options, sortControl: 'combobox' })]) }), { attachTo: document.body })
+    expect(w.find('[dir=rtl] input[role=combobox]').exists()).toBe(true)
+    expect(w.html()).not.toMatch(/\b(?:ml|mr|pl|pr|left|right|text-left|text-right)-/)
+    w.unmount()
+  })
+  it('has the same 44px coarse-pointer floor as the select', () => {
+    const w = mc()
+    expect(w.find('input[role=combobox]').classes()).toContain('pointer-coarse:min-h-11')
+  })
+  it('does not throw in strict mode', async () => {
+    configureStrictMode('throw')
+    const errors: unknown[] = []
+    const w = mount(
+      defineComponent({
+        setup() {
+          onErrorCaptured((e) => (errors.push(e), false))
+          return () => h(TableCardControls as any, { options, sortControl: 'combobox', selectable: true })
+        },
+      }),
+      { attachTo: document.body },
+    )
+    await settle()
+    expect(errors).toEqual([])
+    w.unmount()
+  })
+})
+
+describe('DataTable cardSortControl', () => {
+  const cols: DataTableColumn<{ id: number; name: string }>[] = [{ key: 'name', header: 'Name', sortable: true }]
+  const dt = (props: Record<string, unknown> = {}) =>
+    mount(DataTable as any, { props: { columns: cols, rows: [{ id: 1, name: 'B' }], rowKey: 'id', layout: 'cards', label: 'Sample', ...props } }) as AnyWrapper
+  it('defaults to the native select', () => {
+    const w = dt()
+    expect(w.find('[data-slot=table-card-controls] select').exists()).toBe(true)
+  })
+  it('passes the combobox choice through', () => {
+    const w = dt({ cardSortControl: 'combobox' })
+    expect(w.find('[data-slot=table-card-controls] select').exists()).toBe(false)
+    expect(w.find('[data-slot=table-card-controls] input[role=combobox]').exists()).toBe(true)
+  })
+  it('an unknown value falls back to the select', () => {
+    expect(dt({ cardSortControl: 'x' }).find('[data-slot=table-card-controls] select').exists()).toBe(true)
+  })
+})

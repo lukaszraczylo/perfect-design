@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watchPostEffect } from 'vue'
+import { computed, nextTick, ref, useId, watchPostEffect } from 'vue'
 import { faArrowDown, faArrowUp, faChevronDown } from '../../../lib/icons'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
 import Button from '../../primitives/Button/Button.vue'
 import Icon from '../../primitives/Icon/Icon.vue'
+import Combobox from '../../forms/Combobox/Combobox.vue'
 import { nativeSelectVariants } from '../../forms/NativeSelect/variants'
 import { tableCheckboxClasses } from './selectStyles'
 import type { SortState } from './types'
@@ -25,6 +26,8 @@ export interface TableCardControlsProps extends BaseProps {
   someSelected?: boolean
   /** Disables the "Select all" checkbox (no rows to select). */
   selectDisabled?: boolean
+  /** `'select'` (default) is a native select; `'combobox'` is a filterable Combobox. Unknown values use the select. */
+  sortControl?: 'select' | 'combobox'
   /** Visible label of the sort select. */
   sortByLabel?: string
   /** Name of the direction button (its visible text is the current direction). */
@@ -45,6 +48,7 @@ const props = withDefaults(defineProps<TableCardControlsProps>(), {
   allSelected: false,
   someSelected: false,
   selectDisabled: false,
+  sortControl: 'select',
   sortByLabel: 'Sort by',
   sortDirectionLabel: 'Sort direction',
   sortDefaultLabel: 'Default order',
@@ -73,6 +77,11 @@ async function onSelect(event: Event) {
   await nextTick()
   // Controlled and ignored by the parent: show what the data really is sorted by.
   el.value = activeKey.value
+}
+const useCombobox = computed(() => props.sortControl === 'combobox')
+const comboId = `table-card-controls-sort-${useId()}`
+function onPick(value: string | null) {
+  sort.value = value ? { key: value, direction: direction.value } : null
 }
 function flip() {
   if (!current.value) return
@@ -110,7 +119,22 @@ const labelClasses = 'inline-flex min-h-6 cursor-pointer items-center gap-2 text
       <span>{{ selectAllLabel }}</span>
     </label>
     <div v-if="options.length > 0" data-slot="table-card-controls-sort" class="flex min-w-0 flex-1 items-center gap-2">
-      <label class="flex min-w-0 flex-1 items-center gap-2 text-foreground">
+      <div v-if="useCombobox" class="flex min-w-0 flex-1 items-center gap-2">
+        <label :for="comboId" class="shrink-0 text-foreground">{{ sortByLabel }}</label>
+        <Combobox
+          :id="comboId"
+          data-slot="table-card-controls-sort-combobox"
+          class="min-w-0 flex-1"
+          clearable
+          size="md"
+          empty-text="No matching columns"
+          :placeholder="sortDefaultLabel"
+          :options="options.map((o) => ({ value: o.key, label: o.label }))"
+          :model-value="activeKey"
+          @update:model-value="onPick"
+        />
+      </div>
+      <label v-else class="flex min-w-0 flex-1 items-center gap-2 text-foreground">
         <span class="shrink-0">{{ sortByLabel }}</span>
         <span class="relative block min-w-0 flex-1">
           <select ref="selectEl" data-slot="table-card-controls-sort-select" :class="selectClasses" :value="activeKey" @change="onSelect">

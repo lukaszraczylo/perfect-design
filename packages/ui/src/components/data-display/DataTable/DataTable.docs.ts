@@ -57,6 +57,7 @@ const doc: ComponentDoc = {
     { name: 'layout', type: "'table' | 'cards'", default: "'table'", description: '`cards`: below the `sm` breakpoint (640px) each row becomes a stacked card of label and value pairs (the labels are the column headers) and the header row is hidden visually. Sorting, selection, paging, loading and empty states keep working.' },
     { name: 'stickyHeader', type: 'boolean', default: 'false', description: 'Pin the header; set a height on `containerClass` (e.g. `max-h-96`).' },
     { name: 'cardControls', type: 'boolean', default: 'true', description: 'With `layout="cards"`, show the sort select, direction button and "Select all" checkbox below 640px (where the header row is hidden). It appears only when a column is `sortable` or `selectable` is set. Set `false` to hide it and offer your own.' },
+    { name: 'cardSortControl', type: "'select' | 'combobox'", default: "'select'", description: 'Cards-layout sort control. `combobox` swaps the native select for a filterable Combobox (type to narrow the sortable columns, clear to restore the default order). Same label, direction button and `v-model:sort` value. Unknown values use the select.' },
     { name: 'sortByLabel', type: 'string', default: "'Sort by'", description: 'Visible label of the cards-layout sort select.' },
     { name: 'sortDirectionLabel', type: 'string', default: "'Sort direction'", description: 'Start of the accessible name of the direction button ("Sort direction: Ascending"); its visible text is the current direction.' },
     { name: 'sortDefaultLabel', type: 'string', default: "'Default order'", description: 'Select option that clears the sort.' },
@@ -102,6 +103,7 @@ const doc: ComponentDoc = {
         { name: 'allSelected', type: 'boolean', default: 'false', description: 'Checks the box (every row of the page is selected).' },
         { name: 'someSelected', type: 'boolean', default: 'false', description: 'Indeterminate box (some, not all, rows are selected).' },
         { name: 'selectDisabled', type: 'boolean', default: 'false', description: 'Disables the checkbox (no rows).' },
+        { name: 'sortControl', type: "'select' | 'combobox'", default: "'select'", description: '`combobox` renders a filterable Combobox (clearable, placeholder = `sortDefaultLabel`) instead of the native select. Unknown values use the select.' },
         { name: 'sortByLabel', type: 'string', default: "'Sort by'", description: 'Visible label of the select.' },
         { name: 'sortDirectionLabel', type: 'string', default: "'Sort direction'", description: 'Accessible name prefix of the direction button.' },
         { name: 'sortDefaultLabel', type: 'string', default: "'Default order'", description: 'Option that clears the sort.' },
@@ -181,6 +183,14 @@ const selected = ref([])`,
   <Badge variant="secondary" class="tabular-nums">{{ sort ? sort.key + ' ' + sort.direction : 'default order' }}, {{ selected.length }} selected</Badge>
 </div>`,
       state: () => ({ columns, rows: makeRows(), sort: ref<{ key: string; direction: 'asc' | 'desc' } | null>(null), selected: ref<(string | number)[]>([]) }),
+    },
+    {
+      title: 'Cards layout: filterable sort',
+      description: '`card-sort-control="combobox"` replaces the native sort select with a Combobox: type to filter the sortable columns, clear to return to the default order. Narrow the window to see it. Sample data.',
+      script: `${rowsScript}
+const sort = ref(null)`,
+      code: `<DataTable v-model:sort="sort" :columns="columns" :rows="rows" layout="cards" card-sort-control="combobox" label="Sample data: filterable card sort" />`,
+      state: () => ({ columns, rows: makeRows(), sort: ref<{ key: string; direction: 'asc' | 'desc' } | null>(null) }),
     },
     {
       title: 'Cards layout: actions column',

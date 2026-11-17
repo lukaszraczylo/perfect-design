@@ -80,6 +80,8 @@ export interface DataTableProps<R> extends BaseProps {
    * `true`; set `false` to supply your own.
    */
   cardControls?: boolean
+  /** Cards-layout sort control: `'select'` (default, native select) or `'combobox'` (filterable). Unknown values use the select. */
+  cardSortControl?: 'select' | 'combobox'
   /** Visible label of the cards-layout sort select. Default `'Sort by'`. */
   sortByLabel?: string
   /** Name of the cards-layout direction button (its text is the current direction). Default `'Sort direction'`. */

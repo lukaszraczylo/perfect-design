@@ -37,6 +37,7 @@ const props = withDefaults(defineProps<DataTableProps<T>>(), {
   layout: 'table',
   stickyHeader: false,
   cardControls: true,
+  cardSortControl: 'select',
   sortByLabel: 'Sort by',
   sortDirectionLabel: 'Sort direction',
   sortDefaultLabel: 'Default order',
@@ -327,6 +328,7 @@ const rowClasses = computed(() =>
       :all-selected="allOnPage"
       :some-selected="someOnPage"
       :select-disabled="pageIds.length === 0"
+      :sort-control="cardSortControl"
       :sort-by-label="sortByLabel"
       :sort-direction-label="sortDirectionLabel"
       :sort-default-label="sortDefaultLabel"
