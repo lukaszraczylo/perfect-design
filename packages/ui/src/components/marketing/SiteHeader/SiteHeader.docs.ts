@@ -213,7 +213,7 @@ const doc: ComponentDoc = {
     '`size`, `tone`, `appearance` and the `stacked` variant change looks and layout only: landmark, names, keyboard map, `aria-expanded` and Escape behave the same. The inverted tone draws focus as a 2px outline in the page colour (the shared ring colour is too close to the ink surface); the current page stays underlined in every tone. `stacked` keeps DOM order brand, links, actions, so Tab order is unchanged.',
     'All surfaces are opaque (no blur), so text contrast is the tested token pair. The only scroll listener is passive and toggles a colour; nothing animates beyond a short colour transition that stops under prefers-reduced-motion.',
   ],
-  related: ['SiteFooter', 'Hero', 'Button', 'ScrollProgress'],
+  related: ['SiteFooter', 'Hero', 'Button', 'ScrollProgress', 'BrandLink'],
   llmNotes: [
     'Use one SiteHeader per page. If a page shows several (docs, demos), give each a distinct `nav-label`.',
     'Pick by need: default for most sites, centered for brand-led, minimal for focused flows, transparent over a plain Hero, floating for a detached bar, with-announcement for real news, stacked for many links.',

@@ -153,6 +153,7 @@
 - [SidebarNav](/components/navigation/sidebar-nav): Grouped application sidebar navigation with icons, badges, nested items and an icon-only collapsed mode. (App shell)
 - [DocsSidebar](/components/navigation/docs-sidebar): Documentation-style grouped link list with section titles and an active page indicator. (Docs)
 - [TableOfContents](/components/navigation/table-of-contents): In-page "On this page" list that highlights the section being read and scrolls to a section on click. (Docs)
+- [BrandLink](/components/navigation/brand-link): Home link that shows a logo and the product name, for the header and footer brand slots. (Links)
 - [NavLink](/components/navigation/nav-link): Navigation link with an active state (aria-current), optional icon and badge. Router-agnostic. (Links)
 - [Menubar](/components/navigation/menubar): Desktop-style horizontal menu bar (File, Edit, View) whose menus open from triggers with full keyboard roving. (Menus)
 - [NavigationMenu](/components/navigation/navigation-menu): Site navigation bar with hover/click mega-menu panels, an optional shared viewport and an optional indicator. (Menus)

@@ -36,6 +36,9 @@
   min-block-size: 1.5rem;
   min-inline-size: 1.5rem;
 }
+[data-style="workbench"] [data-slot="brand-link"] {
+  min-block-size: 1.5rem;
+}
 [data-style="workbench"] [data-slot="code-viewer-fold-cell"] {
   min-block-size: 1.5rem;
   min-inline-size: 1.5rem;

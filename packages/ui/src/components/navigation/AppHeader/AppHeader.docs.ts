@@ -71,7 +71,7 @@ const doc: ComponentDoc = {
     'The nav is hidden below `md` and the menu button above it. If the viewport grows past `md` while the panel is open, it closes.',
     'Buttons keep their own 36px target (44px on coarse pointers). Logical properties (`ms-auto`) keep the actions on the correct side in RTL.',
   ],
-  related: ['MobileNav', 'NavLink', 'ThemeToggle', 'SidebarNav'],
+  related: ['MobileNav', 'NavLink', 'ThemeToggle', 'SidebarNav', 'BrandLink'],
   requires: [
     'Throws a ContractError when a `nav` slot is given without a `mobile` slot, because the nav is hidden below `md` and its links would be unreachable.',
     'Throws a ContractError when `menuLabel` is blank while a `mobile` slot is given, or `navLabel` is blank while a `nav` slot is given.',

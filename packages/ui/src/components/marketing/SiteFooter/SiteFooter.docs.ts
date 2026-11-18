@@ -196,7 +196,7 @@ const doc: ComponentDoc = {
     'Dark tone uses the `background` token at 70% for links and text on the `foreground` fill; that pair keeps at least 4.5:1. Keep legal text at that tone or stronger.',
     'Columns stack to two on phones and three from `sm`, so it reflows at 320px. Logical properties and no left/right offsets, so RTL needs no changes.',
   ],
-  related: ['SiteHeader', 'SocialLinks', 'ContactLink', 'CtaBand'],
+  related: ['SiteHeader', 'SocialLinks', 'ContactLink', 'CtaBand', 'BrandLink'],
   llmNotes: [
     'One SiteFooter per page; if several appear (docs, demos) give each a distinct `nav-label`.',
     'Link only pages that exist, and compute the copyright year.',
