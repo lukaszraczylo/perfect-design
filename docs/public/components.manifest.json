@@ -20007,7 +20007,7 @@
         },
         {
           "title": "Router link",
-          "description": "Pass `as` a RouterLink and `to`. The logo and name stay inside the link. This is the live demo uses a stand-in for RouterLink.",
+          "description": "Pass `as` a RouterLink and `to`. The logo and name stay inside the link. The live demo uses a stand-in for RouterLink.",
           "script": "import { RouterLink } from 'vue-router'",
           "code": "<div @click.prevent>\n  <BrandLink :as=\"RouterLink\" to=\"/\" name=\"Brightwater Co\" :icon=\"faLightbulb\" />\n</div>"
         },
