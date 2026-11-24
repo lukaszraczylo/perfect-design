@@ -5,5 +5,5 @@ onlyBuiltDependencies:
   - esbuild
 # js-beautify (via @vue/test-utils) pins glob 13 and minimatch 10, which carry GHSA-3g3m-2fjr-6pw4 and GHSA-g3hv-75wg-m249.
 overrides:
-  glob@<14.0.2: 14.0.6
-  minimatch@<11.0.1: 11.0.8
+  glob@>=9.0.0 <14.0.2: 14.0.6
+  minimatch@<11.0.1: 11.0.9
