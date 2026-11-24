@@ -108,6 +108,14 @@ describe('slop guard: surfaces (S2 to S6)', () => {
   it('no backdrop blur or glass (S4)', () => {
     expect(hits(shipped, /\bbackdrop-blur/)).toEqual([])
   })
+  it('no backdrop-filter in any stylesheet except the opt-in glass surface (S4)', () => {
+    const sheets = (dir: string): string[] => readdirSync(src(dir), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? sheets(`${dir}/${e.name}`) : e.name.endsWith('.css') ? [`${dir}/${e.name}`] : []))
+    const files = sheets('styles')
+    expect(files.length).toBeGreaterThan(20)
+    expect(files).toContain('styles/surfaces.css')
+    const offenders = files.filter((f) => f !== 'styles/surfaces.css' && /backdrop-filter|\bblur\(/.test(read(f).replace(/\/\*[\s\S]*?\*\//g, '')))
+    expect(offenders).toEqual([])
+  })
   it('radius stops at xl: no rounded-2xl, rounded-3xl (S2)', () => {
     expect(hits(shipped, /\brounded(?:-[tblrse]{1,2})?-(?:2xl|3xl|4xl)\b/)).toEqual([])
   })

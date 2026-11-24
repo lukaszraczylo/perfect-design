@@ -3,7 +3,7 @@ import { THEME_ATTRIBUTES, THEME_STORAGE_KEY } from './theme'
 const attributes = Object.entries(THEME_ATTRIBUTES).map(([key, { attr, values }]) => [key, attr, values] as const)
 
 /**
- * Inline script for `<head>` that applies the saved colour mode, accent, palette, style pack, font family, corner shape and code theme
+ * Inline script for `<head>` that applies the saved colour mode, accent, palette, style pack, font family, corner shape, surface and code theme
  * before first paint, so a returning visitor never sees the default look flash before `useThemeStore().init()` runs. It
  * reads the same storage key and accepts only the values the store accepts; a saved palette wins over a saved accent.
  *

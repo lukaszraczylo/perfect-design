@@ -11,6 +11,7 @@ import { AccentPicker } from './AccentPicker'
 import { StylePicker } from './StylePicker'
 import { FontPicker } from './FontPicker'
 import { CornerPicker } from './CornerPicker'
+import { SurfacePicker } from './SurfacePicker'
 import { PalettePicker } from './PalettePicker'
 import { CodeThemePicker } from './CodeThemePicker'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './Accordion'
@@ -723,6 +724,19 @@ describe('Pinia requirement', () => {
     await reopen(() => el(CornerPicker, { corners: ['blob'] }))
     expect(messages()).toContain('CornerPicker: requires at least one known corner shape')
     await reopen(() => el(CornerPicker, { corners: ['squircle', 'blob'] }))
+    expect(errors).toEqual([])
+  })
+  it('SurfacePicker throws a ContractError when Pinia is missing', async () => {
+    await open(() => el(SurfacePicker), false)
+    expect(errors[0]?.name).toBe('ContractError')
+    expect(errors[0].message).toContain('SurfacePicker: requires an active Pinia instance')
+  })
+  it('SurfacePicker throws for a blank label and for no known surface', async () => {
+    await open(() => el(SurfacePicker, { label: '' }))
+    expect(messages()).toContain('SurfacePicker: requires a non-empty `label`')
+    await reopen(() => el(SurfacePicker, { surfaces: ['frosted'] }))
+    expect(messages()).toContain('SurfacePicker: requires at least one known surface')
+    await reopen(() => el(SurfacePicker, { surfaces: ['glass', 'frosted'] }))
     expect(errors).toEqual([])
   })
   it('PalettePicker throws a ContractError when Pinia is missing', async () => {

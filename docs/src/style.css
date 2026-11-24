@@ -16,6 +16,7 @@
 @import "../../packages/ui/src/styles/code-themes.css";
 @import "../../packages/ui/src/styles/fonts.css";
 @import "../../packages/ui/src/styles/corners.css";
+@import "../../packages/ui/src/styles/surfaces.css";
 
 /* Latin subsets only: the full fontsource files declare every script and cost render-blocking CSS bytes. */
 @font-face {
@@ -56,6 +57,7 @@
 @source "../../packages/ui/src/components/navigation/CornerPicker";
 @source "../../packages/ui/src/components/navigation/FontPicker";
 @source "../../packages/ui/src/components/navigation/PalettePicker";
+@source "../../packages/ui/src/components/navigation/SurfacePicker";
 @source "../../packages/ui/src/components/navigation/contract.ts";
 @source "../../packages/ui/src/components/typography/Markdown";
 @source "../../packages/ui/src/components/typography/RelativeTime";

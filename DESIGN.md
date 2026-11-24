@@ -49,7 +49,7 @@ No gradients, glows or coloured shadows. Contrast is enforced by `packages/ui/sr
 | `rounded-xl` (12px) | Dialogs and sheets only |
 | `rounded-full` | Avatars, status dots, switches |
 
-`rounded-2xl` and above are not used. Spacing is the 4px grid. Elevation: cards use a border and no shadow; popovers, menus and dialogs use `shadow-md` or `shadow-lg`; nothing else casts a shadow. No glass or backdrop blur, no stripes on card edges.
+`rounded-2xl` and above are not used. Spacing is the 4px grid. Elevation: cards use a border and no shadow; popovers, menus and dialogs use `shadow-md` or `shadow-lg`; nothing else casts a shadow. Glass exists only through `data-surface="glass"` (section 13), never as a default; no other backdrop blur, no stripes on card edges.
 
 ## 5. The characteristic element
 
@@ -82,6 +82,7 @@ Each row trips a pattern in `LLMSlop.md` on purpose. `packages/ui/src/__tests__/
 | H6 hard-coded colour | `styles/code-themes.css` | Each code theme reproduces a published editor palette, so its colours are data. The file is generated, opt-in, and scoped to code surfaces. |
 | C2 gradient | `marketing/Marquee` | A `mask-image` fade on the edges hides overflowing items. It is not a visible gradient. |
 | N1, N3 editorial | `styles/packs/editorial.css` | Serif display face, square corners and hairlines are the pack's brief: reading-first content (docs, publications). Cool white background, no cream, no clay accent. Never the default. |
+| S4 glass | `styles/surfaces.css` | An opt-in surface axis (`data-surface="glass"`) for products whose brief wants depth: floating layers (menus, popovers, dialogs, toasts, sticky headers) blur the content behind them. It is never the default, content cards stay opaque, it falls back to solid, and a test keeps its text at 4.5:1 (section 13). |
 | N4 faux-brutalist | `styles/packs/raw.css` | Square corners, ink borders and hard offset shadows, only for products whose brief is a blunt, poster-like tool. It is selected on purpose with `look="raw"` or `data-style="raw"`, never applied as a fallback. |
 | M2 press | `styles/packs/tactile.css` | The one-pixel sink on `:active` is feedback for a press, applies only under `prefers-reduced-motion: no-preference`, and there is no hover lift or scale. |
 
@@ -171,3 +172,18 @@ The corner shape is its own axis, separate from the style pack, the font, the ac
 How it works: the derived radius tokens in `theme.css` (`--radius-xs` to `--radius-2xl`) multiply `--radius` by `--radius-scale` (default 1), so the scale reaches every generated `rounded-*` utility, and it composes with every style pack: `workbench` (4px) grows to 6px, `raw` (0) stays 0. A squircle at the same radius looks smaller and squarer than a circular corner, which is why the radius grows. `corner-shape` is not inherited, so the scope sets the inherited `--corner-shape` and one `:where()` rule applies it to every element; the nearest `data-corner` wins in nested scopes, and no component rule is out-ranked. The file uses no `clip-path` or `mask`, which would cut borders, shadows and focus rings.
 
 Rules for corners: everything sits inside the `@supports` block; selectors are scoped to `[data-corner]` so nothing changes until an attribute is set; only `corner-shape`, `--corner-shape` and `--radius-scale` are set; no colour, blur, gradient or transition. `src/__tests__/corners.test.ts` enforces these, requires every shape to be documented here and checks that every `rounded-*-full` form used by the components is reset. A new shape needs a rule in `corners.css`, an entry in `THEME_CORNERS` and `CornerPicker` names, and a row in this table.
+
+## 13. Surfaces
+
+The surface is its own axis, separate from the style pack, the font, the corner shape and the colour mode. Select it on `<html>` (`useThemeStore().setSurface()`, `SurfacePicker`) or on a region with `data-surface`; import `@perfect-design/ui/surfaces.css` after `theme.css`, the packs and `fonts.css`. It is the one deliberate exception to the no-glass rule (section 7, `LLMSlop.md` S4): glass exists only here.
+
+| Surface | Brief it answers | What changes | Guard rails |
+|---|---|---|---|
+| `solid` | The core look. | Nothing; the layers keep their opaque tokens. | The attribute is removed on `<html>`; the rule exists so a nested scope or picker option can restore it. |
+| `glass` | Products where depth helps: the layer on top lets the content behind it show, blurred. | Layers that float over content get their surface token at 82% opacity, `blur(16px) saturate(1.5)` behind it and a softened border. | Tokens only. Falls back to solid without `backdrop-filter`, under `prefers-reduced-transparency: reduce`, in forced colours and in the `contrast` style pack. |
+
+Where glass applies, by `data-slot`: `popover-content`, `hover-card-content`, `tooltip-content`, `dropdown-menu-content`, `dropdown-menu-sub-content`, `context-menu-content`, `context-menu-sub-content`, `menubar-content`, `menubar-sub-content`, `select-content`, `combobox-content`, `multi-select-content`, `model-picker-content`, `date-picker-content`, `date-range-picker-content`, `time-range-picker-content`, `dialog-content` (so the command palette), `alert-dialog-content`, `sheet-content`, `tour-card`, `navigation-menu-viewport`, `toast` (default appearance), `mobile-nav`, `app-shell-header`, a sticky `app-header` and a `site-header` that is not transparent. Content cards, tables, alerts and the docked sidebar stay opaque: a docked sidebar has no content moving beneath it, and two palettes (`saffron`, `harbor` dark) leave its text only 4.6:1, so no transparency budget. Inverted popovers, hover cards and the dark tooltip stay ink-coloured glass; a toast with a `soft` or `solid` appearance and a dialog with a status `tone` keep their own colour.
+
+Tuning: `--glass-alpha` (0 to 1) and `--glass-blur` on the scope. The shipped alpha is the lowest value at which text on the surface keeps 4.5:1 over a pure black and a pure white backdrop, in light and dark, in the core theme, every accent and every palette. Pure black and white bound every real backdrop, because luminance rises with each channel and blur or saturate cannot leave that range. A lower value is the app's decision and needs its own check. Muted text and links keep 4.5:1 over the page background, not over any backdrop.
+
+Rules for surfaces: everything sits inside `@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)))`; every painting rule starts with `[data-surface="glass"]`, so nothing changes until the attribute is set; fills and borders are `color-mix()` of semantic tokens, never a colour literal; no shadow, motion or transform; content cards are never targeted. `src/__tests__/surfaces.test.ts` enforces these, requires every surface to be documented here and runs the legibility gate; `slop.test.ts` allows `backdrop-filter` in this one stylesheet only. Style packs keep their no-blur rule. A new surface needs a rule in `surfaces.css`, an entry in `THEME_SURFACES` and `SurfacePicker` names, and a row in this table.

@@ -8,7 +8,7 @@ Library: `packages/ui` (`@perfect-design/ui`). Docs website: `docs/`. Machine-re
 - `DESIGN.md` is the written direction (colours, type, radius, the one characteristic element, allowed content). Change a token there first.
 - `LLMSlop.md` lists the patterns that mark UI as LLM-generated, with severities (P0 to P2). Read it before writing or restyling any component, docs example or copy. Run its section 12 self-check before calling UI work done.
 - `packages/ui/src/__tests__/slop.test.ts` enforces the mechanical rules over every component and docs file. A hit needs a documented exception in `DESIGN.md` section 7, not a looser pattern.
-- Defaults a component ships must already pass: no gradients, glass, glows, tracked all-caps eyebrows, hover lift, stock button labels ("Get started", "Learn more"), buzzwords, emoji, invented people, companies, quotes or metrics in examples.
+- Defaults a component ships must already pass: no gradients, glass (except the opt-in `data-surface="glass"`), glows, tracked all-caps eyebrows, hover lift, stock button labels ("Get started", "Learn more"), buzzwords, emoji, invented people, companies, quotes or metrics in examples.
 
 ## Using the library in an app
 
@@ -21,6 +21,7 @@ Library: `packages/ui` (`@perfect-design/ui`). Docs website: `docs/`. Machine-re
 @import "@perfect-design/ui/code-themes.css"; /* optional editor colours for code: <html data-code-theme="midnight"> */
 @import "@perfect-design/ui/fonts.css"; /* optional font families: <html data-font="serif"> */
 @import "@perfect-design/ui/corners.css"; /* optional corner shape: <html data-corner="squircle"> */
+@import "@perfect-design/ui/surfaces.css"; /* optional glass for floating layers: <html data-surface="glass"> */
 @source "../node_modules/@perfect-design/ui/dist"; /* REQUIRED so Tailwind sees the component classes */
 ```
 ```ts

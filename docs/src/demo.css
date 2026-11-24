@@ -10,4 +10,5 @@
 @import "../../packages/ui/src/styles/code-themes.css";
 @import "../../packages/ui/src/styles/fonts.css";
 @import "../../packages/ui/src/styles/corners.css";
+@import "../../packages/ui/src/styles/surfaces.css";
 @source "../../packages/ui/src";

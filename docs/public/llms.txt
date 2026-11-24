@@ -169,6 +169,7 @@
 - [FontPicker](/components/navigation/font-picker): Radio group that switches the font family (`data-font`) of the whole page. (Theme)
 - [PalettePicker](/components/navigation/palette-picker): Radio group that switches the whole-interface palette (`data-palette`) of the page. (Theme)
 - [StylePicker](/components/navigation/style-picker): Radio group that switches the style pack (`data-style`) of the whole page. (Theme)
+- [SurfacePicker](/components/navigation/surface-picker): Radio group that switches the surface (`data-surface`) of the whole page between solid and glass. (Theme)
 - [ThemeToggle](/components/navigation/theme-toggle): Button that cycles the colour mode light → dark → system and shows the matching icon. (Theme)
 - [Breadcrumb](/components/navigation/breadcrumb): Shows the path to the current page. Items-array API or compound parts, with middle-item truncation. (Wayfinding)
 

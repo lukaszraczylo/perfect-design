@@ -1,0 +1,93 @@
+/*
+ * Glass surface: an axis of its own, selected with `data-surface` on <html> (`useThemeStore().setSurface()`,
+ * `SurfacePicker`) or on a region. Import after theme.css, packs.css and fonts.css:
+ *   @import "@perfect-design/ui/surfaces.css";
+ *
+ * Glass is a deliberate, opt-in exception to the no-glass rule (DESIGN.md sections 4 and 7). It applies only to layers
+ * that float over content, where depth means something: menus, listboxes, popovers, hover cards, tooltips, dialogs,
+ * sheets, the tour card, toasts, the navigation viewport, the mobile menu and sticky headers. Content cards stay opaque.
+ * Tune it on the scope: `--glass-alpha` (surface opacity, 0 to 1) and `--glass-blur` (backdrop blur). The default alpha
+ * is the lowest value at which surface text keeps 4.5:1 over a pure black or pure white backdrop in every theme
+ * (surfaces.test.ts); a lower value is the app's own legibility decision.
+ *
+ * Fallbacks: no `backdrop-filter` support, `prefers-reduced-transparency: reduce`, forced colours and the `contrast`
+ * style pack all end in the plain solid surface (alpha 1, blur 0). `solid` restores it inside a glass region.
+ * Tokens only: the fill is the surface token mixed with transparent, so every theme and palette follows.
+ */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  [data-surface="solid"] {
+    --glass-alpha: 1;
+    --glass-blur: 0px;
+  }
+  [data-surface="glass"] {
+    --glass-alpha: 0.82;
+    --glass-blur: 16px;
+  }
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-surface="glass"] {
+      --glass-alpha: 1;
+      --glass-blur: 0px;
+    }
+  }
+  [data-style="contrast"],
+  [data-style="contrast"] [data-surface="glass"],
+  [data-surface="glass"][data-style="contrast"] {
+    --glass-alpha: 1;
+    --glass-blur: 0px;
+  }
+  [data-surface="glass"] :is(
+    [data-slot="dropdown-menu-content"],
+    [data-slot="dropdown-menu-sub-content"],
+    [data-slot="context-menu-content"],
+    [data-slot="context-menu-sub-content"],
+    [data-slot="menubar-content"],
+    [data-slot="menubar-sub-content"],
+    [data-slot="select-content"],
+    [data-slot="combobox-content"],
+    [data-slot="multi-select-content"],
+    [data-slot="model-picker-content"],
+    [data-slot="date-picker-content"],
+    [data-slot="date-range-picker-content"],
+    [data-slot="time-range-picker-content"],
+    [data-slot="dialog-content"],
+    [data-slot="alert-dialog-content"],
+    [data-slot="sheet-content"],
+    [data-slot="tour-card"],
+    [data-slot="navigation-menu-viewport"],
+    [data-slot="popover-content"]:not([data-variant="inverted"]),
+    [data-slot="hover-card-content"]:not([data-variant="inverted"]),
+    [data-slot="toast"]:not([data-appearance]),
+    [data-slot="tooltip-content"][class~="bg-popover"]
+  ) {
+    background-color: color-mix(in oklch, var(--popover) calc(var(--glass-alpha) * 100%), transparent);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    border-color: color-mix(in oklch, var(--border) calc(var(--glass-alpha) * 100%), transparent);
+  }
+  [data-surface="glass"] :is(
+    [data-slot="app-header"][data-sticky],
+    [data-slot="app-shell-header"],
+    [data-slot="mobile-nav"],
+    [data-slot="site-header"][data-tone="default"]:not([data-variant="transparent"])
+  ) {
+    background-color: color-mix(in oklch, var(--background) calc(var(--glass-alpha) * 100%), transparent);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    border-color: color-mix(in oklch, var(--border) calc(var(--glass-alpha) * 100%), transparent);
+  }
+  [data-surface="glass"] :is(
+    [data-slot="popover-content"][data-variant="inverted"],
+    [data-slot="hover-card-content"][data-variant="inverted"],
+    [data-slot="tooltip-content"][class~="bg-foreground"]
+  ) {
+    background-color: color-mix(in oklch, var(--foreground) calc(var(--glass-alpha) * 100%), transparent);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  }
+  [data-surface="glass"] [data-slot][data-tone]:not([data-tone="default"]) {
+    border-color: revert-layer;
+  }
+  [data-surface="glass"] :is([data-slot="dialog-content"], [data-slot="popover-content"]) [data-slot="command"]:not([data-variant]) {
+    background-color: transparent;
+  }
+}

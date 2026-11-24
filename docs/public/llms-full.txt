@@ -169,6 +169,7 @@
 - [FontPicker](/components/navigation/font-picker): Radio group that switches the font family (`data-font`) of the whole page. (Theme)
 - [PalettePicker](/components/navigation/palette-picker): Radio group that switches the whole-interface palette (`data-palette`) of the page. (Theme)
 - [StylePicker](/components/navigation/style-picker): Radio group that switches the style pack (`data-style`) of the whole page. (Theme)
+- [SurfacePicker](/components/navigation/surface-picker): Radio group that switches the surface (`data-surface`) of the whole page between solid and glass. (Theme)
 - [ThemeToggle](/components/navigation/theme-toggle): Button that cycles the colour mode light → dark → system and shows the matching icon. (Theme)
 - [Breadcrumb](/components/navigation/breadcrumb): Shows the path to the current page. Items-array API or compound parts, with middle-item truncation. (Wayfinding)
 
@@ -16693,6 +16694,45 @@ Example: All packs
 Example: Subset
 ```vue
 <StylePicker :styles="subset" label="Interface style" />
+```
+
+---
+
+# SurfacePicker
+group: navigation / Theme
+Radio group that switches the surface (`data-surface`) of the whole page between solid and glass.
+
+Offers every surface in `THEME_SURFACES` (or the `surfaces` you pass) and stores the choice with `useThemeStore().setSurface()`, which sets `data-surface` on `<html>` and persists it. `solid` is the core look. `glass` lets layers that float over content (menus, popovers, hover cards, tooltips, dialogs, sheets, toasts, the navigation viewport, the mobile menu and sticky headers) show the content behind them, blurred; content cards stay opaque. Glass is a deliberate, opt-in exception to the library's no-glass rule and falls back to solid without `backdrop-filter`, under `prefers-reduced-transparency: reduce`, in forced colours and in the `contrast` style pack. Tune it with `--glass-alpha` and `--glass-blur` on the scope. The surface CSS (`@perfect-design/ui/surfaces.css`) must be imported by the app, after `theme.css`, any packs and `fonts.css`. It is a single tab stop; arrow keys, Home and End move the selection. The surface is independent of the style pack, accent, font, corner shape and colour mode. Pair with `StylePicker`, `CornerPicker` and `ThemeToggle`.
+
+import { SurfacePicker } from '@perfect-design/ui'
+
+Props:
+- surfaces: ThemeSurface[] = THEME_SURFACES - Surfaces to offer, in order. Unknown names are ignored.
+- label: string = 'Surface' - aria-label of the radiogroup.
+- class: string | object | array - Merged last.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when no Pinia instance is active (`app.use(createPinia())`).
+- Throws a ContractError when `label` is blank, or `surfaces` has no known surface.
+
+Rules:
+- Requires an active Pinia instance and the `surfaces.css` import.
+- Glass is opt-in and never the default; offer the picker only when users should choose, otherwise set `data-surface="glass"` in code.
+
+Accessibility:
+- `role="radiogroup"` with `role="radio"` options and aria-checked; the group has an aria-label (`label`).
+- Roving tabindex: Tab enters once on the selected option; Arrow keys, Home and End change the selection and move focus (Left and Right swap in RTL).
+- Selection is shown by fill plus aria-checked, never by colour alone. Options are 32px high (44px on coarse pointers) and wrap at narrow widths.
+- Glass keeps surface text at 4.5:1 over a pure black or pure white backdrop at the shipped opacity; people who set reduced transparency, forced colours or the `contrast` pack always get solid surfaces.
+
+Example: Both surfaces
+```vue
+<SurfacePicker />
+```
+
+Example: Custom label
+```vue
+<SurfacePicker label="Layer style" />
 ```
 
 ---

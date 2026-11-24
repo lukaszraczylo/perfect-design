@@ -84,7 +84,7 @@ If these are absent, stop and ask, or propose them and get agreement. Do not fre
 | S1 | P0 | Untouched shadcn/ui and Tailwind defaults: slate cards, default radius, default accent [KR][CC] | Keep the library, override the tokens. Stock defaults are the giveaway, not the library |
 | S2 | P1 | `rounded-2xl` on everything, one soft `rgba(0,0,0,.1)` shadow everywhere [CC] | Radius and elevation scales assigned by role |
 | S3 | P1 | Cards inside cards [HM][CC] | Flat hierarchy; whitespace and rules carry structure. Tabular content goes in a table |
-| S4 | P1 | Glassmorphism and `backdrop-blur` with no layering reason, typically on the nav [KR][HM] | Opaque surfaces; one glass element at most, where depth means something |
+| S4 | P1 | Glassmorphism and `backdrop-blur` with no layering reason, typically on the nav [KR][HM] | Opaque surfaces; one glass element at most, where depth means something. The library's own opt-in `data-surface="glass"` (DESIGN.md section 13) is the one allowed exception, for floating layers only |
 | S5 | P1 | Coloured stripe on the top or left edge of cards and callouts [KR][HM] | Plain container, or a real status indicator |
 | S6 | P1 | Emoji as icons, bullets, nav items or heading decoration [KR][HM][UT] | One consistent icon set, or no icon |
 | S7 | P1 | Default Lucide trio on feature cards: zap, shield-check, sparkles; sparkles to mean "AI" [DV] | Icons that depict the specific feature, or drop them |

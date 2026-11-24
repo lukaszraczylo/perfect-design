@@ -7,7 +7,7 @@ const run = (saved: unknown, prefersDark = false) => {
   else localStorage.setItem(THEME_STORAGE_KEY, typeof saved === 'string' ? saved : JSON.stringify(saved))
   vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: prefersDark } as MediaQueryList)
   new Function(themeBootScript)()
-  return { dark: root.classList.contains('dark'), theme: root.getAttribute('data-theme'), style: root.getAttribute('data-style'), palette: root.getAttribute('data-palette'), font: root.getAttribute('data-font'), corner: root.getAttribute('data-corner'), code: root.getAttribute('data-code-theme') }
+  return { dark: root.classList.contains('dark'), theme: root.getAttribute('data-theme'), style: root.getAttribute('data-style'), palette: root.getAttribute('data-palette'), font: root.getAttribute('data-font'), corner: root.getAttribute('data-corner'), surface: root.getAttribute('data-surface'), code: root.getAttribute('data-code-theme') }
 }
 
 afterEach(() => {
@@ -15,22 +15,24 @@ afterEach(() => {
   localStorage.clear()
   root.classList.remove('dark')
   root.removeAttribute('data-theme')
-  for (const a of ['data-style', 'data-palette', 'data-font', 'data-corner', 'data-code-theme']) root.removeAttribute(a)
+  for (const a of ['data-style', 'data-palette', 'data-font', 'data-corner', 'data-surface', 'data-code-theme']) root.removeAttribute(a)
 })
 
 describe('themeBootScript', () => {
   it.each([
-    { name: 'saved dark, accent and pack', saved: { mode: 'dark', accent: 'emerald', style: 'workbench' }, prefersDark: false, want: { dark: true, theme: 'emerald', style: 'workbench', palette: null, font: null, corner: null, code: null } },
-    { name: 'system mode follows the OS', saved: { mode: 'system' }, prefersDark: true, want: { dark: true, theme: null, style: null, palette: null, font: null, corner: null, code: null } },
-    { name: 'nothing saved, light OS', saved: undefined, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, code: null } },
-    { name: 'explicit light beats a dark OS', saved: { mode: 'light' }, prefersDark: true, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, code: null } },
-    { name: 'defaults set no attribute', saved: { mode: 'light', accent: 'default', style: 'quiet' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, code: null } },
-    { name: 'unknown values are ignored', saved: { accent: 'x" onload="alert(1)', style: 'neon' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, code: null } },
-    { name: 'corrupt JSON is ignored', saved: '{not json', prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, code: null } },
-    { name: 'palette, font and code theme', saved: { palette: 'harbor', font: 'serif', codeTheme: 'midnight' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: 'harbor', font: 'serif', corner: null, code: 'midnight' } },
-    { name: 'corner shape', saved: { corner: 'squircle' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: 'squircle', code: null } },
-    { name: 'the default corner sets no attribute', saved: { corner: 'round' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, code: null } },
-    { name: 'a stored palette wins over a stored accent', saved: { accent: 'rose', palette: 'graphite' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: 'graphite', font: null, corner: null, code: null } },
+    { name: 'saved dark, accent and pack', saved: { mode: 'dark', accent: 'emerald', style: 'workbench' }, prefersDark: false, want: { dark: true, theme: 'emerald', style: 'workbench', palette: null, font: null, corner: null, surface: null, code: null } },
+    { name: 'system mode follows the OS', saved: { mode: 'system' }, prefersDark: true, want: { dark: true, theme: null, style: null, palette: null, font: null, corner: null, surface: null, code: null } },
+    { name: 'nothing saved, light OS', saved: undefined, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, surface: null, code: null } },
+    { name: 'explicit light beats a dark OS', saved: { mode: 'light' }, prefersDark: true, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, surface: null, code: null } },
+    { name: 'defaults set no attribute', saved: { mode: 'light', accent: 'default', style: 'quiet' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, surface: null, code: null } },
+    { name: 'unknown values are ignored', saved: { accent: 'x" onload="alert(1)', style: 'neon' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, surface: null, code: null } },
+    { name: 'corrupt JSON is ignored', saved: '{not json', prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, surface: null, code: null } },
+    { name: 'palette, font and code theme', saved: { palette: 'harbor', font: 'serif', codeTheme: 'midnight' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: 'harbor', font: 'serif', corner: null, surface: null, code: 'midnight' } },
+    { name: 'corner shape', saved: { corner: 'squircle' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: 'squircle', surface: null, code: null } },
+    { name: 'glass surface', saved: { surface: 'glass' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, surface: 'glass', code: null } },
+    { name: 'the default surface sets no attribute', saved: { surface: 'solid' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, surface: null, code: null } },
+    { name: 'the default corner sets no attribute', saved: { corner: 'round' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: null, font: null, corner: null, surface: null, code: null } },
+    { name: 'a stored palette wins over a stored accent', saved: { accent: 'rose', palette: 'graphite' }, prefersDark: false, want: { dark: false, theme: null, style: null, palette: 'graphite', font: null, corner: null, surface: null, code: null } },
   ])('$name', ({ saved, prefersDark, want }) => {
     expect(run(saved, prefersDark)).toEqual(want)
   })
