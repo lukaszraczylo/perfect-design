@@ -5,7 +5,7 @@
  *      change AND the control's rendered styles must change (state is visible).
  *   2. Focus: Tab-focusing an interactive element must produce a visible indicator (outline or ring).
  *   3. Disabled controls must not toggle.
- *   node scripts/state-check.mjs [baseUrl] [--match /components/forms/] [--routes /a,/b]
+ *   node scripts/state-check.mjs [baseUrl] [--match /components/forms/] [--routes /a,/b] [--corner squircle] [--surface glass]
  */
 import { readFileSync } from 'node:fs'
 import puppeteer from 'puppeteer-core'
@@ -15,6 +15,8 @@ const base = args.find((a) => a.startsWith('http')) ?? 'http://localhost:4311'
 const match = args.includes('--match') ? args[args.indexOf('--match') + 1] : ''
 // --inject <css>: extra CSS applied to every page. Used by the self test to prove the check fails when state is not visible.
 const inject = args.includes('--inject') ? args[args.indexOf('--inject') + 1] : ''
+const corner = args.includes('--corner') ? args[args.indexOf('--corner') + 1] : 'round'
+const surface = args.includes('--surface') ? args[args.indexOf('--surface') + 1] : 'solid'
 const only = args.includes('--routes') ? args[args.indexOf('--routes') + 1].split(',') : null
 const nav = JSON.parse(readFileSync('docs/src/generated/nav.json', 'utf8'))
 const routes = nav.map((c) => `/components/${c.group}/${c.slug}`).filter((r) => (only ? only.includes(r) : r.includes(match)))
@@ -82,7 +84,7 @@ async function worker() {
       await page.goto('about:blank')
       while (initIds.length) await page.removeScriptToEvaluateOnNewDocument(initIds.pop())
       await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: scheme }])
-      const init = await page.evaluateOnNewDocument((s) => { if (location.protocol.startsWith('http')) localStorage.setItem('pd-theme', JSON.stringify({ mode: s, accent: 'default' })) }, scheme)
+      const init = await page.evaluateOnNewDocument((s, co, su) => { if (location.protocol.startsWith('http')) localStorage.setItem('pd-theme', JSON.stringify({ mode: s, accent: 'default', corner: co, surface: su })) }, scheme, corner, surface)
       initIds.push(init.identifier)
       await page.goto(`${base}${route}?eager`, { waitUntil: 'networkidle0', timeout: 30000 })
       await page.waitForSelector('[data-testid=example-preview] *', { timeout: 10000 }).catch(() => {})
@@ -97,7 +99,7 @@ async function worker() {
       if (dark !== (scheme === 'dark') && (await page.evaluate((want) => !localStorage.getItem('pd-theme')?.includes(`"mode":"${want}"`), scheme))) {
         // The seeded mode was overwritten by another document of this context after the init script ran (the unload race
         // above), so the page never saw the scheme under test. Seed it again and reload once before judging.
-        await page.evaluate((want) => localStorage.setItem('pd-theme', JSON.stringify({ mode: want, accent: 'default' })), scheme)
+        await page.evaluate(([want, co, su]) => localStorage.setItem('pd-theme', JSON.stringify({ mode: want, accent: 'default', corner: co, surface: su })), [scheme, corner, surface])
         await page.reload({ waitUntil: 'networkidle0', timeout: 30000 })
         await page.waitForFunction((want) => document.documentElement.classList.contains('dark') === want, { timeout: 25000 }, scheme === 'dark').catch(() => {})
         await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; }' + inject })

@@ -1,7 +1,8 @@
 /**
  * Accessibility + responsiveness sweep of the built docs site.
- *   node scripts/a11y-sweep.mjs [baseUrl] [--limit N] [--match substr | --routes /a,/b] [--style workbench] [--out file]
+ *   node scripts/a11y-sweep.mjs [baseUrl] [--limit N] [--match substr | --routes /a,/b] [--style workbench] [--corner squircle] [--surface glass] [--out file]
  *   --style applies a style pack (data-style) to every page, to audit a pack across the whole site.
+ *   --corner and --surface do the same for data-corner and data-surface.
  * For every route × viewport × colour scheme: axe-core (WCAG 2.0/2.1/2.2 A+AA + best-practice) and a horizontal-overflow check.
  * Examples are forced live with ?eager so the live demos are audited, not just the page shell.
  * Writes the JSON report to --out (default reports/a11y-sweep.json; give concurrent runs different files) and prints a grouped summary. Exit code 1 if anything fails.
@@ -17,6 +18,8 @@ const args = process.argv.slice(2)
 const base = args.find((a) => a.startsWith('http')) ?? 'http://localhost:4311'
 const limit = Number(args[args.indexOf('--limit') + 1]) || Infinity
 const stylePack = args.includes('--style') ? args[args.indexOf('--style') + 1] : 'quiet'
+const corner = args.includes('--corner') ? args[args.indexOf('--corner') + 1] : 'round'
+const surface = args.includes('--surface') ? args[args.indexOf('--surface') + 1] : 'solid'
 const match = args.includes('--match') ? args[args.indexOf('--match') + 1] : ''
 const only = args.includes('--routes') ? args[args.indexOf('--routes') + 1].split(',') : null
 const reportFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : 'reports/a11y-sweep.json'
@@ -50,7 +53,7 @@ async function worker() {
       await page.goto('about:blank')
       while (initIds.length) await page.removeScriptToEvaluateOnNewDocument(initIds.pop())
       await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: scheme }])
-      const init = await page.evaluateOnNewDocument((s, st) => { if (location.protocol.startsWith('http')) localStorage.setItem('pd-theme', JSON.stringify({ mode: s, accent: 'default', style: st })) }, scheme, stylePack)
+      const init = await page.evaluateOnNewDocument((s, st, co, su) => { if (location.protocol.startsWith('http')) localStorage.setItem('pd-theme', JSON.stringify({ mode: s, accent: 'default', style: st, corner: co, surface: su })) }, scheme, stylePack, corner, surface)
       initIds.push(init.identifier)
       await page.goto(`${base}${route}${route.includes('?') ? '&' : '?'}eager`, { waitUntil: 'networkidle0', timeout: 30000 })
       await page.waitForSelector('h1', { timeout: 10000 })
