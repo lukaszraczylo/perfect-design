@@ -1,6 +1,6 @@
 # Perfect Design
 
-Vue 3 + TypeScript design system (`packages/ui`) and its documentation site (`docs/`). The detailed, path-scoped rules are in `.claude/rules/` (design-system, components, contracts, accessibility, slop, testing, docs-and-llm, tokens-theming, workflow). The principles they enforce:
+Vue 3 + TypeScript design system (`packages/ui`) and its documentation site (`docs/`). The detailed, path-scoped rules are in `.claude/rules/` (design-system, components, contracts, accessibility, slop, testing, docs-and-llm, tokens-theming, website, workflow). The principles they enforce:
 
 @AGENTS.md
 @DESIGN.md
