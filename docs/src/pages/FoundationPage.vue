@@ -2,7 +2,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { faBell, faCheck, faGear, faHouse, faMagnifyingGlass, faTriangleExclamation, faUser } from '@fortawesome/free-solid-svg-icons'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, CodeThemePicker, CodeViewer, Field, FontPicker, Icon, Input, PalettePicker, StyleScope, THEME_ACCENTS, THEME_STYLES, useThemeStore } from '@ui/index'
+import { AppHeader, Badge, Button, Card, CardContent, CardHeader, CardTitle, CodeThemePicker, CodeViewer, CornerPicker, Field, FontPicker, Icon, Input, PalettePicker, StyleScope, SurfacePicker, THEME_ACCENTS, THEME_STYLES, useThemeStore } from '@ui/index'
 import type { ThemeMode, ThemeStyle } from '@ui/index'
 import DocSection from '@/components/DocSection.vue'
 import PageShell from '@/components/PageShell.vue'
@@ -62,6 +62,22 @@ const PALETTE_SNIPPET = `@import "@perfect-design/ui/palettes.css";
 useThemeStore().setPalette('graphite')`
 const CODE_THEME_SNIPPET = `@import "@perfect-design/ui/code-themes.css";
 useThemeStore().setCodeTheme('midnight')`
+const CORNER_SNIPPET = `@import "@perfect-design/ui/corners.css";
+useThemeStore().setCorner('squircle')
+<section data-corner="squircle">...</section>   /* one region */`
+const SURFACE_SNIPPET = `@import "@perfect-design/ui/surfaces.css";
+useThemeStore().setSurface('glass')
+<section data-surface="glass">...</section>     /* one region */
+[data-surface="glass"] { --glass-alpha: 0.9; --glass-blur: 12px; }`
+const CORNER_REGIONS = [
+  { id: 'round', title: 'Round' },
+  { id: 'squircle', title: 'Squircle' },
+] as const
+const SURFACE_REGIONS = [
+  { id: 'solid', title: 'Solid' },
+  { id: 'glass', title: 'Glass' },
+] as const
+const SPECIMEN_TOKENS = ['primary', 'success', 'warning', 'info', 'destructive', 'foreground'] as const
 const modes: ThemeMode[] = ['light', 'dark', 'system']
 const replay = ref(0)
 const ICON_SNIPPET = `import { faCheck } from '@fortawesome/free-solid-svg-icons'
@@ -148,12 +164,43 @@ useThemeStore().setFont('serif')
       <DocSection title="Radius" description="Change --radius once to restyle every component.">
         <div class="grid grid-cols-3 gap-3 sm:grid-cols-6"><div v-for="r in RADII" :key="r.name" class="space-y-2 text-center"><div class="mx-auto size-16 border-2 border-primary bg-primary/10" :class="r.cls" /><code class="text-xs text-muted-foreground">{{ r.cls }}</code></div></div>
       </DocSection>
+      <DocSection title="Corner shape" description="Applies to this whole site: the shape sets data-corner on the document element and is remembered in the browser. Squircle uses CSS corner-shape for continuous corners and scales every radius up, because a squircle at the same radius looks smaller. Browsers without corner-shape keep plain rounded corners.">
+        <CornerPicker class="mb-4" />
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div v-for="c in CORNER_REGIONS" :key="c.id" :data-corner="c.id" class="min-w-0 space-y-3 rounded-lg border p-4">
+            <h3 class="text-md font-semibold">{{ c.title }}</h3>
+            <div class="grid grid-cols-3 gap-3"><div v-for="r in RADII" :key="r.name" class="space-y-2 text-center"><div class="mx-auto size-14 border-2 border-primary bg-primary/10" :class="r.cls" /><code class="text-xs text-muted-foreground">{{ r.cls }}</code></div></div>
+            <div class="flex flex-wrap items-center gap-2"><Button size="sm">Approve</Button><Button size="sm" variant="outline">Review</Button><Badge variant="success">Shipped</Badge><span class="size-8 rounded-full border-2 border-primary bg-primary/10" /><code class="text-xs text-muted-foreground">rounded-full stays round</code></div>
+            <Input :aria-label="`Search, ${c.title} corners`" placeholder="Search orders" />
+          </div>
+        </div>
+        <CodeSnippet :code="CORNER_SNIPPET" />
+      </DocSection>
       <DocSection title="Touch targets"><p class="text-sm">On coarse pointers (touch) interactive controls grow to at least 44px using the <code>pointer-coarse:</code> variant.</p></DocSection>
     </template>
 
     <template v-else-if="topic === 'elevation'">
       <DocSection title="Shadows">
         <div class="grid grid-cols-2 gap-6 sm:grid-cols-5"><div v-for="s in SHADOWS" :key="s.name" class="space-y-2 text-center"><div class="mx-auto grid h-20 w-full place-items-center rounded-lg border bg-card text-xs" :class="s.cls">{{ s.name }}</div><code class="text-xs text-muted-foreground">{{ s.cls }}</code></div></div>
+      </DocSection>
+      <DocSection title="Glass surface" description="Applies to this whole site: the surface sets data-surface on the document element and is remembered in the browser. Glass is an opt-in exception to the no-glass rule. It lets layers that float over content (menus, popovers, dialogs, toasts, sticky headers) show the content behind them, blurred. Cards stay opaque. It falls back to solid under reduced transparency, in forced colours and in the contrast style pack.">
+        <SurfacePicker class="mb-4" />
+        <div class="grid gap-4 lg:grid-cols-2">
+          <div v-for="r in SURFACE_REGIONS" :key="r.id" :data-surface="r.id" class="min-w-0">
+            <h3 class="mb-2 text-md font-semibold">{{ r.title }}</h3>
+            <div tabindex="0" role="region" :aria-label="`${r.title} surface demo, scrollable`" class="h-72 overflow-y-auto rounded-lg border">
+              <AppHeader sticky nav-label="Specimen sections">
+                <template #brand><span class="text-sm font-semibold">Token specimen</span></template>
+                <template #actions><Badge variant="outline">{{ r.title }}</Badge></template>
+              </AppHeader>
+              <div class="space-y-3 p-4">
+                <div v-for="t in SPECIMEN_TOKENS" :key="t" class="grid h-20 place-items-center rounded-md text-sm font-medium" :style="{ background: `var(--${t})`, color: t === 'foreground' ? 'var(--background)' : `var(--${t}-foreground)` }">--{{ t }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="max-w-prose text-sm text-muted-foreground">Scroll each box: the sticky header sits over the colour swatches. The shipped opacity is the lowest value at which header text keeps 4.5:1 over a pure black or pure white backdrop in every theme, palette and mode. Tune it with --glass-alpha and --glass-blur on the scope.</p>
+        <CodeSnippet :code="SURFACE_SNIPPET" />
       </DocSection>
       <DocSection title="Stacking order"><ul class="list-disc space-y-1 pl-5 text-sm"><li><code>--z-sticky</code> 40 · <code>--z-dropdown</code> 50 · <code>--z-overlay</code> 60 · <code>--z-modal</code> 70 · <code>--z-toast</code> 80</li><li>Never use arbitrary z-index values in components.</li></ul></DocSection>
     </template>

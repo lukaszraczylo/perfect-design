@@ -53,9 +53,11 @@
 @source "../../packages/ui/src/components/forms/NativeSelect";
 @source "../../packages/ui/src/components/layout/ConfigProvider";
 @source "../../packages/ui/src/components/layout/StyleScope";
+@source "../../packages/ui/src/components/navigation/AppHeader";
 @source "../../packages/ui/src/components/navigation/CodeThemePicker";
 @source "../../packages/ui/src/components/navigation/CornerPicker";
 @source "../../packages/ui/src/components/navigation/FontPicker";
+@source "../../packages/ui/src/components/navigation/MobileNav";
 @source "../../packages/ui/src/components/navigation/PalettePicker";
 @source "../../packages/ui/src/components/navigation/SurfacePicker";
 @source "../../packages/ui/src/components/navigation/contract.ts";
