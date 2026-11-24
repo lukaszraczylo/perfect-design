@@ -589,6 +589,13 @@ describe('DataTable', () => {
 })
 
 describe('SortHeaderButton', () => {
+  it('bleeds by the same spacing-token amount on each side, whatever the style pack spacing', () => {
+    const classes = mount(SortHeaderButton).classes()
+    expect(classes).toContain('-mx-2')
+    expect(classes).toContain('w-[calc(100%+var(--spacing)*4)]')
+    expect(classes.some((c) => /^w-\[calc\(100%\+[\d.]+rem\)\]$/.test(c))).toBe(false)
+  })
+
   it('renders a button with label and decorative icon, emits click', async () => {
     const w = mount(SortHeaderButton, { slots: { default: 'Name' } })
     expect(w.element.tagName).toBe('BUTTON')
