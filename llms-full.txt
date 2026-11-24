@@ -165,6 +165,7 @@
 - [Tabs](/components/navigation/tabs): Switch between related panels of content without leaving the page. Compound component built on reka-ui. (Tabs & disclosure)
 - [AccentPicker](/components/navigation/accent-picker): Radio group of colour swatches that switches the accent preset (`data-theme`). (Theme)
 - [CodeThemePicker](/components/navigation/code-theme-picker): Radio group that switches the colours of code viewers and code blocks (`data-code-theme`). (Theme)
+- [CornerPicker](/components/navigation/corner-picker): Radio group that switches the corner shape (`data-corner`) of the whole page. (Theme)
 - [FontPicker](/components/navigation/font-picker): Radio group that switches the font family (`data-font`) of the whole page. (Theme)
 - [PalettePicker](/components/navigation/palette-picker): Radio group that switches the whole-interface palette (`data-palette`) of the page. (Theme)
 - [StylePicker](/components/navigation/style-picker): Radio group that switches the style pack (`data-style`) of the whole page. (Theme)
@@ -16536,6 +16537,45 @@ Example: All code themes
 Example: Subset
 ```vue
 <CodeThemePicker :themes="subset" label="Syntax colours" />
+```
+
+---
+
+# CornerPicker
+group: navigation / Theme
+Radio group that switches the corner shape (`data-corner`) of the whole page.
+
+Offers every shape in `THEME_CORNERS` (or the `corners` you pass) and stores the choice with `useThemeStore().setCorner()`, which sets `data-corner` on `<html>` and persists it. `round` is the core look; `squircle` gives continuous, Apple-style corners through CSS `corner-shape` and scales every radius up, because a squircle at the same radius looks smaller. Browsers without `corner-shape` keep plain rounded corners, so the option has no visible effect there. Fully round shapes (avatars, switches, pills) stay round. Each option is drawn in its own shape, so the choice previews itself. The corner CSS (`@perfect-design/ui/corners.css`) must be imported by the app, after `theme.css` and any packs. It is a single tab stop; arrow keys, Home and End move the selection. The corner shape is independent of the style pack, accent, font and colour mode. Pair with `StylePicker`, `FontPicker` and `ThemeToggle`.
+
+import { CornerPicker } from '@perfect-design/ui'
+
+Props:
+- corners: ThemeCorner[] = THEME_CORNERS - Corner shapes to offer, in order. Unknown names are ignored.
+- label: string = 'Corner' - aria-label of the radiogroup.
+- class: string | object | array - Merged last.
+
+Enforced requirements (a ContractError is thrown when missing):
+- Throws a ContractError when no Pinia instance is active (`app.use(createPinia())`).
+- Throws a ContractError when `label` is blank, or `corners` has no known shape.
+
+Rules:
+- Requires an active Pinia instance and the `corners.css` import.
+- Offer it only when users should choose; most products pick one shape in code (`data-corner="squircle"` on a region).
+
+Accessibility:
+- `role="radiogroup"` with `role="radio"` options and aria-checked; the group has an aria-label (`label`).
+- Roving tabindex: Tab enters once on the selected option; Arrow keys, Home and End change the selection and move focus (Left and Right swap in RTL).
+- Selection is shown by fill plus aria-checked, never by colour alone. Options are 32px high (44px on coarse pointers) and wrap at narrow widths.
+- Corner shape changes no colour, size of text or focus ring, so contrast and focus visibility are unchanged.
+
+Example: All shapes
+```vue
+<CornerPicker />
+```
+
+Example: Custom label
+```vue
+<CornerPicker label="Corner style" />
 ```
 
 ---

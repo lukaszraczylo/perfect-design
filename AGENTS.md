@@ -20,6 +20,7 @@ Library: `packages/ui` (`@perfect-design/ui`). Docs website: `docs/`. Machine-re
 @import "@perfect-design/ui/palettes.css"; /* optional whole-interface palettes: <html data-palette="graphite"> */
 @import "@perfect-design/ui/code-themes.css"; /* optional editor colours for code: <html data-code-theme="midnight"> */
 @import "@perfect-design/ui/fonts.css"; /* optional font families: <html data-font="serif"> */
+@import "@perfect-design/ui/corners.css"; /* optional corner shape: <html data-corner="squircle"> */
 @source "../node_modules/@perfect-design/ui/dist"; /* REQUIRED so Tailwind sees the component classes */
 ```
 ```ts

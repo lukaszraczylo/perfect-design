@@ -20,7 +20,7 @@ const NEEDS_PARENT = new Set([
   'Dialog', 'AlertDialog', 'Sheet', 'Popover', 'Tooltip', 'HoverCard', 'DropdownMenu', 'ContextMenu', 'Menubar', 'NavigationMenu', 'ShortcutsDialog', // root only, content is portalled and closed
   'Command', 'Tour', 'Lightbox', 'ConfirmDialog', 'Toaster', 'Select', 'Combobox', 'Collapsible', 'Accordion', 'Tabs', // reka roots or closed overlays
   'RadioGroup', 'ToggleGroup', 'Carousel', 'ResizablePanels', 'AppShell', 'Pagination', 'Breadcrumb', 'Stepper', 'Table', 'DescriptionList', 'List', 'Timeline', 'Card', 'AvatarGroup', // compound roots need parts
-  'ThemeToggle', 'AccentPicker', 'StylePicker', 'FontPicker', 'ConfirmHost', 'NotificationList', 'DataTable', 'Tree', 'InstallTabs', 'FaqList', 'BoardColumn', 'BoardCard', 'StatGroup', 'ScrollArea', 'Field', 'FieldGroup',
+  'ThemeToggle', 'AccentPicker', 'StylePicker', 'FontPicker', 'CornerPicker', 'ConfirmHost', 'NotificationList', 'DataTable', 'Tree', 'InstallTabs', 'FaqList', 'BoardColumn', 'BoardCard', 'StatGroup', 'ScrollArea', 'Field', 'FieldGroup',
 ])
 
 let asserted = 0

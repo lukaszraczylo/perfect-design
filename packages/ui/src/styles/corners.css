@@ -1,0 +1,38 @@
+/*
+ * Corner shapes: an axis of its own, separate from style packs and fonts. Select with `data-corner` on <html>
+ * (`useThemeStore().setCorner()`, `CornerPicker`) or on a region. Import after theme.css and packs.css:
+ *   @import "@perfect-design/ui/corners.css";
+ *
+ * `squircle` uses CSS `corner-shape` (continuous, Apple-style corners). Browsers without it keep plain rounded corners,
+ * because every rule sits inside the @supports block. A squircle at the same radius looks smaller, so the scope also
+ * raises `--radius-scale`, which the radius tokens in theme.css multiply into every `rounded-*` utility.
+ * `corner-shape` is not inherited: the scope's shape travels as the inherited `--corner-shape`, so the nearest
+ * `data-corner` wins in nested scopes. Fully round shapes (`rounded-full` in any form) are reset to `round`;
+ * `rounded-[inherit]` follows its parent. The `default` value `round` removes the attribute on <html>; the rule exists so
+ * a nested scope or a picker option can restore it.
+ */
+@supports (corner-shape: squircle) {
+  [data-corner="round"] {
+    --radius-scale: 1;
+    --corner-shape: round;
+  }
+  [data-corner="squircle"] {
+    --radius-scale: 1.5;
+    --corner-shape: squircle;
+  }
+  :where([data-corner], [data-corner] *),
+  :where([data-corner], [data-corner] *)::before,
+  :where([data-corner], [data-corner] *)::after {
+    corner-shape: var(--corner-shape, round);
+  }
+  :where(:is([class*="rounded-full"], [class*="rounded-s-full"], [class*="rounded-e-full"], [class*="rounded-t-full"], [class*="rounded-b-full"], [class*="rounded-l-full"], [class*="rounded-r-full"]):is([data-corner], [data-corner] *)),
+  :where(:is([class*="rounded-full"], [class*="rounded-s-full"], [class*="rounded-e-full"], [class*="rounded-t-full"], [class*="rounded-b-full"], [class*="rounded-l-full"], [class*="rounded-r-full"]):is([data-corner], [data-corner] *))::before,
+  :where(:is([class*="rounded-full"], [class*="rounded-s-full"], [class*="rounded-e-full"], [class*="rounded-t-full"], [class*="rounded-b-full"], [class*="rounded-l-full"], [class*="rounded-r-full"]):is([data-corner], [data-corner] *))::after {
+    corner-shape: round;
+  }
+  :where([data-corner] [class*="rounded-[inherit]"]),
+  :where([data-corner] [class*="rounded-[inherit]"])::before,
+  :where([data-corner] [class*="rounded-[inherit]"])::after {
+    corner-shape: inherit;
+  }
+}

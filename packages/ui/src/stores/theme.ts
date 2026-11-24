@@ -20,6 +20,12 @@ export const THEME_STYLES: readonly ThemeStyle[] = ['quiet', 'workbench', 'tacti
  */
 export type ThemeFont = 'default' | 'system' | 'humanist' | 'geometric' | 'grotesque' | 'rounded' | 'serif' | 'slab' | 'mono'
 export const THEME_FONTS: readonly ThemeFont[] = ['default', 'system', 'humanist', 'geometric', 'grotesque', 'rounded', 'serif', 'slab', 'mono']
+/**
+ * Corner shapes shipped in `@perfect-design/ui/corners.css`, applied with `data-corner`. `round` is the core look and
+ * needs no attribute; `squircle` gives continuous corners in browsers that support `corner-shape`.
+ */
+export type ThemeCorner = 'round' | 'squircle'
+export const THEME_CORNERS: readonly ThemeCorner[] = ['round', 'squircle']
 /** Code colour themes (`@perfect-design/ui/code-themes.css`, `data-code-theme`); `default` follows the palette or the core tokens. */
 export type ThemeCodeTheme = 'default' | CodeTheme
 export const THEME_CODE_THEMES: readonly ThemeCodeTheme[] = ['default', ...CODE_THEMES]
@@ -30,6 +36,7 @@ const ATTRIBUTE_SETTINGS = {
   accent: { attr: 'data-theme', values: THEME_ACCENTS },
   style: { attr: 'data-style', values: THEME_STYLES },
   font: { attr: 'data-font', values: THEME_FONTS },
+  corner: { attr: 'data-corner', values: THEME_CORNERS },
   palette: { attr: 'data-palette', values: THEME_PALETTES },
   codeTheme: { attr: 'data-code-theme', values: THEME_CODE_THEMES },
 } as const
@@ -53,7 +60,7 @@ function readPersisted(): Record<string, unknown> {
 }
 
 /**
- * Theme state: colour mode (light/dark/system), accent preset, palette, style pack, font family and code theme. Persists to
+ * Theme state: colour mode (light/dark/system), accent preset, palette, style pack, font family, corner shape and code theme. Persists to
  * localStorage (read in `init()`, not at creation, so SSR and hydration agree) and applies `class="dark"` and one data
  * attribute per setting to <html>. A palette and an accent both set the primary colour, so choosing one resets the other.
  * Call `init()` once at app start (or rely on ThemeProvider).
@@ -64,9 +71,10 @@ export const useThemeStore = defineStore('pd-theme', () => {
   const accent = ref<ThemeAccent>('default')
   const style = ref<ThemeStyle>('quiet')
   const font = ref<ThemeFont>('default')
+  const corner = ref<ThemeCorner>('round')
   const palette = ref<ThemePalette>('default')
   const codeTheme = ref<ThemeCodeTheme>('default')
-  const settings: Record<SettingName, Ref<string>> = { accent, style, font, palette, codeTheme }
+  const settings: Record<SettingName, Ref<string>> = { accent, style, font, corner, palette, codeTheme }
   const systemDark = ref(false)
 
   const resolved = computed<'light' | 'dark'>(() => (mode.value === 'system' ? (systemDark.value ? 'dark' : 'light') : mode.value))
@@ -105,6 +113,7 @@ export const useThemeStore = defineStore('pd-theme', () => {
   }
   const setStyle = setter<ThemeStyle>('style')
   const setFont = setter<ThemeFont>('font')
+  const setCorner = setter<ThemeCorner>('corner')
   const setCodeTheme = setter<ThemeCodeTheme>('codeTheme')
   function setAccent(next: ThemeAccent) {
     if (!isValue('accent', next)) return
@@ -138,12 +147,12 @@ export const useThemeStore = defineStore('pd-theme', () => {
       systemDark.value = mq.matches
       mq.addEventListener?.('change', (e) => (systemDark.value = e.matches))
     }
-    watch([mode, accent, style, font, palette, codeTheme, systemDark], () => {
+    watch([mode, accent, style, font, corner, palette, codeTheme, systemDark], () => {
       apply()
       persist()
     })
     apply()
   }
 
-  return { mode, accent, style, font, palette, codeTheme, resolved, isDark, setMode, setAccent, setStyle, setFont, setPalette, setCodeTheme, cycleMode, toggle, init }
+  return { mode, accent, style, font, corner, palette, codeTheme, resolved, isDark, setMode, setAccent, setStyle, setFont, setCorner, setPalette, setCodeTheme, cycleMode, toggle, init }
 })

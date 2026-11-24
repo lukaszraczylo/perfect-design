@@ -54,6 +54,7 @@
     "./packs.css": "./src/styles/packs.css",
     "./packs/*.css": "./src/styles/packs/*.css",
     "./fonts.css": "./src/styles/fonts.css",
+    "./corners.css": "./src/styles/corners.css",
     "./palettes.css": "./src/styles/palettes.css",
     "./palettes/*.css": "./src/styles/palettes/*.css",
     "./code-themes.css": "./src/styles/code-themes.css",

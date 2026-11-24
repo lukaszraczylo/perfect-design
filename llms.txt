@@ -165,6 +165,7 @@
 - [Tabs](/components/navigation/tabs): Switch between related panels of content without leaving the page. Compound component built on reka-ui. (Tabs & disclosure)
 - [AccentPicker](/components/navigation/accent-picker): Radio group of colour swatches that switches the accent preset (`data-theme`). (Theme)
 - [CodeThemePicker](/components/navigation/code-theme-picker): Radio group that switches the colours of code viewers and code blocks (`data-code-theme`). (Theme)
+- [CornerPicker](/components/navigation/corner-picker): Radio group that switches the corner shape (`data-corner`) of the whole page. (Theme)
 - [FontPicker](/components/navigation/font-picker): Radio group that switches the font family (`data-font`) of the whole page. (Theme)
 - [PalettePicker](/components/navigation/palette-picker): Radio group that switches the whole-interface palette (`data-palette`) of the page. (Theme)
 - [StylePicker](/components/navigation/style-picker): Radio group that switches the style pack (`data-style`) of the whole page. (Theme)

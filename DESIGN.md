@@ -158,3 +158,16 @@ The families are the five most-installed colour themes on the VS Code Marketplac
 
 Rules for palettes: surfaces keep the editor's colours, held within 0.1 OKLCH lightness of the page so cards and panels stay subtle; text, accents, borders and the ring move in lightness only until every pair in `contrast.test.ts` passes, which also runs every palette in light and dark; names are neutral and the credit lives here and in each file header; code surfaces use the palette's own syntax colours unless a `data-code-theme` is set. A palette is never the default.
 
+
+## 12. Corner shapes
+
+The corner shape is its own axis, separate from the style pack, the font, the accent and the colour mode. Select it on `<html>` (`useThemeStore().setCorner()`, `CornerPicker`) or on a region with `data-corner`; import `@perfect-design/ui/corners.css` after `theme.css` and the packs. A shape changes the geometry of corners and nothing else: no colour, shadow or motion.
+
+| Shape | Brief it answers | What changes | Guard rails |
+|---|---|---|---|
+| `round` | The core look. | Nothing; scale 1 and the plain circular corner. | The attribute is removed on `<html>`; the rule exists so a nested scope or picker option can restore it. |
+| `squircle` | Products that want continuous, Apple-style corners. | CSS `corner-shape: squircle` on the scope and every descendant, and `--radius-scale: 1.5`. | Only inside `@supports (corner-shape: squircle)`: Safari and Firefox keep plain rounded corners until they ship it. Fully round shapes (`rounded-full` in any form: avatars, radios, switch thumbs, spinners, pills) are reset to `round`. |
+
+How it works: the derived radius tokens in `theme.css` (`--radius-xs` to `--radius-2xl`) multiply `--radius` by `--radius-scale` (default 1), so the scale reaches every generated `rounded-*` utility, and it composes with every style pack: `workbench` (4px) grows to 6px, `raw` (0) stays 0. A squircle at the same radius looks smaller and squarer than a circular corner, which is why the radius grows. `corner-shape` is not inherited, so the scope sets the inherited `--corner-shape` and one `:where()` rule applies it to every element; the nearest `data-corner` wins in nested scopes, and no component rule is out-ranked. The file uses no `clip-path` or `mask`, which would cut borders, shadows and focus rings.
+
+Rules for corners: everything sits inside the `@supports` block; selectors are scoped to `[data-corner]` so nothing changes until an attribute is set; only `corner-shape`, `--corner-shape` and `--radius-scale` are set; no colour, blur, gradient or transition. `src/__tests__/corners.test.ts` enforces these, requires every shape to be documented here and checks that every `rounded-*-full` form used by the components is reset. A new shape needs a rule in `corners.css`, an entry in `THEME_CORNERS` and `CornerPicker` names, and a row in this table.

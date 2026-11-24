@@ -10,6 +10,7 @@ import { configureStrictMode } from '../../lib/contract'
 import { AccentPicker } from './AccentPicker'
 import { StylePicker } from './StylePicker'
 import { FontPicker } from './FontPicker'
+import { CornerPicker } from './CornerPicker'
 import { PalettePicker } from './PalettePicker'
 import { CodeThemePicker } from './CodeThemePicker'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './Accordion'
@@ -709,6 +710,19 @@ describe('Pinia requirement', () => {
     await reopen(() => el(FontPicker, { fonts: ['comic'] }))
     expect(messages()).toContain('FontPicker: requires at least one known font')
     await reopen(() => el(FontPicker, { fonts: ['serif', 'comic'] }))
+    expect(errors).toEqual([])
+  })
+  it('CornerPicker throws a ContractError when Pinia is missing', async () => {
+    await open(() => el(CornerPicker), false)
+    expect(errors[0]?.name).toBe('ContractError')
+    expect(errors[0].message).toContain('CornerPicker: requires an active Pinia instance')
+  })
+  it('CornerPicker throws for a blank label and for no known corner shape', async () => {
+    await open(() => el(CornerPicker, { label: '' }))
+    expect(messages()).toContain('CornerPicker: requires a non-empty `label`')
+    await reopen(() => el(CornerPicker, { corners: ['blob'] }))
+    expect(messages()).toContain('CornerPicker: requires at least one known corner shape')
+    await reopen(() => el(CornerPicker, { corners: ['squircle', 'blob'] }))
     expect(errors).toEqual([])
   })
   it('PalettePicker throws a ContractError when Pinia is missing', async () => {

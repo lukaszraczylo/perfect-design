@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { nextTick } from 'vue'
-import { THEME_FONTS, THEME_STORAGE_KEY, THEME_STYLES, useThemeStore } from './theme'
+import { THEME_CORNERS, THEME_FONTS, THEME_STORAGE_KEY, THEME_STYLES, useThemeStore } from './theme'
 
 beforeEach(() => {
   localStorage.clear()
@@ -9,6 +9,7 @@ beforeEach(() => {
   document.documentElement.removeAttribute('data-theme')
   document.documentElement.removeAttribute('data-style')
   document.documentElement.removeAttribute('data-font')
+  document.documentElement.removeAttribute('data-corner')
   setActivePinia(createPinia())
 })
 
@@ -29,7 +30,7 @@ describe('useThemeStore', () => {
     await nextTick()
     expect(document.documentElement.classList.contains('dark')).toBe(true)
     expect(document.documentElement.getAttribute('data-theme')).toBe('emerald')
-    expect(JSON.parse(localStorage.getItem(THEME_STORAGE_KEY)!)).toEqual({ mode: 'dark', accent: 'emerald', style: 'quiet', font: 'default', palette: 'default', codeTheme: 'default' })
+    expect(JSON.parse(localStorage.getItem(THEME_STORAGE_KEY)!)).toEqual({ mode: 'dark', accent: 'emerald', style: 'quiet', font: 'default', corner: 'round', palette: 'default', codeTheme: 'default' })
   })
 
   it('removes data-theme for the default accent', async () => {
@@ -170,6 +171,62 @@ describe('useThemeStore', () => {
       expect([s.mode, s.accent, s.style]).toEqual(['dark', 'rose', 'quiet'])
     })
   })
+  describe('corner shapes', () => {
+    it('defaults to round and sets no data-corner attribute', async () => {
+      const s = useThemeStore()
+      s.init()
+      await nextTick()
+      expect(s.corner).toBe('round')
+      expect(document.documentElement.hasAttribute('data-corner')).toBe(false)
+    })
+    it.each(THEME_CORNERS.filter((x) => x !== 'round'))('setCorner(%s) sets data-corner on <html> and persists', async (corner) => {
+      const s = useThemeStore()
+      s.init()
+      s.setCorner(corner)
+      await nextTick()
+      expect(document.documentElement.getAttribute('data-corner')).toBe(corner)
+      expect(JSON.parse(localStorage.getItem(THEME_STORAGE_KEY)!).corner).toBe(corner)
+    })
+    it('returning to round removes the attribute', async () => {
+      const s = useThemeStore()
+      s.init()
+      s.setCorner('squircle')
+      await nextTick()
+      s.setCorner('round')
+      await nextTick()
+      expect(document.documentElement.hasAttribute('data-corner')).toBe(false)
+    })
+    it('is independent of the style pack and font', async () => {
+      const s = useThemeStore()
+      s.init()
+      s.setStyle('workbench')
+      s.setFont('serif')
+      s.setCorner('squircle')
+      await nextTick()
+      s.setStyle('quiet')
+      await nextTick()
+      expect(document.documentElement.getAttribute('data-corner')).toBe('squircle')
+      expect(document.documentElement.getAttribute('data-font')).toBe('serif')
+    })
+    it('ignores unknown corners', () => {
+      const s = useThemeStore()
+      // @ts-expect-error invalid on purpose
+      s.setCorner('blob')
+      expect(s.corner).toBe('round')
+    })
+    it('restores the saved corner in init, and ignores an invalid saved value', () => {
+      localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify({ corner: 'squircle' }))
+      const s = useThemeStore()
+      expect(s.corner).toBe('round')
+      s.init()
+      expect(s.corner).toBe('squircle')
+      setActivePinia(createPinia())
+      localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify({ corner: 'blob' }))
+      const t = useThemeStore()
+      t.init()
+      expect(t.corner).toBe('round')
+    })
+  })
   describe('font families', () => {
     it('defaults to default and sets no data-font attribute', async () => {
       const s = useThemeStore()
@@ -241,7 +298,7 @@ describe('useThemeStore palettes and code themes', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     localStorage.clear()
-    for (const a of ['data-theme', 'data-palette', 'data-code-theme', 'data-font', 'data-style']) document.documentElement.removeAttribute(a)
+    for (const a of ['data-theme', 'data-palette', 'data-code-theme', 'data-font', 'data-corner', 'data-style']) document.documentElement.removeAttribute(a)
   })
 
   it('applies data-palette and data-code-theme and removes them for the default', async () => {

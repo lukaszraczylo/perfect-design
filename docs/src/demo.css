@@ -9,4 +9,5 @@
 @import "../../packages/ui/src/styles/packs.css";
 @import "../../packages/ui/src/styles/code-themes.css";
 @import "../../packages/ui/src/styles/fonts.css";
+@import "../../packages/ui/src/styles/corners.css";
 @source "../../packages/ui/src";
