@@ -18024,9 +18024,10 @@ import { LineChart } from '@perfect-design/ui'
 
 Props:
 - labels*: string[] - X-axis labels, one per point.
-- series*: { name: string; data: number[]; tone?: 'chart-1' | 'chart-2' | 'chart-3' | 'chart-4' | 'chart-5' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'muted' }[] - One line per entry. More than 5 series cycle through chart-1..5.
+- series*: { name: string; data: number[]; tone?: 'chart-1' | 'chart-2' | 'chart-3' | 'chart-4' | 'chart-5' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'muted'; stack?: boolean }[] - One line per entry. More than 5 series cycle through chart-1..5.
 - variant: 'line' | 'area' = 'line' - Lines only, or lines with a soft fill under each. When omitted, the `area` boolean decides.
 - area: boolean = false - Soft fill under each line. Same as `variant="area"`; `variant` wins when both are set.
+- stacked: boolean = false - With `variant="area"` (or `area`), stacks the series: each band sits on top of the one before and the y axis fits the top band. Null and missing points count as 0, so a band never breaks. Tooltips and the data table keep each series' own value. A series with `stack: false` stays a plain line at its own values (a comparison, a total). Without the area variant it has no effect. Negative values are not supported when stacked: bands assume non-negative data, so a negative value makes bands overlap.
 - curve: 'linear' | 'smooth' | 'step' = 'linear' - How points are joined. `smooth` is a monotone curve (it never dips below the lowest or above the highest neighbour); `step` holds each value until the next point. Gaps still break the line. The area follows the curve.
 - size: 'sm' | 'md' | 'lg' = 'md' - Chart height when `height` is not set: 160 / 240 / 320 viewBox units.
 - showDots: boolean | 'auto' = 'auto' - `auto` draws dots when there are at most 60 points.
@@ -18054,6 +18055,9 @@ Rules:
 - Use NaN (or a non-finite number) for missing points: the line breaks instead of interpolating.
 - Provide `valueFormatter` for units and a `label` that states the takeaway.
 - Large series: leave `showDots` on `auto` (off above 60 points).
+- Use `stacked` with `variant="area"` only for parts of a whole (requests by model). Never stack independent measures such as p50 and p95.
+- Do not stack negative values: `stacked` assumes non-negative data and bands overlap otherwise.
+- Put a total or a previous period in a stacked chart as a series with `stack: false`.
 - Use Sparkline, not LineChart, for tiny inline trends.
 - Use `curve="step"` for values that hold between readings and `curve="smooth"` only for continuous measurements; never smooth counts that jump.
 - Prefer `variant="area"` over the `area` boolean in new code. Use `markerShape="series"` when several series share a chart and must be told apart without colour.
@@ -18140,6 +18144,90 @@ Example: Size
   <LineChart size="sm" label="Sample data: small" :labels="['A', 'B', 'C', 'D']" :series="[{ name: 'Series', data: [3, 8, 4, 9] }]" />
   <LineChart size="md" label="Sample data: medium" :labels="['A', 'B', 'C', 'D']" :series="[{ name: 'Series', data: [3, 8, 4, 9] }]" />
   <LineChart size="lg" label="Sample data: large" :labels="['A', 'B', 'C', 'D']" :series="[{ name: 'Series', data: [3, 8, 4, 9] }]" />
+</div>
+```
+
+Example: Traffic by top models (stacked)
+```vue
+<script setup lang="ts">
+const hours = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0') + ':00')
+const wave = (base, swing, shift) => hours.map((_, h) => Math.round(base + swing * Math.sin(((h + shift) / 24) * Math.PI * 2)))
+const traffic = [
+  { name: 'Model A', data: wave(420, 160, 0) },
+  { name: 'Model B', data: wave(300, 110, 5) },
+  { name: 'Model C', data: wave(210, 80, 9) },
+  { name: 'Model D', data: wave(140, 50, 14) },
+  { name: 'Model E', data: wave(70, 30, 18) },
+]
+const previous = hours.map((_, h) => traffic.reduce((sum, s) => sum + s.data[h], 0) - 120 + (h % 5) * 18)
+</script>
+
+<LineChart variant="area" stacked label="Sample data: requests per hour by model" :labels="hours" :series="traffic" />
+```
+
+Example: With previous period
+```vue
+<script setup lang="ts">
+const hours = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0') + ':00')
+const wave = (base, swing, shift) => hours.map((_, h) => Math.round(base + swing * Math.sin(((h + shift) / 24) * Math.PI * 2)))
+const traffic = [
+  { name: 'Model A', data: wave(420, 160, 0) },
+  { name: 'Model B', data: wave(300, 110, 5) },
+  { name: 'Model C', data: wave(210, 80, 9) },
+  { name: 'Model D', data: wave(140, 50, 14) },
+  { name: 'Model E', data: wave(70, 30, 18) },
+]
+const previous = hours.map((_, h) => traffic.reduce((sum, s) => sum + s.data[h], 0) - 120 + (h % 5) * 18)
+</script>
+
+<LineChart
+  variant="area"
+  stacked
+  label="Sample data: requests per hour by model against the previous day"
+  :labels="hours"
+  :series="[...traffic, { name: 'Previous day', data: previous, tone: 'muted', stack: false }]"
+/>
+```
+
+Example: Latency p50 and p95
+```vue
+<LineChart
+  class="max-w-lg"
+  label="Sample data: latency percentiles"
+  :labels="['00:00', '04:00', '08:00', '12:00', '16:00', '20:00']"
+  :series="[
+    { name: 'p50', data: [180, 170, 210, 260, 240, 200] },
+    { name: 'p95', data: [620, 590, 780, 1010, 940, 700], tone: 'warning' },
+  ]"
+  :value-formatter="(n) => n + ' ms'"
+/>
+```
+
+Example: Sparse data with gaps
+```vue
+<div class="grid gap-6 md:grid-cols-2">
+  <LineChart variant="area" stacked size="sm" label="Sample data: stacked with missing readings" :labels="['A', 'B', 'C', 'D', 'E']" :series="[{ name: 'Series A', data: [4, null, 6, 5, null] }, { name: 'Series B', data: [3, 4, null, 2, 5] }]" />
+  <LineChart size="sm" label="Sample data: lines with missing readings" :labels="['A', 'B', 'C', 'D', 'E']" :series="[{ name: 'Series A', data: [4, null, 6, 5, null] }, { name: 'Series B', data: [3, 4, null, 2, 5] }]" />
+</div>
+```
+
+Example: Stacked in dark mode
+```vue
+<script setup lang="ts">
+const hours = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0') + ':00')
+const wave = (base, swing, shift) => hours.map((_, h) => Math.round(base + swing * Math.sin(((h + shift) / 24) * Math.PI * 2)))
+const traffic = [
+  { name: 'Model A', data: wave(420, 160, 0) },
+  { name: 'Model B', data: wave(300, 110, 5) },
+  { name: 'Model C', data: wave(210, 80, 9) },
+  { name: 'Model D', data: wave(140, 50, 14) },
+  { name: 'Model E', data: wave(70, 30, 18) },
+]
+const previous = hours.map((_, h) => traffic.reduce((sum, s) => sum + s.data[h], 0) - 120 + (h % 5) * 18)
+</script>
+
+<div class="dark rounded-lg bg-background p-4 text-foreground">
+  <LineChart variant="area" stacked curve="smooth" label="Sample data: requests per hour by model, dark" :labels="hours" :series="traffic" />
 </div>
 ```
 
@@ -23269,6 +23357,7 @@ Props:
 - layout: 'stacked' | 'inline' = 'stacked' - `stacked` shows the caption row above the bar. `inline` puts label, bar and value on one row (the bar takes the free width). `hideLabel` always renders the bar alone. Unknown values fall back to `stacked`.
 - shape: 'rounded' | 'square' = 'rounded' - End caps of the track and fill: pill (default) or square. Unknown values fall back to `rounded`.
 - hideLabel: boolean = false - Hide the caption row (keep it when the surrounding UI already labels the bar).
+- markers: Array<{ value: number; label: string; tone?: 'neutral' | 'warning' | 'danger' | 'primary' }> = [] - Vertical ticks on the track at `value / max`, clamped to the track (a limit, a pacing threshold). `tone` defaults to `neutral`. Each tick has `data-slot="marker"` and an `aria-label`; the meter is described by the list ("pacing 24, limit 30"). Unset or empty renders the same markup as before.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
 Enforced requirements (a ContractError is thrown when missing):
@@ -23279,12 +23368,14 @@ Enforced requirements (a ContractError is thrown when missing):
 Rules:
 - Always pass `valueText` with the real "used / limit" numbers.
 - Use `tone="auto"` for quotas; fixed tones only for categorical meaning.
+- Pass `markers` for quota meters: one tick at the limit, optionally a `warning` tick where pacing starts. Keep the labels short; they are announced as the meter description.
 - Do not use StatBar for loading progress.
 
 Accessibility:
 - Uses `role="meter"` with `aria-valuemin` 0, `aria-valuemax` 100, `aria-valuenow` (clamped 0..100), `aria-valuetext` and the label as accessible name.
 - Colour is never the only signal: always provide `valueText` with the real numbers. The value text uses `tabular-nums`, so stacked bars line up.
 - `layout="inline"` keeps the DOM order (label, value, then the meter) but shows the meter between them visually; the meter keeps its own `aria-label`, so the name does not depend on the row. `size`, `layout` and `shape` change geometry only.
+- Markers are `role="img"` ticks with an `aria-label`, and the meter is described (`aria-describedby`) by a visually hidden list of every marker, so coinciding markers keep both labels. Tone never carries the meaning alone.
 - The fill animates its width only when reduced motion is not requested. The bar is fluid and the caption row wraps its content, so nothing overflows at 320px.
 
 Example: Basic
@@ -23309,6 +23400,33 @@ Example: Usage against limits with auto tone
   <StatBar label="Requests / day" :value="420" :max="1000" value-text="420 / 1,000" tone="auto" />
   <StatBar label="Budget / month" :value="82" tone="auto" value-text="82 / 100 units" />
   <StatBar label="Seats" :value="19" :max="20" tone="auto" value-text="19 / 20" size="sm" />
+</div>
+```
+
+Example: Usage against a limit with a pacing threshold
+```vue
+<div class="flex max-w-sm flex-col gap-4">
+  <StatBar label="Requests this month" :value="27" :max="30" value-text="27 / 30" :markers="[{ value: 24, label: 'pacing from', tone: 'warning' }, { value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar label="Requests, over the limit" :value="32" :max="30" value-text="32 / 30" tone="danger" :markers="[{ value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar label="Tokens" :value="1020000" :max="1200000" value-text="1.02M / 1.2M" :markers="[{ value: 1200000, label: 'limit' }]" />
+</div>
+```
+
+Example: Markers at size sm
+```vue
+<div class="flex max-w-sm flex-col gap-4">
+  <StatBar size="sm" label="Requests this month" :value="27" :max="30" value-text="27 / 30" :markers="[{ value: 24, label: 'pacing from', tone: 'warning' }, { value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar size="sm" label="Requests, over the limit" :value="32" :max="30" value-text="32 / 30" tone="danger" :markers="[{ value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar size="sm" label="Tokens" :value="1020000" :max="1200000" value-text="1.02M / 1.2M" :markers="[{ value: 1200000, label: 'limit' }]" />
+</div>
+```
+
+Example: Markers in dark mode
+```vue
+<div class="dark flex max-w-sm flex-col gap-4 rounded-lg bg-background p-4 text-foreground">
+  <StatBar label="Requests this month" :value="27" :max="30" value-text="27 / 30" :markers="[{ value: 24, label: 'pacing from', tone: 'warning' }, { value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar label="Requests, over the limit" :value="32" :max="30" value-text="32 / 30" tone="danger" :markers="[{ value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar label="Tokens" :value="1020000" :max="1200000" value-text="1.02M / 1.2M" :markers="[{ value: 1200000, label: 'limit' }]" />
 </div>
 ```
 
@@ -24227,6 +24345,7 @@ Props:
 - rows*: T[] - Source rows (never mutated).
 - rowKey: keyof T | ((row: T, index: number) => string | number) = 'id' - Row property name or function giving a unique string or number id, used for selection. Required to resolve for every row when `selectable` is set; otherwise missing ids fall back to the row index.
 - sort: { key: string; direction: "asc" | "desc" } | null = null - v-model:sort. Controlled or uncontrolled.
+- activeKey: string | number | null - v-model:activeKey: the id (from `rowKey`) of the active row, the one shown in a side panel. Binding it (even to `null`) turns on the active-row model: roving tabindex, arrow-key navigation, and `aria-current="true"` plus `data-active` on the active row. Detected from the binding itself, so a ref that starts `undefined` works. Unbound, the table behaves as before.
 - selectable: boolean = false - Adds a leading checkbox column.
 - selected: (string | number)[] = [] - v-model:selected: selected row ids. Controlled or uncontrolled.
 - page: number = 1 - v-model:page (1-based). Out-of-range values are clamped and `update:page` is emitted with the clamped value.
@@ -24292,6 +24411,8 @@ Events:
 - update:sort [value: SortState | null] - Sort changed by a header click or by the cards-layout sort select or direction button.
 - update:selected [value: (string | number)[]] - Selection changed (row checkbox, header checkbox or the cards-layout "Select all").
 - update:page [value: number] - Page changed by the pager or clamped into range.
+- update:activeKey [value: string | number | null] - The active row changed by a click or by the arrow, Home or End keys.
+- row-activate [row: T, key: string | number] - A row was activated by a click or by Enter while `activeKey` is bound. Open the detail panel here.
 - row-click [row: T, event: MouseEvent | KeyboardEvent] - A clickable row was activated.
 
 Enforced requirements (a ContractError is thrown when missing):
@@ -24306,6 +24427,7 @@ Rules:
 - Use `cell-<key>` slots for badges/actions; put buttons inside cells (clicks on them do not trigger row-click).
 - Always set `caption` or `label`.
 - Look props: `density` padding, `size` text, `variant` rules and header band, `striped`, `bordered`; `layout="cards"` for phones: below 640px it shows its own "Sort by" select, direction button and "Select all" checkbox (same `v-model:sort` / `v-model:selected` state as the header; relabel with `sortByLabel`, `sortDirectionLabel`, `sortDefaultLabel`, `sortAscendingLabel`, `sortDescendingLabel`, `selectAllLabel`; hide with `:card-controls="false"`).
+- Bind `v-model:activeKey` and listen to `row-activate` for a directory-and-detail layout; give the panel (a `Sheet`) the row found by the key. Keep `rowKey` stable so the active row survives sorting.
 - Sorting and paging are client-side only; for server data, handle sorting yourself and omit `sortable`.
 
 Accessibility:
@@ -24316,6 +24438,7 @@ Accessibility:
 - The scroll container is a focusable `role="region"` named by `label` or `caption`, so a wide table scrolls with the arrow keys; `stickyHeader` pins the header inside a height-bounded container.
 - The pager is a <nav aria-label="Pagination">; Previous/Next are disabled at the ends and the "Page n of m" text is a polite live region with tabular figures.
 - Clickable rows are focusable (tabindex=0) and activate on Enter/Space.
+- With `activeKey` bound the table keeps its native table roles; the active row carries `aria-current="true"` and `data-active` and is drawn with an inset primary ring, distinct from the background of checked rows (a row can be both), and the rows use a roving tabindex: the active row (else the first) is the single tab stop, the others are `tabindex=-1`. ArrowDown and ArrowUp move the active row and focus, without wrapping; Home and End jump to the first and last row of the page; Enter activates. Keys pressed inside a link, button, input, select, textarea or contenteditable cell content are left to that control.
 - `layout="cards"` keeps the table markup: below `sm` the elements get explicit `table`, `rowgroup`, `row`, `columnheader`, `rowheader` and `cell` roles so `display` changes do not drop table semantics, and the visual column labels are `aria-hidden` (the column header names each cell). The header row is hidden visually below `sm`; its sort buttons and select-all checkbox stay in the accessibility tree and appear when a keyboard user focuses them.
 - Cards layout control bar (`data-slot="table-card-controls"`, visible only below `sm`, so touch users can sort and select all without the header row): the sort select is a native `<select>` wrapped in a visible "Sort by" `<label>` (16px text, 44px high on coarse pointers); the direction button shows the current direction as text plus an arrow icon (never colour alone), is named "Sort direction: Ascending", and is disabled while no column is sorted; "Select all" is a native checkbox inside its label (a 44px target on coarse pointers) with the same indeterminate state as the header box. Everything is keyboard operable (Tab, arrow keys on the select, Space on the checkbox, Enter or Space on the button). The bar writes the same `sort` and `selected` values as the header, so `aria-sort` on the sorted `<th>` and the polite "Sorted by Name, ascending" announcement are identical whichever control sorted. Without sortable columns and without `selectable` the bar is not rendered; `:card-controls="false"` removes it.
 - Numeric and right-aligned columns use `tabular-nums`. Pass `caption` or `label` so the table has an accessible name.
@@ -24376,6 +24499,146 @@ const columns = [{ key: 'name', header: 'Name' }, { key: 'plan', header: 'Plan' 
   <DataTable :columns="columns" :rows="[{ id: 1, name: 'Item A', plan: 'Plan 1' }]" row-clickable label="Clickable row example">
     <template #cell-plan="{ value }"><Badge variant="secondary">{{ value }}</Badge></template>
   </DataTable>
+</div>
+```
+
+Example: Directory with side panel
+```vue
+<script setup lang="ts">
+const columns = [
+  { key: 'name', header: 'Name', sortable: true, rowHeader: true },
+  { key: 'plan', header: 'Plan', sortable: true },
+  { key: 'seats', header: 'Seats', sortable: true, numeric: true },
+]
+const rows = [
+  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },
+  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },
+  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },
+]
+const activeKey = ref(null)
+const open = ref(false)
+const current = computed(() => rows.find((r) => r.id === activeKey.value))
+</script>
+
+<div>
+  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="rows" label="Sample directory" @row-activate="open = true" />
+  <Sheet v-model:open="open">
+    <SheetContent>
+      <SheetHeader>
+        <SheetTitle>{{ current?.name }}</SheetTitle>
+        <SheetDescription>{{ current?.plan }}, {{ current?.seats }} seats</SheetDescription>
+      </SheetHeader>
+    </SheetContent>
+  </Sheet>
+</div>
+```
+
+Example: Keyboard navigation
+```vue
+<script setup lang="ts">
+const columns = [
+  { key: 'name', header: 'Name', sortable: true, rowHeader: true },
+  { key: 'plan', header: 'Plan', sortable: true },
+  { key: 'seats', header: 'Seats', sortable: true, numeric: true },
+]
+const rows = [
+  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },
+  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },
+  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },
+  { id: 4, name: 'Item D', plan: 'Plan 1', seats: null },
+]
+const activeKey = ref(2)
+</script>
+
+<div class="space-y-3">
+  <ul class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+    <li><Kbd>ArrowDown</Kbd> <Kbd>ArrowUp</Kbd> move</li>
+    <li><Kbd>Home</Kbd> <Kbd>End</Kbd> first and last</li>
+    <li><Kbd>Enter</Kbd> open</li>
+  </ul>
+  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="rows" label="Sample data: keyboard navigation" />
+</div>
+```
+
+Example: Numeric columns with share bar cell
+```vue
+<script setup lang="ts">
+const columns = [
+  { key: 'name', header: 'Name', rowHeader: true },
+  { key: 'requests', header: 'Requests', numeric: true },
+  { key: 'share', header: 'Share', width: '10rem', accessor: (r) => r.requests },
+  { key: 'errors', header: 'Errors', numeric: true },
+]
+const rows = [
+  { id: 1, name: 'Item A', requests: 1200, errors: 4 },
+  { id: 2, name: 'Item B', requests: 800, errors: 12 },
+  { id: 3, name: 'Item C', requests: 300, errors: 0 },
+]
+const activeKey = ref(1)
+</script>
+
+<DataTable v-model:active-key="activeKey" :columns="columns" :rows="rows" density="compact" label="Sample data: requests by item">
+  <template #cell-share="{ value }"><StatBar label="Share of requests" hide-label :value="value" :max="2300" size="sm" :value-text="Math.round(value / 23) + '%'" /></template>
+</DataTable>
+```
+
+Example: Active row: dense and comfortable
+```vue
+<script setup lang="ts">
+const columns = [
+  { key: 'name', header: 'Name', sortable: true, rowHeader: true },
+  { key: 'plan', header: 'Plan', sortable: true },
+  { key: 'seats', header: 'Seats', sortable: true, numeric: true },
+]
+const rows = [
+  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },
+  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },
+  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },
+  { id: 4, name: 'Item D', plan: 'Plan 1', seats: null },
+]
+const a = ref(1)
+const b = ref(2)
+</script>
+
+<div class="space-y-4">
+  <DataTable v-model:active-key="a" :columns="columns" :rows="rows" density="compact" size="sm" label="Dense directory" />
+  <DataTable v-model:active-key="b" :columns="columns" :rows="rows" density="comfortable" label="Comfortable directory" />
+</div>
+```
+
+Example: Active row in dark mode
+```vue
+<script setup lang="ts">
+const columns = [
+  { key: 'name', header: 'Name', sortable: true, rowHeader: true },
+  { key: 'plan', header: 'Plan', sortable: true },
+  { key: 'seats', header: 'Seats', sortable: true, numeric: true },
+]
+const rows = [
+  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },
+  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },
+  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },
+  { id: 4, name: 'Item D', plan: 'Plan 1', seats: null },
+]
+const activeKey = ref(1)
+const selected = ref([1, 2])
+</script>
+
+<div class="dark rounded-lg bg-background p-4 text-foreground">
+  <DataTable v-model:active-key="activeKey" v-model:selected="selected" selectable :columns="columns" :rows="rows" label="Sample data: dark mode, active and checked rows" />
+</div>
+```
+
+Example: Active row: empty and loading
+```vue
+<script setup lang="ts">
+const columns = [{ key: 'name', header: 'Name' }, { key: 'plan', header: 'Plan' }]
+const activeKey = ref(null)
+</script>
+
+<div class="space-y-4">
+  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="[]" loading :loading-rows="3" label="Loading directory" />
+  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="[]" empty-text="No items yet" label="Empty directory" />
 </div>
 ```
 
