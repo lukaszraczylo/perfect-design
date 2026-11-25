@@ -296,7 +296,8 @@ describe('DataTable active row', () => {
     it('scrolls a parent-driven change while focus is inside the table', () =>
       withScroll(async (spy) => {
         const w = mnt({ activeKey: 'a' })
-        trs(w)[0]!.element.focus()
+        const row = trs(w)[0]!.element as HTMLElement
+        row.focus()
         await w.setProps({ activeKey: 'c' })
         await nextTick()
         expect(spy).toHaveBeenCalledTimes(1)
