@@ -40,11 +40,11 @@ describe('DataTable active row', () => {
     await trs(w)[0]!.trigger('keydown', { key: 'ArrowDown' })
     expect(w.emitted('update:activeKey')!.at(-1)).toEqual(['b'])
     await nextTick()
-    expect(trs(w)[1]!.attributes('aria-selected')).toBe('true')
+    expect(trs(w)[1]!.attributes('aria-current')).toBe('true')
     expect(trs(w)[1]!.attributes('data-active')).toBe('')
-    expect(trs(w)[1]!.attributes('data-state')).toBe('selected')
+    expect(trs(w)[1]!.attributes('data-state')).toBeUndefined()
     expect(document.activeElement).toBe(trs(w)[1]!.element)
-    expect(trs(w)[0]!.attributes('aria-selected')).toBeUndefined()
+    expect(trs(w)[0]!.attributes('aria-current')).toBeUndefined()
   })
 
   it('ArrowUp, Home and End move without wrapping', async () => {
@@ -86,19 +86,19 @@ describe('DataTable active row', () => {
     expect(w.emitted('row-activate')).toBeUndefined()
   })
 
-  it('uses roving tabindex and a grid role when bound', () => {
+  it('uses roving tabindex and native roles when bound', () => {
     const w = mnt({ activeKey: 'b' })
     expect(trs(w).map((r) => r.attributes('tabindex'))).toEqual(['-1', '0', '-1'])
-    expect(w.find('table').attributes('role')).toBe('grid')
+    expect(w.find('table').attributes('role')).toBeUndefined()
     const none = mnt()
     expect(trs(none).map((r) => r.attributes('tabindex'))).toEqual(['0', '-1', '-1'])
   })
 
   it('active row follows key across sort and page', async () => {
     const w = mnt({ activeKey: 'a', sort: { key: 'name', direction: 'desc' } })
-    expect(trs(w)[2]!.attributes('aria-selected')).toBe('true')
+    expect(trs(w)[2]!.attributes('aria-current')).toBe('true')
     await w.setProps({ sort: null, pageSize: 2, page: 2, activeKey: 'a' })
-    expect(w.find('[aria-selected=true]').exists()).toBe(false)
+    expect(w.find('[aria-current=true]').exists()).toBe(false)
     expect(trs(w)).toHaveLength(1)
     expect(trs(w)[0]!.attributes('tabindex')).toBe('0')
   })
@@ -127,14 +127,14 @@ describe('DataTable active row', () => {
 
   it('uses a custom rowKey function', async () => {
     const w = mnt({ rowKey: (r: { name: string }) => r.name, activeKey: 'Bravo' })
-    expect(trs(w)[1]!.attributes('aria-selected')).toBe('true')
+    expect(trs(w)[1]!.attributes('aria-current')).toBe('true')
   })
 
   it('without activeKey binding, rows keep tabindex=0 and row-click', async () => {
     const w: AnyWrapper = mount(DataTable as any, { props: { columns, rows: rows(), label: 'Sample', rowClickable: true } })
     expect(trs(w).map((r) => r.attributes('tabindex'))).toEqual(['0', '0', '0'])
     expect(w.find('table').attributes('role')).toBeUndefined()
-    expect(w.find('[aria-selected]').exists()).toBe(false)
+    expect(w.find('[aria-current]').exists()).toBe(false)
     expect(w.find('[data-active]').exists()).toBe(false)
     await trs(w)[1]!.trigger('keydown', { key: 'ArrowDown' })
     await trs(w)[1]!.trigger('click')
@@ -148,8 +148,43 @@ describe('DataTable active row', () => {
     expect(trs(w)[0]!.attributes('tabindex')).toBeUndefined()
   })
 
-  it('cards layout keeps role grid when bound', () => {
-    const w = mnt({ layout: 'cards' })
-    expect(w.find('table').attributes('role')).toBe('grid')
+  it('cards layout keeps role table when bound', () => {
+    expect(mnt({ layout: 'cards' }).find('table').attributes('role')).toBe('table')
+  })
+
+  it('active and checked are independent', async () => {
+    const w = mnt({ activeKey: 'a', selectable: true, selected: ['a', 'b'] })
+    expect(trs(w)[0]!.attributes('data-state')).toBe('selected')
+    expect(trs(w)[0]!.attributes('data-active')).toBe('')
+    expect(trs(w)[1]!.attributes('data-state')).toBe('selected')
+    expect(trs(w)[1]!.attributes('data-active')).toBeUndefined()
+  })
+
+  it('v-model:activeKey bound to undefined ref still enables navigation', async () => {
+    const w = mnt({ activeKey: undefined })
+    expect(trs(w).map((r) => r.attributes('tabindex'))).toEqual(['0', '-1', '-1'])
+    await trs(w)[0]!.trigger('keydown', { key: 'ArrowDown' })
+    expect(w.props('activeKey')).toBe('b')
+  })
+
+  it('only the update handler also counts as bound', async () => {
+    const w: AnyWrapper = mount(DataTable as any, { props: { columns, rows: rows(), label: 'S', 'onUpdate:activeKey': () => {} } })
+    expect(trs(w)[1]!.attributes('tabindex')).toBe('-1')
+  })
+
+  it('arrow keys inside button content and role widgets are ignored', async () => {
+    const w = mnt({ activeKey: 'a' }, { slots: { 'cell-note': '<button type="button"><span>Open</span></button><div role="textbox" tabindex="0">x</div>' } })
+    await trs(w)[0]!.find('span').trigger('keydown', { key: 'ArrowDown' })
+    await trs(w)[0]!.find('[role=textbox]').trigger('keydown', { key: 'ArrowDown' })
+    expect(w.emitted('update:activeKey')).toBeUndefined()
+  })
+
+  it('ignores keys with modifiers', async () => {
+    const w = mnt({ activeKey: 'a' })
+    await trs(w)[0]!.trigger('keydown', { key: 'ArrowDown', ctrlKey: true })
+    await trs(w)[0]!.trigger('keydown', { key: 'Enter', metaKey: true })
+    await trs(w)[0]!.trigger('keydown', { key: 'Home', altKey: true })
+    expect(w.emitted('update:activeKey')).toBeUndefined()
+    expect(w.emitted('row-activate')).toBeUndefined()
   })
 })

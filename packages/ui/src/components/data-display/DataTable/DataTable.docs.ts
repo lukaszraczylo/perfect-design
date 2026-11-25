@@ -38,7 +38,7 @@ const doc: ComponentDoc = {
     { name: 'rows', type: 'T[]', required: true, description: 'Source rows (never mutated).' },
     { name: 'rowKey', type: "keyof T | ((row: T, index: number) => string | number)", default: "'id'", description: 'Row property name or function giving a unique string or number id, used for selection. Required to resolve for every row when `selectable` is set; otherwise missing ids fall back to the row index.' },
     { name: 'sort', type: '{ key: string; direction: "asc" | "desc" } | null', default: 'null', description: 'v-model:sort. Controlled or uncontrolled.' },
-    { name: 'activeKey', type: 'string | number | null', description: 'v-model:activeKey: the id (from `rowKey`) of the active row, the one shown in a side panel. Binding it (even to `null`) turns on the active-row model: roving tabindex, arrow-key navigation, `aria-selected` on the active row and `role="grid"` on the table. Unbound, the table behaves as before.' },
+    { name: 'activeKey', type: 'string | number | null', description: 'v-model:activeKey: the id (from `rowKey`) of the active row, the one shown in a side panel. Binding it (even to `null`) turns on the active-row model: roving tabindex, arrow-key navigation, and `aria-current="true"` plus `data-active` on the active row. Detected from the binding itself, so a ref that starts `undefined` works. Unbound, the table behaves as before.' },
     { name: 'selectable', type: 'boolean', default: 'false', description: 'Adds a leading checkbox column.' },
     { name: 'selected', type: '(string | number)[]', default: '[]', description: 'v-model:selected: selected row ids. Controlled or uncontrolled.' },
     { name: 'page', type: 'number', default: '1', description: 'v-model:page (1-based). Out-of-range values are clamped and `update:page` is emitted with the clamped value.' },
@@ -234,7 +234,7 @@ const activeKey = ref(1)`,
     },
     {
       title: 'Active row: dense and comfortable',
-      description: 'The active row keeps its tone at every density. Sample data.',
+      description: 'The active ring shows at every density; checked rows keep the muted background. Sample data.',
       script: `${rowsScript}
 const a = ref(1)
 const b = ref(2)`,
@@ -246,17 +246,18 @@ const b = ref(2)`,
     },
     {
       title: 'Active row in dark mode',
-      description: 'The active row uses semantic tokens, so it adapts to the `dark` class. Sample data.',
+      description: 'The active ring uses the `primary` token, so it adapts to the `dark` class. Sample data.',
       script: `${rowsScript}
-const activeKey = ref(1)`,
+const activeKey = ref(1)
+const selected = ref([1, 2])`,
       code: `<div class="dark rounded-lg bg-background p-4 text-foreground">
-  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="rows" label="Sample data: dark mode" />
+  <DataTable v-model:active-key="activeKey" v-model:selected="selected" selectable :columns="columns" :rows="rows" label="Sample data: dark mode, active and checked rows" />
 </div>`,
-      state: () => ({ columns, rows: makeRows(), activeKey: ref<number | null>(1) }),
+      state: () => ({ columns, rows: makeRows(), activeKey: ref<number | null>(1), selected: ref<(string | number)[]>([1, 2]) }),
     },
     {
       title: 'Active row: empty and loading',
-      description: 'No row is active while loading or empty, and the table keeps its grid role. Sample data.',
+      description: 'No row is active while loading or empty, and the table keeps its native roles. Sample data.',
       script: `const columns = [{ key: 'name', header: 'Name' }, { key: 'plan', header: 'Plan' }]
 const activeKey = ref(null)`,
       code: `<div class="space-y-4">
@@ -378,7 +379,7 @@ const long = [{ key: 'name', header: 'Name', rowHeader: true }, { key: 'plan', h
     'The scroll container is a focusable `role="region"` named by `label` or `caption`, so a wide table scrolls with the arrow keys; `stickyHeader` pins the header inside a height-bounded container.',
     'The pager is a <nav aria-label="Pagination">; Previous/Next are disabled at the ends and the "Page n of m" text is a polite live region with tabular figures.',
     'Clickable rows are focusable (tabindex=0) and activate on Enter/Space.',
-    'With `activeKey` bound the table gets `role="grid"` (`aria-selected` is only valid on rows of a grid), the active row carries `aria-selected="true"` and `data-active`, and the rows use a roving tabindex: the active row (else the first) is the single tab stop, the others are `tabindex=-1`. ArrowDown and ArrowUp move the active row and focus, without wrapping; Home and End jump to the first and last row of the page; Enter activates. Keys pressed inside a link, button, input, select, textarea or contenteditable cell content are left to that control.',
+    'With `activeKey` bound the table keeps its native table roles; the active row carries `aria-current="true"` and `data-active` and is drawn with an inset primary ring, distinct from the background of checked rows (a row can be both), and the rows use a roving tabindex: the active row (else the first) is the single tab stop, the others are `tabindex=-1`. ArrowDown and ArrowUp move the active row and focus, without wrapping; Home and End jump to the first and last row of the page; Enter activates. Keys pressed inside a link, button, input, select, textarea or contenteditable cell content are left to that control.',
     '`layout="cards"` keeps the table markup: below `sm` the elements get explicit `table`, `rowgroup`, `row`, `columnheader`, `rowheader` and `cell` roles so `display` changes do not drop table semantics, and the visual column labels are `aria-hidden` (the column header names each cell). The header row is hidden visually below `sm`; its sort buttons and select-all checkbox stay in the accessibility tree and appear when a keyboard user focuses them.',
     'Cards layout control bar (`data-slot="table-card-controls"`, visible only below `sm`, so touch users can sort and select all without the header row): the sort select is a native `<select>` wrapped in a visible "Sort by" `<label>` (16px text, 44px high on coarse pointers); the direction button shows the current direction as text plus an arrow icon (never colour alone), is named "Sort direction: Ascending", and is disabled while no column is sorted; "Select all" is a native checkbox inside its label (a 44px target on coarse pointers) with the same indeterminate state as the header box. Everything is keyboard operable (Tab, arrow keys on the select, Space on the checkbox, Enter or Space on the button). The bar writes the same `sort` and `selected` values as the header, so `aria-sort` on the sorted `<th>` and the polite "Sorted by Name, ascending" announcement are identical whichever control sorted. Without sortable columns and without `selectable` the bar is not rendered; `:card-controls="false"` removes it.',
     'Numeric and right-aligned columns use `tabular-nums`. Pass `caption` or `label` so the table has an accessible name.',

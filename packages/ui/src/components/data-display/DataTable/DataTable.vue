@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T">
-import { computed, nextTick, provide, ref, useSlots, watch, watchPostEffect } from 'vue'
+import { computed, getCurrentInstance, nextTick, onBeforeUpdate, provide, ref, useSlots, watch, watchPostEffect } from 'vue'
 import { useDateLocale } from '../_shared/dateLocale'
 import { requireOneOf, violation } from '../../../lib/contract'
 import { cn } from '../../../lib/cn'
@@ -70,7 +70,7 @@ interface Entry {
 }
 
 const INTERACTIVE = 'a,button,input,select,textarea,label,[data-no-row-click]'
-const KEY_IGNORED = 'a,button,input,select,textarea,[contenteditable]:not([contenteditable=false])'
+const KEY_IGNORED = 'a,button,input,select,textarea,[contenteditable]:not([contenteditable=false]),[role=button],[role=textbox],[tabindex]'
 const NAV_KEYS = ['ArrowDown', 'ArrowUp', 'Home', 'End']
 
 function readValue(row: T, column: DataTableColumn<T> | undefined, key: string): unknown {
@@ -243,10 +243,17 @@ function goTo(p: number) {
 
 // ---- row interaction
 // Unbound `activeKey` leaves the table exactly as before; a bound one (even `null`) turns on the active row and its keyboard model.
-const navigable = computed(() => activeKey.value !== undefined)
+const instance = getCurrentInstance()
+const isBound = () => {
+  const vp = instance?.vnode.props
+  return !!vp && ('activeKey' in vp || 'active-key' in vp || 'onUpdate:activeKey' in vp)
+}
+const navigable = ref(isBound())
+onBeforeUpdate(() => {
+  navigable.value = isBound()
+})
 const activeIndex = computed(() => (navigable.value ? pageEntries.value.findIndex((e) => e.id === activeKey.value) : -1))
 const tabStopIndex = computed(() => (activeIndex.value >= 0 ? activeIndex.value : 0))
-const gridAttrs = computed(() => (navigable.value ? { role: 'grid' } : {}))
 
 function activate(entry: Entry) {
   activeKey.value = entry.id
@@ -265,11 +272,12 @@ async function moveActive(entries: Entry[], to: number, body: Element | null) {
   await nextTick()
   const row = body?.querySelector<HTMLElement>('[data-active]')
   row?.focus()
-  row?.scrollIntoView?.({ block: 'nearest' })
 }
 function onNavKeydown(entry: Entry, position: number, event: KeyboardEvent): boolean {
   const target = event.target as Element
-  if (target.closest(KEY_IGNORED)) return false
+  const inner = target.closest(KEY_IGNORED)
+  if (inner && inner !== event.currentTarget) return false
+  if (event.altKey || event.ctrlKey || event.metaKey) return false
   const entries = pageEntries.value
   if (event.key === 'Enter') {
     event.preventDefault()
@@ -360,7 +368,7 @@ const rootClasses = computed(() => cn('w-full space-y-3', props.class))
 const checkboxClasses = tableCheckboxClasses
 const rowClasses = computed(() =>
   props.rowClickable || navigable.value
-    ? 'cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring'
+    ? 'cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring data-active:inset-ring-2 data-active:inset-ring-primary forced-colors:data-active:outline-2 forced-colors:data-active:-outline-offset-2'
     : undefined,
 )
 </script>
@@ -398,7 +406,6 @@ const rowClasses = computed(() =>
       :aria-busy="loading ? 'true' : undefined"
       :aria-label="label"
       :label="label"
-      v-bind="gridAttrs"
     >
       <TableCaption v-if="caption" hidden>{{ caption }}</TableCaption>
       <TableHeader>
@@ -452,10 +459,10 @@ const rowClasses = computed(() =>
             v-for="(entry, position) in pageEntries"
             :key="entry.renderKey"
             data-slot="data-table-row"
-            :selected="selectedSet.has(entry.id) || position === activeIndex"
+            :selected="selectedSet.has(entry.id)"
             :class="rowClasses"
             :tabindex="navigable ? (position === tabStopIndex ? 0 : -1) : rowClickable ? 0 : undefined"
-            :aria-selected="position === activeIndex ? 'true' : undefined"
+            :aria-current="position === activeIndex ? 'true' : undefined"
             :data-active="position === activeIndex ? '' : undefined"
             @click="onRowClick(entry, $event)"
             @keydown="onRowKeydown(entry, position, $event)"
