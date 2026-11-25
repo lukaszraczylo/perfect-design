@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { cn } from '../../../lib/cn'
 import type { BaseProps } from '../../../lib/types'
-import { allIntegers, isFiniteNumber, curveAreaPath, curvePath, extent, formatCompact, formatNumber, isolatedPoints, niceTicks, normalizeCurve, r2, runs, type Curve, type Point } from '../_chart/chartMath'
+import { allIntegers, bandPath, isFiniteNumber, curveAreaPath, curvePath, extent, formatCompact, formatNumber, isolatedPoints, niceTicks, normalizeCurve, r2, runs, stackSeries, type Curve, type Point } from '../_chart/chartMath'
 import {
   chartHeight, dimension, dropOverlappingLabels, edgeAnchor, estimateTextWidth, hasValues, labelStep, markerPath, normalizeSeries, plural, scaleSafe, seriesMarker, truncateLabel,
   MARKER_SHAPES, type ChartSeries, type ChartSize, type MarkerShape,
@@ -13,7 +13,10 @@ import ChartDataTable from '../_chart/ChartDataTable.vue'
 import ChartLegend from '../_chart/ChartLegend.vue'
 import { useMeasuredWidth } from '../_chart/useMeasuredWidth'
 
-export type LineChartSeries = ChartSeries
+export type LineChartSeries = ChartSeries & {
+  /** In a stacked chart, `false` draws this series as a plain line at its own values (a comparison, a total). */
+  stack?: boolean
+}
 
 export interface LineChartProps extends BaseProps {
   /** X-axis category labels (one per point). */
@@ -23,6 +26,8 @@ export interface LineChartProps extends BaseProps {
   variant?: 'line' | 'area'
   /** Soft fill under each line. Same as `variant="area"`. */
   area?: boolean
+  /** With `variant="area"`, stacks the series: each band sits on the one before and the y axis fits the top band. Tooltips and the data table keep each series' own value. */
+  stacked?: boolean
   /** How points are joined: straight segments, a monotone smooth curve (never overshoots the data) or steps that hold each value until the next point. */
   curve?: Curve
   /** Chart height when `height` is not set: 160 / 240 / 320. */
@@ -57,6 +62,7 @@ export interface LineChartProps extends BaseProps {
 
 const props = withDefaults(defineProps<LineChartProps>(), {
   area: false,
+  stacked: false,
   curve: 'linear',
   size: 'md',
   showDots: 'auto',
@@ -81,6 +87,7 @@ const measured = useMeasuredWidth(rootEl)
 const W = computed(() => (measured.value > 0 ? measured.value : dimension(props.width, 480)))
 const H = computed(() => chartHeight(props.size, props.height))
 const areaOn = computed(() => (props.variant === 'area' ? true : props.variant === 'line' ? false : props.area))
+const stackedOn = computed(() => props.stacked && areaOn.value)
 const curve = computed(() => normalizeCurve(props.curve))
 const gridMode = computed<'none' | 'horizontal' | 'dashed' | 'full'>(() => {
   const g = props.grid
@@ -96,8 +103,20 @@ const fmtTip = (n: number) => (props.valueFormatter ?? formatNumber)(n)
 const fmtAxis = (n: number) => (props.valueFormatter ?? formatCompact)(n)
 const dotsOn = computed(() => (props.showDots === 'auto' ? norm.value.count <= AUTO_DOT_LIMIT : !!props.showDots))
 
+/** Series that join the stack, aligned with `norm.series` (normalizeSeries keeps every object entry in order). */
+const stackFlags = computed(() => (Array.isArray(props.series) ? props.series : []).filter((s) => typeof s === 'object' && s !== null).map((s) => s.stack !== false))
+const bands = computed(() => {
+  if (!stackedOn.value) return []
+  const flags = stackFlags.value
+  const stacked = stackSeries(norm.value.series.filter((_, i) => flags[i]))
+  let k = 0
+  return norm.value.series.map((_, i) => (flags[i] ? stacked[k++]! : null))
+})
+
 const ticks = computed(() => {
-  const values = norm.value.series.flatMap((s) => s.data)
+  const values = stackedOn.value
+    ? bands.value.flatMap((b, i) => (b ? [...b.lower, ...b.upper] : norm.value.series[i]!.data))
+    : norm.value.series.flatMap((s) => s.data)
   const ext = extent(values)
   if (!ext) return [0, 1]
   const lo = isFiniteNumber(props.yMin) ? props.yMin : ext[0]
@@ -147,13 +166,15 @@ const lines = computed<Line[]>(() => {
   const { y1 } = layout.value
   const baseY = Math.min(y1, Math.max(layout.value.y0, sy.value(0)))
   return norm.value.series.map((s, si) => {
-    const pts: (Point | null)[] = s.data.map((v, i) => (v === null ? null : { x: sx.value(i), y: sy.value(v) }))
+    const band = bands.value[si]
+    const top: (Point | null)[] | null = band ? band.upper.map((v, i) => ({ x: sx.value(i), y: sy.value(v) })) : null
+    const pts: (Point | null)[] = top ?? s.data.map((v, i) => (v === null ? null : { x: sx.value(i), y: sy.value(v) }))
     const hasSegment = runs(pts).some((r) => r.length > 1)
     const iso = new Set(isolatedPoints(pts))
     const marker = markerFor(si)
     const dots: Line['dots'] = []
     pts.forEach((p, i) => {
-      if (p && (dotsOn.value || iso.has(p))) {
+      if (p && s.data[i] !== null && (dotsOn.value || iso.has(p))) {
         dots.push({ x: r2(p.x), y: r2(p.y), d: marker === 'circle' ? '' : markerPath(marker, r2(p.x), r2(p.y), 3), title: `${categories[i]}, ${s.name}: ${fmtTip(s.data[i]!)}` })
       }
     })
@@ -162,7 +183,7 @@ const lines = computed<Line[]>(() => {
       dash: DASHES[si % DASHES.length]!,
       tone: toneClasses[s.tone],
       d: hasSegment ? curvePath(pts, curve.value) : '',
-      area: areaOn.value ? curveAreaPath(pts, baseY, curve.value) : '',
+      area: band ? bandPath(top as Point[], band.lower.map((v, i) => ({ x: sx.value(i), y: sy.value(v) })), curve.value) : stackedOn.value ? '' : areaOn.value ? curveAreaPath(pts, baseY, curve.value) : '',
       marker,
       dots,
     }

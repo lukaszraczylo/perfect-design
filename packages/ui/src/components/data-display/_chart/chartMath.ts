@@ -235,3 +235,37 @@ export function curveAreaPath(points: readonly (Point | null)[], baseY: number, 
     })
     .join(' ')
 }
+
+export interface StackBand {
+  lower: number[]
+  upper: number[]
+}
+
+/** Cumulative bands for stacked series, in order. Null, missing and non-finite points count as 0; the length is that of the longest series. */
+export function stackSeries(series: ReadonlyArray<{ data: ReadonlyArray<number | null | undefined> }>): StackBand[] {
+  const n = Math.max(0, ...series.map((s) => s.data.length))
+  const base: number[] = new Array(n).fill(0)
+  return series.map((s) => {
+    const lower = base.slice()
+    const upper = lower.map((v, i) => {
+      const x = s.data[i]
+      return v + (isFiniteNumber(x) ? x : 0)
+    })
+    for (let i = 0; i < n; i++) base[i] = upper[i]!
+    return { lower, upper }
+  })
+}
+
+/** Closed path along `upper` left to right and back along `lower`. Empty below two points. */
+export function bandPath(upper: readonly Point[], lower: readonly Point[], curve: Curve = 'linear'): string {
+  if (upper.length < 2 || lower.length < 2) return ''
+  const back = lower.slice().reverse()
+  const first = upper[0]!
+  const turn = back[0]!
+  const forward = curve === 'linear' ? upper.slice(1).map((p) => `L${r2(p.x)},${r2(p.y)}`).join(' ') : curveSegments(upper, curve)
+  let backward: string
+  if (curve === 'linear') backward = back.slice(1).map((p) => `L${r2(p.x)},${r2(p.y)}`).join(' ')
+  else if (curve === 'step') backward = back.slice(1).map((p) => `V${r2(p.y)} H${r2(p.x)}`).join(' ')
+  else backward = curveSegments(back, curve)
+  return `M${r2(first.x)},${r2(first.y)} ${forward} L${r2(turn.x)},${r2(turn.y)} ${backward} Z`
+}

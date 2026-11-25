@@ -2,6 +2,30 @@ import type { ComponentDoc } from '../../../docs-types'
 
 const TONE = "'chart-1' | 'chart-2' | 'chart-3' | 'chart-4' | 'chart-5' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'muted'"
 
+const trafficScript = `const hours = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0') + ':00')
+const wave = (base, swing, shift) => hours.map((_, h) => Math.round(base + swing * Math.sin(((h + shift) / 24) * Math.PI * 2)))
+const traffic = [
+  { name: 'Model A', data: wave(420, 160, 0) },
+  { name: 'Model B', data: wave(300, 110, 5) },
+  { name: 'Model C', data: wave(210, 80, 9) },
+  { name: 'Model D', data: wave(140, 50, 14) },
+  { name: 'Model E', data: wave(70, 30, 18) },
+]
+const previous = hours.map((_, h) => traffic.reduce((sum, s) => sum + s.data[h], 0) - 120 + (h % 5) * 18)`
+const trafficState = () => {
+  const hours = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, '0')}:00`)
+  const wave = (base: number, swing: number, shift: number) => hours.map((_, h) => Math.round(base + swing * Math.sin(((h + shift) / 24) * Math.PI * 2)))
+  const traffic = [
+    { name: 'Model A', data: wave(420, 160, 0) },
+    { name: 'Model B', data: wave(300, 110, 5) },
+    { name: 'Model C', data: wave(210, 80, 9) },
+    { name: 'Model D', data: wave(140, 50, 14) },
+    { name: 'Model E', data: wave(70, 30, 18) },
+  ]
+  const previous = hours.map((_, h) => traffic.reduce((sum, s) => sum + s.data[h]!, 0) - 120 + (h % 5) * 18)
+  return { hours, traffic, previous }
+}
+
 const doc: ComponentDoc = {
   name: 'LineChart',
   group: 'data-display',
@@ -12,9 +36,10 @@ const doc: ComponentDoc = {
   status: 'stable',
   props: [
     { name: 'labels', type: 'string[]', required: true, description: 'X-axis labels, one per point.' },
-    { name: 'series', type: `{ name: string; data: number[]; tone?: ${TONE} }[]`, required: true, description: 'One line per entry. More than 5 series cycle through chart-1..5.' },
+    { name: 'series', type: `{ name: string; data: number[]; tone?: ${TONE}; stack?: boolean }[]`, required: true, description: 'One line per entry. More than 5 series cycle through chart-1..5.' },
     { name: 'variant', type: "'line' | 'area'", default: "'line'", description: 'Lines only, or lines with a soft fill under each. When omitted, the `area` boolean decides.' },
     { name: 'area', type: 'boolean', default: 'false', description: 'Soft fill under each line. Same as `variant="area"`; `variant` wins when both are set.' },
+    { name: 'stacked', type: 'boolean', default: 'false', description: 'With `variant="area"` (or `area`), stacks the series: each band sits on top of the one before and the y axis fits the top band. Null and missing points count as 0, so a band never breaks. Tooltips and the data table keep each series\' own value. A series with `stack: false` stays a plain line at its own values (a comparison, a total). Without the area variant it has no effect.' },
     { name: 'curve', type: "'linear' | 'smooth' | 'step'", default: "'linear'", description: 'How points are joined. `smooth` is a monotone curve (it never dips below the lowest or above the highest neighbour); `step` holds each value until the next point. Gaps still break the line. The area follows the curve.' },
     { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Chart height when `height` is not set: 160 / 240 / 320 viewBox units.' },
     { name: 'showDots', type: "boolean | 'auto'", default: "'auto'", description: '`auto` draws dots when there are at most 60 points.' },
@@ -111,6 +136,57 @@ const doc: ComponentDoc = {
 </div>`,
     },
     {
+      title: 'Traffic by top models (stacked)',
+      description: 'Five series over 24 hourly points. Each band sits on the one below, the axis fits the top band, and each tooltip names the series\' own value. Sample data.',
+      script: trafficScript,
+      code: `<LineChart variant="area" stacked label="Sample data: requests per hour by model" :labels="hours" :series="traffic" />`,
+      state: trafficState,
+    },
+    {
+      title: 'With previous period',
+      description: 'A series with `stack: false` is drawn as a dashed line at its own values over the stacked bands. Sample data.',
+      script: trafficScript,
+      code: `<LineChart
+  variant="area"
+  stacked
+  label="Sample data: requests per hour by model against the previous day"
+  :labels="hours"
+  :series="[...traffic, { name: 'Previous day', data: previous, tone: 'muted', stack: false }]"
+/>`,
+      state: trafficState,
+    },
+    {
+      title: 'Latency p50 and p95',
+      description: 'Two unstacked lines on one axis. The values are not parts of a whole, so they are never stacked. Sample data.',
+      code: `<LineChart
+  class="max-w-lg"
+  label="Sample data: latency percentiles"
+  :labels="['00:00', '04:00', '08:00', '12:00', '16:00', '20:00']"
+  :series="[
+    { name: 'p50', data: [180, 170, 210, 260, 240, 200] },
+    { name: 'p95', data: [620, 590, 780, 1010, 940, 700], tone: 'warning' },
+  ]"
+  :value-formatter="(n) => n + ' ms'"
+/>`,
+    },
+    {
+      title: 'Sparse data with gaps',
+      description: 'In a stacked chart a missing value counts as 0 (the band narrows to nothing and stays closed); in a line chart it breaks the line. Sample data.',
+      code: `<div class="grid gap-6 md:grid-cols-2">
+  <LineChart variant="area" stacked size="sm" label="Sample data: stacked with missing readings" :labels="['A', 'B', 'C', 'D', 'E']" :series="[{ name: 'Series A', data: [4, null, 6, 5, null] }, { name: 'Series B', data: [3, 4, null, 2, 5] }]" />
+  <LineChart size="sm" label="Sample data: lines with missing readings" :labels="['A', 'B', 'C', 'D', 'E']" :series="[{ name: 'Series A', data: [4, null, 6, 5, null] }, { name: 'Series B', data: [3, 4, null, 2, 5] }]" />
+</div>`,
+    },
+    {
+      title: 'Stacked in dark mode',
+      description: 'Bands use the chart tokens, so they keep contrast on a dark surface. Sample data.',
+      script: trafficScript,
+      code: `<div class="dark rounded-lg bg-background p-4 text-foreground">
+  <LineChart variant="area" stacked curve="smooth" label="Sample data: requests per hour by model, dark" :labels="hours" :series="traffic" />
+</div>`,
+      state: trafficState,
+    },
+    {
       title: 'Empty state',
       code: `<LineChart label="Collected metrics" :labels="[]" :series="[]" empty-text="No metrics collected" class="max-w-md" />`,
     },
@@ -134,6 +210,8 @@ const doc: ComponentDoc = {
     'Use NaN (or a non-finite number) for missing points: the line breaks instead of interpolating.',
     'Provide `valueFormatter` for units and a `label` that states the takeaway.',
     'Large series: leave `showDots` on `auto` (off above 60 points).',
+    'Use `stacked` with `variant="area"` only for parts of a whole (requests by model). Never stack independent measures such as p50 and p95.',
+    'Put a total or a previous period in a stacked chart as a series with `stack: false`.',
     'Use Sparkline, not LineChart, for tiny inline trends.',
     'Use `curve="step"` for values that hold between readings and `curve="smooth"` only for continuous measurements; never smooth counts that jump.',
     'Prefer `variant="area"` over the `area` boolean in new code. Use `markerShape="series"` when several series share a chart and must be told apart without colour.',

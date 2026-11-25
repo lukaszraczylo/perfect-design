@@ -298,3 +298,135 @@ describe('LineChart: y domain', () => {
   })
   it('inverted bounds do not break the chart', () => noBad(m({ ...flat, yMin: 300, yMax: 100 })))
 })
+
+describe('LineChart: stacked area', () => {
+  const stackedProps = { variant: 'area', labels: ['a', 'b', 'c'], series: [{ name: 'x', data: [5, 5, 5] }, { name: 'y', data: [5, 5, 5] }] }
+  const tickValues = (w: ReturnType<typeof m>) => w.findAll('[data-slot="line-chart-tick"]').map((t) => Number(t.text()))
+
+  it('unstacked area markup unchanged', () => {
+    const w = m({ variant: 'area', label: 'Pin', labels: ['a', 'b', 'c'], series: [{ name: 'x', data: [1, 4, 2] }, { name: 'y', data: [3, null, 5], tone: 'danger' }] })
+    expect(w.html()).toMatchInlineSnapshot(`
+      "<div data-slot="line-chart" class="flex w-full flex-col gap-2"><svg data-slot="line-chart-svg" role="img" aria-label="Pin" viewBox="0 0 480 240" class="h-auto w-full">
+          <g data-slot="line-chart-grid">
+            <line x1="15.2" x2="468" y1="218" y2="218" class="stroke-border" stroke-width="1"></line>
+            <line x1="15.2" x2="468" y1="166" y2="166" class="stroke-border" stroke-width="1"></line>
+            <line x1="15.2" x2="468" y1="114" y2="114" class="stroke-border" stroke-width="1"></line>
+            <line x1="15.2" x2="468" y1="62" y2="62" class="stroke-border" stroke-width="1"></line>
+            <line x1="15.2" x2="468" y1="10" y2="10" class="stroke-border" stroke-width="1"></line>
+          </g>
+          <g data-slot="line-chart-axis" class="fill-muted-foreground text-xs tabular-nums"><text data-slot="line-chart-tick" x="9.2" y="218" text-anchor="end" dominant-baseline="middle">1</text><text data-slot="line-chart-tick" x="9.2" y="166" text-anchor="end" dominant-baseline="middle">2</text><text data-slot="line-chart-tick" x="9.2" y="114" text-anchor="end" dominant-baseline="middle">3</text><text data-slot="line-chart-tick" x="9.2" y="62" text-anchor="end" dominant-baseline="middle">4</text><text data-slot="line-chart-tick" x="9.2" y="10" text-anchor="end" dominant-baseline="middle">5</text><text data-slot="line-chart-category" x="25.2" y="232" text-anchor="middle" dominant-baseline="middle">a
+              <!--v-if-->
+            </text><text data-slot="line-chart-category" x="241.6" y="232" text-anchor="middle" dominant-baseline="middle">b
+              <!--v-if-->
+            </text><text data-slot="line-chart-category" x="458" y="232" text-anchor="middle" dominant-baseline="middle">c
+              <!--v-if-->
+            </text></g>
+          <g data-slot="line-chart-series" data-series="0">
+            <path data-slot="line-chart-area" d="M25.2,218 L25.2,218 L241.6,62 L458,166 L458,218 Z" class="fill-chart-1/15 stroke-none"></path>
+            <path data-slot="line-chart-line" d="M25.2,218 L241.6,62 L458,166" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-chart-1"></path>
+            <circle data-slot="line-chart-dot" cx="25.2" cy="218" r="3" stroke-width="1.5" class="fill-chart-1 stroke-background">
+              <title>a, x: 1</title>
+            </circle>
+            <circle data-slot="line-chart-dot" cx="241.6" cy="62" r="3" stroke-width="1.5" class="fill-chart-1 stroke-background">
+              <title>b, x: 4</title>
+            </circle>
+            <circle data-slot="line-chart-dot" cx="458" cy="166" r="3" stroke-width="1.5" class="fill-chart-1 stroke-background">
+              <title>c, x: 2</title>
+            </circle>
+          </g>
+          <g data-slot="line-chart-series" data-series="1">
+            <!--v-if-->
+            <!--v-if-->
+            <circle data-slot="line-chart-dot" cx="25.2" cy="114" r="3" stroke-width="1.5" class="fill-destructive stroke-background">
+              <title>a, y: 3</title>
+            </circle>
+            <circle data-slot="line-chart-dot" cx="458" cy="10" r="3" stroke-width="1.5" class="fill-destructive stroke-background">
+              <title>c, y: 5</title>
+            </circle>
+          </g>
+        </svg>
+        <ul data-slot="line-chart-legend" class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <li data-slot="line-chart-legend-item" class="inline-flex items-center gap-1.5"><svg viewBox="0 0 20 10" class="h-2.5 w-5 shrink-0" aria-hidden="true" focusable="false">
+              <line x1="1" y1="5" x2="19" y2="5" stroke-width="2" stroke-linecap="round" class="stroke-chart-1"></line>
+              <!--v-if-->
+            </svg><span>x</span></li>
+          <li data-slot="line-chart-legend-item" class="inline-flex items-center gap-1.5"><svg viewBox="0 0 20 10" class="h-2.5 w-5 shrink-0" aria-hidden="true" focusable="false">
+              <line x1="1" y1="5" x2="19" y2="5" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4" class="stroke-destructive"></line>
+              <!--v-if-->
+            </svg><span>y</span></li>
+        </ul><!-- The wrapper, not the table, is sr-only: overflow clipping does not apply to table boxes, so a clipped table would still widen the page. -->
+        <div data-slot="chart-data-table" class="sr-only">
+          <table>
+            <caption>Pin: data</caption>
+            <thead>
+              <tr>
+                <th scope="col">Category</th>
+                <th scope="col">x</th>
+                <th scope="col">y</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">a</th>
+                <td>1</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <th scope="row">b</th>
+                <td>4</td>
+                <td>n/a</td>
+              </tr>
+              <tr>
+                <th scope="row">c</th>
+                <td>2</td>
+                <td>5</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>"
+    `)
+  })
+  it('stacked y domain uses the top band', () => {
+    expect(Math.max(...tickValues(m({ ...stackedProps, stacked: true })))).toBeGreaterThanOrEqual(10)
+    expect(Math.max(...tickValues(m(stackedProps)))).toBeLessThan(10)
+  })
+  it('stacked area tolerates null and short series', () => {
+    const w = m({ variant: 'area', stacked: true, labels: ['a', 'b', 'c'], series: [{ name: 'x', data: [1, null, 3] }, { name: 'y', data: [2] }] })
+    noBad(w)
+    expect(w.findAll('[data-slot="line-chart-area"]')).toHaveLength(2)
+  })
+  it('bands touch: each area closes along the previous top edge', () => {
+    const w = m({ variant: 'area', stacked: true, labels: ['a', 'b'], series: [{ name: 'x', data: [4, 4] }, { name: 'y', data: [4, 4] }] })
+    const [a0, a1] = w.findAll('[data-slot="line-chart-area"]').map((a) => a.attributes('d')!)
+    const [l0] = lines(w).map((l) => l.attributes('d')!)
+    const top0 = l0!.replace(/^M/, '').split(' L').map((p) => p.trim())
+    expect(a0).toMatch(/Z$/)
+    expect(a1!.includes(top0[0]!) && a1!.includes(top0[1]!)).toBe(true)
+  })
+  it.each(['linear', 'smooth', 'step'])('stacked %s curve draws closed bands without NaN', (curve) => {
+    const w = m({ variant: 'area', stacked: true, curve, labels: ['a', 'b', 'c'], series: [{ name: 'x', data: [1, 3, 2] }, { name: 'y', data: [2, 1, 4] }] })
+    noBad(w)
+    for (const a of w.findAll('[data-slot="line-chart-area"]')) expect(a.attributes('d')).toMatch(/^M.*Z$/)
+  })
+  it('tooltip reports per-series value', () => {
+    const w = m({ variant: 'area', stacked: true, labels: ['a', 'b'], series: [{ name: 'x', data: [3, 4] }, { name: 'y', data: [5, 6] }] })
+    const titles = dots(w).map((d) => d.find('title').text())
+    expect(titles).toEqual(['a, x: 3', 'b, x: 4', 'a, y: 5', 'b, y: 6'])
+  })
+  it('only applies with the area variant', () => {
+    const w = m({ ...stackedProps, variant: 'line', stacked: true })
+    expect(w.find('[data-slot="line-chart-area"]').exists()).toBe(false)
+    expect(Math.max(...tickValues(w))).toBeLessThan(10)
+  })
+  it('a series with stack: false stays a plain line at its own values', () => {
+    const w = m({ variant: 'area', stacked: true, labels: ['a', 'b'], series: [{ name: 'x', data: [3, 3] }, { name: 'y', data: [3, 3] }, { name: 'prev', data: [20, 20], stack: false }] })
+    expect(w.findAll('[data-slot="line-chart-area"]')).toHaveLength(2)
+    expect(lines(w)).toHaveLength(3)
+    expect(Math.max(...tickValues(w))).toBeGreaterThanOrEqual(20)
+  })
+  it('single point and all-null stacked data do not break', () => {
+    noBad(m({ variant: 'area', stacked: true, labels: ['a'], series: [{ name: 'x', data: [3] }, { name: 'y', data: [2] }] }))
+    noBad(m({ variant: 'area', stacked: true, labels: ['a', 'b'], series: [{ name: 'x', data: [null, 2] }, { name: 'y', data: [null, null] }] }))
+  })
+})

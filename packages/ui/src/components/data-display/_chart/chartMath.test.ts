@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  allIntegers, areaPath, clamp, extent, formatCompact, formatNumber, isFiniteNumber, isolatedPoints, linePath, niceTicks, r2, runs, scaleLinear,
+  allIntegers, areaPath, bandPath, clamp, extent, formatCompact, formatNumber, isFiniteNumber, isolatedPoints, linePath, niceTicks, r2, runs, scaleLinear, stackSeries,
 } from './chartMath'
 import { CHART_TONES, seriesTone, toneClasses } from './tones'
 
@@ -175,5 +175,40 @@ describe('allIntegers', () => {
     expect(allIntegers([0, 0.5])).toBe(false)
     expect(allIntegers([])).toBe(false)
     expect(allIntegers([null, Number.NaN])).toBe(false)
+  })
+})
+
+describe('stackSeries', () => {
+  it('stackSeries sums bands in order', () => {
+    const out = stackSeries([{ data: [1, 2] }, { data: [3, 4] }])
+    expect(out.map((b) => b.upper)).toEqual([[1, 2], [4, 6]])
+    expect(out.map((b) => b.lower)).toEqual([[0, 0], [1, 2]])
+  })
+  it('counts null and missing points as 0 and spans the longest series', () => {
+    const out = stackSeries([{ data: [1, null, 3] }, { data: [2] }])
+    expect(out[1]!.lower).toEqual([1, 0, 3])
+    expect(out[1]!.upper).toEqual([3, 0, 3])
+    expect(out[0]!.upper).toEqual([1, 0, 3])
+  })
+  it('returns nothing for no series and ignores non-finite values', () => {
+    expect(stackSeries([])).toEqual([])
+    expect(stackSeries([{ data: [Number.NaN, Infinity] }])[0]).toEqual({ lower: [0, 0], upper: [0, 0] })
+  })
+})
+
+describe('bandPath', () => {
+  const up = [{ x: 0, y: 10 }, { x: 10, y: 20 }]
+  const lo = [{ x: 0, y: 30 }, { x: 10, y: 30 }]
+  it('closes along the upper edge then back along the lower edge', () => {
+    expect(bandPath(up, lo)).toBe('M0,10 L10,20 L10,30 L0,30 Z')
+  })
+  it('returns an empty path for fewer than two points', () => {
+    expect(bandPath([up[0]!], [lo[0]!])).toBe('')
+  })
+  it('step retraces the forward steps backwards', () => {
+    expect(bandPath(up, lo, 'step')).toBe('M0,10 H10 V20 L10,30 V30 H0 Z')
+  })
+  it('smooth uses curve segments on both edges', () => {
+    expect(bandPath(up, lo, 'smooth')).toMatch(/^M0,10 C.* L10,30 C.* Z$/)
   })
 })
