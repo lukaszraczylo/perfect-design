@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import LineChart from './LineChart.vue'
 import { estimateTextWidth } from '../_chart/chartKit'
@@ -431,5 +431,35 @@ describe('LineChart: stacked area', () => {
   it('single point and all-null stacked data do not break', () => {
     noBad(m({ variant: 'area', stacked: true, labels: ['a'], series: [{ name: 'x', data: [3] }, { name: 'y', data: [2] }] }))
     noBad(m({ variant: 'area', stacked: true, labels: ['a', 'b'], series: [{ name: 'x', data: [null, 2] }, { name: 'y', data: [null, null] }] }))
+  })
+})
+
+describe('LineChart: stacked without the area variant', () => {
+  const warnSpy = () => vi.spyOn(console, 'warn').mockImplementation(() => {})
+  afterEach(() => vi.restoreAllMocks())
+
+  it('warns once in dev when stacked has no effect', () => {
+    const spy = warnSpy()
+    m({ ...base, stacked: true })
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(String(spy.mock.calls[0]![0])).toContain('LineChart: `stacked` has no effect without `variant="area"`')
+  })
+
+  it('stays silent with the area variant, the area prop, or no stacked', () => {
+    const spy = warnSpy()
+    m({ ...base, stacked: true, variant: 'area' })
+    m({ ...base, stacked: true, area: true })
+    m({ ...base })
+    expect(spy).not.toHaveBeenCalled()
+  })
+
+  it('stays silent in production builds', () => {
+    const spy = warnSpy()
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.stubEnv('PROD', true as never)
+    vi.stubEnv('DEV', false as never)
+    m({ ...base, stacked: true })
+    vi.unstubAllEnvs()
+    expect(spy).not.toHaveBeenCalled()
   })
 })

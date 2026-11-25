@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { cn } from '../../../lib/cn'
+import { isDev } from '../../../lib/dev'
 import type { BaseProps } from '../../../lib/types'
 import { allIntegers, bandPath, isFiniteNumber, curveAreaPath, curvePath, extent, formatCompact, formatNumber, isolatedPoints, niceTicks, normalizeCurve, r2, runs, stackSeries, type Curve, type Point } from '../_chart/chartMath'
 import {
@@ -88,6 +89,12 @@ const W = computed(() => (measured.value > 0 ? measured.value : dimension(props.
 const H = computed(() => chartHeight(props.size, props.height))
 const areaOn = computed(() => (props.variant === 'area' ? true : props.variant === 'line' ? false : props.area))
 const stackedOn = computed(() => props.stacked && areaOn.value)
+let warnedStacked = false
+watchEffect(() => {
+  if (warnedStacked || !props.stacked || areaOn.value) return
+  warnedStacked = true
+  if (isDev()) console.warn('[perfect-design] LineChart: `stacked` has no effect without `variant="area"` (or `area`); the series are drawn as plain lines.')
+})
 const curve = computed(() => normalizeCurve(props.curve))
 const gridMode = computed<'none' | 'horizontal' | 'dashed' | 'full'>(() => {
   const g = props.grid
