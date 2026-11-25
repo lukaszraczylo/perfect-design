@@ -418,6 +418,7 @@ describe('LineChart: stacked area', () => {
     expect(titles).toEqual(['a, x: 3', 'b, x: 4', 'a, y: 5', 'b, y: 6'])
   })
   it('only applies with the area variant', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
     const w = m({ ...stackedProps, variant: 'line', stacked: true })
     expect(w.find('[data-slot="line-chart-area"]').exists()).toBe(false)
     expect(Math.max(...tickValues(w))).toBeLessThan(10)
