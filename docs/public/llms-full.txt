@@ -18027,7 +18027,7 @@ Props:
 - series*: { name: string; data: number[]; tone?: 'chart-1' | 'chart-2' | 'chart-3' | 'chart-4' | 'chart-5' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'muted'; stack?: boolean }[] - One line per entry. More than 5 series cycle through chart-1..5.
 - variant: 'line' | 'area' = 'line' - Lines only, or lines with a soft fill under each. When omitted, the `area` boolean decides.
 - area: boolean = false - Soft fill under each line. Same as `variant="area"`; `variant` wins when both are set.
-- stacked: boolean = false - With `variant="area"` (or `area`), stacks the series: each band sits on top of the one before and the y axis fits the top band. Null and missing points count as 0, so a band never breaks. Tooltips and the data table keep each series' own value. A series with `stack: false` stays a plain line at its own values (a comparison, a total). Without the area variant it has no effect. Negative values are not supported when stacked: bands assume non-negative data, so a negative value makes bands overlap.
+- stacked: boolean = false - With `variant="area"` (or `area`), stacks the series: each band sits on top of the one before and the y axis fits the top band. Null and missing points count as 0, so a band never breaks. Tooltips and the data table keep each series' own value. A series with `stack: false` stays a plain line at its own values (a comparison, a total). Without the area variant it has no effect, and development builds log a one-time `console.warn`. Negative values are not supported when stacked: bands assume non-negative data, so a negative value makes bands overlap.
 - curve: 'linear' | 'smooth' | 'step' = 'linear' - How points are joined. `smooth` is a monotone curve (it never dips below the lowest or above the highest neighbour); `step` holds each value until the next point. Gaps still break the line. The area follows the curve.
 - size: 'sm' | 'md' | 'lg' = 'md' - Chart height when `height` is not set: 160 / 240 / 320 viewBox units.
 - showDots: boolean | 'auto' = 'auto' - `auto` draws dots when there are at most 60 points.
@@ -23357,7 +23357,7 @@ Props:
 - layout: 'stacked' | 'inline' = 'stacked' - `stacked` shows the caption row above the bar. `inline` puts label, bar and value on one row (the bar takes the free width). `hideLabel` always renders the bar alone. Unknown values fall back to `stacked`.
 - shape: 'rounded' | 'square' = 'rounded' - End caps of the track and fill: pill (default) or square. Unknown values fall back to `rounded`.
 - hideLabel: boolean = false - Hide the caption row (keep it when the surrounding UI already labels the bar).
-- markers: Array<{ value: number; label: string; tone?: 'neutral' | 'warning' | 'danger' | 'primary' }> = [] - Vertical ticks on the track at `value / max`, clamped to the track (a limit, a pacing threshold). `tone` defaults to `neutral`. Each tick has `data-slot="marker"` and an `aria-label`; the meter is described by the list ("pacing 24, limit 30"). Unset or empty renders the same markup as before.
+- markers: Array<{ value: number; label: string; tone?: 'neutral' | 'warning' | 'danger' | 'primary'; valueText?: string }> = [] - Vertical ticks on the track at `value / max`, clamped to the track (a limit, a pacing threshold). `tone` defaults to `neutral`. Each tick has `data-slot="stat-bar-marker"`, is `aria-hidden` and carries a `ring-1 ring-background` edge so it stays visible on a fill of the same tone; the meter is described by the list ("pacing 24, limit 30"), with each value formatted like the chart tooltips (`1,200,000`) or taken from the marker `valueText` (`1.2M`). A non-finite value is announced by its label alone, and `null` entries are ignored. Unset or empty renders the same markup as before.
 - class: string | object | array - Merged last with tailwind-merge; wins over internal classes.
 
 Enforced requirements (a ContractError is thrown when missing):
@@ -23375,7 +23375,7 @@ Accessibility:
 - Uses `role="meter"` with `aria-valuemin` 0, `aria-valuemax` 100, `aria-valuenow` (clamped 0..100), `aria-valuetext` and the label as accessible name.
 - Colour is never the only signal: always provide `valueText` with the real numbers. The value text uses `tabular-nums`, so stacked bars line up.
 - `layout="inline"` keeps the DOM order (label, value, then the meter) but shows the meter between them visually; the meter keeps its own `aria-label`, so the name does not depend on the row. `size`, `layout` and `shape` change geometry only.
-- Markers are `role="img"` ticks with an `aria-label`, and the meter is described (`aria-describedby`) by a visually hidden list of every marker, so coinciding markers keep both labels. Tone never carries the meaning alone.
+- Marker ticks are decorative (`aria-hidden`, children of a meter are presentational in ARIA 1.2), and the meter is described (`aria-describedby`) by a visually hidden list of every marker, so coinciding markers keep both labels. Tone never carries the meaning alone.
 - The fill animates its width only when reduced motion is not requested. The bar is fluid and the caption row wraps its content, so nothing overflows at 320px.
 
 Example: Basic
@@ -24345,7 +24345,7 @@ Props:
 - rows*: T[] - Source rows (never mutated).
 - rowKey: keyof T | ((row: T, index: number) => string | number) = 'id' - Row property name or function giving a unique string or number id, used for selection. Required to resolve for every row when `selectable` is set; otherwise missing ids fall back to the row index.
 - sort: { key: string; direction: "asc" | "desc" } | null = null - v-model:sort. Controlled or uncontrolled.
-- activeKey: string | number | null - v-model:activeKey: the id (from `rowKey`) of the active row, the one shown in a side panel. Binding it (even to `null`) turns on the active-row model: roving tabindex, arrow-key navigation, and `aria-current="true"` plus `data-active` on the active row. Detected from the binding itself, so a ref that starts `undefined` works. Unbound, the table behaves as before.
+- activeKey: string | number | null - v-model:activeKey: the id (from `rowKey`) of the active row, the one shown in a side panel. Binding it (even to `null`) turns on the active-row model: roving tabindex, arrow-key navigation, and `aria-current="true"` plus `data-active` on the active row. Detected from the binding itself (`activeKey`, `active-key`, `onUpdate:activeKey` or `onUpdate:active-key`), so a ref that starts `undefined` works. Unbound, the table behaves as before. A wrapper component that always forwards the binding turns navigation on for every use of the wrapper, even when its own prop is unset. The table scrolls the active row into view after a click or key press, or when a parent changes it while focus is inside the table; a parent-driven change with focus elsewhere never scrolls the page.
 - selectable: boolean = false - Adds a leading checkbox column.
 - selected: (string | number)[] = [] - v-model:selected: selected row ids. Controlled or uncontrolled.
 - page: number = 1 - v-model:page (1-based). Out-of-range values are clamped and `update:page` is emitted with the clamped value.
@@ -24412,7 +24412,7 @@ Events:
 - update:selected [value: (string | number)[]] - Selection changed (row checkbox, header checkbox or the cards-layout "Select all").
 - update:page [value: number] - Page changed by the pager or clamped into range.
 - update:activeKey [value: string | number | null] - The active row changed by a click or by the arrow, Home or End keys.
-- row-activate [row: T, key: string | number] - A row was activated by a click or by Enter while `activeKey` is bound. Open the detail panel here.
+- row-activate [row: T, key: string | number] - A row was activated by a click, Enter or Space while `activeKey` is bound. Open the detail panel here.
 - row-click [row: T, event: MouseEvent | KeyboardEvent] - A clickable row was activated.
 
 Enforced requirements (a ContractError is thrown when missing):
@@ -24438,7 +24438,7 @@ Accessibility:
 - The scroll container is a focusable `role="region"` named by `label` or `caption`, so a wide table scrolls with the arrow keys; `stickyHeader` pins the header inside a height-bounded container.
 - The pager is a <nav aria-label="Pagination">; Previous/Next are disabled at the ends and the "Page n of m" text is a polite live region with tabular figures.
 - Clickable rows are focusable (tabindex=0) and activate on Enter/Space.
-- With `activeKey` bound the table keeps its native table roles; the active row carries `aria-current="true"` and `data-active` and is drawn with an inset primary ring, distinct from the background of checked rows (a row can be both), and the rows use a roving tabindex: the active row (else the first) is the single tab stop, the others are `tabindex=-1`. ArrowDown and ArrowUp move the active row and focus, without wrapping; Home and End jump to the first and last row of the page; Enter activates. Keys pressed inside a link, button, input, select, textarea or contenteditable cell content are left to that control.
+- With `activeKey` bound the table keeps its native table roles; the active row carries `aria-current="true"` and `data-active` and is drawn with an inset primary ring (the focus outline uses `foreground`, not `ring`, because `--ring` equals `--primary`), distinct from the background of checked rows (a row can be both), and the rows use a roving tabindex: the active row (else the first) is the single tab stop, the others are `tabindex=-1`. ArrowDown and ArrowUp move the active row and focus, without wrapping; Home and End jump to the first and last row of the page; Enter and Space activate. Arrow keys move from the focused row. Focus is a 2px `foreground` outline drawn 4px inside the row edge, inside the 2px primary active ring, so a row that is both focused and active shows both; forced-colors mode keeps the two outline offsets apart. Keys pressed inside a link, button, input, select, textarea or contenteditable cell content are left to that control.
 - `layout="cards"` keeps the table markup: below `sm` the elements get explicit `table`, `rowgroup`, `row`, `columnheader`, `rowheader` and `cell` roles so `display` changes do not drop table semantics, and the visual column labels are `aria-hidden` (the column header names each cell). The header row is hidden visually below `sm`; its sort buttons and select-all checkbox stay in the accessibility tree and appear when a keyboard user focuses them.
 - Cards layout control bar (`data-slot="table-card-controls"`, visible only below `sm`, so touch users can sort and select all without the header row): the sort select is a native `<select>` wrapped in a visible "Sort by" `<label>` (16px text, 44px high on coarse pointers); the direction button shows the current direction as text plus an arrow icon (never colour alone), is named "Sort direction: Ascending", and is disabled while no column is sorted; "Select all" is a native checkbox inside its label (a 44px target on coarse pointers) with the same indeterminate state as the header box. Everything is keyboard operable (Tab, arrow keys on the select, Space on the checkbox, Enter or Space on the button). The bar writes the same `sort` and `selected` values as the header, so `aria-sort` on the sorted `<th>` and the polite "Sorted by Name, ascending" announcement are identical whichever control sorted. Without sortable columns and without `selectable` the bar is not rendered; `:card-controls="false"` removes it.
 - Numeric and right-aligned columns use `tabular-nums`. Pass `caption` or `label` so the table has an accessible name.
@@ -24554,7 +24554,7 @@ const activeKey = ref(2)
   <ul class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
     <li><Kbd>ArrowDown</Kbd> <Kbd>ArrowUp</Kbd> move</li>
     <li><Kbd>Home</Kbd> <Kbd>End</Kbd> first and last</li>
-    <li><Kbd>Enter</Kbd> open</li>
+    <li><Kbd>Enter</Kbd> or <Kbd>Space</Kbd> open</li>
   </ul>
   <DataTable v-model:active-key="activeKey" :columns="columns" :rows="rows" label="Sample data: keyboard navigation" />
 </div>
