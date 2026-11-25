@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { ComponentDoc } from '../../../docs-types'
 
 const rowsScript = `const columns = [
@@ -38,6 +38,7 @@ const doc: ComponentDoc = {
     { name: 'rows', type: 'T[]', required: true, description: 'Source rows (never mutated).' },
     { name: 'rowKey', type: "keyof T | ((row: T, index: number) => string | number)", default: "'id'", description: 'Row property name or function giving a unique string or number id, used for selection. Required to resolve for every row when `selectable` is set; otherwise missing ids fall back to the row index.' },
     { name: 'sort', type: '{ key: string; direction: "asc" | "desc" } | null', default: 'null', description: 'v-model:sort. Controlled or uncontrolled.' },
+    { name: 'activeKey', type: 'string | number | null', description: 'v-model:activeKey: the id (from `rowKey`) of the active row, the one shown in a side panel. Binding it (even to `null`) turns on the active-row model: roving tabindex, arrow-key navigation, `aria-selected` on the active row and `role="grid"` on the table. Unbound, the table behaves as before.' },
     { name: 'selectable', type: 'boolean', default: 'false', description: 'Adds a leading checkbox column.' },
     { name: 'selected', type: '(string | number)[]', default: '[]', description: 'v-model:selected: selected row ids. Controlled or uncontrolled.' },
     { name: 'page', type: 'number', default: '1', description: 'v-model:page (1-based). Out-of-range values are clamped and `update:page` is emitted with the clamped value.' },
@@ -81,6 +82,8 @@ const doc: ComponentDoc = {
     { name: 'update:sort', payload: '[value: SortState | null]', description: 'Sort changed by a header click or by the cards-layout sort select or direction button.' },
     { name: 'update:selected', payload: '[value: (string | number)[]]', description: 'Selection changed (row checkbox, header checkbox or the cards-layout "Select all").' },
     { name: 'update:page', payload: '[value: number]', description: 'Page changed by the pager or clamped into range.' },
+    { name: 'update:activeKey', payload: '[value: string | number | null]', description: 'The active row changed by a click or by the arrow, Home or End keys.' },
+    { name: 'row-activate', payload: '[row: T, key: string | number]', description: 'A row was activated by a click or by Enter while `activeKey` is bound. Open the detail panel here.' },
     { name: 'row-click', payload: '[row: T, event: MouseEvent | KeyboardEvent]', description: 'A clickable row was activated.' },
   ],
   parts: [
@@ -147,6 +150,120 @@ const columns = [{ key: 'name', header: 'Name' }, { key: 'plan', header: 'Plan' 
   </DataTable>
 </div>`,
       state: () => ({ loading: ref(true), columns: columns.slice(0, 2).map(({ key, header }) => ({ key, header })) }),
+    },
+    {
+      title: 'Directory with side panel',
+      description: 'The active row opens a `Sheet`. `v-model:activeKey` holds the key, `row-activate` opens the panel on click or Enter. Sample data.',
+      script: `const columns = [
+  { key: 'name', header: 'Name', sortable: true, rowHeader: true },
+  { key: 'plan', header: 'Plan', sortable: true },
+  { key: 'seats', header: 'Seats', sortable: true, numeric: true },
+]
+const rows = [
+  { id: 1, name: 'Item A', plan: 'Plan 1', seats: 12 },
+  { id: 2, name: 'Item B', plan: 'Plan 2', seats: 40 },
+  { id: 3, name: 'Item C', plan: 'Plan 3', seats: 3 },
+]
+const activeKey = ref(null)
+const open = ref(false)
+const current = computed(() => rows.find((r) => r.id === activeKey.value))`,
+      code: `<div>
+  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="rows" label="Sample directory" @row-activate="open = true" />
+  <Sheet v-model:open="open">
+    <SheetContent>
+      <SheetHeader>
+        <SheetTitle>{{ current?.name }}</SheetTitle>
+        <SheetDescription>{{ current?.plan }}, {{ current?.seats }} seats</SheetDescription>
+      </SheetHeader>
+    </SheetContent>
+  </Sheet>
+</div>`,
+      state: () => {
+        const rows = makeRows().slice(0, 3)
+        const activeKey = ref<number | null>(null)
+        return { columns, rows, activeKey, open: ref(false), current: computed(() => rows.find((r) => r.id === activeKey.value)) }
+      },
+    },
+    {
+      title: 'Keyboard navigation',
+      description: 'Tab once to enter the rows, then move with the keys. Sample data.',
+      script: `${rowsScript}
+const activeKey = ref(2)`,
+      code: `<div class="space-y-3">
+  <ul class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+    <li><Kbd>ArrowDown</Kbd> <Kbd>ArrowUp</Kbd> move</li>
+    <li><Kbd>Home</Kbd> <Kbd>End</Kbd> first and last</li>
+    <li><Kbd>Enter</Kbd> open</li>
+  </ul>
+  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="rows" label="Sample data: keyboard navigation" />
+</div>`,
+      state: () => ({ columns, rows: makeRows(), activeKey: ref<number | null>(2) }),
+    },
+    {
+      title: 'Numeric columns with share bar cell',
+      description: 'Numbers align to the end with tabular figures and the share bar sits in its own column, so values line up for comparison. Compact density. Sample data.',
+      script: `const columns = [
+  { key: 'name', header: 'Name', rowHeader: true },
+  { key: 'requests', header: 'Requests', numeric: true },
+  { key: 'share', header: 'Share', width: '10rem', accessor: (r) => r.requests },
+  { key: 'errors', header: 'Errors', numeric: true },
+]
+const rows = [
+  { id: 1, name: 'Item A', requests: 1200, errors: 4 },
+  { id: 2, name: 'Item B', requests: 800, errors: 12 },
+  { id: 3, name: 'Item C', requests: 300, errors: 0 },
+]
+const activeKey = ref(1)`,
+      code: `<DataTable v-model:active-key="activeKey" :columns="columns" :rows="rows" density="compact" label="Sample data: requests by item">
+  <template #cell-share="{ value }"><StatBar label="Share of requests" hide-label :value="value" :max="2300" size="sm" :value-text="Math.round(value / 23) + '%'" /></template>
+</DataTable>`,
+      state: () => ({
+        columns: [
+          { key: 'name', header: 'Name', rowHeader: true },
+          { key: 'requests', header: 'Requests', numeric: true },
+          { key: 'share', header: 'Share', width: '10rem', accessor: (r: { requests: number }) => r.requests },
+          { key: 'errors', header: 'Errors', numeric: true },
+        ],
+        rows: [
+          { id: 1, name: 'Item A', requests: 1200, errors: 4 },
+          { id: 2, name: 'Item B', requests: 800, errors: 12 },
+          { id: 3, name: 'Item C', requests: 300, errors: 0 },
+        ],
+        activeKey: ref<number | null>(1),
+      }),
+    },
+    {
+      title: 'Active row: dense and comfortable',
+      description: 'The active row keeps its tone at every density. Sample data.',
+      script: `${rowsScript}
+const a = ref(1)
+const b = ref(2)`,
+      code: `<div class="space-y-4">
+  <DataTable v-model:active-key="a" :columns="columns" :rows="rows" density="compact" size="sm" label="Dense directory" />
+  <DataTable v-model:active-key="b" :columns="columns" :rows="rows" density="comfortable" label="Comfortable directory" />
+</div>`,
+      state: () => ({ columns, rows: makeRows(), a: ref<number | null>(1), b: ref<number | null>(2) }),
+    },
+    {
+      title: 'Active row in dark mode',
+      description: 'The active row uses semantic tokens, so it adapts to the `dark` class. Sample data.',
+      script: `${rowsScript}
+const activeKey = ref(1)`,
+      code: `<div class="dark rounded-lg bg-background p-4 text-foreground">
+  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="rows" label="Sample data: dark mode" />
+</div>`,
+      state: () => ({ columns, rows: makeRows(), activeKey: ref<number | null>(1) }),
+    },
+    {
+      title: 'Active row: empty and loading',
+      description: 'No row is active while loading or empty, and the table keeps its grid role. Sample data.',
+      script: `const columns = [{ key: 'name', header: 'Name' }, { key: 'plan', header: 'Plan' }]
+const activeKey = ref(null)`,
+      code: `<div class="space-y-4">
+  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="[]" loading :loading-rows="3" label="Loading directory" />
+  <DataTable v-model:active-key="activeKey" :columns="columns" :rows="[]" empty-text="No items yet" label="Empty directory" />
+</div>`,
+      state: () => ({ columns: columns.slice(0, 2).map(({ key, header }) => ({ key, header })), activeKey: ref<number | null>(null) }),
     },
     {
       title: 'Density and size gallery',
@@ -261,6 +378,7 @@ const long = [{ key: 'name', header: 'Name', rowHeader: true }, { key: 'plan', h
     'The scroll container is a focusable `role="region"` named by `label` or `caption`, so a wide table scrolls with the arrow keys; `stickyHeader` pins the header inside a height-bounded container.',
     'The pager is a <nav aria-label="Pagination">; Previous/Next are disabled at the ends and the "Page n of m" text is a polite live region with tabular figures.',
     'Clickable rows are focusable (tabindex=0) and activate on Enter/Space.',
+    'With `activeKey` bound the table gets `role="grid"` (`aria-selected` is only valid on rows of a grid), the active row carries `aria-selected="true"` and `data-active`, and the rows use a roving tabindex: the active row (else the first) is the single tab stop, the others are `tabindex=-1`. ArrowDown and ArrowUp move the active row and focus, without wrapping; Home and End jump to the first and last row of the page; Enter activates. Keys pressed inside a link, button, input, select, textarea or contenteditable cell content are left to that control.',
     '`layout="cards"` keeps the table markup: below `sm` the elements get explicit `table`, `rowgroup`, `row`, `columnheader`, `rowheader` and `cell` roles so `display` changes do not drop table semantics, and the visual column labels are `aria-hidden` (the column header names each cell). The header row is hidden visually below `sm`; its sort buttons and select-all checkbox stay in the accessibility tree and appear when a keyboard user focuses them.',
     'Cards layout control bar (`data-slot="table-card-controls"`, visible only below `sm`, so touch users can sort and select all without the header row): the sort select is a native `<select>` wrapped in a visible "Sort by" `<label>` (16px text, 44px high on coarse pointers); the direction button shows the current direction as text plus an arrow icon (never colour alone), is named "Sort direction: Ascending", and is disabled while no column is sorted; "Select all" is a native checkbox inside its label (a 44px target on coarse pointers) with the same indeterminate state as the header box. Everything is keyboard operable (Tab, arrow keys on the select, Space on the checkbox, Enter or Space on the button). The bar writes the same `sort` and `selected` values as the header, so `aria-sort` on the sorted `<th>` and the polite "Sorted by Name, ascending" announcement are identical whichever control sorted. Without sortable columns and without `selectable` the bar is not rendered; `:card-controls="false"` removes it.',
     'Numeric and right-aligned columns use `tabular-nums`. Pass `caption` or `label` so the table has an accessible name.',
@@ -278,6 +396,7 @@ const long = [{ key: 'name', header: 'Name', rowHeader: true }, { key: 'plan', h
     'Use `cell-<key>` slots for badges/actions; put buttons inside cells (clicks on them do not trigger row-click).',
     'Always set `caption` or `label`.',
     'Look props: `density` padding, `size` text, `variant` rules and header band, `striped`, `bordered`; `layout="cards"` for phones: below 640px it shows its own "Sort by" select, direction button and "Select all" checkbox (same `v-model:sort` / `v-model:selected` state as the header; relabel with `sortByLabel`, `sortDirectionLabel`, `sortDefaultLabel`, `sortAscendingLabel`, `sortDescendingLabel`, `selectAllLabel`; hide with `:card-controls="false"`).',
+    'Bind `v-model:activeKey` and listen to `row-activate` for a directory-and-detail layout; give the panel (a `Sheet`) the row found by the key. Keep `rowKey` stable so the active row survives sorting.',
     'Sorting and paging are client-side only; for server data, handle sorting yourself and omit `sortable`.',
   ],
   replaces: ['hand-rolled DataTable markup in app code'],

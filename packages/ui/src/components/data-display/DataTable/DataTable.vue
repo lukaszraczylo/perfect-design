@@ -46,11 +46,12 @@ const props = withDefaults(defineProps<DataTableProps<T>>(), {
   selectAllLabel: 'Select all',
 })
 
-const emit = defineEmits<{ 'row-click': [row: T, event: MouseEvent | KeyboardEvent] }>()
+const emit = defineEmits<{ 'row-click': [row: T, event: MouseEvent | KeyboardEvent]; 'row-activate': [row: T, key: RowId] }>()
 
 const sort = defineModel<SortState | null>('sort', { default: null })
 const selected = defineModel<RowId[]>('selected', { default: () => [] })
 const page = defineModel<number>('page', { default: 1 })
+const activeKey = defineModel<RowId | null>('activeKey')
 
 defineSlots<{
   [K: `cell-${string}`]: (props: DataTableCellSlotProps<T>) => unknown
@@ -69,6 +70,8 @@ interface Entry {
 }
 
 const INTERACTIVE = 'a,button,input,select,textarea,label,[data-no-row-click]'
+const KEY_IGNORED = 'a,button,input,select,textarea,[contenteditable]:not([contenteditable=false])'
+const NAV_KEYS = ['ArrowDown', 'ArrowUp', 'Home', 'End']
 
 function readValue(row: T, column: DataTableColumn<T> | undefined, key: string): unknown {
   if (column?.accessor) return column.accessor(row)
@@ -239,21 +242,65 @@ function goTo(p: number) {
 }
 
 // ---- row interaction
+// Unbound `activeKey` leaves the table exactly as before; a bound one (even `null`) turns on the active row and its keyboard model.
+const navigable = computed(() => activeKey.value !== undefined)
+const activeIndex = computed(() => (navigable.value ? pageEntries.value.findIndex((e) => e.id === activeKey.value) : -1))
+const tabStopIndex = computed(() => (activeIndex.value >= 0 ? activeIndex.value : 0))
+const gridAttrs = computed(() => (navigable.value ? { role: 'grid' } : {}))
+
+function activate(entry: Entry) {
+  activeKey.value = entry.id
+  emit('row-activate', entry.row, entry.id)
+}
 function onRowClick(entry: Entry, event: MouseEvent) {
-  if (!props.rowClickable) return
+  if (!props.rowClickable && !navigable.value) return
   const target = event.target as Element | null
   const hit = target?.closest?.(INTERACTIVE)
   if (hit && (event.currentTarget as Element).contains(hit)) return
-  emit('row-click', entry.row, event)
+  if (navigable.value) activate(entry)
+  if (props.rowClickable) emit('row-click', entry.row, event)
 }
-function onRowKeydown(entry: Entry, event: KeyboardEvent) {
+async function moveActive(entries: Entry[], to: number, body: Element | null) {
+  activeKey.value = entries[to]!.id
+  await nextTick()
+  const row = body?.querySelector<HTMLElement>('[data-active]')
+  row?.focus()
+  row?.scrollIntoView?.({ block: 'nearest' })
+}
+function onNavKeydown(entry: Entry, position: number, event: KeyboardEvent): boolean {
+  const target = event.target as Element
+  if (target.closest(KEY_IGNORED)) return false
+  const entries = pageEntries.value
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    activate(entry)
+    return true
+  }
+  if (!NAV_KEYS.includes(event.key)) return false
+  event.preventDefault()
+  const last = entries.length - 1
+  const from = activeIndex.value >= 0 ? activeIndex.value : position
+  const to = event.key === 'Home' ? 0 : event.key === 'End' ? last : Math.min(last, Math.max(0, from + (event.key === 'ArrowDown' ? 1 : -1)))
+  void moveActive(entries, to, (event.currentTarget as Element).parentElement)
+  return true
+}
+function onRowKeydown(entry: Entry, position: number, event: KeyboardEvent) {
+  if (navigable.value && onNavKeydown(entry, position, event)) {
+    if (event.key === 'Enter' && props.rowClickable && event.target === event.currentTarget) emit('row-click', entry.row, event)
+    return
+  }
   if (!props.rowClickable || event.target !== event.currentTarget) return
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
     emit('row-click', entry.row, event)
   }
 }
-
+const rootEl = ref<HTMLElement | null>(null)
+// Scroll a row that became active by click, model update or sorting into view.
+watch(activeKey, async () => {
+  await nextTick()
+  if (activeIndex.value >= 0) rootEl.value?.querySelector<HTMLElement>('[data-active]')?.scrollIntoView?.({ block: 'nearest' })
+})
 const dateLocale = useDateLocale(props)
 function formatDate(date: Date): string {
   try {
@@ -312,14 +359,14 @@ const showCardControls = computed(() => props.layout === 'cards' && props.cardCo
 const rootClasses = computed(() => cn('w-full space-y-3', props.class))
 const checkboxClasses = tableCheckboxClasses
 const rowClasses = computed(() =>
-  props.rowClickable
+  props.rowClickable || navigable.value
     ? 'cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring'
     : undefined,
 )
 </script>
 
 <template>
-  <div data-slot="data-table" :class="rootClasses">
+  <div ref="rootEl" data-slot="data-table" :class="rootClasses">
     <TableCardControls
       v-if="showCardControls"
       v-model:sort="sort"
@@ -351,6 +398,7 @@ const rowClasses = computed(() =>
       :aria-busy="loading ? 'true' : undefined"
       :aria-label="label"
       :label="label"
+      v-bind="gridAttrs"
     >
       <TableCaption v-if="caption" hidden>{{ caption }}</TableCaption>
       <TableHeader>
@@ -404,11 +452,13 @@ const rowClasses = computed(() =>
             v-for="(entry, position) in pageEntries"
             :key="entry.renderKey"
             data-slot="data-table-row"
-            :selected="selectedSet.has(entry.id)"
+            :selected="selectedSet.has(entry.id) || position === activeIndex"
             :class="rowClasses"
-            :tabindex="rowClickable ? 0 : undefined"
+            :tabindex="navigable ? (position === tabStopIndex ? 0 : -1) : rowClickable ? 0 : undefined"
+            :aria-selected="position === activeIndex ? 'true' : undefined"
+            :data-active="position === activeIndex ? '' : undefined"
             @click="onRowClick(entry, $event)"
-            @keydown="onRowKeydown(entry, $event)"
+            @keydown="onRowKeydown(entry, position, $event)"
           >
             <TableCell v-if="selectable" label="Select" :class="selectCellClasses">
               <input
