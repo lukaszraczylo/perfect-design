@@ -99,4 +99,67 @@ describe('StatBar', () => {
       expect(fill(mount(StatBar, { props: { label: 'x', value: 0 } })).attributes('style')).toContain('width: 0%')
     })
   })
+
+  describe('markers', () => {
+    const ticks = (w: ReturnType<typeof mount>) => w.findAll('[data-slot="marker"]')
+    const left = (el: { attributes: (k: string) => string | undefined }) => el.attributes('style') ?? ''
+
+    it('renders one tick per marker at value/max', () => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 27, max: 30, markers: [{ value: 24, label: 'pacing' }, { value: 30, label: 'limit' }] } })
+      const t = ticks(w)
+      expect(t).toHaveLength(2)
+      expect(left(t[0]!)).toContain('80%')
+      expect(left(t[1]!)).toContain('100%')
+      expect(t[0]!.attributes('aria-label')).toBe('pacing')
+    })
+
+    it('clamps markers to the track', () => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 10, max: 30, markers: [{ value: -5, label: 'low' }, { value: 45, label: 'high' }] } })
+      const t = ticks(w)
+      expect(left(t[0]!)).toContain('0%')
+      expect(left(t[0]!)).not.toContain('-5')
+      expect(left(t[1]!)).toContain('100%')
+    })
+
+    it('keeps both labels for coinciding markers', () => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 5, max: 30, markers: [{ value: 30, label: 'soft limit' }, { value: 30, label: 'hard limit' }] } })
+      const t = ticks(w)
+      expect(t).toHaveLength(2)
+      expect(t.map((x) => x.attributes('aria-label'))).toEqual(['soft limit', 'hard limit'])
+    })
+
+    it('lists the markers in the meter description', () => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 5, max: 30, markers: [{ value: 24, label: 'pacing' }, { value: 30, label: 'limit' }] } })
+      const id = track(w).attributes('aria-describedby')!
+      expect(id).toBeTruthy()
+      expect(w.find(`[id="${id}"]`).text()).toBe('pacing 24, limit 30')
+    })
+
+    it.each([
+      ['neutral', 'bg-foreground'],
+      ['warning', 'bg-warning'],
+      ['danger', 'bg-destructive'],
+      ['primary', 'bg-primary'],
+    ] as const)('tone %s uses %s', (tone, cls) => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 5, max: 30, markers: [{ value: 10, label: 'm', tone }] } })
+      expect(ticks(w)[0]!.classes()).toContain(cls)
+    })
+
+    it('defaults to the neutral tone and ignores an unknown tone', () => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 5, max: 30, markers: [{ value: 10, label: 'a' }, { value: 11, label: 'b', tone: 'bogus' as never }] } })
+      for (const t of ticks(w)) expect(t.classes()).toContain('bg-foreground')
+    })
+
+    it('ignores non-finite marker values and a non-positive max', () => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 5, max: 0, markers: [{ value: Number.NaN, label: 'nan' }, { value: 3, label: 'x' }] } })
+      for (const t of ticks(w)) expect(left(t)).toContain('0%')
+    })
+
+    it('renders identical markup when markers is unset or empty', () => {
+      const pinned =
+        '<div data-slot="stat-bar" class="flex flex-col gap-1.5">\n  <div class="flex items-baseline justify-between gap-2 text-sm"><span data-slot="stat-bar-label" class="text-muted-foreground">Storage</span><span data-slot="stat-bar-value" class="font-medium tabular-nums text-foreground">42%</span></div>\n  <div data-slot="stat-bar-track" role="meter" aria-label="Storage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="42" aria-valuetext="42%" class="w-full overflow-hidden rounded-full bg-input/45 h-2.5">\n    <div data-slot="stat-bar-fill" class="h-full rounded-full motion-safe:transition-[width] bg-primary" style="width: 42%;"></div>\n  </div>\n</div>'
+      expect(mount(StatBar, { props: { label: 'Storage', value: 42 } }).html()).toBe(pinned)
+      expect(mount(StatBar, { props: { label: 'Storage', value: 42, markers: [] } }).html()).toBe(pinned)
+    })
+  })
 })

@@ -1,13 +1,22 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 import { cn } from '../../../lib/cn'
 import { requireText, violation } from '../../../lib/contract'
 import { trackSurface } from '../../../lib/styles'
 import type { BaseProps } from '../../../lib/types'
 import { clamp, isFiniteNumber } from '../_chart/chartMath'
 import { useMountedCheck } from '../_shared/contract'
+import { statBarMarkerVariants } from './variants'
 
 export type StatBarTone = 'auto' | 'primary' | 'success' | 'warning' | 'danger' | 'info'
+
+export type StatBarMarkerTone = 'neutral' | 'warning' | 'danger' | 'primary'
+
+export interface StatBarMarker {
+  value: number
+  label: string
+  tone?: StatBarMarkerTone
+}
 
 export interface StatBarProps extends BaseProps {
   /** Accessible name and visible caption, e.g. "Requests / day". */
@@ -29,6 +38,8 @@ export interface StatBarProps extends BaseProps {
   shape?: 'rounded' | 'square'
   /** Hide the caption row (the bar keeps its accessible name). */
   hideLabel?: boolean
+  /** Vertical ticks on the track at `value / max` (clamped to the track), e.g. a limit or a pacing threshold. */
+  markers?: StatBarMarker[]
 }
 
 const props = withDefaults(defineProps<StatBarProps>(), {
@@ -39,6 +50,7 @@ const props = withDefaults(defineProps<StatBarProps>(), {
   size: 'md',
   layout: 'stacked',
   shape: 'rounded',
+  markers: () => [],
 })
 
 useMountedCheck(
@@ -70,6 +82,22 @@ const fillClass = computed(() => {
   if (ratio.value >= props.warnAt) return FILL.warning
   return FILL.primary
 })
+const MARKER_TONES = ['neutral', 'warning', 'danger', 'primary']
+const markerPercent = (value: number) =>
+  isFiniteNumber(value) && isFiniteNumber(props.max) && props.max > 0 ? clamp(value / props.max, 0, 1) * 100 : 0
+const markerList = computed(() =>
+  (Array.isArray(props.markers) ? props.markers : []).map((m) => {
+    const p = markerPercent(m.value)
+    return {
+      label: m.label,
+      class: statBarMarkerVariants({ tone: MARKER_TONES.includes(m.tone as string) ? m.tone : 'neutral' }),
+      style: { left: `${p}%`, transform: `translateX(-${p}%)` },
+    }
+  }),
+)
+const descId = useId()
+// v-for, not v-if: an empty list leaves no comment node, so markup without markers is unchanged
+const descriptions = computed(() => (markerList.value.length ? [(props.markers ?? []).map((m) => `${m.label} ${m.value}`).join(', ')] : []))
 const SIZE = { sm: 'h-1.5', md: 'h-2.5', lg: 'h-4' } as const
 const size = computed<keyof typeof SIZE>(() => (Object.keys(SIZE).includes(props.size) ? props.size : 'md'))
 const inline = computed(() => props.layout === 'inline' && !props.hideLabel)
@@ -91,9 +119,12 @@ const classes = computed(() => cn(inline.value ? 'flex flex-row items-center gap
       aria-valuemax="100"
       :aria-valuenow="percent"
       :aria-valuetext="text"
-      :class="cn('w-full overflow-hidden', square ? 'rounded-none' : 'rounded-full', trackSurface, SIZE[size], inline && 'order-1 min-w-0 flex-1')"
+      :aria-describedby="markerList.length ? descId : undefined"
+      :class="cn('w-full overflow-hidden', square ? 'rounded-none' : 'rounded-full', trackSurface, SIZE[size], markerList.length > 0 && 'relative', inline && 'order-1 min-w-0 flex-1')"
     >
       <div data-slot="stat-bar-fill" :class="cn('h-full', square ? 'rounded-none' : 'rounded-full', 'motion-safe:transition-[width]', fillClass)" :style="{ width: `${ratio * 100}%` }" />
+      <span v-for="(m, i) in markerList" :key="i" data-slot="marker" role="img" :aria-label="m.label" :class="m.class" :style="m.style" />
     </div>
+    <span v-for="d in descriptions" :key="d" :id="descId" class="sr-only">{{ d }}</span>
   </div>
 </template>

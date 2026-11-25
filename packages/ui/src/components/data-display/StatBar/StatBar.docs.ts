@@ -20,6 +20,7 @@ const doc: ComponentDoc = {
     { name: 'layout', type: "'stacked' | 'inline'", default: "'stacked'", description: '`stacked` shows the caption row above the bar. `inline` puts label, bar and value on one row (the bar takes the free width). `hideLabel` always renders the bar alone. Unknown values fall back to `stacked`.' },
     { name: 'shape', type: "'rounded' | 'square'", default: "'rounded'", description: 'End caps of the track and fill: pill (default) or square. Unknown values fall back to `rounded`.' },
     { name: 'hideLabel', type: 'boolean', default: 'false', description: 'Hide the caption row (keep it when the surrounding UI already labels the bar).' },
+    { name: 'markers', type: "Array<{ value: number; label: string; tone?: 'neutral' | 'warning' | 'danger' | 'primary' }>", default: '[]', description: 'Vertical ticks on the track at `value / max`, clamped to the track (a limit, a pacing threshold). `tone` defaults to `neutral`. Each tick has `data-slot="marker"` and an `aria-label`; the meter is described by the list ("pacing 24, limit 30"). Unset or empty renders the same markup as before.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],
   examples: [
@@ -48,11 +49,39 @@ const doc: ComponentDoc = {
   <StatBar label="Seats" :value="19" :max="20" tone="auto" value-text="19 / 20" size="sm" />
 </div>`,
     },
+    {
+      title: 'Usage against a limit with a pacing threshold',
+      description: 'Sample data. 27 of 30 with a warning tick at 24 and a danger tick at the limit, then the same bar over the limit (the fill clamps at the end, the value text keeps the real number), then a token meter with a formatted `valueText`.',
+      code: `<div class="flex max-w-sm flex-col gap-4">
+  <StatBar label="Requests this month" :value="27" :max="30" value-text="27 / 30" :markers="[{ value: 24, label: 'pacing from', tone: 'warning' }, { value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar label="Requests, over the limit" :value="32" :max="30" value-text="32 / 30" tone="danger" :markers="[{ value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar label="Tokens" :value="1020000" :max="1200000" value-text="1.02M / 1.2M" :markers="[{ value: 1200000, label: 'limit' }]" />
+</div>`,
+    },
+    {
+      title: 'Markers at size sm',
+      description: 'The same three meters at `size="sm"`. Sample data.',
+      code: `<div class="flex max-w-sm flex-col gap-4">
+  <StatBar size="sm" label="Requests this month" :value="27" :max="30" value-text="27 / 30" :markers="[{ value: 24, label: 'pacing from', tone: 'warning' }, { value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar size="sm" label="Requests, over the limit" :value="32" :max="30" value-text="32 / 30" tone="danger" :markers="[{ value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar size="sm" label="Tokens" :value="1020000" :max="1200000" value-text="1.02M / 1.2M" :markers="[{ value: 1200000, label: 'limit' }]" />
+</div>`,
+    },
+    {
+      title: 'Markers in dark mode',
+      description: 'Ticks use theme tokens, so they keep contrast on a dark surface. Sample data.',
+      code: `<div class="dark flex max-w-sm flex-col gap-4 rounded-lg bg-background p-4 text-foreground">
+  <StatBar label="Requests this month" :value="27" :max="30" value-text="27 / 30" :markers="[{ value: 24, label: 'pacing from', tone: 'warning' }, { value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar label="Requests, over the limit" :value="32" :max="30" value-text="32 / 30" tone="danger" :markers="[{ value: 30, label: 'limit', tone: 'danger' }]" />
+  <StatBar label="Tokens" :value="1020000" :max="1200000" value-text="1.02M / 1.2M" :markers="[{ value: 1200000, label: 'limit' }]" />
+</div>`,
+    },
   ],
   a11y: [
     'Uses `role="meter"` with `aria-valuemin` 0, `aria-valuemax` 100, `aria-valuenow` (clamped 0..100), `aria-valuetext` and the label as accessible name.',
     'Colour is never the only signal: always provide `valueText` with the real numbers. The value text uses `tabular-nums`, so stacked bars line up.',
     '`layout="inline"` keeps the DOM order (label, value, then the meter) but shows the meter between them visually; the meter keeps its own `aria-label`, so the name does not depend on the row. `size`, `layout` and `shape` change geometry only.',
+    'Markers are `role="img"` ticks with an `aria-label`, and the meter is described (`aria-describedby`) by a visually hidden list of every marker, so coinciding markers keep both labels. Tone never carries the meaning alone.',
     'The fill animates its width only when reduced motion is not requested. The bar is fluid and the caption row wraps its content, so nothing overflows at 320px.',
   ],
   related: ['KpiTile', 'Sparkline', 'DonutChart'],
@@ -64,6 +93,7 @@ const doc: ComponentDoc = {
   llmNotes: [
     'Always pass `valueText` with the real "used / limit" numbers.',
     'Use `tone="auto"` for quotas; fixed tones only for categorical meaning.',
+    'Pass `markers` for quota meters: one tick at the limit, optionally a `warning` tick where pacing starts. Keep the labels short; they are announced as the meter description.',
     'Do not use StatBar for loading progress.',
   ],
   replaces: ['hand-rolled StatBar markup in app code'],
