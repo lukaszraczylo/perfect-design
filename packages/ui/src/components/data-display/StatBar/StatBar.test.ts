@@ -101,7 +101,7 @@ describe('StatBar', () => {
   })
 
   describe('markers', () => {
-    const ticks = (w: ReturnType<typeof mount>) => w.findAll('[data-slot="marker"]')
+    const ticks = (w: ReturnType<typeof mount>) => w.findAll('[data-slot="stat-bar-marker"]')
     const left = (el: { attributes: (k: string) => string | undefined }) => el.attributes('style') ?? ''
 
     it('renders one tick per marker at value/max', () => {
@@ -110,7 +110,9 @@ describe('StatBar', () => {
       expect(t).toHaveLength(2)
       expect(left(t[0]!)).toContain('80%')
       expect(left(t[1]!)).toContain('100%')
-      expect(t[0]!.attributes('aria-label')).toBe('pacing')
+      expect(t[0]!.attributes('aria-hidden')).toBe('true')
+      expect(t[0]!.attributes('role')).toBeUndefined()
+      expect(t[0]!.attributes('aria-label')).toBeUndefined()
     })
 
     it('clamps markers to the track', () => {
@@ -125,7 +127,7 @@ describe('StatBar', () => {
       const w = mount(StatBar, { props: { label: 'Req', value: 5, max: 30, markers: [{ value: 30, label: 'soft limit' }, { value: 30, label: 'hard limit' }] } })
       const t = ticks(w)
       expect(t).toHaveLength(2)
-      expect(t.map((x) => x.attributes('aria-label'))).toEqual(['soft limit', 'hard limit'])
+      expect(w.find(`[id="${track(w).attributes('aria-describedby')}"]`).text()).toBe('soft limit 30, hard limit 30')
     })
 
     it('lists the markers in the meter description', () => {
@@ -133,6 +135,33 @@ describe('StatBar', () => {
       const id = track(w).attributes('aria-describedby')!
       expect(id).toBeTruthy()
       expect(w.find(`[id="${id}"]`).text()).toBe('pacing 24, limit 30')
+    })
+
+    it('gives every tick a background ring so a tick matching the fill stays visible', () => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 32, max: 30, tone: 'danger', markers: [{ value: 30, label: 'limit', tone: 'danger' }] } })
+      expect(ticks(w)[0]!.classes()).toEqual(expect.arrayContaining(['ring-1', 'ring-background']))
+    })
+
+    it('formats marker values like the visible value', () => {
+      const w = mount(StatBar, { props: { label: 'Tok', value: 5, max: 2000000, markers: [{ value: 1200000, label: 'limit' }, { value: 1234.5678, label: 'soft' }] } })
+      expect(w.find(`[id="${track(w).attributes('aria-describedby')}"]`).text()).toBe('limit 1,200,000, soft 1,234.57')
+    })
+
+    it('lets a marker valueText win over the formatted value', () => {
+      const w = mount(StatBar, { props: { label: 'Tok', value: 5, max: 2000000, markers: [{ value: 1200000, label: 'limit', valueText: '1.2M' }] } })
+      expect(w.find(`[id="${track(w).attributes('aria-describedby')}"]`).text()).toBe('limit 1.2M')
+    })
+
+    it('never prints NaN or Infinity in the description', () => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 5, max: 30, markers: [{ value: Number.NaN, label: 'nan' }, { value: Infinity, label: 'inf' }] } })
+      const text = w.find(`[id="${track(w).attributes('aria-describedby')}"]`).text()
+      expect(text).toBe('nan, inf')
+    })
+
+    it('skips null and non-object markers instead of throwing', () => {
+      const w = mount(StatBar, { props: { label: 'Req', value: 5, max: 30, markers: [null, undefined, 3, { value: 10, label: 'ok' }] as never } })
+      expect(ticks(w)).toHaveLength(1)
+      expect(w.find(`[id="${track(w).attributes('aria-describedby')}"]`).text()).toBe('ok 10')
     })
 
     it.each([

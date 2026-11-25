@@ -20,7 +20,7 @@ const doc: ComponentDoc = {
     { name: 'layout', type: "'stacked' | 'inline'", default: "'stacked'", description: '`stacked` shows the caption row above the bar. `inline` puts label, bar and value on one row (the bar takes the free width). `hideLabel` always renders the bar alone. Unknown values fall back to `stacked`.' },
     { name: 'shape', type: "'rounded' | 'square'", default: "'rounded'", description: 'End caps of the track and fill: pill (default) or square. Unknown values fall back to `rounded`.' },
     { name: 'hideLabel', type: 'boolean', default: 'false', description: 'Hide the caption row (keep it when the surrounding UI already labels the bar).' },
-    { name: 'markers', type: "Array<{ value: number; label: string; tone?: 'neutral' | 'warning' | 'danger' | 'primary' }>", default: '[]', description: 'Vertical ticks on the track at `value / max`, clamped to the track (a limit, a pacing threshold). `tone` defaults to `neutral`. Each tick has `data-slot="marker"` and an `aria-label`; the meter is described by the list ("pacing 24, limit 30"). Unset or empty renders the same markup as before.' },
+    { name: 'markers', type: "Array<{ value: number; label: string; tone?: 'neutral' | 'warning' | 'danger' | 'primary'; valueText?: string }>", default: '[]', description: 'Vertical ticks on the track at `value / max`, clamped to the track (a limit, a pacing threshold). `tone` defaults to `neutral`. Each tick has `data-slot="stat-bar-marker"`, is `aria-hidden` and carries a `ring-1 ring-background` edge so it stays visible on a fill of the same tone; the meter is described by the list ("pacing 24, limit 30"), with each value formatted like the chart tooltips (`1,200,000`) or taken from the marker's `valueText` (`1.2M`). A non-finite value is announced by its label alone, and `null` entries are ignored. Unset or empty renders the same markup as before.' },
     { name: 'class', type: 'string | object | array', description: 'Merged last with tailwind-merge; wins over internal classes.' },
   ],
   examples: [
@@ -81,7 +81,7 @@ const doc: ComponentDoc = {
     'Uses `role="meter"` with `aria-valuemin` 0, `aria-valuemax` 100, `aria-valuenow` (clamped 0..100), `aria-valuetext` and the label as accessible name.',
     'Colour is never the only signal: always provide `valueText` with the real numbers. The value text uses `tabular-nums`, so stacked bars line up.',
     '`layout="inline"` keeps the DOM order (label, value, then the meter) but shows the meter between them visually; the meter keeps its own `aria-label`, so the name does not depend on the row. `size`, `layout` and `shape` change geometry only.',
-    'Markers are `role="img"` ticks with an `aria-label`, and the meter is described (`aria-describedby`) by a visually hidden list of every marker, so coinciding markers keep both labels. Tone never carries the meaning alone.',
+    'Marker ticks are decorative (`aria-hidden`, children of a meter are presentational in ARIA 1.2), and the meter is described (`aria-describedby`) by a visually hidden list of every marker, so coinciding markers keep both labels. Tone never carries the meaning alone.',
     'The fill animates its width only when reduced motion is not requested. The bar is fluid and the caption row wraps its content, so nothing overflows at 320px.',
   ],
   related: ['KpiTile', 'Sparkline', 'DonutChart'],

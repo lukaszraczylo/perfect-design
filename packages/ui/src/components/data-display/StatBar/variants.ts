@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from '../../../lib/cva'
 
-export const statBarMarkerVariants = cva('absolute inset-y-0 w-0.5', {
+export const statBarMarkerVariants = cva('absolute inset-y-0 w-0.5 ring-1 ring-background', {
   variants: {
     tone: {
       neutral: 'bg-foreground',
