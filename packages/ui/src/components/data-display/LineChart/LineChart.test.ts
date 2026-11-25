@@ -395,6 +395,9 @@ describe('LineChart: stacked area', () => {
     const w = m({ variant: 'area', stacked: true, labels: ['a', 'b', 'c'], series: [{ name: 'x', data: [1, null, 3] }, { name: 'y', data: [2] }] })
     noBad(w)
     expect(w.findAll('[data-slot="line-chart-area"]')).toHaveLength(2)
+    const ys = lines(w)[1]!.attributes('d')!.match(/[\d.]+,([\d.]+)/g)!.map((p) => Number(p.split(',')[1]))
+    expect(ys[0]).toBe(ys[2])
+    expect(ys[1]).toBeGreaterThan(ys[0]!)
   })
   it('bands touch: each area closes along the previous top edge', () => {
     const w = m({ variant: 'area', stacked: true, labels: ['a', 'b'], series: [{ name: 'x', data: [4, 4] }, { name: 'y', data: [4, 4] }] })
