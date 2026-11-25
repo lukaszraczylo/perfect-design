@@ -246,7 +246,7 @@ function goTo(p: number) {
 const instance = getCurrentInstance()
 const isBound = () => {
   const vp = instance?.vnode.props
-  return !!vp && ('activeKey' in vp || 'active-key' in vp || 'onUpdate:activeKey' in vp)
+  return !!vp && ('activeKey' in vp || 'active-key' in vp || 'onUpdate:activeKey' in vp || 'onUpdate:active-key' in vp)
 }
 const navigable = ref(isBound())
 onBeforeUpdate(() => {
@@ -255,8 +255,14 @@ onBeforeUpdate(() => {
 const activeIndex = computed(() => (navigable.value ? pageEntries.value.findIndex((e) => e.id === activeKey.value) : -1))
 const tabStopIndex = computed(() => (activeIndex.value >= 0 ? activeIndex.value : 0))
 
+// True while an in-table interaction (click, keyboard) is changing the active row, so the follow-up scroll is ours to do.
+let interacted = false
+function setActive(id: Entry['id']) {
+  if (activeKey.value !== id) interacted = true
+  activeKey.value = id
+}
 function activate(entry: Entry) {
-  activeKey.value = entry.id
+  setActive(entry.id)
   emit('row-activate', entry.row, entry.id)
 }
 function onRowClick(entry: Entry, event: MouseEvent) {
@@ -268,7 +274,7 @@ function onRowClick(entry: Entry, event: MouseEvent) {
   if (props.rowClickable) emit('row-click', entry.row, event)
 }
 async function moveActive(entries: Entry[], to: number, body: Element | null) {
-  activeKey.value = entries[to]!.id
+  setActive(entries[to]!.id)
   await nextTick()
   const row = body?.querySelector<HTMLElement>('[data-active]')
   row?.focus()
@@ -279,7 +285,7 @@ function onNavKeydown(entry: Entry, position: number, event: KeyboardEvent): boo
   if (inner && inner !== event.currentTarget) return false
   if (event.altKey || event.ctrlKey || event.metaKey) return false
   const entries = pageEntries.value
-  if (event.key === 'Enter') {
+  if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
     activate(entry)
     return true
@@ -287,14 +293,13 @@ function onNavKeydown(entry: Entry, position: number, event: KeyboardEvent): boo
   if (!NAV_KEYS.includes(event.key)) return false
   event.preventDefault()
   const last = entries.length - 1
-  const from = activeIndex.value >= 0 ? activeIndex.value : position
-  const to = event.key === 'Home' ? 0 : event.key === 'End' ? last : Math.min(last, Math.max(0, from + (event.key === 'ArrowDown' ? 1 : -1)))
+  const to = event.key === 'Home' ? 0 : event.key === 'End' ? last : Math.min(last, Math.max(0, position + (event.key === 'ArrowDown' ? 1 : -1)))
   void moveActive(entries, to, (event.currentTarget as Element).parentElement)
   return true
 }
 function onRowKeydown(entry: Entry, position: number, event: KeyboardEvent) {
   if (navigable.value && onNavKeydown(entry, position, event)) {
-    if (event.key === 'Enter' && props.rowClickable && event.target === event.currentTarget) emit('row-click', entry.row, event)
+    if ((event.key === 'Enter' || event.key === ' ') && props.rowClickable && event.target === event.currentTarget) emit('row-click', entry.row, event)
     return
   }
   if (!props.rowClickable || event.target !== event.currentTarget) return
@@ -304,10 +309,12 @@ function onRowKeydown(entry: Entry, position: number, event: KeyboardEvent) {
   }
 }
 const rootEl = ref<HTMLElement | null>(null)
-// Scroll a row that became active by click, model update or sorting into view.
+// Scroll the active row into view after an in-table click or key press, or when a parent changes it while focus is inside the table. A parent-driven change with focus elsewhere must not scroll the page.
 watch(activeKey, async () => {
+  const own = interacted || !!rootEl.value?.contains(document.activeElement)
+  interacted = false
   await nextTick()
-  if (activeIndex.value >= 0) rootEl.value?.querySelector<HTMLElement>('[data-active]')?.scrollIntoView?.({ block: 'nearest' })
+  if (own && activeIndex.value >= 0) rootEl.value?.querySelector<HTMLElement>('[data-active]')?.scrollIntoView?.({ block: 'nearest' })
 })
 const dateLocale = useDateLocale(props)
 function formatDate(date: Date): string {
@@ -368,7 +375,7 @@ const rootClasses = computed(() => cn('w-full space-y-3', props.class))
 const checkboxClasses = tableCheckboxClasses
 const rowClasses = computed(() =>
   props.rowClickable || navigable.value
-    ? 'cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring data-active:inset-ring-2 data-active:inset-ring-primary forced-colors:data-active:outline-2 forced-colors:data-active:-outline-offset-2'
+    ? 'cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-foreground data-active:inset-ring-2 data-active:inset-ring-primary forced-colors:data-active:outline-2 forced-colors:data-active:-outline-offset-2 forced-colors:focus-visible:-outline-offset-4'
     : undefined,
 )
 </script>

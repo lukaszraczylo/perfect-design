@@ -1,6 +1,6 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import DataTable from './DataTable.vue'
 
 type AnyWrapper = VueWrapper<any>
@@ -186,5 +186,120 @@ describe('DataTable active row', () => {
     await trs(w)[0]!.trigger('keydown', { key: 'Home', altKey: true })
     expect(w.emitted('update:activeKey')).toBeUndefined()
     expect(w.emitted('row-activate')).toBeUndefined()
+  })
+
+  it('arrow keys start from the focused row, not the active one', async () => {
+    const w = mnt({ activeKey: 'a' })
+    await trs(w)[2]!.trigger('keydown', { key: 'ArrowUp' })
+    expect(w.props('activeKey')).toBe('b')
+  })
+
+  it('also counts the kebab-case update handler as bound', () => {
+    const w: AnyWrapper = mount(DataTable as any, { props: { columns, rows: rows(), label: 'S', 'onUpdate:active-key': () => {} } })
+    expect(trs(w)[1]!.attributes('tabindex')).toBe('-1')
+  })
+
+  it('Space activates the row and emits row-activate', async () => {
+    const w = mnt({ activeKey: 'a' })
+    await trs(w)[1]!.trigger('keydown', { key: ' ' })
+    expect(w.props('activeKey')).toBe('b')
+    expect(w.emitted('row-activate')![0]).toEqual([rows()[1], 'b'])
+  })
+
+  it('Space keeps the row-click emit when rowClickable', async () => {
+    const w = mnt({ activeKey: 'a', rowClickable: true })
+    await trs(w)[1]!.trigger('keydown', { key: ' ' })
+    expect(w.emitted('row-activate')).toHaveLength(1)
+    expect(w.emitted('row-click')).toHaveLength(1)
+  })
+
+  it('Space on a checkbox inside a row does not activate it', async () => {
+    const w = mnt({ activeKey: 'a', selectable: true })
+    await w.find('[data-slot=data-table-select-row]').trigger('keydown', { key: ' ' })
+    expect(w.emitted('row-activate')).toBeUndefined()
+  })
+
+  it('turns navigation off when the parent re-renders without the binding', async () => {
+    const bound = ref(true)
+    const key = ref<string | number | null>('a')
+    const Parent = defineComponent({
+      setup: () => () => h(DataTable as any, { columns, rows: rows(), label: 'S', ...(bound.value ? { activeKey: key.value, 'onUpdate:activeKey': (v: string) => (key.value = v) } : {}) }),
+    })
+    const w: AnyWrapper = mount(Parent, { attachTo: document.body })
+    expect(trs(w).map((r) => r.attributes('tabindex'))).toEqual(['0', '-1', '-1'])
+    expect(trs(w)[0]!.attributes('aria-current')).toBe('true')
+    bound.value = false
+    await nextTick()
+    expect(trs(w).map((r) => r.attributes('tabindex'))).toEqual([undefined, undefined, undefined])
+    expect(trs(w)[0]!.attributes('aria-current')).toBeUndefined()
+    await trs(w)[0]!.trigger('keydown', { key: 'ArrowDown' })
+    expect(key.value).toBe('a')
+  })
+
+  describe('active row styling', () => {
+    const tokens = (w: AnyWrapper) => trs(w)[0]!.classes()
+    it('focus classes are distinct from the active inset ring', () => {
+      const cls = tokens(mnt({ activeKey: 'a' }))
+      const focus = cls.filter((c) => c.includes('focus-visible:'))
+      const active = cls.filter((c) => c.includes('data-active:'))
+      expect(focus).toContain('focus-visible:outline-foreground')
+      expect(focus).not.toContain('focus-visible:outline-ring')
+      expect(active).toContain('data-active:inset-ring-primary')
+      expect(focus.some((c) => /-outline-offset-(?!2$)/.test(c))).toBe(true)
+    })
+
+    it('forced-colors keeps focus apart from active', () => {
+      const cls = tokens(mnt({ activeKey: 'a' }))
+      expect(cls).toContain('forced-colors:data-active:-outline-offset-2')
+      expect(cls).toContain('forced-colors:focus-visible:-outline-offset-4')
+    })
+
+    it('active and inactive rows differ only by the data-active hook', () => {
+      const w = mnt({ activeKey: 'a' })
+      expect(trs(w)[0]!.classes().sort()).toEqual(trs(w)[1]!.classes().sort())
+      expect(trs(w)[0]!.attributes('data-active')).toBe('')
+      expect(trs(w)[1]!.attributes('data-active')).toBeUndefined()
+    })
+  })
+
+  describe('scroll into view', () => {
+    const withScroll = async (fn: (spy: ReturnType<typeof vi.fn>) => Promise<void>) => {
+      const spy = vi.fn()
+      Element.prototype.scrollIntoView = spy as never
+      try {
+        await fn(spy)
+      } finally {
+        delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView
+      }
+    }
+    it('does not scroll for a parent-driven change while focus is outside', () =>
+      withScroll(async (spy) => {
+        const w = mnt({ activeKey: 'a' })
+        await w.setProps({ activeKey: 'c' })
+        await nextTick()
+        expect(spy).not.toHaveBeenCalled()
+      }))
+    it('scrolls after keyboard navigation', () =>
+      withScroll(async (spy) => {
+        const w = mnt({ activeKey: 'a' })
+        await trs(w)[0]!.trigger('keydown', { key: 'ArrowDown' })
+        await nextTick()
+        expect(spy).toHaveBeenCalledTimes(1)
+      }))
+    it('scrolls after a click', () =>
+      withScroll(async (spy) => {
+        const w = mnt({ activeKey: 'a' })
+        await trs(w)[2]!.trigger('click')
+        await nextTick()
+        expect(spy).toHaveBeenCalledTimes(1)
+      }))
+    it('scrolls a parent-driven change while focus is inside the table', () =>
+      withScroll(async (spy) => {
+        const w = mnt({ activeKey: 'a' })
+        trs(w)[0]!.element.focus()
+        await w.setProps({ activeKey: 'c' })
+        await nextTick()
+        expect(spy).toHaveBeenCalledTimes(1)
+      }))
   })
 })
